@@ -1,0 +1,19 @@
+name: Architecture Enforcement
+
+on: [push, pull_request]
+
+jobs:
+  enforce-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure no legacy Phase 5 directories reappear
+        run: |
+          BAD_DIRS=("client" "server" "drizzle" "shared" "apps" "packages")
+          for dir in "${BAD_DIRS[@]}"; do
+            if [ -d "./$dir" ]; then
+              echo "Legacy directory detected: $dir"
+              exit 1
+            fi
+          done

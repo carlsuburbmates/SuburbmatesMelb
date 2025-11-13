@@ -1,0 +1,20 @@
+name: Schema Drift Detection
+
+on: [push, pull_request]
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v1.1 core schema requirements
+        run: |
+          FIELDS=("is_vendor" "vendor_status" "vendor_tier" "published")
+          for field in "${FIELDS[@]}"; do
+            if ! grep -RIl "$field" ./v1.1-docs; then
+              echo "Schema field missing in SSOT: $field"
+              exit 1
+            fi
+          done
+        - name: Check for deprecated schema fields  

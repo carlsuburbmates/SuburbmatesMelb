@@ -1,0 +1,30 @@
+name: Forbidden Strings Check
+
+on: [push, pull_request]
+
+jobs:
+  scan-forbidden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for forbidden patterns
+        run: |
+          FORBIDDEN=(
+            "drizzle"
+            "mysql"
+            "trpc"
+            "manus"
+            "refund("
+            "platform refund"
+            "suburbmates-mvp"
+            "newsuburbmates"
+            "suburbmatesv2"
+          )
+
+          for pattern in "${FORBIDDEN[@]}"; do
+            if grep -RIl "$pattern" ./src ./v1.1-docs; then
+              echo "Forbidden pattern found: $pattern"
+              exit 1
+            fi
+          done

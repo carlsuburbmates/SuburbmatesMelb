@@ -1,0 +1,23 @@
+name: Required Strings Check
+
+on: [push, pull_request]
+
+jobs:
+  required:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure mandatory MoR language exists
+        run: |
+          REQUIRED=(
+            "Vendor is the Merchant of Record"
+            "Suburbmates does not issue refunds"
+          )
+
+          for pattern in "${REQUIRED[@]}"; do
+            if ! grep -RIl "$pattern" ./v1.1-docs; then
+              echo "Missing required language: $pattern"
+              exit 1
+            fi
+          done
