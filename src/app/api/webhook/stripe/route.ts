@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/src/lib/stripe";
+import { stripe } from "@/lib/stripe";
 
 export const config = {
   api: { bodyParser: false },
