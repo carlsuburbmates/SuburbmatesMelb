@@ -1,0 +1,1 @@
+{"mcpServers":{"stripe":{"command":"npx","args":["-y","@stripe/mcp","--tools=all"],"env":{"STRIPE_SECRET_KEY":"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"},"alwaysAllow":["create_product","create_price","search_stripe_documentation","list_products","list_prices"]}}}

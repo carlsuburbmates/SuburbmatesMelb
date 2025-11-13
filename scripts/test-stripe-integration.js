@@ -2,20 +2,39 @@
 
 /**
  * Stripe Integration Test Script for Suburbmates V1.1
- * 
+ *
  * This script tests the complete Stripe integration including:
  * - API connectivity
  * - Product and price validation
  * - Checkout session creation
  * - Webhook signature verification
  * - Connect account functionality
- * 
+ *
  * Usage: node scripts/test-stripe-integration.js
  */
 
-require('dotenv').config();
-const { validateStripeConfig, createMarketplaceCheckoutSession, createVendorProCheckoutSession, createFeaturedCheckoutSession, handleStripeWebhook } = require('../src/lib/stripe-config');
-const Stripe = require('stripe');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Stripe from 'stripe';
+import { validateStripeConfig, createMarketplaceCheckoutSession, createVendorProCheckoutSession, createFeaturedCheckoutSession } from '../src/lib/stripe-config.js';
+
+// Load environment variables manually
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, '../.env.local');
+
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    if (line.trim() && !line.startsWith('#')) {
+      const [key, value] = line.split('=');
+      if (key && value) {
+        process.env[key.trim()] = value.trim().replace(/["']/g, '');
+      }
+    }
+  });
+}
 
 // Test configuration
 const TEST_CONFIG = {
@@ -448,16 +467,14 @@ async function runAllTests() {
   process.exit(testResults.failed > 0 ? 1 : 0);
 }
 
-// Execute tests if run directly
-if (require.main === module) {
-  runAllTests().catch(error => {
-    console.error('\n💥 Unexpected error during testing:');
-    console.error(error.message);
-    process.exit(1);
-  });
-}
+// Execute tests
+runAllTests().catch(error => {
+  console.error('\n💥 Unexpected error during testing:');
+  console.error(error.message);
+  process.exit(1);
+});
 
-module.exports = {
+export {
   runAllTests,
   testConfigurationValidation,
   testAPIConnectivity,

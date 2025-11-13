@@ -7,7 +7,7 @@
  * Usage: Import and call validateStripeConfig() during app initialization
  */
 
-import { stripe } from './stripe';
+import { stripe } from './stripe.ts';
 
 // Required environment variables
 const REQUIRED_ENV_VARS = {
@@ -378,7 +378,4 @@ async function handleSubscriptionEvent(eventType, subscription) {
   // TODO: Update vendor tier based on subscription status
 }
 
-/**
- * Export validation function for use in API routes or app initialization
- */
-export { validateStripeConfig };
+// Export all functions for use in other modules
