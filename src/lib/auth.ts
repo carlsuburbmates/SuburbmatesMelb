@@ -1,8 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
 import { User, Vendor, AuthSession } from './types';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from './supabase';
@@ -94,7 +90,7 @@ class AuthManager {
     return authSession;
   }
 
-  private async createUserRecord(user: any, userData: { first_name?: string; last_name?: string; user_type?: string }): Promise<void> {
+  private async createUserRecord(user: { id: string; email?: string }, userData: { first_name?: string; last_name?: string; user_type?: string }): Promise<void> {
     const { error } = await supabase.from('users').insert({
       id: user.id,
       email: user.email,
@@ -108,7 +104,7 @@ class AuthManager {
     }
   }
 
-  private async createAuthSession(user: any): Promise<AuthSession> {
+  private async createAuthSession(user: { id: string; email?: string }): Promise<AuthSession> {
     // Get user data from database
     const { data: userData, error: userError } = await supabase
       .from('users')
@@ -226,7 +222,7 @@ class AuthManager {
 export const authManager = new AuthManager();
 
 // Supabase auth state listener
-supabase.auth.onAuthStateChange(async (event, session) => {
+supabase.auth.onAuthStateChange(async (event) => {
   if (event === 'SIGNED_IN') {
     // User signed in
     await authManager.refreshSession();

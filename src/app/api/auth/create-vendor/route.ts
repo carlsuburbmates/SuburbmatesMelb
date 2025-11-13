@@ -1,32 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
 import { supabase } from '@/lib/supabase';
 
-export async function POST(req: NextRequest) {
+/**
+ * API Route: POST /api/auth/create-vendor
+ * 
+ * Creates a vendor account and initiates Stripe Connect onboarding
+ * This is the entry point for vendor onboarding flow
+ */
+
+export async function POST(request: Request) {
   try {
-    // Get session from auth header
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Get current user from Supabase auth
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Authorization header required' },
         { status: 401 }
       );
     }
 
-    const token = authHeader.substring(7);
-    
-    // Verify session
+    const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
+
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Invalid or expired token' },
+        { error: 'Invalid authentication' },
         { status: 401 }
       );
     }
 
-    const { business_name, bio, primary_lga_id, profile_url } = await req.json();
+    const { business_name, tier = 'basic' } = await request.json();
 
-    // Validate required fields
     if (!business_name) {
       return NextResponse.json(
         { error: 'Business name is required' },
@@ -34,62 +39,81 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if vendor profile already exists
-    const { data: existingVendor, error: checkError } = await supabase
+    // Check if user already has a vendor account
+    const { data: existingVendor, error } = await supabase
       .from('vendors')
       .select('id')
       .eq('user_id', user.id)
       .single();
 
-    if (!checkError && existingVendor) {
+    if (!error && existingVendor) {
       return NextResponse.json(
-        { error: 'Vendor profile already exists' },
-        { status: 400 }
+        { error: 'User already has a vendor account' },
+        { status: 409 }
       );
     }
 
-    // Create vendor profile
-    const { data: vendor, error: vendorError } = await supabase.from('vendors').insert({
-      user_id: user.id,
-      tier: 'none',
-      business_name,
-      bio,
-      primary_lga_id,
-      profile_url,
-      abn_verified: false,
-      product_count: 0,
-      storage_used_mb: 0,
-    }).select().single();
+    // Create Stripe Connect account
+    const stripeAccount = await stripe.accounts.create({
+      type: 'standard',
+      country: 'AU',
+      email: user.email,
+      business_type: 'individual',
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+      settings: {
+        payouts: {
+          schedule: {
+            interval: 'manual'
+          }
+        }
+      }
+    });
 
-    if (vendorError) {
-      return NextResponse.json(
-        { error: `Failed to create vendor profile: ${vendorError.message}` },
-        { status: 500 }
-      );
+    // Create vendor record in database
+    const { data: vendor, error: insertError } = await supabase
+      .from('vendors')
+      .insert({
+        user_id: user.id,
+        tier: tier,
+        business_name: business_name,
+        stripe_account_id: stripeAccount.id,
+        stripe_account_status: 'pending',
+        can_sell_products: tier === 'basic' ? true : false, // Pro tier requires payment
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      // Clean up Stripe account if database insertion fails
+      await stripe.accounts.del(stripeAccount.id);
+      throw insertError;
     }
 
-    // Update user type to vendor
-    const { error: userError } = await supabase.from('users').update({
-      user_type: 'vendor'
-    }).eq('id', user.id);
-
-    if (userError) {
-      // Rollback vendor creation if user update fails
-      await supabase.from('vendors').delete().eq('id', vendor.id);
-      return NextResponse.json(
-        { error: `Failed to update user type: ${userError.message}` },
-        { status: 500 }
-      );
-    }
+    // Create Stripe Connect account link for onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeAccount.id,
+      refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?refresh=true`,
+      return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?success=true`,
+      type: 'account_onboarding',
+    });
 
     return NextResponse.json({
-      message: 'Vendor profile created successfully',
-      vendor,
+      message: 'Vendor account created successfully',
+      vendor_id: vendor.id,
+      stripe_account_id: stripeAccount.id,
+      onboarding_url: accountLink.url,
+      requires_payment: tier === 'pro'
     });
-  } catch (err: unknown) {
-    console.error('Create vendor error:', err);
+
+  } catch (error) {
+    console.error('Error creating vendor:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create vendor account' },
       { status: 500 }
     );
   }
