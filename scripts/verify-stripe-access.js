@@ -2,15 +2,36 @@
 
 /**
  * Stripe Access Verification Script for Suburbmates V1.1
- * 
+ *
  * This script performs comprehensive Stripe access verification
  * and provides actionable feedback for missing configurations.
- * 
+ *
  * Usage: node scripts/verify-stripe-access.js
  */
 
-require('dotenv').config();
-const Stripe = require('stripe');
+// Load environment variables from .env.local if it exists
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Try to load .env.local file manually
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, '../.env.local');
+
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    if (line.trim() && !line.startsWith('#')) {
+      const [key, value] = line.split('=');
+      if (key && value) {
+        process.env[key.trim()] = value.trim().replace(/["']/g, '');
+      }
+    }
+  });
+}
+
+import Stripe from 'stripe';
 
 // Configuration
 const REQUIRED_ENV_VARS = [
@@ -387,15 +408,14 @@ async function main() {
   process.exit(criticalCount > 0 ? 1 : 0);
 }
 
-if (require.main === module) {
-  main().catch(error => {
-    console.error('\n💥 Unexpected error during verification:');
-    console.error(error.message);
-    process.exit(1);
-  });
-}
+// Run main function
+main().catch(error => {
+  console.error('\n💥 Unexpected error during verification:');
+  console.error(error.message);
+  process.exit(1);
+});
 
-module.exports = {
+export {
   checkEnvironmentVariables,
   testStripeConnectivity,
   testConnectConfiguration,
