@@ -22,13 +22,23 @@ CREATE TABLE business_profiles (
 ALTER TABLE users ADD COLUMN created_as_business_owner_at TIMESTAMPTZ;
 
 -- Add missing fields to vendors
-ALTER TABLE vendors ADD COLUMN can_sell_products BOOLEAN DEFAULT false;
-ALTER TABLE vendors ADD COLUMN stripe_account_status TEXT DEFAULT 'pending';
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS is_vendor BOOLEAN DEFAULT false;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS vendor_status VARCHAR(20) DEFAULT 'inactive' CHECK (vendor_status IN ('inactive', 'active', 'suspended'));
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS can_sell_products BOOLEAN DEFAULT false;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS stripe_account_status TEXT DEFAULT 'pending';
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS stripe_onboarding_complete BOOLEAN DEFAULT false;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS product_quota INTEGER DEFAULT 0;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS storage_quota_gb INTEGER DEFAULT 0;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS commission_rate DECIMAL(5,4) DEFAULT 0.08;
 
 -- Add missing fields to products
-ALTER TABLE products ADD COLUMN name TEXT NOT NULL;
-ALTER TABLE products ADD COLUMN slug TEXT UNIQUE NOT NULL;
-ALTER TABLE products ADD COLUMN lga_id INTEGER REFERENCES lgas(id);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS slug TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS lga_id INTEGER REFERENCES lgas(id);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS digital_file_url TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS file_size_bytes BIGINT DEFAULT 0;
+
+-- Make slug unique after adding it
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug_unique ON products(slug) WHERE slug IS NOT NULL;
 
 -- Update incorrect fields in vendors
 -- TODO: Update vendors.stripe_account_id from VARCHAR(255) to TEXT UNIQUE

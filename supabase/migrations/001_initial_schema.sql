@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE lgas (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
-    council_abbreviation VARCHAR(10),
+    council_abbreviation VARCHAR(50),
     featured_slot_cap INTEGER DEFAULT 5,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -235,8 +235,8 @@ INSERT INTO lgas (name, council_abbreviation, featured_slot_cap) VALUES
 ('Whittlesea', 'WHITTLESEA', 5),
 ('Wyndham', 'WYNDHAM', 5),
 ('Yarra', 'YARRA', 5),
-('Yarra Ranges', 'YARRA RANGES', 5),
-('Brimbank', 'BRIMBANK', 5);
+('Yarra Ranges', 'YARRA RANGES', 5)
+ON CONFLICT (name) DO NOTHING;
 
 -- Insert default categories
 INSERT INTO categories (name, slug, description) VALUES
@@ -247,7 +247,8 @@ INSERT INTO categories (name, slug, description) VALUES
 ('Services', 'services', 'Professional services'),
 ('Consulting', 'consulting', 'Business and personal consulting'),
 ('Creative', 'creative', 'Art, music, and creative services'),
-('Events', 'events', 'Workshops and events');
+('Events', 'events', 'Workshops and events')
+ON CONFLICT (slug) DO NOTHING;
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
