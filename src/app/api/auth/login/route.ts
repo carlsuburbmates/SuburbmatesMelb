@@ -1,79 +1,115 @@
-import { NextRequest, NextResponse } from 'next/server';
+/**
+ * POST /api/auth/login
+ * User login endpoint
+ */
+
+import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { userLoginSchema } from '@/lib/validation';
+import { logger, logEvent, BusinessEvent, logSecurityEvent, SecurityEvent } from '@/lib/logger';
+import { 
+  successResponse, 
+  unauthorizedResponse,
+  validationErrorResponse,
+  internalErrorResponse,
+} from '@/app/api/_utils/response';
+import { validateBody } from '@/app/api/_utils/validation';
+import { withAuthRateLimit } from '@/middleware/rateLimit';
+import { withCors } from '@/middleware/cors';
+import { withLogging } from '@/middleware/logging';
+import { withErrorHandler } from '@/middleware/errorHandler';
+import { ValidationError } from '@/lib/errors';
 
-export async function POST(req: NextRequest) {
+async function loginHandler(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    // Validate request body
+    const body = await validateBody(userLoginSchema, req);
 
-    // Validate required fields
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
-    }
+    logger.info('User login attempt', { email: body.email });
 
     // Sign in user with Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: body.email,
+      password: body.password,
     });
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      logger.warn('Login failed - invalid credentials', { email: body.email });
+      logSecurityEvent(SecurityEvent.AUTH_FAILED, { 
+        email: body.email,
+        reason: error.message,
+      });
+      return unauthorizedResponse('Invalid email or password');
     }
 
     if (!data.user) {
-      return NextResponse.json(
-        { error: 'Authentication failed' },
-        { status: 500 }
-      );
+      return internalErrorResponse('Authentication failed');
     }
 
     // Get user data from database
-    const { data: userData, error: dbError } = await supabase
+    const { data: users, error: dbError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', data.user.id)
-      .single();
+      .eq('id', data.user.id);
 
-    if (dbError) {
-      return NextResponse.json(
-        { error: `Database error: ${dbError.message}` },
-        { status: 500 }
-      );
+    if (dbError || !users || users.length === 0) {
+      logger.error('User not found in database after auth', dbError, { userId: data.user.id });
+      return internalErrorResponse('Database error');
     }
 
-    // Get vendor data if user is a vendor
+    const userData = users[0];
+
+    // Get vendor data if user has vendor account
     let vendorData = null;
-    if (userData.user_type === 'vendor') {
-      const { data: vendor, error: vendorError } = await supabase
-        .from('vendors')
-        .select('*')
-        .eq('user_id', data.user.id)
-        .single();
+    const { data: vendors } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('user_id', data.user.id);
 
-      if (!vendorError && vendor) {
-        vendorData = vendor;
-      }
+    if (vendors && vendors.length > 0) {
+      vendorData = vendors[0];
     }
 
-    return NextResponse.json({
+    // Log successful login
+    logEvent(BusinessEvent.USER_LOGIN, {
+      userId: userData.id,
+      email: userData.email,
+      userType: userData.user_type,
+    });
+
+    logSecurityEvent(SecurityEvent.AUTH_SUCCESS, {
+      userId: userData.id,
+      email: userData.email,
+    });
+
+    logger.info('User login successful', { userId: userData.id });
+
+    return successResponse({
       message: 'Login successful',
       user: {
         ...userData,
         token: data.session?.access_token,
       },
       vendor: vendorData,
+      session: {
+        access_token: data.session?.access_token,
+        refresh_token: data.session?.refresh_token,
+        expires_at: data.session?.expires_at,
+      },
     });
-  } catch (err: unknown) {
-    console.error('Auth login error:', err);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return validationErrorResponse(error.details?.fields as Record<string, string>);
+    }
+    throw error;
   }
 }
+
+// Apply middleware
+export const POST = withErrorHandler(
+  withLogging(
+    withCors(
+      withAuthRateLimit(loginHandler)
+    )
+  )
+);
