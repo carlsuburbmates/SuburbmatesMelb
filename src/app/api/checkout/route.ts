@@ -1,39 +1,125 @@
-import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
-import { StripeCheckoutData } from "@/lib/types";
+/**
+ * POST /api/checkout
+ * Create checkout session for product purchase
+ */
 
-export async function POST(req: NextRequest) {
+import { NextRequest } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { createCheckoutSession } from "@/lib/stripe";
+import { orderCreateSchema } from "@/lib/validation";
+import { calculateCommission } from "@/lib/constants";
+import { logger, logEvent, BusinessEvent } from "@/lib/logger";
+import { 
+  successResponse, 
+  notFoundResponse,
+  validationErrorResponse,
+  unprocessableResponse,
+} from "@/app/api/_utils/response";
+import { validateBody } from "@/app/api/_utils/validation";
+import { requireAuth } from "@/app/api/_utils/auth";
+import { withAuth } from "@/middleware/auth";
+import { withApiRateLimit } from "@/middleware/rateLimit";
+import { withCors } from "@/middleware/cors";
+import { withLogging } from "@/middleware/logging";
+import { withErrorHandler } from "@/middleware/errorHandler";
+import { ValidationError, NotFoundError, VendorNotActiveError } from "@/lib/errors";
+
+async function checkoutHandler(req: NextRequest) {
   try {
-    const checkoutData: StripeCheckoutData = await req.json();
+    // Authenticate user
+    const authContext = await requireAuth(req);
+    
+    // Validate request body
+    const body = await validateBody(orderCreateSchema, req);
 
-    // Validate required fields
-    if (!checkoutData.items || !checkoutData.vendorStripeId || !checkoutData.platformFee) {
-      return NextResponse.json(
-        { error: "Missing required fields: items, vendorStripeId, platformFee" },
-        { status: 400 }
-      );
+    logger.info('Checkout initiated', { 
+      customerId: authContext.user.id, 
+      productId: body.product_id 
+    });
+
+    // Get product with vendor details
+    const { data: products, error: productError } = await supabase
+      .from('products')
+      .select('*, vendors!inner(*)')
+      .eq('id', body.product_id)
+      .eq('published', true);
+
+    if (productError || !products || products.length === 0) {
+      throw new NotFoundError('Product');
     }
 
-    // Create Stripe Checkout Session (Connect Standard)
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: "payment",
-      line_items: checkoutData.items,
-      payment_intent_data: {
-        application_fee_amount: checkoutData.platformFee,
+    const product = products[0];
+    const vendor = product.vendors;
+
+    // Check vendor status
+    if (!vendor.is_vendor || vendor.vendor_status !== 'active') {
+      throw new VendorNotActiveError('Product unavailable');
+    }
+
+    if (!vendor.can_sell_products || !vendor.stripe_account_id || !vendor.stripe_onboarding_complete) {
+      return unprocessableResponse('Vendor payment setup incomplete');
+    }
+
+    // Calculate commission
+    const commission = calculateCommission(product.price, vendor.tier);
+
+    // Create Stripe checkout session
+    const session = await createCheckoutSession({
+      productName: product.title,
+      productDescription: product.description || undefined,
+      amount: product.price,
+      vendorStripeAccountId: vendor.stripe_account_id,
+      applicationFeeAmount: commission,
+      successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${product.id}`,
+      metadata: {
+        product_id: product.id,
+        vendor_id: product.vendor_id,
+        customer_id: authContext.user.id,
+        commission: commission.toString(),
       },
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cancel`,
-    }, {
-      stripeAccount: checkoutData.vendorStripeId
     });
 
-    return NextResponse.json({
-      url: session.url,
-      sessionId: session.id
+    logEvent(BusinessEvent.ORDER_CREATED, {
+      customerId: authContext.user.id,
+      vendorId: product.vendor_id,
+      productId: product.id,
+      amount: product.price,
+      commission,
     });
-  } catch (err: unknown) {
-    console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
+
+    logger.info('Checkout session created', { sessionId: session.id });
+
+    return successResponse({
+      sessionId: session.id,
+      url: session.url,
+      product: {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+      },
+    });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return validationErrorResponse(error.details?.fields as Record<string, string>);
+    }
+    if (error instanceof NotFoundError) {
+      return notFoundResponse('Product');
+    }
+    if (error instanceof VendorNotActiveError) {
+      return unprocessableResponse(error.message);
+    }
+    throw error;
   }
 }
+
+// Apply middleware
+export const POST = withErrorHandler(
+  withLogging(
+    withCors(
+      withApiRateLimit(
+        withAuth(checkoutHandler)
+      )
+    )
+  )
+);
