@@ -19,7 +19,15 @@ export interface Database {
           deleted_at: string | null;
           created_as_business_owner_at: string | null;
         };
-        Insert: Omit<Database['public']['Tables']['users']['Row'], 'created_at' | 'updated_at'>;
+        Insert: {
+          id: string;
+          email: string;
+          first_name?: string | null;
+          last_name?: string | null;
+          user_type?: 'customer' | 'business_owner' | 'admin';
+          deleted_at?: string | null;
+          created_as_business_owner_at?: string | null;
+        };
         Update: Partial<Database['public']['Tables']['users']['Insert']>;
       };
       vendors: {
@@ -50,7 +58,30 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['vendors']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: {
+          user_id: string;
+          business_name: string;
+          abn?: string | null;
+          abn_verified?: boolean;
+          abn_verified_at?: string | null;
+          tier?: 'none' | 'basic' | 'pro' | 'suspended';
+          is_vendor?: boolean;
+          vendor_status?: 'inactive' | 'active' | 'suspended';
+          can_sell_products?: boolean;
+          stripe_account_id?: string | null;
+          stripe_account_status?: string | null;
+          stripe_onboarding_complete?: boolean;
+          product_quota?: number;
+          storage_quota_gb?: number;
+          commission_rate?: number;
+          bio?: string | null;
+          primary_lga_id?: number | null;
+          logo_url?: string | null;
+          product_count?: number;
+          storage_used_mb?: number;
+          suspension_reason?: string | null;
+          suspended_at?: string | null;
+        };
         Update: Partial<Database['public']['Tables']['vendors']['Insert']>;
       };
       products: {
