@@ -1,4 +1,9 @@
+'use client';
+
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+
 export function HowItWorks() {
+  const { elementRef, isVisible } = useScrollAnimation();
   const steps = [
     {
       number: '01',

@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { SignupModal } from '@/components/modals/SignupModal';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const openSignupModal = () => setIsSignupModalOpen(true);
+  const closeSignupModal = () => setIsSignupModalOpen(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
@@ -15,7 +19,11 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gray-900 rounded"></div>
+            {/* Will display your custom logo when you add it to public/logo.png */}
+            <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
+              {/* Placeholder - replace with <Image src="/logo.png" alt="SuburbMates" width={32} height={32} /> when logo is added */}
+              <span className="text-white text-xs font-bold">SM</span>
+            </div>
             <span className="font-bold text-lg text-gray-900 hidden sm:block">
               SuburbMates
             </span>
@@ -57,12 +65,12 @@ export function Header() {
             >
               Log in
             </Link>
-            <Link 
-              href="/auth/signup"
+            <button 
+              onClick={openSignupModal}
               className="btn-primary"
             >
               Sign up
-            </Link>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -121,18 +129,22 @@ export function Header() {
                 >
                   Log in
                 </Link>
-                <Link 
-                  href="/auth/signup"
+                <button 
+                  onClick={() => { toggleMenu(); openSignupModal(); }}
                   className="btn-primary text-center"
-                  onClick={toggleMenu}
                 >
                   Sign up
-                </Link>
+                </button>
               </div>
             </nav>
           </div>
         </div>
       )}
+      
+      <SignupModal 
+        isOpen={isSignupModalOpen} 
+        onClose={closeSignupModal} 
+      />
     </header>
   );
 }

@@ -1,6 +1,14 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
+import { SignupModal } from '@/components/modals/SignupModal';
 
 export function CTASection() {
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+
+  const openSignupModal = () => setIsSignupModalOpen(true);
+  const closeSignupModal = () => setIsSignupModalOpen(false);
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="container-custom">
@@ -25,9 +33,12 @@ export function CTASection() {
               Create a free directory profile to establish your local presence. 
               Perfect for service businesses and professionals.
             </p>
-            <Link href="/auth/signup?type=creator" className="btn-primary">
+            <button 
+              onClick={openSignupModal}
+              className="btn-primary"
+            >
               Start Free
-            </Link>
+            </button>
           </div>
 
           {/* Vendor Path */}
@@ -40,9 +51,12 @@ export function CTASection() {
               Sell digital products, guides, and courses to your local community. 
               Keep 92-94% of every sale.
             </p>
-            <Link href="/auth/signup?type=vendor" className="btn-cta">
+            <button 
+              onClick={openSignupModal}
+              className="btn-cta"
+            >
               Become Vendor
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -54,6 +68,11 @@ export function CTASection() {
           </p>
         </div>
       </div>
+      
+      <SignupModal 
+        isOpen={isSignupModalOpen}
+        onClose={closeSignupModal}
+      />
     </section>
   );
 }

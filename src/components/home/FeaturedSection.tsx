@@ -1,6 +1,13 @@
-import Link from 'next/link';
+'use client';
+
+import { useState } from 'react';
+import { FeaturedModal } from '@/components/modals/FeaturedModal';
 
 export function FeaturedSection() {
+  const [isFeaturedModalOpen, setIsFeaturedModalOpen] = useState(false);
+
+  const openFeaturedModal = () => setIsFeaturedModalOpen(true);
+  const closeFeaturedModal = () => setIsFeaturedModalOpen(false);
   return (
     <section className="py-16 md:py-24 accent-overlay-orange">
       <div 
@@ -35,11 +42,19 @@ export function FeaturedSection() {
               <span className="text-sm">Just A$20 per placement</span>
             </div>
           </div>
-          <button className="btn-secondary bg-white text-gray-900 hover:bg-gray-100">
+          <button 
+            onClick={openFeaturedModal}
+            className="btn-secondary bg-white text-gray-900 hover:bg-gray-100"
+          >
             Learn More
           </button>
         </div>
       </div>
+      
+      <FeaturedModal 
+        isOpen={isFeaturedModalOpen}
+        onClose={closeFeaturedModal}
+      />
     </section>
   );
 }

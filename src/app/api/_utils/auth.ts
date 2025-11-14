@@ -55,7 +55,7 @@ export async function requireVendor(req: NextRequest) {
     throw new ForbiddenError('Vendor account required');
   }
 
-  const vendor = vendors[0];
+  const vendor = vendors[0] as any; // TODO: Fix typing after database schema is finalized
 
   if (vendor.vendor_status !== 'active') {
     throw new ForbiddenError('Vendor account is not active');

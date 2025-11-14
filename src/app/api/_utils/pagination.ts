@@ -5,7 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { PAGINATION } from '@/lib/constants';
-import { getPaginationMeta } from '@/lib/utils';
+// import { getPaginationMeta } from '@/lib/utils'; // TODO: Implement this utility function
 
 // ============================================================================
 // PAGINATION TYPES
@@ -24,6 +24,8 @@ export interface PaginationMeta {
   totalPages: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
 }
 
 // ============================================================================
@@ -58,7 +60,20 @@ export function buildPaginationMeta(
   limit: number,
   totalItems: number
 ): PaginationMeta {
-  return getPaginationMeta(page, limit, totalItems);
+  const totalPages = Math.ceil(totalItems / limit);
+  const hasNextPage = page < totalPages;
+  const hasPreviousPage = page > 1;
+  
+  return {
+    page,
+    limit,
+    totalItems,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+    nextPage: hasNextPage ? page + 1 : null,
+    previousPage: hasPreviousPage ? page - 1 : null,
+  };
 }
 
 /**
