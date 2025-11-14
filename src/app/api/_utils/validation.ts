@@ -23,7 +23,7 @@ export async function validateBody<T extends z.ZodTypeAny>(
     const result = schema.safeParse(body);
 
     if (!result.success) {
-      throw zodErrorToValidationError(result.error);
+      throw zodErrorToValidationError(result.error as any); // TODO: Fix Zod typing after upgrade
     }
 
     return result.data;

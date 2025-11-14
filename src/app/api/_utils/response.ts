@@ -241,7 +241,7 @@ export function tooManyRequestsResponse(
     response.headers.set('Retry-After', retryAfter.toString());
   }
 
-  return response;
+  return response as NextResponse<ErrorResponse>;
 }
 
 /**
