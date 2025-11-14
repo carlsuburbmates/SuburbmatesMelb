@@ -105,10 +105,12 @@ class AuthManager {
   ): Promise<void> {
     const { error } = await supabase.from("users").insert({
       id: user.id,
-      email: user.email,
-      first_name: userData.first_name,
-      last_name: userData.last_name,
+      email: user.email || '',
+      first_name: userData.first_name || null,
+      last_name: userData.last_name || null,
       user_type: userData.user_type || "customer",
+      deleted_at: null,
+      created_as_business_owner_at: null,
     });
 
     if (error) {
@@ -170,11 +172,19 @@ class AuthManager {
       .insert({
         user_id: session.user.id,
         tier: "none",
+        is_vendor: false,
+        vendor_status: "inactive",
+        can_sell_products: false,
+        stripe_onboarding_complete: false,
         business_name: vendorData.business_name,
         bio: vendorData.bio,
         primary_lga_id: vendorData.primary_lga_id,
-        profile_url: vendorData.profile_url,
         abn_verified: false,
+        product_count: 0,
+        storage_used_mb: 0,
+        product_quota: 0,
+        storage_quota_gb: 0,
+        commission_rate: 0,
       })
       .select()
       .single();
