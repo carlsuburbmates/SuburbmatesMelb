@@ -1,4 +1,12 @@
+'use client';
+
+import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { getImageBySection, generateImageUrl, getAccentOverlayClass } from '@/lib/images';
+import { LazyImage } from '@/components/ui/LazyImage';
+
 export function WhyJoinSection() {
+  const headerAnimation = useFadeIn({ delay: 100, duration: 700 });
+  const benefitsAnimation = useStaggeredAnimation(6, 100);
   const benefits = [
     'No setup fees or monthly costs for directory profiles',
     'Keep 92-94% of every digital product sale',

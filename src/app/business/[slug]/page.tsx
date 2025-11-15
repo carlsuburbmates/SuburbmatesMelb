@@ -5,6 +5,8 @@ import { BusinessInfo } from '@/components/business/BusinessInfo';
 import { BusinessContact } from '@/components/business/BusinessContact';
 import { BusinessProducts } from '@/components/business/BusinessProducts';
 import { BusinessReviews } from '@/components/business/BusinessReviews';
+import { ImageGallery } from '@/components/business/ImageGallery';
+import { BusinessShowcase } from '@/components/business/BusinessShowcase';
 import { Container } from '@/components/layout/Container';
 
 interface BusinessPageProps {
@@ -33,6 +35,14 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           <div className="lg:col-span-2 space-y-8">
             <BusinessInfo business={business} />
             
+            {/* Image Gallery */}
+            {business.images && business.images.length > 0 && (
+              <ImageGallery images={business.images} businessName={business.name} />
+            )}
+            
+            {/* Business Showcase */}
+            <BusinessShowcase business={business} />
+            
             {business.isVendor && business.productCount > 0 && (
               <Suspense fallback={<ProductsSkeleton />}>
                 <BusinessProducts businessId={business.id} />
@@ -46,7 +56,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-24 space-y-6">
               <BusinessContact business={business} />
             </div>
           </div>
@@ -94,7 +104,31 @@ async function getBusinessBySlug(slug: string) {
       },
       specialties: ['VCE Mathematics', 'English Literature', 'Science Tutoring', 'University Prep'],
       rating: 4.8,
-      reviewCount: 127
+      reviewCount: 127,
+      images: [
+        {
+          id: '1',
+          url: '/api/placeholder/800/600?text=Tutoring+Studio',
+          alt: 'Melbourne Tutoring Hub main classroom',
+          caption: 'Our modern learning environment in Carlton'
+        },
+        {
+          id: '2', 
+          url: '/api/placeholder/800/600?text=Study+Materials',
+          alt: 'Study materials and resources',
+          caption: 'Comprehensive study materials and resources'
+        },
+        {
+          id: '3',
+          url: '/api/placeholder/800/600?text=One+on+One',
+          alt: 'One-on-one tutoring session',
+          caption: 'Personalized one-on-one tutoring sessions'
+        }
+      ],
+      yearsActive: 8,
+      clientsServed: 850,
+      awards: ['Best Educational Service 2023', 'Community Choice Award'],
+      certifications: ['VCE Teaching Certification', 'Educational Excellence Certificate']
     },
     'creative-design-co': {
       id: '3',
@@ -122,7 +156,31 @@ async function getBusinessBySlug(slug: string) {
       },
       specialties: ['Brand Identity', 'Web Design', 'Digital Marketing', 'Logo Design'],
       rating: 4.9,
-      reviewCount: 89
+      reviewCount: 89,
+      images: [
+        {
+          id: '1',
+          url: '/api/placeholder/800/600?text=Design+Studio',
+          alt: 'Creative Design Co studio workspace',
+          caption: 'Our creative studio in Richmond'
+        },
+        {
+          id: '2',
+          url: '/api/placeholder/800/600?text=Brand+Work',
+          alt: 'Brand design examples',
+          caption: 'Examples of our brand design work'
+        },
+        {
+          id: '3',
+          url: '/api/placeholder/800/600?text=Team+Collaboration',
+          alt: 'Team working on project',
+          caption: 'Our collaborative design process'
+        }
+      ],
+      yearsActive: 6,
+      clientsServed: 320,
+      awards: ['Melbourne Design Awards 2023', 'Creative Excellence Award'],
+      certifications: ['Adobe Certified Expert', 'Google Digital Marketing Certificate']
     }
   };
 

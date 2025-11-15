@@ -2,25 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { getImageBySection, generateImageUrl, getAccentOverlayClass, getImagePriority } from '@/lib/images';
+import { LazyImage } from '@/components/ui/LazyImage';
+
+// Get hero images from specification
+const heroImages = getImageBySection('hero');
 
 const heroSlides = [
   {
     id: 1,
-    image: '/images/hero-workspace.jpg', // Grayscale workspace image
+    image: heroImages[0],
     title: 'Build Your Brand',
     subtitle: 'Melbourne\'s digital neighbourhood',
     accent: 'orange'
   },
   {
     id: 2,
-    image: '/images/hero-neighborhood.jpg', // Grayscale neighborhood image  
-    title: 'Connect Locally',
+    image: heroImages[1],
+    title: 'Connect Locally', 
     subtitle: 'Where businesses thrive together',
     accent: 'teal'
   },
   {
     id: 3,
-    image: '/images/hero-marketplace.jpg', // Grayscale marketplace image
+    image: heroImages[2],
     title: 'Sell Digital Products',
     subtitle: 'Turn your expertise into revenue',
     accent: 'purple'
@@ -55,13 +60,26 @@ export function HeroCarousel() {
             }`}
           >
             {/* Background Image */}
-            <div 
-              className={`absolute inset-0 bg-cover bg-center bg-gray-400 accent-overlay-${slide.accent}`}
-              style={{
-                backgroundImage: `url(${slide.image})`,
-                filter: 'grayscale(100%)'
-              }}
-            />
+            <div className={`absolute inset-0 ${getAccentOverlayClass(slide.accent)}`}>
+              {slide.image ? (
+                <LazyImage
+                  src={generateImageUrl(slide.image, true)} // Use placeholder until real images available
+                  alt={slide.image.description}
+                  fill
+                  priority={getImagePriority('hero')}
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              ) : (
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-gray-400"
+                  style={{
+                    backgroundImage: `url(/images/hero-${slide.accent}.jpg)`,
+                    filter: 'grayscale(100%)'
+                  }}
+                />
+              )}
+            </div>
             
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />

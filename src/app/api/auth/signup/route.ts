@@ -59,7 +59,7 @@ async function signupHandler(req: NextRequest) {
       user_type: body.user_type,
       deleted_at: null,
       created_as_business_owner_at: null,
-    });
+    } as any);
 
     if (dbError) {
       logger.error('Failed to create user in database', dbError, { userId: data.user.id });

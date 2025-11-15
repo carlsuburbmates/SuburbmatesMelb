@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MapPin, Star, ExternalLink, Clock, Phone, Globe } from 'lucide-react';
+import { useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { LazyBusinessCard } from '@/components/ui/LazyBusinessCard';
 
 interface Business {
   id: string;
@@ -116,6 +118,7 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
   const [totalCount, setTotalCount] = useState(0);
 
   const itemsPerPage = 12;
+  const cardsAnimation = useStaggeredAnimation(businesses.length, 100);
 
   useEffect(() => {
     // Simulate API call - replace with actual API call to /api/business
@@ -200,9 +203,17 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
       </div>
 
       {/* Business Cards */}
-      <div className="grid gap-6">
-        {businesses.map((business) => (
-          <BusinessCard key={business.id} business={business} />
+      <div 
+        ref={cardsAnimation.containerRef}
+        className="grid gap-6"
+      >
+        {businesses.map((business, index) => (
+          <div 
+            key={business.id}
+            className={cardsAnimation.getItemClassName(index)}
+          >
+            <BusinessCard business={business} />
+          </div>
         ))}
       </div>
 

@@ -82,7 +82,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       
       // Extended business details for detail page
       phone: null, // TODO: Add to schema
-      email: business.users?.email || null,
+      email: (business.users as any)?.email || null,
       website: null, // TODO: Add to schema
       address: null, // TODO: Add to schema
       businessHours: null, // TODO: Add to schema

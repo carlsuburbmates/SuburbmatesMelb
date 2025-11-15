@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         can_sell_products: tier === "basic" ? true : false, // Pro tier requires payment
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      })
+      } as any) // TODO: Fix typing after database schema is finalized
       .select()
       .single();
 
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       message: "Vendor account created successfully",
-      vendor_id: vendor.id,
+      vendor_id: (vendor as any)?.id,
       stripe_account_id: stripeAccount.id,
       onboarding_url: accountLink.url,
       requires_payment: tier === "pro",

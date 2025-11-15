@@ -72,22 +72,22 @@ async function loginHandler(req: NextRequest) {
 
     // Log successful login
     logEvent(BusinessEvent.USER_LOGIN, {
-      userId: userData.id,
-      email: userData.email,
-      userType: userData.user_type,
+      userId: (userData as any)?.id,
+      email: (userData as any)?.email,
+      userType: (userData as any)?.user_type,
     });
 
     logSecurityEvent(SecurityEvent.AUTH_SUCCESS, {
-      userId: userData.id,
-      email: userData.email,
+      userId: (userData as any)?.id,
+      email: (userData as any)?.email,
     });
 
-    logger.info('User login successful', { userId: userData.id });
+    logger.info('User login successful', { userId: (userData as any)?.id });
 
     return successResponse({
       message: 'Login successful',
       user: {
-        ...userData,
+        ...(userData as any),
         token: data.session?.access_token,
       },
       vendor: vendorData,

@@ -57,8 +57,24 @@ export async function GET(request: NextRequest) {
       query = query.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
     }
     
-    // Get total count for pagination
-    const { count } = await query.clone();
+    // Get total count for pagination  
+    const countQuery = supabase
+      .from('business_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_public', true);
+    
+    // Apply same filters for count
+    if (suburb) {
+      countQuery.ilike('suburb_id', `%${suburb}%`);
+    }
+    if (category) {
+      countQuery.ilike('category_id', `%${category}%`);
+    }
+    if (search) {
+      countQuery.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
+    }
+    
+    const { count } = await countQuery;
     
     // Apply pagination and ordering
     query = query

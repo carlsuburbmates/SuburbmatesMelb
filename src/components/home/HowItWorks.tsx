@@ -1,9 +1,12 @@
 'use client';
 
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { getImageBySection, generateImageUrl, getAccentOverlayClass } from '@/lib/images';
+import { LazyImage } from '@/components/ui/LazyImage';
 
 export function HowItWorks() {
-  const { elementRef, isVisible } = useScrollAnimation();
+  const headerAnimation = useFadeIn({ delay: 200, duration: 800 });
+  const stepsAnimation = useStaggeredAnimation(3, 150);
   const steps = [
     {
       number: '01',

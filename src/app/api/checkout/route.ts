@@ -49,10 +49,10 @@ async function checkoutHandler(req: NextRequest) {
     }
 
     const product = products[0];
-    const vendor = product.vendors;
+    const vendor = (product as any).vendors;
 
     // Check vendor status
-    if (!vendor.is_vendor || vendor.vendor_status !== 'active') {
+    if (!(vendor as any)?.is_vendor || (vendor as any)?.vendor_status !== 'active') {
       throw new VendorNotActiveError('Product unavailable');
     }
 
@@ -61,20 +61,20 @@ async function checkoutHandler(req: NextRequest) {
     }
 
     // Calculate commission
-    const commission = calculateCommission(product.price, vendor.tier);
+    const commission = calculateCommission((product as any).price, (vendor as any).tier);
 
     // Create Stripe checkout session
     const session = await createCheckoutSession({
-      productName: product.title,
-      productDescription: product.description || undefined,
-      amount: product.price,
-      vendorStripeAccountId: vendor.stripe_account_id,
+      productName: (product as any).title,
+      productDescription: (product as any).description || undefined,
+      amount: (product as any).price,
+      vendorStripeAccountId: (vendor as any).stripe_account_id,
       applicationFeeAmount: commission,
       successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${product.id}`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${(product as any).id}`,
       metadata: {
-        product_id: product.id,
-        vendor_id: product.vendor_id,
+        product_id: (product as any).id,
+        vendor_id: (product as any).vendor_id,
         customer_id: authContext.user.id,
         commission: commission.toString(),
       },
@@ -82,9 +82,9 @@ async function checkoutHandler(req: NextRequest) {
 
     logEvent(BusinessEvent.ORDER_CREATED, {
       customerId: authContext.user.id,
-      vendorId: product.vendor_id,
-      productId: product.id,
-      amount: product.price,
+      vendorId: (product as any).vendor_id,
+      productId: (product as any).id,
+      amount: (product as any).price,
       commission,
     });
 
@@ -94,9 +94,9 @@ async function checkoutHandler(req: NextRequest) {
       sessionId: session.id,
       url: session.url,
       product: {
-        id: product.id,
-        title: product.title,
-        price: product.price,
+        id: (product as any).id,
+        title: (product as any).title,
+        price: (product as any).price,
       },
     });
   } catch (error) {
