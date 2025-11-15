@@ -364,11 +364,11 @@ export function logRequest(data: RequestLogData): void {
   const message = `${method} ${url} ${statusCode || '---'}`;
   
   if (statusCode && statusCode >= 500) {
-    logger.error(message, undefined, data as Record<string, unknown>);
+    logger.error(message, undefined, data as unknown as Record<string, unknown>);
   } else if (statusCode && statusCode >= 400) {
-    logger.warn(message, data as Record<string, unknown>);
+    logger.warn(message, data as unknown as Record<string, unknown>);
   } else {
-    logger.info(message, data as Record<string, unknown>);
+    logger.info(message, data as unknown as Record<string, unknown>);
   }
 }
 
