@@ -46,9 +46,9 @@ export async function GET(request: Request) {
     const accountId = response.stripe_user_id;
 
     // Update vendor record with connected account status
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase
       .from("vendors")
-      .update({
+      .update as any)({
         stripe_account_id: accountId,
         stripe_account_status: "verified",
         can_sell_products: true,

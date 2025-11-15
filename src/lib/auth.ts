@@ -103,12 +103,12 @@ class AuthManager {
     user: { id: string; email?: string },
     userData: { first_name?: string; last_name?: string; user_type?: string }
   ): Promise<void> {
-    const { error } = await supabase.from("users").insert({
+    const { error } = await (supabase.from("users").insert as any)({
       id: user.id,
       email: user.email || '',
       first_name: userData.first_name || null,
       last_name: userData.last_name || null,
-      user_type: userData.user_type || "customer",
+      user_type: userData.user_type || 'customer',
       deleted_at: null,
       created_as_business_owner_at: null,
     });
@@ -140,7 +140,7 @@ class AuthManager {
     };
 
     // Get vendor data if user is a vendor
-    if (userData.user_type === "vendor") {
+    if ((userData as any)?.user_type === "vendor") {
       const { data: vendorData, error: vendorError } = await supabase
         .from("vendors")
         .select("*")
@@ -167,9 +167,9 @@ class AuthManager {
       throw new Error("Must be authenticated as vendor");
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from("vendors")
-      .insert({
+      .insert as any)({
         user_id: session.user.id,
         tier: "none",
         is_vendor: false,

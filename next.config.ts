@@ -7,6 +7,20 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 768, 1024, 1280, 1600],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+    localPatterns: [
+      {
+        pathname: '/api/placeholder/**',
+      },
+      {
+        pathname: '/images/**',
+      },
+    ],
   },
   
   // Compression and bundling

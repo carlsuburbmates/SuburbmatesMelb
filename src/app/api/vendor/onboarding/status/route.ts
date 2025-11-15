@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     }
 
     // If no Stripe account ID, onboarding hasn't started
-    if (!vendor.stripe_account_id) {
+    if (!(vendor as any)?.stripe_account_id) {
       return NextResponse.json({
         status: 'pending',
         message: 'Vendor account created, Stripe Connect not started',
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
 
     // Check Stripe account status
     try {
-      const stripeAccount = await stripe.accounts.retrieve(vendor.stripe_account_id);
+      const stripeAccount = await stripe.accounts.retrieve((vendor as any).stripe_account_id);
       
       const status = {
         status: stripeAccount.charges_enabled ? 'completed' : 'pending',
@@ -67,12 +67,12 @@ export async function GET(request: Request) {
           ? 'Stripe Connect setup completed' 
           : 'Stripe Connect setup in progress',
         next_step: stripeAccount.charges_enabled ? 'start_selling' : 'complete_stripe_onboarding',
-        stripe_account_id: vendor.stripe_account_id,
+        stripe_account_id: (vendor as any).stripe_account_id,
         charges_enabled: stripeAccount.charges_enabled,
         payouts_enabled: stripeAccount.payouts_enabled,
         requirements: stripeAccount.requirements,
         dashboard_url: stripeAccount.charges_enabled 
-          ? await stripe.accounts.createLoginLink(vendor.stripe_account_id).then(link => link.url)
+          ? await stripe.accounts.createLoginLink((vendor as any).stripe_account_id).then(link => link.url)
           : null
       };
 
@@ -137,10 +137,10 @@ export async function POST(request: Request) {
     }
 
     // If already has Stripe account, return existing onboarding URL
-    if (vendor.stripe_account_id) {
+    if ((vendor as any)?.stripe_account_id) {
       try {
         const accountLink = await stripe.accountLinks.create({
-          account: vendor.stripe_account_id,
+          account: (vendor as any).stripe_account_id,
           refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?refresh=true`,
           return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?success=true`,
           type: 'account_onboarding',
@@ -171,9 +171,9 @@ export async function POST(request: Request) {
     });
 
     // Update vendor with Stripe account ID
-    await supabase
+    await (supabase
       .from('vendors')
-      .update({
+      .update as any)({
         stripe_account_id: stripeAccount.id,
         stripe_account_status: 'pending',
         updated_at: new Date().toISOString()

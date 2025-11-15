@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         const vendorAmount = session.amount_total! - commission;
 
         // Create order record
-        const { error: orderError } = await supabase.from('orders').insert({
+        const { error: orderError } = await (supabase.from('orders').insert as any)({
           customer_id: metadata.customer_id,
           vendor_id: metadata.vendor_id,
           product_id: metadata.product_id,
@@ -86,15 +86,15 @@ export async function POST(req: NextRequest) {
           .select('email')
           .eq('id', metadata.customer_id);
 
-        const customerEmail = users && users.length > 0 ? users[0].email : session.customer_email;
+        const customerEmail = users && users.length > 0 ? (users[0] as any).email : session.customer_email;
 
         // Send confirmation emails (async)
         if (customerEmail) {
           sendOrderConfirmationEmail(customerEmail, {
             orderId: session.id,
-            productTitle: product.title,
+            productTitle: (product as any).title,
             amount: session.amount_total!,
-            downloadUrl: product.digital_file_url || undefined,
+            downloadUrl: (product as any).digital_file_url || undefined,
           }).catch((err) => logger.error('Failed to send order confirmation', err));
         }
 
@@ -102,12 +102,12 @@ export async function POST(req: NextRequest) {
         const { data: vendorUsers } = await supabase
           .from('users')
           .select('email')
-          .eq('id', product.vendors.user_id);
+          .eq('id', (product as any).vendors.user_id);
 
         if (vendorUsers && vendorUsers.length > 0) {
-          sendNewOrderNotificationEmail(vendorUsers[0].email, {
+          sendNewOrderNotificationEmail((vendorUsers[0] as any).email, {
             orderId: session.id,
-            productTitle: product.title,
+            productTitle: (product as any).title,
             customerEmail: customerEmail || 'N/A',
             amount: session.amount_total!,
             commission,

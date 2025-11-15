@@ -60,7 +60,7 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
     <div className="space-y-8">
       {/* Header */}
       <div 
-        ref={headerAnimation.elementRef}
+        ref={headerAnimation.elementRef as any}
         className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${headerAnimation.className}`}
         style={headerAnimation.style}
       >
@@ -82,7 +82,7 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
 
       {/* Key Statistics */}
       <div 
-        ref={statsAnimation.containerRef}
+        ref={statsAnimation.containerRef as any}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         {achievements.map((achievement, index) => (

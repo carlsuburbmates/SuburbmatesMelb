@@ -204,7 +204,7 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
 
       {/* Business Cards */}
       <div 
-        ref={cardsAnimation.containerRef}
+        ref={cardsAnimation.containerRef as any}
         className="grid gap-6"
       >
         {businesses.map((business, index) => (

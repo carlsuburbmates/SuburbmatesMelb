@@ -50,13 +50,14 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
 
       {/* Main Image */}
       <div className="relative aspect-video bg-gray-100">
-        <LazyImage
-          src={images[currentIndex].url}
-          alt={images[currentIndex].alt}
-          fill
-          className="object-cover cursor-pointer hover:opacity-95 transition-opacity"
-          onClick={() => openModal(currentIndex)}
-        />
+        <div className="cursor-pointer" onClick={() => openModal(currentIndex)}>
+          <LazyImage
+            src={images[currentIndex].url}
+            alt={images[currentIndex].alt}
+            fill
+            className="object-cover hover:opacity-95 transition-opacity"
+          />
+        </div>
         
         <button
           onClick={() => openModal(currentIndex)}
