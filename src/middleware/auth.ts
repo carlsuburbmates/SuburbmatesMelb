@@ -136,7 +136,7 @@ export function withAuth(
           throw new ForbiddenError('Vendor account required');
         }
 
-        const vendor = vendors[0];
+        const vendor = vendors[0] as any;
 
         if (vendor.vendor_status !== 'active') {
           throw new ForbiddenError('Vendor account is not active');

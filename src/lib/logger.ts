@@ -445,7 +445,7 @@ export function logAudit(data: AuditLogData): void {
   const log = new Logger('Audit');
   const { actor, action, resource, resourceId } = data;
   const message = `${actor} ${action} ${resource}${resourceId ? ` (${resourceId})` : ''}`;
-  log.info(message, data);
+  log.info(message, data as unknown as Record<string, unknown>);
 }
 
 // ============================================================================
