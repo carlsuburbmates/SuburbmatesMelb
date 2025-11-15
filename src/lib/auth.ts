@@ -213,9 +213,9 @@ class AuthManager {
       throw new Error("Must have vendor profile");
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from("vendors")
-      .update(vendorData)
+      .update as any)(vendorData)
       .eq("id", session.vendor.id)
       .select()
       .single();
