@@ -1,198 +1,304 @@
-# Suburbmates V1.1 – Copilot Instructions
+````instructions
+# Suburbmates V1.1 – AI Coding Agent Instructions
 
-**Last Updated:** November 14, 2025  
-**Stack:** Next.js 16 / Supabase / Stripe Connect / Vercel  
-**Truth Source:** `v1.1-docs/**` (SSOT over all other sources)
+> **⚠️ PROJECT LOCATION:** This codebase is located at `/Users/carlg/Documents/PROJECTS/Rovodev Projects/sm/suburbmates-v1`. Do NOT reference or use `/Users/carlg/Documents/suburbmates-v1` (a separate, legacy project folder).
 
----
-
-## Core Architecture
-
-**Suburbmates is a vendor-centric local marketplace** (31 Melbourne LGAs) with two distinct layers:
-
-1. **Directory**: Business discovery (no prices/checkout)
-   - Shows vendors with `is_vendor = true` and `vendor_status = 'active'`
-   - No checkout flow; links to marketplace
-2. **Marketplace**: Product discovery & checkout
-   - Only lists products from active vendors
-   - Vendors are **Merchant of Record (MoR)** — handle refunds, disputes, product quality
-   - Suburbmates deducts commission via Stripe `application_fee_amount`
-
-**Never:** Assume Suburbmates issues refunds, handles disputes, or "sells" products.
+**Last Updated:** November 15, 2025  
+**Stack:** Next.js 15+ / Supabase PostgreSQL / Stripe Connect Standard / Vercel  
+**Current Stage:** 2.2 Complete (Business Detail Pages & V3 Design System)  
+**Truth Source:** Live codebase → `v1.1-docs/` → Design Plans
 
 ---
 
-## Tech Stack (Strict)
+## Current Implementation Status (Stage 2.2 Complete)
 
-| Component  | Technology                                    | Notes                               |
-| ---------- | --------------------------------------------- | ----------------------------------- |
-| Frontend   | Next.js 16 (App Router, TypeScript strict)    | API routes only (no tRPC)           |
-| Database   | Supabase PostgreSQL + RLS policies            | Via `supabase.ts` client            |
-| Auth       | Supabase Auth (JWT)                           | Email/password; magic link optional |
-| Payments   | Stripe Payments + Stripe Connect **Standard** | Vendors set up Connect accounts     |
-| Email      | Resend (via React Email templates)            | Transactional only (no bulk)        |
-| Storage    | Supabase Storage                              | For product images, vendor logos    |
-| Monitoring | Sentry                                        | Error tracking; no PII logging      |
-| Hosting    | Vercel (Next.js native)                       | Auto-scaling, zero manual ops       |
+### ✅ Production-Ready Features
+- **Directory System** (`/directory`): Search, filtering, business discovery with professional presentation
+- **Business Detail Pages** (`/business/[slug]`): Complete profiles with galleries, statistics, achievements, contact forms
+- **Frontend V3 Design System**: Poppins typography, grayscale color palette, enhanced animations
+- **Performance Optimizations**: Lazy loading, image optimization, scroll animations with IntersectionObserver
+- **Mobile-Responsive Design**: Professional presentation across all devices
+- **SEO Optimization**: Metadata, sitemap, structured data
 
-**Forbidden:** tRPC, Drizzle ORM, MySQL, Express, legacy monorepo code.
+### 🎭 Frontend V3 Design System (Implemented)
+- **Typography**: Poppins font family, 9-scale hierarchy
+- **Color Palette**: Grayscale (9 shades) + accent colors
+- **Animation System**: Scroll-triggered animations, staggered content loading, smooth transitions
+- **Performance**: Optimized image loading, lazy rendering, minimal reflows
+
+### 🔄 Development Status
+- **Build**: `npm run build` → Production-ready, no TypeScript errors, all workspace warnings resolved
+- **Dev**: `npm run dev` → localhost:3000, fully functional
+- **Deploy**: Vercel auto-deploy on git push to `main`
 
 ---
 
-## Key Patterns & Conventions
+## Stage 2.1/2.2 Component Patterns
 
-### 1. API Routes (`src/app/api/`)
+### Business Detail Pages (`src/components/business/`)
 
-- **No tRPC**: Use Next.js App Router API routes directly
-- **Pattern**: Each endpoint in `api/[resource]/[action]/route.ts`
-- **Auth**: Validate JWT via Supabase client in route handler
-- **Example**: `POST /api/auth/signup` → `src/app/api/auth/signup/route.ts`
-- **Response format**: Always `NextResponse.json()` with `status` codes
+**Key Components**:
+- `BusinessHeader`: Logo, name, business type, ratings, hero image
+- `BusinessInfo`: Full business information, contact details, hours, location
+- `ImageGallery`: Modal image viewer with navigation, thumbnail previews
+- `BusinessShowcase`: Statistics, achievements, trust indicators, testimonials
+- `BusinessContact`: Direct messaging, inquiry forms, callback requests
+- `BusinessProducts`: Vendor product listings (if applicable, vendor tier dependent)
 
+**Pattern**:
 ```typescript
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+// Dynamic route: /business/[slug].tsx
+import BusinessHeader from '@/components/business/BusinessHeader';
+import ImageGallery from '@/components/business/ImageGallery';
+import BusinessShowcase from '@/components/business/BusinessShowcase';
 
-export async function POST(req: NextRequest) {
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      /* ... */
-    });
-    if (error)
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ success: true }, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+export default async function BusinessDetailPage({ params: { slug } }) {
+  const business = await fetchBusinessBySlug(slug);
+  return (
+    <div>
+      <BusinessHeader business={business} />
+      <ImageGallery images={business.images} />
+      <BusinessShowcase stats={business.stats} />
+    </div>
+  );
 }
 ```
 
-### 2. Database Access (`src/lib/supabase.ts`)
+### Animation & Performance Hooks
 
-- **Client**: Single `supabase` instance (Supabase JS library v2.81+)
-- **URL/Key**: From env vars `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- **RLS**: All production tables enforce Row-Level Security policies
-- **Schema**: `01_initial_schema.sql` + `02_rls_policies.sql` in `supabase/migrations/`
+- **`useScrollAnimation()`**: IntersectionObserver-based entry animations
+- **`useStaggeredAnimation()`**: Progressive content reveal delays
+- **`LazyImage`**: Optimized image loading with blur placeholder
+- **Pattern**: Import from `@/hooks/useScrollAnimation`, apply to visible-on-scroll content
 
-### 3. Type Safety (`src/lib/types.ts`)
+### Frontend V3 Design System Usage
 
-- **User**: `id`, `email`, `user_type` ('customer' | 'vendor' | 'admin')
-- **Vendor**: `user_id`, `tier` ('none' | 'basic' | 'pro' | 'suspended'), `abn_verified`, `stripe_account_id`, `product_count`
-- **Product**: `vendor_id`, `title`, `published` (gate by vendor_status + ABN), `featured_until`
-- **Key fields**: `is_vendor`, `vendor_status` ('pending' | 'active' | 'suspended'), `delivery_type` ('pickup' | 'delivery' | 'both')
-
-### 4. Authentication Flow
-
-- **Signup**: `auth.signUp()` → create user record in `users` table → return JWT
-- **Login**: `auth.signInWithPassword()` → fetch user + vendor data → return JWT + profile
-- **Middleware**: Validate JWT on protected API routes (no session middleware needed for Next.js 16)
-
-### 5. Stripe Integration
-
-- **Commission model**: Vendors set pricing; Suburbmates takes `application_fee_amount` per transaction
-- **Vendor account setup**: Stripe Connect **Standard** (onboarding via Stripe dashboard)
-- **Webhooks**: Listen for `charge.succeeded`, `customer.subscription.updated` on pro tier upgrades
-- **Never**: Process refunds directly; vendors manage via Stripe Connect dashboard
-
-### 6. Environment Variables
-
+**Poppins Typography** (`tailwind.config.js`):
+```javascript
+fontFamily: {
+  poppins: ["'Poppins'", 'sans-serif'],
+}
+// Use: className="font-poppins text-2xl font-semibold"
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-STRIPE_SECRET_KEY=
-STRIPE_PUBLIC_KEY=
-NEXT_PUBLIC_STRIPE_PUBLIC_KEY=
-RESEND_API_KEY=
-SENTRY_DSN=
-```
+
+**Grayscale Color Palette** (`src/lib/colors.ts`):
+- `gray-50` through `gray-900` (9 shades)
+- Accent colors for CTAs and highlights
+- Consistent usage across all components
 
 ---
 
-## Critical Constraints (Non-Negotiable)
+## Big Picture: Vendor-Centric Marketplace
 
-### Merchant of Record
+### Two-Layer Architecture
 
-- ✅ Vendors control refunds, pricing, product descriptions
-- ✅ Vendors liable under Australian Consumer Law
-- ✅ Suburbmates collects commission via `application_fee_amount`
-- ❌ Never suggest Suburbmates issues refunds
-- ❌ Never suggest Suburbmates "sells" products
-- ❌ Never process money back to customers
+1. **Directory** (`/directory`): Business discovery — vendors list name, bio, LGA, categories, contact info. **No pricing, no checkout.**
+2. **Marketplace** (`/marketplace`): Product discovery & checkout — active vendors showcase products with prices. **Customers buy from vendors; Suburbmates takes `application_fee_amount` commission.**
 
-### Directory vs Marketplace
+### Vendor Lifecycle
 
-- **Directory**: Business name, bio, LGA, categories, contact (no pricing)
-- **Marketplace**: Products with prices, checkout, vendor storefronts
-- **Gate**: Only show marketplace to active vendors (`vendor_status = 'active'` + `is_vendor = true`)
+- Signup → ABN verification (async) → Stripe Connect onboarding → Product uploads → Featured slot purchases → Commission payouts
+- Tiers: `none` (0 products), `basic` (10 products, 8% commission, free), `pro` (unlimited products, 6% commission, A$20/mo subscription)
+- Only `vendor_status = 'active'` + `is_vendor = true` vendors appear in marketplace
 
-### Forbidden Strings (CI Enforcer)
+### Critical: Suburbmates Never Issues Refunds
 
-If any of these appear in code → CI fails immediately:
+- ❌ Never code: "Suburbmates issues refund", "platform-initiated return", "merchant of record is Suburbmates"
+- ✅ Vendors handle all refunds, disputes, product quality via Stripe Connect dashboard
+- ✅ Suburbmates involvement limited to: commission deduction, suspension enforcement, platform fees
 
-- "platform-issued refund", "Suburbmates issues a refund", "Merchant of Record: Suburbmates"
-- "mysql", "drizzle", "trpc", "manus"
-- "hard deadline", "launch date", "December 1"
+---
+
+## Tech Stack & Strict Constraints
+
+| Component  | Technology                           | Notes                                  |
+|------------|--------------------------------------|----------------------------------------|
+| Frontend   | Next.js 15+ (App Router, TS strict) | API routes only; no tRPC               |
+| Database   | Supabase PostgreSQL + RLS policies  | Via `supabase.ts` client (JS v2.81+)   |
+| Auth       | Supabase Auth (JWT)                 | Email/password; no OAuth initially     |
+| Payments   | Stripe Connect Standard             | Vendors -> Stripe; Suburbmates deducts |
+| Email      | Resend + React Email JSX templates  | Transactional only (order confirmations, queue notifications) |
+| Hosting    | Vercel (Next.js native)             | Auto-deploys `main` branch             |
+| Monitoring | Sentry (client + server errors)     | Errors only; no PII                    |
+
+**Forbidden in Code:**
+- `tRPC`, `Drizzle ORM`, `MySQL`, `Express`, legacy monorepo imports
+- Refund logic initiated by Suburbmates (vendors only)
+- Directory showing prices or products
+- Phase 5 business logic (not in MVP)
+
+---
+
+## Implementation Patterns
+
+### 1. API Routes (`src/app/api/`)
+
+**Structure**: `api/[resource]/[action]/route.ts` with middleware stacking.
+
+**Pattern** (from `src/app/api/auth/signup/route.ts`):
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { userSignupSchema } from "@/lib/validation";
+import { validateBody } from "@/app/api/_utils/validation";
+import { successResponse, badRequestResponse, internalErrorResponse } from "@/app/api/_utils/response";
+import { withErrorHandler } from "@/middleware/errorHandler";
+import { withLogging } from "@/middleware/logging";
+import { withCors } from "@/middleware/cors";
+
+async function signupHandler(req: NextRequest) {
+  const body = await validateBody(userSignupSchema, req);
+  const { data, error } = await supabase.auth.signUp({ email: body.email, password: body.password });
+  if (error) return badRequestResponse(error.message);
+  return successResponse({ user: data.user }, 201);
+}
+
+export const POST = withErrorHandler(withLogging(withCors(signupHandler)));
+```
+
+**Key helpers**:
+- `@/app/api/_utils/response.ts`: `successResponse()`, `badRequestResponse()`, `internalErrorResponse()`
+- `@/app/api/_utils/validation.ts`: `validateBody()` + Zod schemas
+- Middleware chain: `withErrorHandler()` → `withLogging()` → `withCors()` → handler
+- Always validate input with Zod schemas from `@/lib/validation.ts`
+
+### 2. Database Access (`src/lib/supabase.ts`)
+
+**Three clients**:
+- `supabase`: Anon client with RLS (browser/API routes with user JWT)
+- `supabaseAdmin`: Service-role client (bypasses RLS; server-side only)
+- `createSupabaseClient(token)`: Custom client with user JWT for API routes
+
+**RLS enforcement**: All tables have `auth.uid()` policies. Never trust `req.body` for user identity—extract JWT from Supabase Auth.
+
+**Pattern**:
+```typescript
+const { data: { user } } = await supabase.auth.getUser();
+const { data, error } = await supabase.from('products').select('*').eq('vendor_id', user.id);
+```
+
+### 3. Type Safety & Validation
+
+**Files**:
+- `src/lib/types.ts`: Core interfaces (`User`, `Vendor`, `Product`, `Order`)
+- `src/lib/validation.ts`: Zod schemas (e.g., `userSignupSchema`, `vendorCreateSchema`)
+- `src/lib/database.types.ts`: Auto-generated from Supabase schema (TypeScript strict)
+
+**Vendor tier quotas** (`src/lib/constants.ts`):
+- `none`: 0 products, no commission
+- `basic`: 10 products, 8% commission, free
+- `pro`: unlimited products, 6% commission, A$20/mo subscription
+
+### 4. Stripe Integration
+
+**Pattern** (`src/lib/stripe.ts`):
+```typescript
+// Create vendor Stripe Connect account
+const account = await createConnectAccount(email, businessName);
+
+// Create charge with Suburbmates commission
+const charge = await stripe.charges.create({
+  amount: amountCents,
+  currency: 'aud',
+  source: stripeTokenId,
+  application_fee_amount: commissionCents,  // Suburbmates cut
+  stripe_account: vendorStripeAccountId,    // Charge vendor's account
+});
+```
+
+**Webhooks**: Listen for `charge.succeeded` (order confirmation), `customer.subscription.updated` (pro tier), `account.updated` (vendor onboarding).
+
+### 5. Environment Variables
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+STRIPE_SECRET_KEY=...
+NEXT_PUBLIC_STRIPE_PUBLIC_KEY=...
+RESEND_API_KEY=...
+SENTRY_DSN=...
+NODE_ENV=production
+```
 
 ---
 
 ## Developer Workflow
 
-### Build & Run
+### Build, Test & Run
 
 ```bash
-npm run dev          # Next.js dev server (localhost:3000)
-npm run build        # Production build
+npm run dev          # Dev server @ localhost:3000 (--webpack for stability)
+npm run build        # Production build (TypeScript strict, no errors)
 npm run start        # Production server
-npm run lint         # ESLint (Next.js config)
+npm run lint         # ESLint validation (includes forbidden strings check)
 ```
 
-### Database
+### Database Schema
 
-- **Schema**: `supabase/migrations/` (numbered SQL files)
-- **Local**: Use Supabase CLI for local dev (optional)
-- **Deployment**: Via Vercel env vars or Supabase dashboard
+- **Location**: `supabase/migrations/` (numbered SQL files)
+- **Current**: `001_initial_schema.sql` + `002_v11_schema_alignment.sql` + `003_rls_policies.sql`
+- **RLS policies** enforce vendor ownership on all tables
+- **Never** bypass RLS in production
 
-### Deployment
+### Monitoring & Debugging
 
-- **Frontend**: Automatic via Vercel (push to `main`)
-- **Database**: Migrations applied via Supabase dashboard or CLI
-- **Secrets**: Set in Vercel project settings (env vars)
-
-### Testing & Monitoring
-
-- **Errors**: Sentry dashboard (linked in Vercel)
-- **Database queries**: Supabase dashboard (query editor, logs)
-- **Email**: Resend dashboard (delivery logs)
-- **Payments**: Stripe dashboard (charges, payouts, disputes)
+| Tool | Purpose | Location |
+|------|---------|----------|
+| **Sentry** | Server/client errors | Vercel project settings → Sentry integration |
+| **Supabase Dashboard** | Query editor, RLS policy test, logs | supabase.com |
+| **Stripe Dashboard** | Charges, payouts, disputes, Connect onboarding status | stripe.com |
+| **Resend Dashboard** | Email delivery logs | resend.com |
 
 ---
 
-## Documentation Hierarchy (Truth Order)
+## Knowledge Hierarchy (Truth Order)
 
-If conflict arises, follow this order **strictly**:
+If docs conflict, follow this priority:
 
-1. **`v1.1-docs/**`\*\* (SSOT — all architecture, design, API specs)
-2. **`v1.1-docs/DEV_NOTES/00_BUILD_POLICY.md`** (strict tech choices)
-3. **`v1.1-docs/DEV_NOTES/ARCHITECTURAL_GUARDS.md`** (hard constraints)
-4. Best practices & external references (advisory only)
-
-Never reverse this order.
-
----
-
-## When You're Stuck
-
-1. **Architecture questions**: Read `v1.1-docs/03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md`
-2. **API design**: Check `v1.1-docs/04_API/04.0_COMPLETE_SPECIFICATION.md`
-3. **Schema questions**: See `v1.1-docs/03_ARCHITECTURE/03.3_SCHEMA_REFERENCE.md`
-4. **Payment/MoR logic**: Review `v1.1-docs/DEV_NOTES/ARCHITECTURAL_GUARDS.md`
-5. **Quick ref**: `v1.1-docs/DEV_NOTES/DEVELOPER_CHEAT_SHEET.md`
+1. **Live codebase** (Stage 2.2 complete): Current working implementation is source of truth
+2. **`v1.1-docs/`** (SSOT): Architecture, API specs, business rules
+3. **`FRONTEND_V3_IMPLEMENTATION_PLAN.md`**: Design system, animations, performance
+4. **`ITERATION_EFFICIENCY_ANALYSIS.md`**: Development workflow optimizations
+5. Code comments & examples
+6. External best practices (advisory)
 
 ---
 
-## Commit & PR Standards
+## Common Tasks & Code Locations
 
-- **Branch naming**: `feat/`, `fix/`, `docs/` prefix
-- **Messages**: Clear, referencing which component changed (e.g., "feat: add vendor signup API")
-- **Forbidden strings**: CI will reject if commit contains forbidden terms
-- **PR review**: Ensure no directory/marketplace boundary violations, correct MoR model
+| Task | Files to Review | Pattern |
+|------|-----------------|---------|
+| Add API endpoint | `src/app/api/[resource]/[action]/route.ts` | Use validation schemas + response helpers |
+| Add DB table | `supabase/migrations/00X_*.sql` + `src/lib/types.ts` | Add RLS policies for vendor ownership |
+| Add Stripe logic | `src/lib/stripe.ts` + `src/app/api/webhook/stripe/route.ts` | Always use `application_fee_amount` for commission |
+| Add form validation | `src/lib/validation.ts` | Use Zod schemas; reference constants from `constants.ts` |
+| Fix vendor tier issue | `src/lib/constants.ts` (`TIER_LIMITS`) + `src/lib/types.ts` | Check `vendor.tier` and `product_count` against quotas |
+| Add business page | `/business/[slug].tsx` + components | Use scroll animations, lazy images, V3 design system |
+| Implement animation | `@/hooks/useScrollAnimation` | IntersectionObserver pattern for fade-in on scroll |
+| Add gallery component | `src/components/business/ImageGallery` | Modal viewer, thumbnail preview, keyboard navigation |
+| Style with V3 system | Poppins font, grayscale palette | Check `src/lib/colors.ts` and `tailwind.config.js` |
+
+---
+
+## Copilot PR Reviewer Rules
+
+- ✅ Vendors are MoR; they handle all refunds, disputes, product quality
+- ✅ Directory ≠ Marketplace; never show marketplace data in directory
+- ✅ All RLS policies enforce vendor ownership
+- ❌ Reject: Suburbmates-initiated refunds, tRPC/Drizzle imports, Phase 5 code
+- ❌ Reject: Directory showing prices/products, non-vendor businesses in marketplace
+- ❌ Reject: Forbidden strings ("platform-issued refund", "mysql", "trpc", "hard deadline")
+
+---
+
+## Stuck? Read These First
+
+1. **Frontend V3 Design System**: `FRONTEND_V3_IMPLEMENTATION_PLAN.md` (typography, colors, animations)
+2. **Stage 2.2 Components**: `/src/components/business/` (business detail page patterns)
+3. **Scroll Animations**: `/src/hooks/useScrollAnimation.ts` (IntersectionObserver usage)
+4. **Architecture overview**: `v1.1-docs/03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md`
+5. **API endpoints**: `v1.1-docs/04_API/` (directory vs marketplace, MoR model)
+6. **Current iteration notes**: `ITERATION_EFFICIENCY_ANALYSIS.md` (development workflow)
+
+````
