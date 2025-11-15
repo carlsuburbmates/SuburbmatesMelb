@@ -1,103 +1,16 @@
-# 🚀 SuburbMates Future Stages Roadmap
+> Deprecated location
 
-**Current Status:** 🎉 **Stage 2.2 Complete** - Business Detail Pages Production Ready  
-**Next Phase:** **Stage 3.x - Core Marketplace Enhancement**  
-**Source:** v1.1-docs Strategy Documentation  
+# SuburbMates Future Stages Roadmap (Moved)
 
----
+This file has moved. The canonical and up-to-date version lives at:
 
-## 📊 **CURRENT COMPLETION STATUS**
+- v1.1-docs/FUTURE_STAGES_ROADMAP.md
 
-### **✅ COMPLETED STAGES (Production Ready)**
-- **Stage 1.1**: Database Foundation ✅
-- **Stage 1.2**: Authentication & Security ✅  
-- **Stage 1.3**: Stripe Integration ✅
-- **Frontend V3**: Design System & Homepage ✅
-- **Stage 2.1**: Directory & Search ✅
-- **Stage 2.2**: Business Detail Pages ✅
+Rationale:
+- v1.1-docs version aligns with v1.1 locked principles (Vendor MoR, non-mediating, no SLAs, no LLM writes)
+- Root copy is retained only as a pointer to avoid broken links
 
----
-
-## 🎯 **UPCOMING STAGES (From v1.1 Strategy)**
-
-### **🛍️ STAGE 3: Core Marketplace Enhancement**
-**Goal:** Build comprehensive marketplace functionality  
-**Duration:** 2-3 weeks  
-**Status:** 📋 **Next Priority**  
-
-#### **Stage 3.1: Enhanced Product Management**
-- **Advanced Product CRUD**: Bulk upload, categories, variants
-- **Inventory Management**: Stock tracking, availability status
-- **Product Analytics**: Views, conversion rates, performance metrics
-- **Rich Media Support**: Multiple images, videos, detailed descriptions
-- **SEO Optimization**: Product page SEO, structured data
-
-#### **Stage 3.2: Advanced Search & Discovery**
-- **Enhanced Filtering**: Price range, ratings, availability, location
-- **Search Optimization**: Full-text search, search suggestions, autocomplete
-- **Recommendation Engine**: "Customers also viewed", personalized recommendations
-- **Sort Options**: Price, popularity, ratings, distance, newest
-- **Category Navigation**: Hierarchical categories, breadcrumb navigation
-
-#### **Stage 3.3: Customer Experience Enhancement**
-- **User Accounts**: Customer profiles, purchase history, saved items
-- **Wishlist System**: Save favorites, share wishlists
-- **Review System**: Customer reviews, ratings, photo uploads
-- **Comparison Tools**: Compare similar products side-by-side
-- **Order Tracking**: Order status, delivery updates, communication
-
----
-
-### **🔄 STAGE 4: Post-Transaction Workflows** 
-**Goal:** Build post-transaction workflows and dispute management  
-**Duration:** 2-3 weeks  
-**Status:** 📋 **Planned**
-
-#### **Stage 4.1: Refund & Dispute System**
-- **Refund Workflows**: Vendor-initiated refunds, automated processing
-- **Dispute Resolution**: Customer complaints, escalation procedures
-- **Admin Panel**: Dispute management, decision tracking
-- **Automated Enforcement**: Policy violations, suspension triggers
-- **Appeals Process**: Vendor appeals, reinstatement workflows
-
-#### **Stage 4.2: Trust & Safety**
-- **Vendor Verification**: Enhanced ABN verification, identity checks
-- **Quality Monitoring**: Review quality, fake review detection
-- **Fraud Prevention**: Payment fraud detection, suspicious activity alerts
-- **Community Guidelines**: Content moderation, policy enforcement
-- **Reputation System**: Vendor badges, trust indicators
-
-#### **Stage 4.3: Financial Operations**
-- **Advanced Commission**: Tiered rates, volume discounts
-- **Payout Automation**: Scheduled payouts, instant payments
-- **Tax Integration**: GST calculation, tax reporting
-- **Financial Analytics**: Revenue tracking, commission reports
-- **Subscription Management**: Pro tier billing, feature access
-
----
-
-### **🤖 STAGE 5: Support & AI Automation**
-**Goal:** Build automated support and AI-driven operations  
-**Duration:** 1-2 weeks  
-**Status:** 📋 **Planned**
-
-#### **Stage 5.1: AI Support Chatbot**
-- **FAQ Automation**: Claude-powered chatbot for common questions
-- **Stripe Integration**: Automated billing query responses
-- **Technical Support**: Error lookup, troubleshooting guides
-- **Escalation Logic**: When to route to human support
-- **Performance Tracking**: Resolution rates, satisfaction scores
-
-#### **Stage 5.2: Operational Automation**
-- **Monitoring Systems**: Sentry integration, performance tracking
-- **Alert Management**: Automated incident detection and response
-- **Quality Assurance**: Automated testing, health checks
-- **Analytics Integration**: PostHog events, user behavior tracking
-- **Reporting Automation**: Daily/weekly operational reports
-
----
-
-### **🎨 STAGE 6: Polish & Advanced Features**
+Last updated: 2025-11-15
 **Goal:** Production polish and advanced marketplace features  
 **Duration:** 1-2 weeks  
 **Status:** 📋 **Planned**
