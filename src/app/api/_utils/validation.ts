@@ -23,7 +23,12 @@ export async function validateBody<T extends z.ZodTypeAny>(
     const result = schema.safeParse(body);
 
     if (!result.success) {
-      throw zodErrorToValidationError(result.error as any); // TODO: Fix Zod typing after upgrade
+      throw zodErrorToValidationError({
+        issues: result.error.issues.map(issue => ({
+          path: issue.path.map(p => String(p)),
+          message: issue.message
+        }))
+      });
     }
 
     return result.data;
@@ -52,7 +57,12 @@ export function validateQuery<T extends z.ZodTypeAny>(
   const result = schema.safeParse(query);
 
   if (!result.success) {
-    throw zodErrorToValidationError(result.error);
+    throw zodErrorToValidationError({
+      issues: result.error.issues.map(issue => ({
+        path: issue.path.map(p => String(p)),
+        message: issue.message
+      }))
+    });
   }
 
   return result.data;
@@ -68,7 +78,12 @@ export function validateParams<T extends z.ZodTypeAny>(
   const result = schema.safeParse(params);
 
   if (!result.success) {
-    throw zodErrorToValidationError(result.error);
+    throw zodErrorToValidationError({
+      issues: result.error.issues.map(issue => ({
+        path: issue.path.map(p => String(p)),
+        message: issue.message
+      }))
+    });
   }
 
   return result.data;
@@ -90,7 +105,12 @@ export function validateHeaders<T extends z.ZodTypeAny>(
   const result = schema.safeParse(headers);
 
   if (!result.success) {
-    throw zodErrorToValidationError(result.error);
+    throw zodErrorToValidationError({
+      issues: result.error.issues.map(issue => ({
+        path: issue.path.map(p => String(p)),
+        message: issue.message
+      }))
+    });
   }
 
   return result.data;
