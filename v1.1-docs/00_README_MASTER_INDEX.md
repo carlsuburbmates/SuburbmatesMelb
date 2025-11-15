@@ -14,12 +14,14 @@
 **START WITH THESE (v1.1 Amendments & Execution Context):**
 
 0. **FOUNDER_STRATEGY/FOUNDER_AMENDMENT_DIRECTIVE.md** ⭐ **READ FIRST**
+
    - All v1.1 locked principles (Vendor MoR, non-mediating, no auto-refunds, no SLAs)
    - 6 Critical Founder Decisions (FD-1 → FD-6)
    - 5 Resolved Ambiguities (MA-1 → MA-5)
    - Immediate next steps for team
 
 1. **DECISIONS_LOG.md** ⭐ **Quick Reference**
+
    - Single source of truth for all strategic & operational decisions
    - Enforcement anchors (code locations, process refs)
    - Reversal triggers for each decision
@@ -57,12 +59,14 @@
 **START WITH THESE (Stage 3 Execution Context):**
 
 0. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_HANDOFF.md** ⭐ **Execution Brief**
+
    - Condensed 13-task scope with acceptance criteria
    - Team allocation & endpoints snapshot
    - Cron jobs, webhook events, deployment checklist
    - Risk mitigations & quick start commands
 
 1. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_IMPLEMENTATION_GUIDE.md** (Full Spec)
+
    - Product CRUD, tier management, featured slots, search instrumentation
    - Data model deltas, dispute gating setup, fee credit path
    - Week-by-week implementation order
@@ -291,6 +295,10 @@ Start here if you're handling deployment, monitoring, and operations.
 2. **Follow your role's reading path** (see Quick Navigation above)
 3. **Bookmark** the documents you reference most
 4. **Use Ctrl+F** (or Cmd+F) to search within documents
+
+### **VS Code Agents (Quick Pointer)**
+
+- For Stage 3 planning/implementation/verification using VS Code Chat agents, see the workspace root guide: [AGENTS.md](../AGENTS.md)
 
 ### **Quick Links by Purpose**
 

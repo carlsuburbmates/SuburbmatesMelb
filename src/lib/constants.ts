@@ -8,13 +8,14 @@
 // ============================================================================
 
 export const VENDOR_TIERS = {
-  NONE: 'none',
-  BASIC: 'basic',
-  PRO: 'pro',
-  SUSPENDED: 'suspended',
+  NONE: "none",
+  BASIC: "basic",
+  PRO: "pro",
+  PREMIUM: "premium",
+  SUSPENDED: "suspended",
 } as const;
 
-export type VendorTier = typeof VENDOR_TIERS[keyof typeof VENDOR_TIERS];
+export type VendorTier = (typeof VENDOR_TIERS)[keyof typeof VENDOR_TIERS];
 
 export const TIER_LIMITS = {
   none: {
@@ -25,18 +26,26 @@ export const TIER_LIMITS = {
     can_sell: false,
   },
   basic: {
-    product_quota: 10,
+    product_quota: 3, // Updated per SSOT §3.2 (was 10)
     storage_quota_gb: 5,
     commission_rate: 0.08, // 8%
     monthly_fee: 0,
     can_sell: true,
   },
   pro: {
-    product_quota: -1, // unlimited
+    product_quota: 50, // Updated per SSOT §3.2 (was unlimited/-1)
     storage_quota_gb: 10,
     commission_rate: 0.06, // 6%
     monthly_fee: 2000, // A$20.00 in cents
     can_sell: true,
+  },
+  premium: {
+    product_quota: 50, // Same as pro
+    storage_quota_gb: 20,
+    commission_rate: 0.05, // 5%
+    monthly_fee: 9900, // A$99.00 in cents
+    can_sell: true,
+    featured_slots: 3, // Exclusive feature
   },
   suspended: {
     product_quota: 0,
@@ -55,94 +64,103 @@ export const FEATURED_SLOT = {
   PRICE_CENTS: 2000, // A$20.00
   DURATION_DAYS: 30,
   MAX_SLOTS_PER_LGA: 5,
+  MAX_SLOTS_PER_VENDOR: 3, // Premium tier only
 } as const;
+
+// ============================================================================
+// DISPUTE GATING (Non-negotiable)
+// ============================================================================
+
+export const DISPUTE_AUTO_DELIST_THRESHOLD = 3; // 3+ disputes = auto-suspend
+export const AUTO_DELIST_DURATION_DAYS = 30; // 30-day suspension
 
 // ============================================================================
 // USER TYPES
 // ============================================================================
 
 export const USER_TYPES = {
-  CUSTOMER: 'customer',
-  BUSINESS_OWNER: 'business_owner',
-  ADMIN: 'admin',
+  CUSTOMER: "customer",
+  BUSINESS_OWNER: "business_owner",
+  ADMIN: "admin",
 } as const;
 
-export type UserType = typeof USER_TYPES[keyof typeof USER_TYPES];
+export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
 
 // ============================================================================
 // VENDOR STATUS
 // ============================================================================
 
 export const VENDOR_STATUS = {
-  INACTIVE: 'inactive',
-  ACTIVE: 'active',
-  SUSPENDED: 'suspended',
+  INACTIVE: "inactive",
+  ACTIVE: "active",
+  SUSPENDED: "suspended",
 } as const;
 
-export type VendorStatus = typeof VENDOR_STATUS[keyof typeof VENDOR_STATUS];
+export type VendorStatus = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];
 
 // ============================================================================
 // ORDER STATUS
 // ============================================================================
 
 export const ORDER_STATUS = {
-  PENDING: 'pending',
-  SUCCEEDED: 'succeeded',
-  FAILED: 'failed',
-  REVERSED: 'reversed',
+  PENDING: "pending",
+  SUCCEEDED: "succeeded",
+  FAILED: "failed",
+  REVERSED: "reversed",
 } as const;
 
-export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
+export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
 // ============================================================================
 // REFUND REQUEST STATUS
 // ============================================================================
 
 export const REFUND_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  CANCELLED: 'cancelled',
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  CANCELLED: "cancelled",
 } as const;
 
-export type RefundStatus = typeof REFUND_STATUS[keyof typeof REFUND_STATUS];
+export type RefundStatus = (typeof REFUND_STATUS)[keyof typeof REFUND_STATUS];
 
 // ============================================================================
 // DISPUTE STATUS
 // ============================================================================
 
 export const DISPUTE_STATUS = {
-  OPEN: 'open',
-  UNDER_REVIEW: 'under_review',
-  RESOLVED: 'resolved',
-  CLOSED: 'closed',
-  ESCALATED: 'escalated',
+  OPEN: "open",
+  UNDER_REVIEW: "under_review",
+  RESOLVED: "resolved",
+  CLOSED: "closed",
+  ESCALATED: "escalated",
 } as const;
 
-export type DisputeStatus = typeof DISPUTE_STATUS[keyof typeof DISPUTE_STATUS];
+export type DisputeStatus =
+  (typeof DISPUTE_STATUS)[keyof typeof DISPUTE_STATUS];
 
 // ============================================================================
 // APPEAL STATUS
 // ============================================================================
 
 export const APPEAL_STATUS = {
-  PENDING: 'pending',
-  UNDER_REVIEW: 'under_review',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  WITHDRAWN: 'withdrawn',
+  PENDING: "pending",
+  UNDER_REVIEW: "under_review",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  WITHDRAWN: "withdrawn",
 } as const;
 
-export type AppealStatus = typeof APPEAL_STATUS[keyof typeof APPEAL_STATUS];
+export type AppealStatus = (typeof APPEAL_STATUS)[keyof typeof APPEAL_STATUS];
 
 export const APPEAL_TYPES = {
-  SUSPENSION: 'suspension',
-  DISPUTE_RESOLUTION: 'dispute_resolution',
-  POLICY_VIOLATION: 'policy_violation',
-  ACCOUNT_RESTRICTION: 'account_restriction',
+  SUSPENSION: "suspension",
+  DISPUTE_RESOLUTION: "dispute_resolution",
+  POLICY_VIOLATION: "policy_violation",
+  ACCOUNT_RESTRICTION: "account_restriction",
 } as const;
 
-export type AppealType = typeof APPEAL_TYPES[keyof typeof APPEAL_TYPES];
+export type AppealType = (typeof APPEAL_TYPES)[keyof typeof APPEAL_TYPES];
 
 // ============================================================================
 // RISK MANAGEMENT
@@ -162,9 +180,9 @@ export const RISK_THRESHOLDS = {
 // ============================================================================
 
 export const STRIPE_CONFIG = {
-  CURRENCY: 'aud',
-  COUNTRY: 'AU',
-  CONNECT_TYPE: 'standard', // Stripe Connect Standard
+  CURRENCY: "aud",
+  COUNTRY: "AU",
+  CONNECT_TYPE: "standard", // Stripe Connect Standard
 } as const;
 
 // ============================================================================
@@ -172,11 +190,11 @@ export const STRIPE_CONFIG = {
 // ============================================================================
 
 export const PLATFORM = {
-  NAME: 'SuburbMates',
-  LOCATION: 'Melbourne, Australia',
-  SUPPORT_EMAIL: 'support@suburbmates.com.au',
-  NO_REPLY_EMAIL: 'noreply@suburbmates.com.au',
-  TIMEZONE: 'Australia/Melbourne',
+  NAME: "SuburbMates",
+  LOCATION: "Melbourne, Australia",
+  SUPPORT_EMAIL: "support@suburbmates.com.au",
+  NO_REPLY_EMAIL: "noreply@suburbmates.com.au",
+  TIMEZONE: "Australia/Melbourne",
 } as const;
 
 // ============================================================================
@@ -198,16 +216,16 @@ export const FILE_UPLOAD = {
   MAX_THUMBNAIL_SIZE_MB: 5,
   MAX_LOGO_SIZE_MB: 2,
   ALLOWED_PRODUCT_FILE_TYPES: [
-    'application/pdf',
-    'application/zip',
-    'image/jpeg',
-    'image/png',
-    'video/mp4',
-    'audio/mpeg',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    "application/pdf",
+    "application/zip",
+    "image/jpeg",
+    "image/png",
+    "video/mp4",
+    "audio/mpeg",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ],
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/webp"],
 } as const;
 
 // ============================================================================
@@ -218,12 +236,12 @@ export const VALIDATION = {
   // User
   MIN_PASSWORD_LENGTH: 8,
   MAX_PASSWORD_LENGTH: 128,
-  
+
   // Business
   ABN_LENGTH: 11,
   MIN_BUSINESS_NAME_LENGTH: 2,
   MAX_BUSINESS_NAME_LENGTH: 100,
-  
+
   // Product
   MIN_PRODUCT_TITLE_LENGTH: 3,
   MAX_PRODUCT_TITLE_LENGTH: 200,
@@ -231,7 +249,7 @@ export const VALIDATION = {
   MAX_PRODUCT_DESCRIPTION_LENGTH: 5000,
   MIN_PRODUCT_PRICE_CENTS: 100, // A$1.00
   MAX_PRODUCT_PRICE_CENTS: 1000000, // A$10,000.00
-  
+
   // Refund
   MIN_REFUND_REASON_LENGTH: 10,
   MAX_REFUND_REASON_LENGTH: 1000,
@@ -243,40 +261,40 @@ export const VALIDATION = {
 
 export const ERROR_CODES = {
   // Auth errors
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
-  SESSION_EXPIRED: 'SESSION_EXPIRED',
-  
+  UNAUTHORIZED: "UNAUTHORIZED",
+  FORBIDDEN: "FORBIDDEN",
+  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+  SESSION_EXPIRED: "SESSION_EXPIRED",
+
   // Validation errors
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  INVALID_INPUT: 'INVALID_INPUT',
-  MISSING_REQUIRED_FIELD: 'MISSING_REQUIRED_FIELD',
-  
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  INVALID_INPUT: "INVALID_INPUT",
+  MISSING_REQUIRED_FIELD: "MISSING_REQUIRED_FIELD",
+
   // Resource errors
-  NOT_FOUND: 'NOT_FOUND',
-  ALREADY_EXISTS: 'ALREADY_EXISTS',
-  RESOURCE_DELETED: 'RESOURCE_DELETED',
-  
+  NOT_FOUND: "NOT_FOUND",
+  ALREADY_EXISTS: "ALREADY_EXISTS",
+  RESOURCE_DELETED: "RESOURCE_DELETED",
+
   // Business logic errors
-  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
-  INSUFFICIENT_PERMISSIONS: 'INSUFFICIENT_PERMISSIONS',
-  VENDOR_NOT_ACTIVE: 'VENDOR_NOT_ACTIVE',
-  VENDOR_SUSPENDED: 'VENDOR_SUSPENDED',
-  STRIPE_NOT_CONNECTED: 'STRIPE_NOT_CONNECTED',
-  
+  QUOTA_EXCEEDED: "QUOTA_EXCEEDED",
+  INSUFFICIENT_PERMISSIONS: "INSUFFICIENT_PERMISSIONS",
+  VENDOR_NOT_ACTIVE: "VENDOR_NOT_ACTIVE",
+  VENDOR_SUSPENDED: "VENDOR_SUSPENDED",
+  STRIPE_NOT_CONNECTED: "STRIPE_NOT_CONNECTED",
+
   // Payment errors
-  PAYMENT_FAILED: 'PAYMENT_FAILED',
-  REFUND_FAILED: 'REFUND_FAILED',
-  INVALID_AMOUNT: 'INVALID_AMOUNT',
-  
+  PAYMENT_FAILED: "PAYMENT_FAILED",
+  REFUND_FAILED: "REFUND_FAILED",
+  INVALID_AMOUNT: "INVALID_AMOUNT",
+
   // System errors
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  DATABASE_ERROR: 'DATABASE_ERROR',
-  EXTERNAL_SERVICE_ERROR: 'EXTERNAL_SERVICE_ERROR',
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+  DATABASE_ERROR: "DATABASE_ERROR",
+  EXTERNAL_SERVICE_ERROR: "EXTERNAL_SERVICE_ERROR",
 } as const;
 
-export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
 // ============================================================================
 // RATE LIMITING
@@ -286,11 +304,11 @@ export const RATE_LIMITS = {
   // API endpoints
   API_REQUESTS_PER_MINUTE: 60,
   API_REQUESTS_PER_HOUR: 1000,
-  
+
   // Auth endpoints (stricter)
   AUTH_REQUESTS_PER_MINUTE: 5,
   AUTH_REQUESTS_PER_HOUR: 20,
-  
+
   // File uploads
   UPLOAD_REQUESTS_PER_HOUR: 50,
 } as const;
@@ -309,7 +327,10 @@ export function getTierLimits(tier: VendorTier) {
 /**
  * Calculate commission for an amount based on tier
  */
-export function calculateCommission(amountCents: number, tier: VendorTier): number {
+export function calculateCommission(
+  amountCents: number,
+  tier: VendorTier
+): number {
   const limits = getTierLimits(tier);
   return Math.round(amountCents * limits.commission_rate);
 }
@@ -317,18 +338,24 @@ export function calculateCommission(amountCents: number, tier: VendorTier): numb
 /**
  * Check if vendor can create more products
  */
-export function canCreateProduct(currentCount: number, tier: VendorTier): boolean {
+export function canCreateProduct(
+  currentCount: number,
+  tier: VendorTier
+): boolean {
   const limits = getTierLimits(tier);
-  if (limits.product_quota === -1) return true; // unlimited
   return currentCount < limits.product_quota;
 }
 
 /**
  * Check if vendor has storage available
  */
-export function hasStorageAvailable(usedMB: number, fileSizeMB: number, tier: VendorTier): boolean {
+export function hasStorageAvailable(
+  usedMB: number,
+  fileSizeMB: number,
+  tier: VendorTier
+): boolean {
   const limits = getTierLimits(tier);
-  return (usedMB + fileSizeMB) <= (limits.storage_quota_gb * 1024);
+  return usedMB + fileSizeMB <= limits.storage_quota_gb * 1024;
 }
 
 /**

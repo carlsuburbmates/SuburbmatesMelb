@@ -3,18 +3,18 @@
  * Centralized logging with context and levels
  */
 
-import { PLATFORM } from './constants';
+import { PLATFORM } from "./constants";
 
 // ============================================================================
 // LOG LEVELS
 // ============================================================================
 
 export enum LogLevel {
-  DEBUG = 'debug',
-  INFO = 'info',
-  WARN = 'warn',
-  ERROR = 'error',
-  FATAL = 'fatal',
+  DEBUG = "debug",
+  INFO = "info",
+  WARN = "warn",
+  ERROR = "error",
+  FATAL = "fatal",
 }
 
 const LOG_LEVEL_PRIORITY = {
@@ -62,11 +62,12 @@ interface LoggerConfig {
 }
 
 const DEFAULT_CONFIG: LoggerConfig = {
-  minLevel: process.env.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG,
+  minLevel:
+    process.env.NODE_ENV === "production" ? LogLevel.INFO : LogLevel.DEBUG,
   enableConsole: true,
-  enableStructured: process.env.NODE_ENV === 'production',
+  enableStructured: process.env.NODE_ENV === "production",
   includeTimestamp: true,
-  includeStack: process.env.NODE_ENV === 'development',
+  includeStack: process.env.NODE_ENV === "development",
 };
 
 let currentConfig: LoggerConfig = { ...DEFAULT_CONFIG };
@@ -121,14 +122,19 @@ export class Logger {
   /**
    * Log error message
    */
-  error(message: string, error?: Error | unknown, data?: Record<string, unknown>): void {
-    const errorData = error instanceof Error
-      ? {
-          name: error.name,
-          message: error.message,
-          stack: currentConfig.includeStack ? error.stack : undefined,
-        }
-      : undefined;
+  error(
+    message: string,
+    error?: Error | unknown,
+    data?: Record<string, unknown>
+  ): void {
+    const errorData =
+      error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: currentConfig.includeStack ? error.stack : undefined,
+          }
+        : undefined;
 
     this.log(LogLevel.ERROR, message, data, errorData);
   }
@@ -136,14 +142,19 @@ export class Logger {
   /**
    * Log fatal error (critical system failure)
    */
-  fatal(message: string, error?: Error | unknown, data?: Record<string, unknown>): void {
-    const errorData = error instanceof Error
-      ? {
-          name: error.name,
-          message: error.message,
-          stack: error.stack, // Always include stack for fatal errors
-        }
-      : undefined;
+  fatal(
+    message: string,
+    error?: Error | unknown,
+    data?: Record<string, unknown>
+  ): void {
+    const errorData =
+      error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack, // Always include stack for fatal errors
+          }
+        : undefined;
 
     this.log(LogLevel.FATAL, message, data, errorData);
   }
@@ -158,7 +169,9 @@ export class Logger {
     error?: { name: string; message: string; stack?: string }
   ): void {
     // Check if this level should be logged
-    if (LOG_LEVEL_PRIORITY[level] < LOG_LEVEL_PRIORITY[currentConfig.minLevel]) {
+    if (
+      LOG_LEVEL_PRIORITY[level] < LOG_LEVEL_PRIORITY[currentConfig.minLevel]
+    ) {
       return;
     }
 
@@ -194,20 +207,20 @@ export class Logger {
     const { level, message, context, data, error } = entry;
     const timestamp = currentConfig.includeTimestamp
       ? `[${new Date(entry.timestamp).toLocaleTimeString()}]`
-      : '';
+      : "";
 
-    const contextStr = context ? `[${context}]` : '';
+    const contextStr = context ? `[${context}]` : "";
     const levelStr = `[${level.toUpperCase()}]`;
 
     // Color coding for different levels
     const colors = {
-      [LogLevel.DEBUG]: '\x1b[36m', // Cyan
-      [LogLevel.INFO]: '\x1b[32m',  // Green
-      [LogLevel.WARN]: '\x1b[33m',  // Yellow
-      [LogLevel.ERROR]: '\x1b[31m', // Red
-      [LogLevel.FATAL]: '\x1b[35m', // Magenta
+      [LogLevel.DEBUG]: "\x1b[36m", // Cyan
+      [LogLevel.INFO]: "\x1b[32m", // Green
+      [LogLevel.WARN]: "\x1b[33m", // Yellow
+      [LogLevel.ERROR]: "\x1b[31m", // Red
+      [LogLevel.FATAL]: "\x1b[35m", // Magenta
     };
-    const reset = '\x1b[0m';
+    const reset = "\x1b[0m";
     const color = colors[level];
 
     const logMessage = `${color}${timestamp}${levelStr}${contextStr}${reset} ${message}`;
@@ -215,17 +228,17 @@ export class Logger {
     // Choose appropriate console method
     switch (level) {
       case LogLevel.DEBUG:
-        console.debug(logMessage, data || '');
+        console.debug(logMessage, data || "");
         break;
       case LogLevel.INFO:
-        console.info(logMessage, data || '');
+        console.info(logMessage, data || "");
         break;
       case LogLevel.WARN:
-        console.warn(logMessage, data || '');
+        console.warn(logMessage, data || "");
         break;
       case LogLevel.ERROR:
       case LogLevel.FATAL:
-        console.error(logMessage, data || '');
+        console.error(logMessage, data || "");
         if (error) {
           console.error(`  Error: ${error.name}: ${error.message}`);
           if (error.stack) {
@@ -278,14 +291,22 @@ export function warn(message: string, data?: Record<string, unknown>): void {
 /**
  * Log error message
  */
-export function error(message: string, err?: Error | unknown, data?: Record<string, unknown>): void {
+export function error(
+  message: string,
+  err?: Error | unknown,
+  data?: Record<string, unknown>
+): void {
   logger.error(message, err, data);
 }
 
 /**
  * Log fatal error
  */
-export function fatal(message: string, err?: Error | unknown, data?: Record<string, unknown>): void {
+export function fatal(
+  message: string,
+  err?: Error | unknown,
+  data?: Record<string, unknown>
+): void {
   logger.fatal(message, err, data);
 }
 
@@ -303,7 +324,7 @@ export async function measureAsync<T>(
 ): Promise<T> {
   const log = context ? new Logger(context) : logger;
   const start = Date.now();
-  
+
   try {
     log.debug(`Starting: ${operation}`);
     const result = await fn();
@@ -327,7 +348,7 @@ export function measure<T>(
 ): T {
   const log = context ? new Logger(context) : logger;
   const start = Date.now();
-  
+
   try {
     log.debug(`Starting: ${operation}`);
     const result = fn();
@@ -361,10 +382,14 @@ export interface RequestLogData {
  */
 export function logRequest(data: RequestLogData): void {
   const { method, url, statusCode, durationMs } = data;
-  const message = `${method} ${url} ${statusCode || '---'}`;
-  
+  const message = `${method} ${url} ${statusCode || "---"}`;
+
   if (statusCode && statusCode >= 500) {
-    logger.error(message, undefined, data as unknown as Record<string, unknown>);
+    logger.error(
+      message,
+      undefined,
+      data as unknown as Record<string, unknown>
+    );
   } else if (statusCode && statusCode >= 400) {
     logger.warn(message, data as unknown as Record<string, unknown>);
   } else {
@@ -377,28 +402,33 @@ export function logRequest(data: RequestLogData): void {
 // ============================================================================
 
 export enum BusinessEvent {
-  USER_SIGNUP = 'user.signup',
-  USER_LOGIN = 'user.login',
-  VENDOR_CREATED = 'vendor.created',
-  VENDOR_APPROVED = 'vendor.approved',
-  VENDOR_SUSPENDED = 'vendor.suspended',
-  PRODUCT_CREATED = 'product.created',
-  PRODUCT_PUBLISHED = 'product.published',
-  ORDER_CREATED = 'order.created',
-  ORDER_COMPLETED = 'order.completed',
-  REFUND_REQUESTED = 'refund.requested',
-  REFUND_PROCESSED = 'refund.processed',
-  DISPUTE_CREATED = 'dispute.created',
-  DISPUTE_RESOLVED = 'dispute.resolved',
-  APPEAL_SUBMITTED = 'appeal.submitted',
-  APPEAL_DECIDED = 'appeal.decided',
-  FEATURED_SLOT_PURCHASED = 'featured_slot.purchased',
+  USER_SIGNUP = "user.signup",
+  USER_LOGIN = "user.login",
+  VENDOR_CREATED = "vendor.created",
+  VENDOR_APPROVED = "vendor.approved",
+  VENDOR_SUSPENDED = "vendor.suspended",
+  PRODUCT_CREATED = "product.created",
+  PRODUCT_PUBLISHED = "product.published",
+  ORDER_CREATED = "order.created",
+  ORDER_COMPLETED = "order.completed",
+  REFUND_REQUESTED = "refund.requested",
+  REFUND_PROCESSED = "refund.processed",
+  DISPUTE_CREATED = "dispute.created",
+  DISPUTE_RESOLVED = "dispute.resolved",
+  APPEAL_SUBMITTED = "appeal.submitted",
+  APPEAL_DECIDED = "appeal.decided",
+  FEATURED_SLOT_PURCHASED = "featured_slot.purchased",
+  VENDOR_TIER_CHANGED = "vendor.tier_changed",
+  VENDOR_PRODUCTS_AUTO_UNPUBLISHED = "vendor.products_auto_unpublished",
 }
 
 /**
  * Log business event
  */
-export function logEvent(event: BusinessEvent, data?: Record<string, unknown>): void {
+export function logEvent(
+  event: BusinessEvent,
+  data?: Record<string, unknown>
+): void {
   logger.info(`Event: ${event}`, data);
 }
 
@@ -407,11 +437,11 @@ export function logEvent(event: BusinessEvent, data?: Record<string, unknown>): 
 // ============================================================================
 
 export enum SecurityEvent {
-  AUTH_FAILED = 'security.auth_failed',
-  AUTH_SUCCESS = 'security.auth_success',
-  PERMISSION_DENIED = 'security.permission_denied',
-  SUSPICIOUS_ACTIVITY = 'security.suspicious_activity',
-  RATE_LIMIT_EXCEEDED = 'security.rate_limit_exceeded',
+  AUTH_FAILED = "security.auth_failed",
+  AUTH_SUCCESS = "security.auth_success",
+  PERMISSION_DENIED = "security.permission_denied",
+  SUSPICIOUS_ACTIVITY = "security.suspicious_activity",
+  RATE_LIMIT_EXCEEDED = "security.rate_limit_exceeded",
 }
 
 /**
@@ -421,7 +451,7 @@ export function logSecurityEvent(
   event: SecurityEvent,
   data?: Record<string, unknown>
 ): void {
-  const log = new Logger('Security');
+  const log = new Logger("Security");
   log.warn(`Security Event: ${event}`, data);
 }
 
@@ -442,9 +472,11 @@ export interface AuditLogData {
  * Log audit trail
  */
 export function logAudit(data: AuditLogData): void {
-  const log = new Logger('Audit');
+  const log = new Logger("Audit");
   const { actor, action, resource, resourceId } = data;
-  const message = `${actor} ${action} ${resource}${resourceId ? ` (${resourceId})` : ''}`;
+  const message = `${actor} ${action} ${resource}${
+    resourceId ? ` (${resourceId})` : ""
+  }`;
   log.info(message, data as unknown as Record<string, unknown>);
 }
 

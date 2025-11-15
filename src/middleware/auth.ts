@@ -3,11 +3,11 @@
  * Verify JWT tokens and inject user context
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseClient, supabase } from '@/lib/supabase';
-import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
-import { logger } from '@/lib/logger';
-import { USER_TYPES, UserType } from '@/lib/constants';
+import { USER_TYPES, UserType } from "@/lib/constants";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
+import { createSupabaseClient, supabase } from "@/lib/supabase";
+import { NextRequest, NextResponse } from "next/server";
 
 // ============================================================================
 // TYPES
@@ -42,12 +42,14 @@ export interface AuthOptions {
 /**
  * Extract and verify user from request
  */
-export async function getUserFromRequest(req: NextRequest): Promise<AuthContext> {
+export async function getUserFromRequest(
+  req: NextRequest
+): Promise<AuthContext> {
   // Get authorization header
-  const authHeader = req.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new UnauthorizedError('No authorization token provided');
+  const authHeader = req.headers.get("authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    throw new UnauthorizedError("No authorization token provided");
   }
 
   const token = authHeader.substring(7); // Remove 'Bearer '
@@ -55,34 +57,45 @@ export async function getUserFromRequest(req: NextRequest): Promise<AuthContext>
   try {
     // Verify token with Supabase
     const supabaseClient = createSupabaseClient(token);
-    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    const {
+      data: { user },
+      error,
+    } = await supabaseClient.auth.getUser();
 
     if (error || !user) {
-      logger.warn('Invalid token provided', { error: error?.message });
-      throw new UnauthorizedError('Invalid or expired token');
+      logger.warn("Invalid token provided", { error: error?.message });
+      throw new UnauthorizedError("Invalid or expired token");
     }
 
     // Get user details from database
     const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('id, email, user_type')
-      .eq('id', user.id)
+      .from("users")
+      .select("id, email, user_type")
+      .eq("id", user.id)
       .single();
 
     if (userError || !userData) {
-      logger.error('User not found in database', userError, { userId: user.id });
-      throw new UnauthorizedError('User not found');
+      logger.error("User not found in database", userError, {
+        userId: user.id,
+      });
+      throw new UnauthorizedError("User not found");
     }
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabaseClient.auth.getSession();
 
     if (sessionError || !session) {
-      throw new UnauthorizedError('Invalid session');
+      throw new UnauthorizedError("Invalid session");
     }
 
     return {
-      user: userData,
+      user: {
+        ...userData,
+        user_type: (userData.user_type as UserType) || "customer",
+      },
       session: {
         access_token: session.access_token,
         refresh_token: session.refresh_token,
@@ -92,8 +105,8 @@ export async function getUserFromRequest(req: NextRequest): Promise<AuthContext>
     if (error instanceof UnauthorizedError) {
       throw error;
     }
-    logger.error('Authentication error', error);
-    throw new UnauthorizedError('Authentication failed');
+    logger.error("Authentication error", error);
+    throw new UnauthorizedError("Authentication failed");
   }
 }
 
@@ -116,34 +129,34 @@ export function withAuth(
       // Check role requirements
       if (options.roles && options.roles.length > 0) {
         if (!options.roles.includes(authContext.user.user_type)) {
-          logger.warn('Insufficient permissions', {
+          logger.warn("Insufficient permissions", {
             userId: authContext.user.id,
             userType: authContext.user.user_type,
             requiredRoles: options.roles,
           });
-          throw new ForbiddenError('Insufficient permissions for this action');
+          throw new ForbiddenError("Insufficient permissions for this action");
         }
       }
 
       // Check vendor requirements
       if (options.requireVendor) {
         const { data: vendors, error } = await supabase
-          .from('vendors')
-          .select('id, vendor_status, can_sell_products')
-          .eq('user_id', authContext.user.id);
+          .from("vendors")
+          .select("id, vendor_status, can_sell_products")
+          .eq("user_id", authContext.user.id);
 
         if (error || !vendors || vendors.length === 0) {
-          throw new ForbiddenError('Vendor account required');
+          throw new ForbiddenError("Vendor account required");
         }
 
         const vendor = vendors[0] as any;
 
-        if (vendor.vendor_status !== 'active') {
-          throw new ForbiddenError('Vendor account is not active');
+        if (vendor.vendor_status !== "active") {
+          throw new ForbiddenError("Vendor account is not active");
         }
 
         if (!vendor.can_sell_products) {
-          throw new ForbiddenError('Vendor cannot sell products');
+          throw new ForbiddenError("Vendor cannot sell products");
         }
       }
 
@@ -155,7 +168,7 @@ export function withAuth(
           {
             success: false,
             error: {
-              code: 'UNAUTHORIZED',
+              code: "UNAUTHORIZED",
               message: error.message,
             },
           },
@@ -168,7 +181,7 @@ export function withAuth(
           {
             success: false,
             error: {
-              code: 'FORBIDDEN',
+              code: "FORBIDDEN",
               message: error.message,
             },
           },
@@ -176,13 +189,13 @@ export function withAuth(
         );
       }
 
-      logger.error('Authentication middleware error', error);
+      logger.error("Authentication middleware error", error);
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: 'INTERNAL_ERROR',
-            message: 'Authentication failed',
+            code: "INTERNAL_ERROR",
+            message: "Authentication failed",
           },
         },
         { status: 500 }

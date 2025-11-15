@@ -105,10 +105,10 @@ class AuthManager {
   ): Promise<void> {
     const { error } = await (supabase.from("users").insert as any)({
       id: user.id,
-      email: user.email || '',
+      email: user.email || "",
       first_name: userData.first_name || null,
       last_name: userData.last_name || null,
-      user_type: userData.user_type || 'customer',
+      user_type: userData.user_type || "customer",
       deleted_at: null,
       created_as_business_owner_at: null,
     });
@@ -134,7 +134,17 @@ class AuthManager {
     }
 
     const session: AuthSession = {
-      user: userData,
+      user: {
+        id: userData.id,
+        email: userData.email,
+        first_name: userData.first_name ?? undefined,
+        last_name: userData.last_name ?? undefined,
+        user_type:
+          (userData.user_type as "customer" | "vendor" | "admin") || "customer",
+        created_at: userData.created_at || new Date().toISOString(),
+        updated_at: userData.updated_at || new Date().toISOString(),
+        deleted_at: userData.deleted_at ?? undefined,
+      },
       token:
         (await supabase.auth.getSession()).data.session?.access_token || "",
     };
@@ -148,7 +158,40 @@ class AuthManager {
         .single();
 
       if (!vendorError && vendorData) {
-        session.vendor = vendorData;
+        session.vendor = {
+          id: vendorData.id,
+          user_id: vendorData.user_id || user.id,
+          tier:
+            (vendorData.tier as "none" | "basic" | "pro" | "suspended") ||
+            "none",
+          business_name: vendorData.business_name ?? undefined,
+          bio: vendorData.bio ?? undefined,
+          primary_lga_id: vendorData.primary_lga_id ?? undefined,
+          secondary_lgas: vendorData.secondary_lgas ?? undefined,
+          logo_url: vendorData.logo_url ?? undefined,
+          profile_color_hex: vendorData.profile_color_hex ?? undefined,
+          profile_url: vendorData.profile_url ?? undefined,
+          abn_verified: vendorData.abn_verified || false,
+          abn: vendorData.abn ?? undefined,
+          abn_verified_at: vendorData.abn_verified_at ?? undefined,
+          product_count: vendorData.product_count || 0,
+          storage_used_mb: vendorData.storage_used_mb || 0,
+          stripe_account_id: vendorData.stripe_account_id ?? undefined,
+          pro_subscription_id: vendorData.pro_subscription_id ?? undefined,
+          pro_subscribed_at: vendorData.pro_subscribed_at ?? undefined,
+          pro_cancelled_at: vendorData.pro_cancelled_at ?? undefined,
+          last_activity_at:
+            vendorData.last_activity_at || new Date().toISOString(),
+          inactivity_flagged_at: vendorData.inactivity_flagged_at ?? undefined,
+          suspension_reason: vendorData.suspension_reason ?? undefined,
+          suspended_at: vendorData.suspended_at ?? undefined,
+          can_appeal: vendorData.can_appeal || false,
+          payment_reversal_count: vendorData.payment_reversal_count || 0,
+          payment_reversal_window_start:
+            vendorData.payment_reversal_window_start ?? undefined,
+          created_at: vendorData.created_at || new Date().toISOString(),
+          updated_at: vendorData.updated_at || new Date().toISOString(),
+        };
       }
     }
 
@@ -167,25 +210,23 @@ class AuthManager {
       throw new Error("Must be authenticated as vendor");
     }
 
-    const { data, error } = await (supabase
-      .from("vendors")
-      .insert as any)({
-        user_id: session.user.id,
-        tier: "none",
-        is_vendor: false,
-        vendor_status: "inactive",
-        can_sell_products: false,
-        stripe_onboarding_complete: false,
-        business_name: vendorData.business_name,
-        bio: vendorData.bio,
-        primary_lga_id: vendorData.primary_lga_id,
-        abn_verified: false,
-        product_count: 0,
-        storage_used_mb: 0,
-        product_quota: 0,
-        storage_quota_gb: 0,
-        commission_rate: 0,
-      })
+    const { data, error } = await (supabase.from("vendors").insert as any)({
+      user_id: session.user.id,
+      tier: "none",
+      is_vendor: false,
+      vendor_status: "inactive",
+      can_sell_products: false,
+      stripe_onboarding_complete: false,
+      business_name: vendorData.business_name,
+      bio: vendorData.bio,
+      primary_lga_id: vendorData.primary_lga_id,
+      abn_verified: false,
+      product_count: 0,
+      storage_used_mb: 0,
+      product_quota: 0,
+      storage_quota_gb: 0,
+      commission_rate: 0,
+    })
       .select()
       .single();
 
@@ -194,12 +235,9 @@ class AuthManager {
     }
 
     // Update user type to vendor
-    await (supabase
-      .from("users")
-      .update as any)({
-        user_type: "vendor",
-      })
-      .eq("id", session.user.id);
+    await (supabase.from("users").update as any)({
+      user_type: "vendor",
+    }).eq("id", session.user.id);
 
     // Refresh session
     this.currentSession = await this.refreshSession();
@@ -213,9 +251,9 @@ class AuthManager {
       throw new Error("Must have vendor profile");
     }
 
-    const { data, error } = await (supabase
-      .from("vendors")
-      .update as any)(vendorData)
+    const { data, error } = await (supabase.from("vendors").update as any)(
+      vendorData
+    )
       .eq("id", session.vendor.id)
       .select()
       .single();
