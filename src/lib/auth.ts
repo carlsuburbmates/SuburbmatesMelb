@@ -194,9 +194,9 @@ class AuthManager {
     }
 
     // Update user type to vendor
-    await supabase
+    await (supabase
       .from("users")
-      .update({
+      .update as any)({
         user_type: "vendor",
       })
       .eq("id", session.user.id);
