@@ -1,0 +1,11 @@
+{
+  "name": "suburbmates-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "cd suburbmates-v1 && npm run dev",
+    "build": "cd suburbmates-v1 && npm run build",
+    "start": "cd suburbmates-v1 && npm start -- -p 3010 -H localhost",
+    "smoke": "cd suburbmates-v1 && npm run smoke",
+    "smoke:serve": "node scripts/smoke-serve.mjs"
+  }
+}

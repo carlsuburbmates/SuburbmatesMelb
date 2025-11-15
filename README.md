@@ -40,6 +40,19 @@ suburbmates-v1/
 
 ---
 
+## 📖 **Critical Documents for Stage 3 Development**
+
+**Start here for immediate execution context:**
+
+- **Founder Decisions & Amendments**: `v1.1-docs/FOUNDER_STRATEGY/FOUNDER_AMENDMENT_DIRECTIVE.md`
+- **Decisions Log (Quick Reference)**: `v1.1-docs/DECISIONS_LOG.md`
+- **Stage 3 Implementation Guide**: `v1.1-docs/10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_IMPLEMENTATION_GUIDE.md`
+- **Stage 3 Handoff (Execution Brief)**: `v1.1-docs/10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_HANDOFF.md`
+- **Stages 4–6 Roadmap**: `v1.1-docs/10_IMPLEMENTATION_GUIDES/V1_1_STAGES_4_6_IMPLEMENTATION_GUIDE.md`
+- **Full Documentation Index**: `v1.1-docs/00_README_MASTER_INDEX.md`
+
+---
+
 ## ⚡ **Quick Start**
 
 ### **Development**

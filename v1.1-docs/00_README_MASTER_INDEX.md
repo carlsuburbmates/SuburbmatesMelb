@@ -11,29 +11,40 @@
 
 ### **For Founders/Decision-Makers** (2 hours)
 
-Start here if you need to understand the business, strategy, and operational overview.
+**START WITH THESE (v1.1 Amendments & Execution Context):**
 
-1. **01_STRATEGY/01.0_PROJECT_OVERVIEW.md** (565 lines)
+0. **FOUNDER_STRATEGY/FOUNDER_AMENDMENT_DIRECTIVE.md** ⭐ **READ FIRST**
+   - All v1.1 locked principles (Vendor MoR, non-mediating, no auto-refunds, no SLAs)
+   - 6 Critical Founder Decisions (FD-1 → FD-6)
+   - 5 Resolved Ambiguities (MA-1 → MA-5)
+   - Immediate next steps for team
+
+1. **DECISIONS_LOG.md** ⭐ **Quick Reference**
+   - Single source of truth for all strategic & operational decisions
+   - Enforcement anchors (code locations, process refs)
+   - Reversal triggers for each decision
+
+2. **01_STRATEGY/01.0_PROJECT_OVERVIEW.md** (565 lines)
 
    - Why we removed the December 1 deadline
    - 6-phase 10-week timeline
    - Quality-first approach
    - Success criteria
 
-2. **01_STRATEGY/01.1_BUSINESS_PLAN.md** (566 lines)
+3. **01_STRATEGY/01.1_BUSINESS_PLAN.md** (566 lines)
 
    - Business model (8% commission)
    - Revenue streams
    - Unit economics
    - Go-to-market strategy
 
-3. **01_STRATEGY/01.2_ROADMAP_AND_RISK.md**
+4. **01_STRATEGY/01.2_ROADMAP_AND_RISK.md**
 
    - Product roadmap (phases 2-4+)
    - Risk mitigation strategies
    - Contingency plans
 
-4. **06_OPERATIONS_AND_DEPLOYMENT/06.4_FOUNDER_OPERATIONS.md** (610 lines)
+5. **06_OPERATIONS_AND_DEPLOYMENT/06.4_FOUNDER_OPERATIONS.md** (610 lines)
    - Decision matrices
    - Escalation workflows
    - Daily operational procedures
@@ -43,16 +54,34 @@ Start here if you need to understand the business, strategy, and operational ove
 
 ### **For Backend Developers** (4 hours)
 
-Start here if you're building the API, database, and server-side logic.
+**START WITH THESE (Stage 3 Execution Context):**
 
-1. **03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md** (572 lines)
+0. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_HANDOFF.md** ⭐ **Execution Brief**
+   - Condensed 13-task scope with acceptance criteria
+   - Team allocation & endpoints snapshot
+   - Cron jobs, webhook events, deployment checklist
+   - Risk mitigations & quick start commands
+
+1. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_IMPLEMENTATION_GUIDE.md** (Full Spec)
+   - Product CRUD, tier management, featured slots, search instrumentation
+   - Data model deltas, dispute gating setup, fee credit path
+   - Week-by-week implementation order
+
+2. **DECISIONS_LOG.md** (v1.1 Principles Reference)
+   - All locked principles enforced in code
+   - Non-negotiable: Vendor MoR, read-only webhooks, no auto-refunds
+   - Enforcement anchors by feature
+
+Then read core architecture:
+
+3. **03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md** (572 lines)
 
    - Tech stack (Next.js, Supabase, Stripe, Claude)
    - High-level system architecture
    - Deployment architecture
    - Authentication flow
 
-2. **03_ARCHITECTURE/03.3_SCHEMA_REFERENCE.md** (528 lines)
+4. **03_ARCHITECTURE/03.3_SCHEMA_REFERENCE.md** (528 lines)
 
    - 13-table database schema
    - All table definitions with SQL
@@ -60,7 +89,7 @@ Start here if you're building the API, database, and server-side logic.
    - Key business invariants
    - Index recommendations
 
-3. **04_API/04.0_COMPLETE_SPECIFICATION.md** (694 lines)
+5. **04_API/04.0_COMPLETE_SPECIFICATION.md** (694 lines)
 
    - Complete API reference
    - All 30+ endpoints
@@ -68,7 +97,7 @@ Start here if you're building the API, database, and server-side logic.
    - Implementation plan
    - Go/no-go gates
 
-4. **04_API/04.2_ENDPOINTS_REFERENCE.md** (863 lines)
+6. **04_API/04.2_ENDPOINTS_REFERENCE.md** (863 lines)
 
    - 50+ API endpoints by feature
    - Quick lookup by feature
@@ -76,7 +105,7 @@ Start here if you're building the API, database, and server-side logic.
    - Authentication requirements
    - Error codes
 
-5. **05_FEATURES_AND_WORKFLOWS/05.1_MVP_SPRINT_PLAN.md**
+7. **05_FEATURES_AND_WORKFLOWS/05.1_MVP_SPRINT_PLAN.md**
    - Week-by-week execution breakdown
    - Daily sprint structure
    - Milestones and checkpoints

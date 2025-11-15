@@ -7,9 +7,7 @@
     "build": "next build --webpack",
     "start": "next start -p 3010 -H localhost",
     "lint": "eslint",
-    "verify:workspace": "node -e \"const fs=require('fs');const p='package.json';const n='node_modules/next/dist/bin/next';if(!fs.existsSync(p)){console.error('Missing package.json in project root');process.exit(1)};if(!fs.existsSync(n)){console.error('Missing Next binary. Run npm install');process.exit(1)};console.log('Workspace OK');\"",
     "smoke": "node scripts/smoke-test-api.mjs",
-    "smoke:serve": "node scripts/smoke-serve.mjs",
     "test:e2e": "PLAYWRIGHT_BASE_URL=http://localhost:3010 npx playwright test",
     "test:e2e:serve": "node scripts/e2e-serve.mjs"
   },

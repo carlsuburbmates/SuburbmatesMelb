@@ -7,20 +7,35 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
-    name: build
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      - name: Lint
+
+      - name: Verify workspace
+        run: npm run verify:workspace
+
+      - name: Install Playwright (Chromium + deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint (optional)
         run: npm run lint --if-present
+
       - name: Build
         run: npm run build
+
+      - name: Smoke test (serve)
+        run: node scripts/smoke-serve.mjs
+
+      - name: E2E tests (serve)
+        run: node scripts/e2e-serve.mjs
