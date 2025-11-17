@@ -9,6 +9,7 @@ interface LazyImageProps {
   width?: number;
   height?: number;
   className?: string;
+  wrapperClassName?: string;
   priority?: boolean;
   placeholder?: 'blur' | 'empty';
   blurDataURL?: string;
@@ -23,6 +24,7 @@ export function LazyImage({
   width,
   height,
   className = '',
+  wrapperClassName = '',
   priority = false,
   placeholder = 'empty',
   blurDataURL,
@@ -45,8 +47,8 @@ export function LazyImage({
 
   if (hasError) {
     return (
-      <div 
-        className={`bg-gray-200 flex items-center justify-center text-gray-500 text-sm ${className}`}
+      <div
+        className={`bg-gray-200 flex items-center justify-center text-gray-500 text-sm ${wrapperClassName}`}
         style={{ width, height, ...style }}
       >
         Failed to load image
@@ -55,7 +57,11 @@ export function LazyImage({
   }
 
   return (
-    <div className={`relative ${isLoading ? 'animate-pulse bg-gray-200' : ''}`}>
+    <div
+      className={`relative ${fill ? 'h-full w-full' : ''} ${
+        isLoading ? 'animate-pulse bg-gray-200' : ''
+      } ${wrapperClassName}`}
+    >
       <Image
         src={src}
         alt={alt}
