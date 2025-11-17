@@ -71,6 +71,17 @@
   - Triggers FIFO downgrade unpublish if downgraded
   - Logs `VENDOR_TIER_CHANGED` event
 
+### 8. Vendor Dashboard & Product Management UI (NEW)
+
+- ✅ `GET /api/vendor/products` — returns vendor-owned products plus tier stats/featured counts (file: `src/app/api/vendor/products/route.ts`)
+- ✅ `useVendorProducts` hook for authenticated fetch + CRUD helpers (file: `src/hooks/useVendorProducts.ts`)
+- ✅ Vendor workspace route group (`src/app/(vendor)/vendor/*`)
+  - `/vendor/dashboard` — utilization overview, featured slot highlights, quota warnings
+  - `/vendor/products` — CRUD form, publish toggles, delete controls, cap-aware messaging
+  - `/vendor/analytics` — lightweight insights (category mix, publication ratios, upgrade tips)
+- ✅ Layout guard enforces vendor-only access and links to help/upgrade flows
+- ✅ UI messaging references SSOT non-negotiables (MoR, no SLAs, FIFO downgrade)
+
 ## Non-Negotiable Compliance
 
 ### ✅ Implemented
@@ -133,12 +144,19 @@ SEARCH_SALT=your-secret-salt-here-min-32-chars
 - `src/lib/telemetry.ts`
 - `src/app/api/vendor/featured-slots/route.ts`
 - `STAGE3_IMPLEMENTATION_SUMMARY.md` (this file)
+- `src/hooks/useVendorProducts.ts`
+- `src/app/(vendor)/vendor/layout.tsx`
+- `src/app/(vendor)/vendor/page.tsx`
+- `src/app/(vendor)/vendor/dashboard/page.tsx`
+- `src/app/(vendor)/vendor/products/page.tsx`
+- `src/app/(vendor)/vendor/analytics/page.tsx`
 
 ## Files Modified
 
 - `src/lib/constants.ts`
 - `src/lib/logger.ts`
 - `src/app/api/webhook/stripe/route.ts`
+- `src/app/api/vendor/products/route.ts`
 
 ## Verification Checklist
 

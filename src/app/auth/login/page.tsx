@@ -2,36 +2,41 @@
 
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  const router = useRouter();
+  const { login, isAuthenticated, isLoading } = useAuth();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      // User is already logged in, redirect to appropriate dashboard
+      const redirectUrl = '/dashboard'; // Default to dashboard for now
+      router.push(redirectUrl);
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
 
     try {
-      // Simulate login API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // For demo purposes, accept any email/password combination
-      if (email && password) {
-        // Redirect to dashboard or homepage
-        window.location.href = "/dashboard";
-      } else {
-        setError("Please enter both email and password");
-      }
+      await login(email, password);
+      
+      // Redirect to appropriate dashboard based on user type
+      // The login function in AuthContext will handle storing session data and redirect
+      router.push('/dashboard');
     } catch (err) {
-      setError("Login failed. Please try again.");
-    } finally {
-      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     }
   };
 
@@ -94,7 +99,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  placeholder="••••••••"
+                  placeholder="••••••"
                 />
                 <button
                   type="button"

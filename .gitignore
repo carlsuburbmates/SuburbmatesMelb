@@ -38,3 +38,6 @@ supabase/.temp/
 # Turbo / Vercel
 .turbo/
 .vercel/
+
+# Sentry Config File
+.env.sentry-build-plugin

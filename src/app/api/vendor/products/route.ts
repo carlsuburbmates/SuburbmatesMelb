@@ -12,7 +12,7 @@ import {
   successResponse,
 } from "@/app/api/_utils/response";
 import { parseProductCreateRequest } from "./payload";
-import { VendorTier } from "@/lib/constants";
+import { TIER_LIMITS, VendorTier } from "@/lib/constants";
 import { generateUniqueSlug } from "@/lib/slug-utils";
 import { canCreateProduct } from "@/lib/tier-utils";
 import { withCors } from "@/middleware/cors";
@@ -81,6 +81,71 @@ async function createProductHandler(req: NextRequest) {
 
   return successResponse({ product: productData }, 201);
 }
+
+async function listProductsHandler(req: NextRequest) {
+  const { vendor, authContext } = await requireVendor(req);
+  const dbClient = authContext.dbClient;
+
+  const { data: productData, error: fetchError } = await dbClient
+    .from("products")
+    .select(
+      "id,title,description,price,category,slug,thumbnail_url,published,images,created_at,updated_at"
+    )
+    .eq("vendor_id", vendor.id)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (fetchError) {
+    console.error("Product fetch error:", fetchError);
+    return internalErrorResponse("Failed to load products");
+  }
+
+  const totalProducts = productData?.length ?? 0;
+  const publishedProducts =
+    productData?.filter((product) => product.published)?.length ?? 0;
+  const draftProducts = totalProducts - publishedProducts;
+
+  const todayIso = new Date().toISOString();
+  const { data: featuredSlots, error: featuredError } = await dbClient
+    .from("featured_slots")
+    .select("id,status,end_date")
+    .eq("vendor_id", vendor.id)
+    .gte("end_date", todayIso);
+
+  if (featuredError) {
+    console.error("Featured slots fetch error:", featuredError);
+  }
+
+  const activeFeaturedSlots =
+    featuredSlots?.filter((slot) =>
+      slot.status ? slot.status === "active" : true
+    ).length ?? 0;
+
+  const tierLimit =
+    (vendor as any)?.product_quota ??
+    TIER_LIMITS[(vendor.tier as VendorTier) ?? "basic"]?.product_quota ??
+    null;
+
+  return successResponse({
+    products: productData ?? [],
+    stats: {
+      totalProducts,
+      publishedProducts,
+      draftProducts,
+      featuredSlots: activeFeaturedSlots,
+      tier: vendor.tier,
+      productQuota: tierLimit,
+      remainingQuota:
+        typeof tierLimit === "number" ? tierLimit - totalProducts : null,
+      lastUpdated:
+        productData && productData.length > 0
+          ? productData[0]?.updated_at ?? productData[0]?.created_at
+          : null,
+    },
+  });
+}
+
+export const GET = withErrorHandler(withLogging(withCors(listProductsHandler)));
 
 export const POST = withErrorHandler(
   withLogging(withCors(createProductHandler))

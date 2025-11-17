@@ -14,6 +14,7 @@ type UserRole = 'customer' | 'vendor' | null;
 
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -39,9 +40,15 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
       return;
     }
 
@@ -55,35 +62,35 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          user_type: selectedRole === 'vendor' ? 'business_owner' : 'customer',
           ...(selectedRole === 'vendor' && {
-            businessName: formData.businessName,
+            business_name: formData.businessName,
             abn: formData.abn,
             phone: formData.phone
           })
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert(selectedRole === 'vendor' ? 'Vendor account created successfully!' : 'Account created successfully!');
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         onClose();
         analytics.signupComplete(selectedRole === 'vendor' ? 'vendor' : 'customer');
-        // Redirect to appropriate dashboard or login
-        window.location.href = selectedRole === 'vendor' ? '/vendor/dashboard' : '/customer/dashboard';
+        // Redirect to login page after successful signup
+        window.location.href = '/auth/login';
       } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to create account');
+        setError(data.error || 'Registration failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Signup error:', error);
-      alert('An error occurred. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error. Please try again.');
     }
   };
 
   const resetModal = () => {
     setSelectedRole(null);
+    setError(null);
     setFormData({
       email: '',
       password: '',
@@ -157,6 +164,11 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       ) : (
         // Signup Form
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              {error}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">

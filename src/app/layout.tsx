@@ -2,6 +2,7 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -100,19 +101,21 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
-        <GoogleAnalytics />
+        <AuthProvider>
+          <GoogleAnalytics />
 
-        {/* Skip to main content for screen readers */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Skip to main content
-        </a>
+          {/* Skip to main content for screen readers */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-md"
+          >
+            Skip to main content
+          </a>
 
-        <Header />
-        <main id="main-content">{children}</main>
-        <Footer />
+          <Header />
+          <main id="main-content">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -34,7 +34,7 @@ export const userSignupSchema = z.object({
   first_name: z.string().min(1, "First name is required").optional(),
   last_name: z.string().min(1, "Last name is required").optional(),
   user_type: z
-    .enum([USER_TYPES.CUSTOMER, USER_TYPES.BUSINESS_OWNER])
+    .enum([USER_TYPES.CUSTOMER, USER_TYPES.BUSINESS_OWNER, 'vendor'])
     .default(USER_TYPES.CUSTOMER),
 });
 

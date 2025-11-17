@@ -3,12 +3,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { SignupModal } from '@/components/modals/SignupModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const { user, vendor, isAuthenticated, isLoading, logout } = useAuth();
+  const router = useRouter();
+  
   const navLinks = useMemo(
     () => [
       { label: 'Directory', href: '/directory' },
@@ -23,6 +28,18 @@ export function Header() {
   const closeMenu = () => setIsMenuOpen(false);
   const openSignupModal = () => setIsSignupModalOpen(true);
   const closeSignupModal = () => setIsSignupModalOpen(false);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return user?.email || 'User';
+  };
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -77,18 +94,58 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="/auth/login"
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Log in
-            </Link>
-            <button 
-              onClick={openSignupModal}
-              className="btn-primary"
-            >
-              Sign up
-            </button>
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+            ) : isAuthenticated ? (
+              <>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {getUserDisplayName()}
+                    </span>
+                    {vendor && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        Vendor
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                    title="Logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+                {user?.user_type === 'vendor' && (
+                  <Link
+                    href="/dashboard"
+                    className="btn-primary"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/login"
+                  className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                >
+                  Log in
+                </Link>
+                <button
+                  onClick={openSignupModal}
+                  className="btn-primary"
+                >
+                  Sign up
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -148,22 +205,67 @@ export function Header() {
               ))}
             </nav>
             <div className="px-6 pb-6 space-y-3 border-t border-white/30 pt-4">
-              <Link
-                href="/auth/login"
-                className="block text-gray-600 hover:text-gray-900 font-medium"
-                onClick={closeMenu}
-              >
-                Log in
-              </Link>
-              <button
-                onClick={() => {
-                  closeMenu();
-                  openSignupModal();
-                }}
-                className="btn-cta w-full text-center"
-              >
-                Get Started Free
-              </button>
+              {isLoading ? (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                </div>
+              ) : isAuthenticated ? (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-white">
+                        {getUserDisplayName()}
+                      </span>
+                      {vendor && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          Vendor
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        closeMenu();
+                        handleLogout();
+                      }}
+                      className="flex items-center space-x-1 text-white/80 hover:text-white font-medium transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                  {user?.user_type === 'vendor' && (
+                    <Link
+                      href="/dashboard"
+                      className="btn-cta w-full text-center"
+                      onClick={closeMenu}
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="block text-gray-600 hover:text-gray-900 font-medium"
+                    onClick={closeMenu}
+                  >
+                    Log in
+                  </Link>
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      openSignupModal();
+                    }}
+                    className="btn-cta w-full text-center"
+                  >
+                    Get Started Free
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
