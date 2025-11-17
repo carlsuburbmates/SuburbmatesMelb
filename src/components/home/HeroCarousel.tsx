@@ -78,23 +78,27 @@ export function HeroCarousel() {
           >
             {/* Background Image */}
             <div
-              className={`absolute inset-0 ${getAccentOverlayClass(
-                slide.accent
-              )}`}
+              className="absolute inset-0"
               style={{ transform: `translate3d(0, ${parallaxOffset}px, 0)` }}
             >
-              {slide.image ? (
-                <LazyImage
-                  src={generateImageUrl(slide.image)}
-                  alt={slide.image.description}
-                  fill
-                  priority={getImagePriority("hero")}
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-cover bg-center bg-gray-400" />
-              )}
+              <div
+                className={`${getAccentOverlayClass(
+                  slide.accent
+                )} h-full w-full`}
+              >
+                {slide.image ? (
+                  <LazyImage
+                    src={generateImageUrl(slide.image)}
+                    alt={slide.image.description}
+                    fill
+                    priority={getImagePriority("hero")}
+                    className="object-cover"
+                    sizes="100vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-cover bg-center bg-gray-400" />
+                )}
+              </div>
             </div>
 
             {/* Gradient Overlay */}
