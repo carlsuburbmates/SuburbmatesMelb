@@ -4,7 +4,6 @@
  */
 
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { UserType, USER_TYPES } from '@/lib/constants';
 import { getUserFromRequest, AuthContext } from '@/middleware/auth';
@@ -46,7 +45,7 @@ export async function requireAdmin(req: NextRequest): Promise<AuthContext> {
 export async function requireVendor(req: NextRequest) {
   const authContext = await getUserFromRequest(req);
 
-  const { data: vendors, error } = await supabase
+  const { data: vendors, error } = await authContext.dbClient
     .from('vendors')
     .select('*')
     .eq('user_id', authContext.user.id);
@@ -78,7 +77,7 @@ export async function getVendorIfExists(req: NextRequest) {
   try {
     const authContext = await getUserFromRequest(req);
 
-    const { data: vendors, error } = await supabase
+    const { data: vendors, error } = await authContext.dbClient
       .from('vendors')
       .select('*')
       .eq('user_id', authContext.user.id);

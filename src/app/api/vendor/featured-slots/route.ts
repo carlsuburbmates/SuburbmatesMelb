@@ -4,41 +4,23 @@
  * Non-negotiable: Premium tier only; max 3 active slots per vendor
  */
 
+import { requireVendor } from "@/app/api/_utils/auth";
+import { successResponse } from "@/app/api/_utils/response";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import { FEATURED_SLOT } from "@/lib/constants";
 import { BusinessEvent, logEvent, logger } from "@/lib/logger";
-import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * GET - Fetch vendor's featured slots
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get vendor record
-    const { data: vendors, error: vendorError } = await supabase
-      .from("vendors")
-      .select("id, tier, vendor_status")
-      .eq("user_id", user.id)
-      .limit(1);
-
-    if (vendorError || !vendors || vendors.length === 0) {
-      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
-    }
-
-    const vendor = vendors[0];
+    const { vendor, authContext } = await requireVendor(req);
+    const dbClient = authContext.dbClient;
 
     // Fetch featured slots
-    const { data: slots, error: slotsError } = await supabase
+    const { data: slots, error: slotsError } = await dbClient
       .from("featured_slots")
       .select("*")
       .eq("vendor_id", vendor.id)
@@ -52,13 +34,19 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({
-      slots: slots || [],
+    return successResponse({
+      featured_slots: slots || [],
       tier: vendor.tier,
-      maxSlots:
+      max_slots:
         vendor.tier === "premium" ? FEATURED_SLOT.MAX_SLOTS_PER_VENDOR : 0,
     });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     logger.error("Featured slots GET error", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -72,28 +60,8 @@ export async function GET() {
  */
 export async function POST(req: NextRequest) {
   try {
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get vendor record
-    const { data: vendors, error: vendorError } = await supabase
-      .from("vendors")
-      .select("id, tier, vendor_status")
-      .eq("user_id", user.id)
-      .limit(1);
-
-    if (vendorError || !vendors || vendors.length === 0) {
-      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
-    }
-
-    const vendor = vendors[0];
+    const { vendor, authContext } = await requireVendor(req);
+    const dbClient = authContext.dbClient;
 
     // Enforce vendor status
     if (vendor.vendor_status !== "active") {
@@ -116,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check active slot count (max 3 per vendor)
-    const { data: activeSlots, error: countError } = await supabase
+    const { data: activeSlots, error: countError } = await dbClient
       .from("featured_slots")
       .select("id")
       .eq("vendor_id", vendor.id)
@@ -158,7 +126,7 @@ export async function POST(req: NextRequest) {
       Date.now() + FEATURED_SLOT.DURATION_DAYS * 86400000
     ).toISOString();
 
-    const { data: newSlot, error: insertError } = await supabase
+    const { data: newSlot, error: insertError } = await dbClient
       .from("featured_slots")
       .insert({
         vendor_id: vendor.id,
@@ -204,6 +172,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     logger.error("Featured slots POST error", error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -3,6 +3,7 @@ node_modules/
 .next/
 out/
 .dist/
+.env.stripe-output
 .cache/
 coverage/
 

@@ -5,6 +5,8 @@
 
 import { TIER_LIMITS, VendorTier } from "./constants";
 import { supabase } from "./supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 
 /**
  * Get tier limits for a given vendor tier
@@ -21,9 +23,10 @@ export function getVendorTierLimits(tier: VendorTier) {
  * @returns Number of published products
  */
 export async function getPublishedProductCount(
-  vendorId: string
+  vendorId: string,
+  client: SupabaseClient<Database> = supabase
 ): Promise<number> {
-  const { count, error } = await supabase
+  const { count, error } = await client
     .from("products")
     .select("id", { count: "exact", head: true })
     .eq("vendor_id", vendorId)
@@ -45,9 +48,12 @@ export async function getPublishedProductCount(
  */
 export async function canCreateProduct(
   vendorId: string,
-  tier: VendorTier
+  tier: VendorTier,
+  client: SupabaseClient<Database> = supabase,
+  quotaOverride?: number | null
 ): Promise<boolean> {
   const limits = getVendorTierLimits(tier);
+  const allowedQuota = quotaOverride ?? limits.product_quota;
 
   // Suspended or none tier cannot create products
   if (!limits.can_sell) {
@@ -55,9 +61,9 @@ export async function canCreateProduct(
   }
 
   // Check product quota (SSOT: Basic=3, Pro=50)
-  const currentCount = await getPublishedProductCount(vendorId);
+  const currentCount = await getPublishedProductCount(vendorId, client);
 
-  return currentCount < limits.product_quota;
+  return currentCount < allowedQuota;
 }
 
 /**
@@ -70,16 +76,19 @@ export async function canCreateProduct(
 export async function canPublishProduct(
   vendorId: string,
   tier: VendorTier,
-  currentlyPublished: boolean
+  currentlyPublished: boolean,
+  client: SupabaseClient<Database> = supabase,
+  quotaOverride?: number | null
 ): Promise<boolean> {
   const limits = getVendorTierLimits(tier);
+  const allowedQuota = quotaOverride ?? limits.product_quota;
 
   // Cannot publish if tier doesn't allow selling
   if (!limits.can_sell) {
     return false;
   }
 
-  const currentCount = await getPublishedProductCount(vendorId);
+  const currentCount = await getPublishedProductCount(vendorId, client);
 
   // If already published, updating doesn't change count
   if (currentlyPublished) {
@@ -87,7 +96,7 @@ export async function canPublishProduct(
   }
 
   // Check if publishing would exceed cap
-  return currentCount < limits.product_quota;
+  return currentCount < allowedQuota;
 }
 
 /**

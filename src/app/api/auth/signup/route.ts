@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { userSignupSchema } from '@/lib/validation';
 import { sendWelcomeEmail } from '@/lib/email';
 import { logger, logEvent, BusinessEvent } from '@/lib/logger';
@@ -28,32 +28,56 @@ async function signupHandler(req: NextRequest) {
 
     logger.info('User signup attempt', { email: body.email, userType: body.user_type });
 
-    // Sign up user with Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
-      email: body.email,
-      password: body.password,
-      options: {
-        data: {
+    let createdUserId: string | null = null;
+
+    if (supabaseAdmin) {
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email: body.email,
+        password: body.password,
+        email_confirm: true,
+        user_metadata: {
           first_name: body.first_name,
           last_name: body.last_name,
           user_type: body.user_type,
         },
-      },
-    });
+      });
 
-    if (error) {
-      logger.warn('Supabase auth signup failed', { email: body.email, error: error.message });
-      return badRequestResponse(error.message);
+      if (error) {
+        logger.warn('Supabase admin signup failed', { email: body.email, error: error.message });
+        return badRequestResponse(error.message);
+      }
+
+      createdUserId = data.user?.id ?? null;
+    } else {
+      const { data, error } = await supabase.auth.signUp({
+        email: body.email,
+        password: body.password,
+        options: {
+          data: {
+            first_name: body.first_name,
+            last_name: body.last_name,
+            user_type: body.user_type,
+          },
+        },
+      });
+
+      if (error) {
+        logger.warn('Supabase auth signup failed', { email: body.email, error: error.message });
+        return badRequestResponse(error.message);
+      }
+
+      createdUserId = data.user?.id ?? null;
     }
 
-    if (!data.user) {
+    if (!createdUserId) {
       return internalErrorResponse('User registration failed');
     }
 
     // Create user record in database
-    const { error: dbError } = await supabase.from('users').insert({
-      id: data.user.id,
-      email: data.user.email || body.email,
+    const dbClient = supabaseAdmin ?? supabase;
+    const { error: dbError } = await dbClient.from('users').insert({
+      id: createdUserId,
+      email: body.email,
       first_name: body.first_name || null,
       last_name: body.last_name || null,
       user_type: body.user_type,
@@ -62,13 +86,13 @@ async function signupHandler(req: NextRequest) {
     } as any);
 
     if (dbError) {
-      logger.error('Failed to create user in database', dbError, { userId: data.user.id });
+      logger.error('Failed to create user in database', dbError, { userId: createdUserId });
       return internalErrorResponse(`Database error: ${dbError.message}`);
     }
 
     // Log business event
     logEvent(BusinessEvent.USER_SIGNUP, {
-      userId: data.user.id,
+      userId: createdUserId,
       email: body.email,
       userType: body.user_type,
     });
@@ -76,18 +100,18 @@ async function signupHandler(req: NextRequest) {
     // Send welcome email (async, don't block response)
     sendWelcomeEmail(body.email, body.first_name).catch((error) => {
       logger.error('Failed to send welcome email', error, {
-        userId: data.user!.id,
+        userId: createdUserId,
         email: body.email,
       });
     });
 
-    logger.info('User signup successful', { userId: data.user.id });
+    logger.info('User signup successful', { userId: createdUserId });
 
     return successResponse(
       {
         message: 'User registered successfully. Please check your email.',
         user: {
-          id: data.user.id,
+          id: createdUserId,
           email: body.email,
           user_type: body.user_type,
         },

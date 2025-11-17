@@ -210,9 +210,9 @@ export async function POST(req: NextRequest) {
 
           if (orders && orders.length > 0) {
             const vendorId = orders[0].vendor_id;
-            
+
             if (!vendorId) {
-              logger.warn('Order missing vendor_id', { chargeId });
+              logger.warn("Order missing vendor_id", { chargeId });
               break;
             }
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { User, Store, ArrowRight } from 'lucide-react';
+import { analytics } from '@/lib/analytics';
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
+    analytics.signupRoleSelect(role ?? 'customer');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +69,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         const data = await response.json();
         alert(selectedRole === 'vendor' ? 'Vendor account created successfully!' : 'Account created successfully!');
         onClose();
+        analytics.signupComplete(selectedRole === 'vendor' ? 'vendor' : 'customer');
         // Redirect to appropriate dashboard or login
         window.location.href = selectedRole === 'vendor' ? '/vendor/dashboard' : '/customer/dashboard';
       } else {

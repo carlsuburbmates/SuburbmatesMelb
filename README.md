@@ -72,6 +72,15 @@ npm run build              # → Verifies all features working
 - **Directory**: `http://localhost:3000/directory` - Business search & filtering  
 - **Business Profile**: `http://localhost:3000/business/melbourne-tutoring-hub`
 
+### **Stripe Sandbox & Webhook Workflow**
+Before running payments tests, follow the [Stripe Testing Playbook](v1.1-docs/Stripe/STRIPE_TESTING_PLAYBOOK.md):
+1. Toggle the Stripe dashboard into **Test mode** and ensure Connect Standard is enabled (note the test `STRIPE_CLIENT_ID`).
+2. Create the test-mode versions of the Vendor Pro and Featured products/prices and copy their IDs into `.env.local`.
+3. Install Stripe CLI (`stripe login`), run the app with `DISABLE_RATE_LIMIT=true npm run dev`, and start a listener:  
+   `stripe listen --forward-to http://localhost:3010/api/webhook/stripe`.
+4. Copy the generated `whsec_…` into `.env.local`, trigger test events (`stripe trigger checkout.session.completed`), then run Playwright/manual flows.
+5. Record the session results under `reports/stripe-cli-YYYYMMDD.md`.
+
 ---
 
 ## 🎯 **Core Principles**

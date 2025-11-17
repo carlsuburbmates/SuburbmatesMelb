@@ -2,6 +2,7 @@
 
 import { Modal } from '@/components/ui/modal';
 import { Star, MapPin, Clock, DollarSign, CheckCircle } from 'lucide-react';
+import { analytics } from '@/lib/analytics';
 
 interface FeaturedModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
   ];
 
   const handleGetFeatured = () => {
-    // Close modal and redirect to vendor signup/dashboard
+    analytics.featuredClick();
     onClose();
     window.location.href = '/vendor/dashboard';
   };

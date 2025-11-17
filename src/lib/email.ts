@@ -38,6 +38,16 @@ export interface EmailResult {
  * Send email via Resend
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
+  if (
+    process.env.DISABLE_RATE_LIMIT === 'true' ||
+    process.env.SKIP_EMAILS === 'true'
+  ) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.info('[email] Skipping send (test mode):', options.subject);
+    }
+    return { success: true, id: 'test-mode' };
+  }
+
   try {
     const { data, error } = await resend.emails.send({
       from: options.from || PLATFORM.NO_REPLY_EMAIL,

@@ -4,7 +4,7 @@ const paths = ['/', '/directory', '/marketplace', '/robots.txt', '/sitemap.xml']
 
 test.describe('Core routes', () => {
   for (const p of paths) {
-    test(`GET ${p} returns content`, async ({ page, context }) => {
+    test(`GET ${p} returns content`, async ({ page }) => {
       const errors: string[] = [];
       page.on('console', (msg) => {
         if (msg.type() === 'error') errors.push(msg.text());

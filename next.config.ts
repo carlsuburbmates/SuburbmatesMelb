@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
       {
         pathname: '/images/**',
       },
+      {
+        pathname: '/logo1.jpg',
+      },
+      {
+        pathname: '/logo2.jpg',
+      },
     ],
   },
   

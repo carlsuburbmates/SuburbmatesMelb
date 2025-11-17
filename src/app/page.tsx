@@ -1,21 +1,21 @@
-import { HeroCarousel } from '@/components/home/HeroCarousel';
-import { BrowseSection } from '@/components/home/BrowseSection';
-import { FeaturedSection } from '@/components/home/FeaturedSection';
-import { HowItWorks } from '@/components/home/HowItWorks';
-import { WhyJoinSection } from '@/components/home/WhyJoinSection';
-import { FAQSection } from '@/components/home/FAQSection';
-import { CTASection } from '@/components/home/CTASection';
+import { BrowseSection } from "@/components/home/BrowseSection";
+import { CTASection } from "@/components/home/CTASection";
+import { FAQSection } from "@/components/home/FAQSection";
+import { FeaturedSection } from "@/components/home/FeaturedSection";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { WhyJoinSection } from "@/components/home/WhyJoinSection";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <>
       <HeroCarousel />
-      <BrowseSection />
+      <CTASection />
       <FeaturedSection />
+      <BrowseSection />
       <HowItWorks />
       <WhyJoinSection />
       <FAQSection />
-      <CTASection />
-    </main>
+    </>
   );
 }

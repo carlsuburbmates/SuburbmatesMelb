@@ -17,13 +17,13 @@ interface LazyBusinessCardProps {
 
 export function LazyBusinessCard({ business, delay = 0 }: LazyBusinessCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const animation = useFadeIn({ delay, duration: 500 });
+  const { elementRef, className, style } = useFadeIn<HTMLDivElement>({ delay, duration: 500 });
 
   return (
     <div 
-      ref={animation.elementRef as any}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 ${animation.className}`}
-      style={animation.style}
+      ref={elementRef}
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 ${className}`}
+      style={style}
     >
       <div className="flex space-x-4">
         {/* Business Avatar with lazy loading */}

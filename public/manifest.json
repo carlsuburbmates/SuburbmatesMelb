@@ -1,0 +1,28 @@
+{
+  "name": "SuburbMates - Melbourne's Digital Neighbourhood",
+  "short_name": "SuburbMates",
+  "description": "Connect with local businesses and discover digital products in your suburb. No sign-up required to browse.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#171717",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "business", "lifestyle"],
+  "lang": "en-AU",
+  "dir": "ltr"
+}

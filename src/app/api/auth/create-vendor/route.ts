@@ -1,6 +1,13 @@
+import { requireAuth } from "@/app/api/_utils/auth";
 import { stripe } from "@/lib/stripe";
-import { supabase } from "@/lib/supabase";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+function resolveProductQuota(tier: string, abnVerified: boolean): number {
+  if (tier === "pro") {
+    return 50;
+  }
+  return abnVerified ? 20 : 10;
+}
 
 /**
  * API Route: POST /api/auth/create-vendor
@@ -9,29 +16,10 @@ import { NextResponse } from "next/server";
  * This is the entry point for vendor onboarding flow
  */
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Get current user from Supabase auth
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: "Authorization header required" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Invalid authentication" },
-        { status: 401 }
-      );
-    }
+    const authContext = await requireAuth(request);
+    const { user, dbClient } = authContext;
 
     const { business_name, tier = "basic" } = await request.json();
 
@@ -43,11 +31,11 @@ export async function POST(request: Request) {
     }
 
     // Check if user already has a vendor account
-    const { data: existingVendor, error } = await supabase
+    const { data: existingVendor, error } = await dbClient
       .from("vendors")
       .select("id")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!error && existingVendor) {
       return NextResponse.json(
@@ -76,7 +64,7 @@ export async function POST(request: Request) {
     });
 
     // Create vendor record in database
-    const { data: vendor, error: insertError } = await supabase
+    const { data: vendor, error: insertError } = await dbClient
       .from("vendors")
       .insert({
         user_id: user.id,
@@ -84,7 +72,10 @@ export async function POST(request: Request) {
         business_name: business_name,
         stripe_account_id: stripeAccount.id,
         stripe_account_status: "pending",
+        vendor_status: "active",
         can_sell_products: tier === "basic" ? true : false, // Pro tier requires payment
+        abn_verified: false,
+        product_quota: resolveProductQuota(tier, false),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as any) // TODO: Fix typing after database schema is finalized

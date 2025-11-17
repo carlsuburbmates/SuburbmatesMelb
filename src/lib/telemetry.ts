@@ -4,9 +4,9 @@
  * Non-negotiable: Raw queries NEVER stored; only SHA-256 hashed with salt.
  */
 
+import type { Json } from "@/lib/database.types";
 import { logger } from "@/lib/logger";
 import { supabase } from "@/lib/supabase";
-import type { Json } from "@/lib/database.types";
 import crypto from "crypto";
 
 const SALT =

@@ -132,6 +132,18 @@ export function checkRateLimit(
 export type RateLimitHandler = (req: NextRequest) => Promise<NextResponse> | NextResponse;
 
 /**
+ * Determine if rate limiting should be bypassed. Used for local testing and
+ * automated test suites (Playwright) so that auth flows aren't throttled.
+ */
+function shouldBypassRateLimit(): boolean {
+  return (
+    process.env.DISABLE_RATE_LIMIT === "true" ||
+    process.env.NODE_ENV === "test" ||
+    process.env.SUBURBMATES_ENV === "test"
+  );
+}
+
+/**
  * Apply rate limiting to route
  */
 export function withRateLimit(
@@ -139,6 +151,10 @@ export function withRateLimit(
   config: RateLimitConfig = RATE_LIMIT_CONFIGS.api
 ): RateLimitHandler {
   return async (req: NextRequest): Promise<NextResponse> => {
+    if (shouldBypassRateLimit()) {
+      return handler(req);
+    }
+
     const clientId = getClientId(req);
     const result = checkRateLimit(clientId, config);
 

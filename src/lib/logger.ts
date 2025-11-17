@@ -381,7 +381,7 @@ export interface RequestLogData {
  * Log HTTP request
  */
 export function logRequest(data: RequestLogData): void {
-  const { method, url, statusCode, durationMs } = data;
+  const { method, url, statusCode } = data;
   const message = `${method} ${url} ${statusCode || "---"}`;
 
   if (statusCode && statusCode >= 500) {

@@ -6,7 +6,13 @@
 import { USER_TYPES, UserType } from "@/lib/constants";
 import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import { createSupabaseClient, supabase } from "@/lib/supabase";
+import {
+  createSupabaseClient,
+  supabase,
+  supabaseAdmin,
+} from "@/lib/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
 import { NextRequest, NextResponse } from "next/server";
 
 // ============================================================================
@@ -21,8 +27,17 @@ export interface AuthContext {
   };
   session: {
     access_token: string;
-    refresh_token: string;
+    refresh_token: string | null;
   };
+  /**
+   * Supabase client scoped to the caller's JWT (used for RLS-aware queries).
+   */
+  supabaseClient: SupabaseClient<Database>;
+  /**
+   * Supabase client with elevated privileges (service role when available,
+   * otherwise falls back to the user-scoped client).
+   */
+  dbClient: SupabaseClient<Database>;
 }
 
 export type AuthenticatedHandler = (
@@ -57,6 +72,7 @@ export async function getUserFromRequest(
   try {
     // Verify token with Supabase
     const supabaseClient = createSupabaseClient(token);
+    const dbClient = supabaseAdmin ?? supabaseClient;
     const {
       data: { user },
       error,
@@ -68,7 +84,7 @@ export async function getUserFromRequest(
     }
 
     // Get user details from database
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await dbClient
       .from("users")
       .select("id, email, user_type")
       .eq("id", user.id)
@@ -81,25 +97,17 @@ export async function getUserFromRequest(
       throw new UnauthorizedError("User not found");
     }
 
-    // Get session
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseClient.auth.getSession();
-
-    if (sessionError || !session) {
-      throw new UnauthorizedError("Invalid session");
-    }
-
     return {
       user: {
         ...userData,
         user_type: (userData.user_type as UserType) || "customer",
       },
       session: {
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
+        access_token: token,
+        refresh_token: null,
       },
+      supabaseClient,
+      dbClient,
     };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -140,7 +148,7 @@ export function withAuth(
 
       // Check vendor requirements
       if (options.requireVendor) {
-        const { data: vendors, error } = await supabase
+        const { data: vendors, error } = await authContext.dbClient
           .from("vendors")
           .select("id, vendor_status, can_sell_products")
           .eq("user_id", authContext.user.id);
@@ -149,7 +157,11 @@ export function withAuth(
           throw new ForbiddenError("Vendor account required");
         }
 
-        const vendor = vendors[0] as any;
+        const [vendor] = vendors;
+
+        if (!vendor) {
+          throw new ForbiddenError("Vendor account required");
+        }
 
         if (vendor.vendor_status !== "active") {
           throw new ForbiddenError("Vendor account is not active");

@@ -64,6 +64,11 @@ To complete the Stripe setup, you need to:
    ```
    STRIPE_CLIENT_ID=ca_YOUR_ACTUAL_CLIENT_ID_HERE
    ```
+5. **Recreate products/prices in Test Mode:**
+   - Switch the dashboard to **Test mode** and create the Vendor Pro + Featured products there.
+   - Copy the test `prod_` / `price_` IDs into `.env.local` (see playbook below).
+6. **Follow the [Stripe Testing Playbook](STRIPE_TESTING_PLAYBOOK.md)**
+   - Covers Stripe CLI setup, webhook forwarding, and end-to-end verification steps for dev/staging.
 
 ## 📝 Testing Commands
 

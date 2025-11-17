@@ -5,19 +5,17 @@
  * Stage 3 Task 1: Product CRUD
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { requireVendor } from "@/app/api/_utils/auth";
 import {
   forbiddenResponse,
   internalErrorResponse,
   notFoundResponse,
   successResponse,
-  unauthorizedResponse,
 } from "@/app/api/_utils/response";
-import { validateBody } from "@/app/api/_utils/validation";
+import { parseProductUpdateRequest } from "../payload";
 import { VendorTier } from "@/lib/constants";
 import { generateUniqueSlug, shouldRegenerateSlug } from "@/lib/slug-utils";
-import { supabase } from "@/lib/supabase";
 import { canPublishProduct } from "@/lib/tier-utils";
-import { productUpdateSchema } from "@/lib/validation";
 import { NextRequest } from "next/server";
 
 async function updateProductHandler(
@@ -26,36 +24,18 @@ async function updateProductHandler(
 ) {
   const params = await context.params;
 
-  // 1. Authenticate user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return unauthorizedResponse("Authentication required");
-  }
+  const { vendor, authContext } = await requireVendor(req);
+  const dbClient = authContext.dbClient;
 
   // 2. Validate request body
-  const body = await validateBody(productUpdateSchema, req);
+  const body = await parseProductUpdateRequest(req);
 
-  // 3. Get vendor record
-  const { data: vendorData, error: vendorError } = await supabase
-    .from("vendors")
-    .select("id, tier, vendor_status")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (vendorError || !vendorData) {
-    return forbiddenResponse("Vendor account required");
-  }
-
-  // 4. Fetch existing product (RLS ensures vendor owns it)
-  const { data: existingProductData, error: fetchError } = await supabase
+  // Fetch existing product (RLS ensures vendor owns it)
+  const { data: existingProductData, error: fetchError } = await dbClient
     .from("products")
     .select("*")
     .eq("id", params.id)
-    .eq("vendor_id", vendorData.id)
+    .eq("vendor_id", vendor.id)
     .maybeSingle();
 
   if (fetchError || !existingProductData) {
@@ -65,14 +45,16 @@ async function updateProductHandler(
   // 5. Check if publishing (and wasn't published before)
   if (body.published && existingProductData.published !== true) {
     const canPublish = await canPublishProduct(
-      vendorData.id,
-      vendorData.tier as VendorTier,
-      existingProductData.published || false
+      vendor.id,
+      vendor.tier as VendorTier,
+      existingProductData.published || false,
+      dbClient,
+      (vendor as any)?.product_quota ?? null
     );
 
     if (!canPublish) {
       return forbiddenResponse(
-        `Product cap reached for ${vendorData.tier} tier. Upgrade to pro tier to publish more products.`
+        `Product cap reached for ${vendor.tier} tier. Upgrade to pro tier to publish more products.`
       );
     }
   }
@@ -84,19 +66,40 @@ async function updateProductHandler(
     existingProductData.slug &&
     shouldRegenerateSlug(existingProductData.slug, body.title)
   ) {
-    newSlug = await generateUniqueSlug(vendorData.id, body.title);
+    newSlug = await generateUniqueSlug(vendor.id, body.title, dbClient);
   }
 
-  // 7. Update product
-  const { data: updatedProduct, error: updateError } = await supabase
+  const updatePayload: Record<string, unknown> = {
+    slug: newSlug,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (body.title) {
+    updatePayload.title = body.title;
+  }
+  if (body.description) {
+    updatePayload.description = body.description;
+  }
+  if (body.price !== undefined) {
+    updatePayload.price = body.price;
+  }
+  if (body.published !== undefined) {
+    updatePayload.published = body.published;
+  }
+  if (body.category !== undefined) {
+    updatePayload.category = body.category;
+  }
+  if (Array.isArray(body.images)) {
+    updatePayload.images = body.images;
+    updatePayload.thumbnail_url =
+      body.images.length > 0 ? body.images[0] : null;
+  }
+
+  const { data: updatedProduct, error: updateError } = await dbClient
     .from("products")
-    .update({
-      ...body,
-      slug: newSlug,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", params.id)
-    .eq("vendor_id", vendorData.id)
+    .eq("vendor_id", vendor.id)
     .select()
     .maybeSingle();
 
@@ -119,33 +122,15 @@ async function deleteProductHandler(
 ) {
   const params = await context.params;
 
-  // 1. Authenticate user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return unauthorizedResponse("Authentication required");
-  }
-
-  // 2. Get vendor record
-  const { data: vendorData, error: vendorError } = await supabase
-    .from("vendors")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (vendorError || !vendorData) {
-    return forbiddenResponse("Vendor account required");
-  }
+  const { vendor, authContext } = await requireVendor(req);
+  const dbClient = authContext.dbClient;
 
   // 3. Delete product (RLS ensures vendor owns it)
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await dbClient
     .from("products")
     .delete()
     .eq("id", params.id)
-    .eq("vendor_id", vendorData.id);
+    .eq("vendor_id", vendor.id);
 
   if (deleteError) {
     console.error("Product deletion error:", deleteError);

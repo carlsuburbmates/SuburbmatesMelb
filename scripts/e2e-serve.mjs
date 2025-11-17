@@ -5,6 +5,10 @@ import http from "node:http";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
+if (!process.env.DISABLE_RATE_LIMIT) {
+  process.env.DISABLE_RATE_LIMIT = "true";
+}
+
 const port = process.env.PORT || "3010";
 const baseUrl = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${port}`;
 const appDir = process.cwd();

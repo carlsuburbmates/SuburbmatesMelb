@@ -11,7 +11,6 @@ export const VENDOR_TIERS = {
   NONE: "none",
   BASIC: "basic",
   PRO: "pro",
-  PREMIUM: "premium",
   SUSPENDED: "suspended",
 } as const;
 
@@ -26,21 +25,21 @@ export const TIER_LIMITS = {
     can_sell: false,
   },
   basic: {
-    product_quota: 3, // Updated per SSOT §3.2 (was 10)
+    product_quota: 10,
     storage_quota_gb: 5,
     commission_rate: 0.08, // 8%
     monthly_fee: 0,
     can_sell: true,
   },
   pro: {
-    product_quota: 50, // Updated per SSOT §3.2 (was unlimited/-1)
+    product_quota: 50,
     storage_quota_gb: 10,
     commission_rate: 0.06, // 6%
-    monthly_fee: 2000, // A$20.00 in cents
+    monthly_fee: 2900, // A$29.00 in cents
     can_sell: true,
   },
   premium: {
-    product_quota: 50, // Same as pro
+    product_quota: 50, // Premium tier per SSOT §3.2
     storage_quota_gb: 20,
     commission_rate: 0.05, // 5%
     monthly_fee: 9900, // A$99.00 in cents

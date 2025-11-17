@@ -1,4 +1,5 @@
 import { AuthSession, User, Vendor } from "./types";
+import { Database } from "./database.types";
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
@@ -103,7 +104,7 @@ class AuthManager {
     user: { id: string; email?: string },
     userData: { first_name?: string; last_name?: string; user_type?: string }
   ): Promise<void> {
-    const { error } = await (supabase.from("users").insert as any)({
+    const { error } = await supabase.from("users").insert({
       id: user.id,
       email: user.email || "",
       first_name: userData.first_name || null,
@@ -150,7 +151,7 @@ class AuthManager {
     };
 
     // Get vendor data if user is a vendor
-    if ((userData as any)?.user_type === "vendor") {
+    if (userData?.user_type === "vendor") {
       const { data: vendorData, error: vendorError } = await supabase
         .from("vendors")
         .select("*")
@@ -210,7 +211,7 @@ class AuthManager {
       throw new Error("Must be authenticated as vendor");
     }
 
-    const { data, error } = await (supabase.from("vendors").insert as any)({
+    const { data, error } = await supabase.from("vendors").insert({
       user_id: session.user.id,
       tier: "none",
       is_vendor: false,
@@ -230,19 +231,19 @@ class AuthManager {
       .select()
       .single();
 
-    if (error) {
-      throw new Error(`Failed to create vendor profile: ${error.message}`);
+    if (error || !data) {
+      throw new Error(`Failed to create vendor profile: ${error?.message ?? "unknown error"}`);
     }
 
     // Update user type to vendor
-    await (supabase.from("users").update as any)({
+    await supabase.from("users").update({
       user_type: "vendor",
     }).eq("id", session.user.id);
 
     // Refresh session
     this.currentSession = await this.refreshSession();
 
-    return data;
+    return data as Vendor;
   }
 
   async updateVendorProfile(vendorData: Partial<Vendor>): Promise<Vendor> {
@@ -251,21 +252,21 @@ class AuthManager {
       throw new Error("Must have vendor profile");
     }
 
-    const { data, error } = await (supabase.from("vendors").update as any)(
-      vendorData
-    )
+    const { data, error } = await supabase
+      .from("vendors")
+      .update(vendorData)
       .eq("id", session.vendor.id)
       .select()
       .single();
 
-    if (error) {
-      throw new Error(`Failed to update vendor profile: ${error.message}`);
+    if (error || !data) {
+      throw new Error(`Failed to update vendor profile: ${error?.message ?? "unknown error"}`);
     }
 
     // Refresh session
     this.currentSession = await this.refreshSession();
 
-    return data;
+    return data as Vendor;
   }
 
   // Utility methods

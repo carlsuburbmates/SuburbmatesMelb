@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { getImageBySection, generateImageUrl } from '@/lib/images';
+import { LazyImage } from '@/components/ui/LazyImage';
+import { useFadeIn } from '@/hooks/useScrollAnimation';
 
 const faqs = [
   {
@@ -24,23 +27,35 @@ const faqs = [
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const faqImage = getImageBySection('faq')[0];
+  const contentAnimation = useFadeIn<HTMLDivElement>({ delay: 150, duration: 700 });
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className="py-16 md:py-24 accent-overlay-amber">
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'url(/images/faq-pricing.jpg)',
-          filter: 'grayscale(100%)'
-        }}
-      />
+    <section className="relative overflow-hidden py-16 md:py-24 accent-overlay-amber">
+      <div className="absolute inset-0">
+        {faqImage ? (
+          <LazyImage
+            src={generateImageUrl(faqImage)}
+            alt={faqImage.description}
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-300" />
+        )}
+      </div>
       <div className="absolute inset-0 bg-black/40" />
       
-      <div className="relative container-custom">
+      <div
+        ref={contentAnimation.elementRef}
+        className={`relative container-custom ${contentAnimation.className}`}
+        style={contentAnimation.style}
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* FAQ */}
           <div>

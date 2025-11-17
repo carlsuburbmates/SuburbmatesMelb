@@ -51,6 +51,10 @@
    - Escalation workflows
    - Daily operational procedures
    - Support bot decision trees
+6. **Stripe/STRIPE_TESTING_PLAYBOOK.md**
+   - Sandbox vs staging vs production workflow
+   - Stripe CLI + webhook listener instructions
+   - Verification scripts checklist (verify-stripe-access, test-stripe-integration)
 
 ---
 

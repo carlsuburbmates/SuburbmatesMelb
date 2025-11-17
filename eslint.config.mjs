@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Workspace-specific ignores
+    "node_modules/**",
+    "scripts/**",
+    "test-results/**",
+    "public/manifest.json",
   ]),
 ]);
 

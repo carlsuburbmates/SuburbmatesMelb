@@ -5,86 +5,64 @@
  * Stage 3 Task 1: Product CRUD
  */
 
+import { requireVendor } from "@/app/api/_utils/auth";
 import {
   forbiddenResponse,
   internalErrorResponse,
   successResponse,
-  unauthorizedResponse,
 } from "@/app/api/_utils/response";
-import { validateBody } from "@/app/api/_utils/validation";
+import { parseProductCreateRequest } from "./payload";
 import { VendorTier } from "@/lib/constants";
 import { generateUniqueSlug } from "@/lib/slug-utils";
-import { supabase } from "@/lib/supabase";
 import { canCreateProduct } from "@/lib/tier-utils";
-import { productCreateSchema } from "@/lib/validation";
 import { withCors } from "@/middleware/cors";
 import { withErrorHandler } from "@/middleware/errorHandler";
 import { withLogging } from "@/middleware/logging";
 import { NextRequest } from "next/server";
 
 async function createProductHandler(req: NextRequest) {
-  // 1. Authenticate user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return unauthorizedResponse("Authentication required");
-  }
+  const { vendor, authContext } = await requireVendor(req);
+  const dbClient = authContext.dbClient;
 
   // 2. Validate request body
-  const body = await validateBody(productCreateSchema, req);
+  const body = await parseProductCreateRequest(req);
 
-  // 3. Get vendor record
-  const { data: vendorData, error: vendorError } = await supabase
-    .from("vendors")
-    .select("id, tier, vendor_status")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (vendorError || !vendorData) {
-    return forbiddenResponse("Vendor account required");
-  }
-
-  // 4. Check vendor status
-  if (vendorData.vendor_status === "suspended") {
-    return forbiddenResponse(
-      "Account suspended. Contact support to restore access."
-    );
-  }
-
-  if (vendorData.vendor_status !== "active") {
-    return forbiddenResponse("Complete vendor onboarding to create products");
-  }
-
-  // 5. Pre-check tier cap (if trying to publish)
+  // Pre-check tier cap (if trying to publish)
   if (body.published) {
     const canCreate = await canCreateProduct(
-      vendorData.id,
-      vendorData.tier as VendorTier
+      vendor.id,
+      vendor.tier as VendorTier,
+      dbClient,
+      (vendor as any)?.product_quota ?? null
     );
 
     if (!canCreate) {
       return forbiddenResponse(
-        `Product cap reached for ${vendorData.tier} tier. Upgrade to pro tier to create more products.`
+        `Product cap reached for ${vendor.tier} tier. Upgrade to pro tier to create more products.`
       );
     }
   }
 
-  // 6. Generate unique slug
-  const slug = await generateUniqueSlug(vendorData.id, body.title);
+  // Generate unique slug
+  const slug = await generateUniqueSlug(vendor.id, body.title, dbClient);
 
-  // 7. Insert product (RLS enforces vendor ownership)
-  const { data: productData, error: insertError } = await supabase
+  const thumbnailUrl =
+    Array.isArray(body.images) && body.images.length > 0
+      ? body.images[0]
+      : null;
+
+  // Insert product (RLS enforces vendor ownership)
+  const { data: productData, error: insertError } = await dbClient
     .from("products")
     .insert({
-      vendor_id: vendorData.id,
+      vendor_id: vendor.id,
       title: body.title,
       slug,
       description: body.description,
       price: body.price,
+      category_id: null,
       category: body.category || null,
+      thumbnail_url: thumbnailUrl,
       images: body.images || [],
       published: body.published,
     })

@@ -107,6 +107,18 @@ fontFamily: {
 - ✅ Vendors handle all refunds, disputes, product quality via Stripe Connect dashboard
 - ✅ Suburbmates involvement limited to: commission deduction, suspension enforcement, platform fees
 
+### Stripe Development Workflow (Mandatory)
+
+Whenever you touch anything Stripe-related, follow the [Stripe Testing Playbook](../v1.1-docs/Stripe/STRIPE_TESTING_PLAYBOOK.md):
+
+1. **Sandbox keys only** – `.env.local` must reference the test `sk_test`, `pk_test`, `STRIPE_CLIENT_ID`, and current webhook secret.
+2. **Disable rate limits locally** – run `DISABLE_RATE_LIMIT=true npm run dev`.
+3. **Run Stripe CLI** – `stripe listen --forward-to http://localhost:3010/api/webhook/stripe`, paste the `whsec_…` into `.env.local`, and leave the listener running during tests.
+4. **Trigger events** – use `stripe trigger checkout.session.completed` (and others) to exercise webhooks before/after Playwright runs.
+5. **Log the session** – save output to `/reports/stripe-cli-YYYYMMDD.md` and update docs/env vars if product IDs change.
+
+Do **not** use live-mode credentials or call production webhooks from CI/local environments.
+
 ---
 
 ## Tech Stack & Strict Constraints

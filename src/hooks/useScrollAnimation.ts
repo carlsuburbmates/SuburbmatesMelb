@@ -11,7 +11,7 @@ export interface ScrollAnimationOptions {
   easing?: string;
 }
 
-export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
+export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options: ScrollAnimationOptions = {}) {
   const {
     threshold = 0.1,
     rootMargin = '50px 0px -50px 0px',
@@ -21,7 +21,7 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
     easing = 'ease-out'
   } = options;
   
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<T | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -72,8 +72,8 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
 }
 
 // Predefined animation variants
-export function useFadeIn(options?: ScrollAnimationOptions) {
-  const { elementRef, isVisible, animationStyles } = useScrollAnimation(options);
+export function useFadeIn<T extends HTMLElement = HTMLElement>(options?: ScrollAnimationOptions) {
+  const { elementRef, isVisible, animationStyles } = useScrollAnimation<T>(options);
   
   const className = `transition-all duration-[var(--animation-duration)] ease-[var(--animation-easing)] ${
     isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'
@@ -82,8 +82,8 @@ export function useFadeIn(options?: ScrollAnimationOptions) {
   return { elementRef, className, style: animationStyles };
 }
 
-export function useSlideInLeft(options?: ScrollAnimationOptions) {
-  const { elementRef, isVisible, animationStyles } = useScrollAnimation(options);
+export function useSlideInLeft<T extends HTMLElement = HTMLElement>(options?: ScrollAnimationOptions) {
+  const { elementRef, isVisible, animationStyles } = useScrollAnimation<T>(options);
   
   const className = `transition-all duration-[var(--animation-duration)] ease-[var(--animation-easing)] ${
     isVisible ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-8'
@@ -92,8 +92,8 @@ export function useSlideInLeft(options?: ScrollAnimationOptions) {
   return { elementRef, className, style: animationStyles };
 }
 
-export function useSlideInRight(options?: ScrollAnimationOptions) {
-  const { elementRef, isVisible, animationStyles } = useScrollAnimation(options);
+export function useSlideInRight<T extends HTMLElement = HTMLElement>(options?: ScrollAnimationOptions) {
+  const { elementRef, isVisible, animationStyles } = useScrollAnimation<T>(options);
   
   const className = `transition-all duration-[var(--animation-duration)] ease-[var(--animation-easing)] ${
     isVisible ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-8'
@@ -102,8 +102,8 @@ export function useSlideInRight(options?: ScrollAnimationOptions) {
   return { elementRef, className, style: animationStyles };
 }
 
-export function useScaleIn(options?: ScrollAnimationOptions) {
-  const { elementRef, isVisible, animationStyles } = useScrollAnimation(options);
+export function useScaleIn<T extends HTMLElement = HTMLElement>(options?: ScrollAnimationOptions) {
+  const { elementRef, isVisible, animationStyles } = useScrollAnimation<T>(options);
   
   const className = `transition-all duration-[var(--animation-duration)] ease-[var(--animation-easing)] ${
     isVisible ? 'opacity-100 transform scale-100' : 'opacity-0 transform scale-95'
@@ -113,9 +113,9 @@ export function useScaleIn(options?: ScrollAnimationOptions) {
 }
 
 // Staggered animations for lists/grids
-export function useStaggeredAnimation(itemCount: number, staggerDelay = 100) {
+export function useStaggeredAnimation<T extends HTMLElement = HTMLElement>(itemCount: number, staggerDelay = 100) {
   const [visibleItems, setVisibleItems] = useState<boolean[]>(new Array(itemCount).fill(false));
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<T | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -153,4 +153,48 @@ export function useStaggeredAnimation(itemCount: number, staggerDelay = 100) {
   };
 
   return { containerRef, getItemClassName, visibleItems };
+}
+
+interface ParallaxOptions {
+  strength?: number;
+}
+
+export function useParallax(options: ParallaxOptions = {}) {
+  const { strength = 0.25 } = options;
+  const elementRef = useRef<HTMLElement>(null);
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (motionQuery.matches) {
+      setOffset(0);
+      return;
+    }
+
+    let ticking = false;
+
+    const updateOffset = () => {
+      if (!elementRef.current) return;
+      const rect = elementRef.current.getBoundingClientRect();
+      const progress = rect.top / window.innerHeight;
+      setOffset(progress * strength * 100);
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateOffset);
+        ticking = true;
+      }
+    };
+
+    updateOffset();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [strength]);
+
+  return { elementRef, offset };
 }

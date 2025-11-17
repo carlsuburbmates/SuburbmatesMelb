@@ -1,12 +1,12 @@
 'use client';
 
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
-import { getImageBySection, generateImageUrl, getAccentOverlayClass } from '@/lib/images';
+import { getImageBySection, generateImageUrl } from '@/lib/images';
 import { LazyImage } from '@/components/ui/LazyImage';
 
 export function HowItWorks() {
-  const headerAnimation = useFadeIn({ delay: 200, duration: 800 });
-  const stepsAnimation = useStaggeredAnimation(3, 150);
+  const headerAnimation = useFadeIn<HTMLDivElement>({ delay: 200, duration: 800 });
+  const howItWorksImage = getImageBySection('how-it-works')[0];
   const steps = [
     {
       number: '01',
@@ -27,20 +27,31 @@ export function HowItWorks() {
       icon: '📈'
     }
   ];
+  const stepsAnimation = useStaggeredAnimation<HTMLDivElement>(steps.length, 150);
 
   return (
-    <section className="py-16 md:py-24 accent-overlay-purple">
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'url(/images/how-it-works.jpg)',
-          filter: 'grayscale(100%)'
-        }}
-      />
+    <section className="relative overflow-hidden py-16 md:py-24 accent-overlay-purple">
+      <div className="absolute inset-0">
+        {howItWorksImage ? (
+          <LazyImage
+            src={generateImageUrl(howItWorksImage)}
+            alt={howItWorksImage.description}
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-300" />
+        )}
+      </div>
       <div className="absolute inset-0 bg-black/60" />
       
       <div className="relative container-custom">
-        <div className="text-center mb-16">
+        <div
+          ref={headerAnimation.elementRef}
+          className={`text-center mb-16 ${headerAnimation.className}`}
+          style={headerAnimation.style}
+        >
           <h2 className="text-white mb-6">
             How It Works
           </h2>
@@ -50,12 +61,14 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div
+          ref={stepsAnimation.containerRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
+        >
           {steps.map((step, index) => (
             <div 
               key={step.number}
-              className="text-center animate-slide-up"
-              style={{ animationDelay: `${index * 200}ms` }}
+              className={`${stepsAnimation.getItemClassName(index)} text-center`}
             >
               <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                 {step.icon}

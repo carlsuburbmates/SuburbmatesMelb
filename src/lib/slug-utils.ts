@@ -4,6 +4,8 @@
  */
 
 import { supabase } from "./supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 
 /**
  * Convert string to URL-safe slug
@@ -27,9 +29,10 @@ export function slugify(text: string): string {
  */
 async function slugExistsForVendor(
   vendorId: string,
-  slug: string
+  slug: string,
+  client: SupabaseClient<Database> = supabase
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("products")
     .select("id")
     .eq("vendor_id", vendorId)
@@ -52,7 +55,8 @@ async function slugExistsForVendor(
  */
 export async function generateUniqueSlug(
   vendorId: string,
-  title: string
+  title: string,
+  client: SupabaseClient<Database> = supabase
 ): Promise<string> {
   const baseSlug = slugify(title);
 
@@ -65,7 +69,7 @@ export async function generateUniqueSlug(
   let counter = 2;
 
   // Keep incrementing counter until we find unique slug
-  while (await slugExistsForVendor(vendorId, slug)) {
+  while (await slugExistsForVendor(vendorId, slug, client)) {
     slug = `${baseSlug}-${counter}`;
     counter++;
 

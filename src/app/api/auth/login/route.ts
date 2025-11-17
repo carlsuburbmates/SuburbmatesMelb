@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
 import { userLoginSchema } from '@/lib/validation';
 import { logger, logEvent, BusinessEvent, logSecurityEvent, SecurityEvent } from '@/lib/logger';
 import { 
@@ -46,8 +46,16 @@ async function loginHandler(req: NextRequest) {
       return internalErrorResponse('Authentication failed');
     }
 
+    const accessToken = data.session?.access_token;
+    const dbClient =
+      supabaseAdmin ?? (accessToken ? createSupabaseClient(accessToken) : supabase);
+
+    if (!accessToken && !supabaseAdmin) {
+      return internalErrorResponse('Authentication failed');
+    }
+
     // Get user data from database
-    const { data: users, error: dbError } = await supabase
+    const { data: users, error: dbError } = await dbClient
       .from('users')
       .select('*')
       .eq('id', data.user.id);
@@ -61,7 +69,7 @@ async function loginHandler(req: NextRequest) {
 
     // Get vendor data if user has vendor account
     let vendorData = null;
-    const { data: vendors } = await supabase
+    const { data: vendors } = await dbClient
       .from('vendors')
       .select('*')
       .eq('user_id', data.user.id);
