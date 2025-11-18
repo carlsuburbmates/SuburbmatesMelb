@@ -9,6 +9,7 @@ mysql
 database
 trpc
 manus
+drizzle
 
 chargeback handled by platform
 platform handles chargebacks

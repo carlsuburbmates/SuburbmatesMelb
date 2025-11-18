@@ -1,11 +1,28 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useVendorProducts } from "@/hooks/useVendorProducts";
 import { Activity, BarChart3, TrendingUp } from "lucide-react";
 
+interface SearchAnalyticsSummary {
+  totalEvents: number;
+  zeroResultCount: number;
+  zeroResultRate: number;
+  topSuburbs: { label: string; count: number }[];
+  topCategories: { label: string; count: number }[];
+  latestSearches: Array<{
+    suburb: string | null;
+    category: string | null;
+    tier: string | null;
+    resultCount: number | null;
+    createdAt: string | null;
+  }>;
+}
+
 export default function VendorAnalyticsPage() {
   const { products, stats, isLoading, error } = useVendorProducts();
+  const [searchAnalytics, setSearchAnalytics] = useState<SearchAnalyticsSummary | null>(null);
+  const [searchAnalyticsError, setSearchAnalyticsError] = useState<string | null>(null);
 
   const categoryStats = useMemo(() => {
     const map = new Map<string, number>();
@@ -18,6 +35,30 @@ export default function VendorAnalyticsPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
   }, [products]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch("/api/analytics/search");
+        if (!response.ok) {
+          throw new Error("Unable to load search analytics");
+        }
+        const json = await response.json();
+        if (!isMounted) return;
+        setSearchAnalytics(json.data);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error(err);
+        setSearchAnalyticsError("Search analytics unavailable right now.");
+      }
+    };
+
+    fetchAnalytics();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -113,6 +154,123 @@ export default function VendorAnalyticsPage() {
               case you need to republish quickly.
             </p>
           </div>
+        </AnalyticsCard>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <AnalyticsCard
+          title="Search telemetry"
+          description="How customers are discovering vendors near their suburb."
+        >
+          {searchAnalyticsError ? (
+            <p className="text-sm text-gray-600">{searchAnalyticsError}</p>
+          ) : !searchAnalytics ? (
+            <p className="text-sm text-gray-600">Loading search insights…</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Total search events</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {searchAnalytics.totalEvents}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Zero-result searches</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {searchAnalytics.zeroResultCount}
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({Math.round(searchAnalytics.zeroResultRate * 100)}%)
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Top suburbs searched
+                </p>
+                {searchAnalytics.topSuburbs.length === 0 ? (
+                  <p className="text-sm text-gray-600">No suburb data yet.</p>
+                ) : (
+                  <ul className="space-y-1 text-sm text-gray-700">
+                    {searchAnalytics.topSuburbs.map((entry) => (
+                      <li key={entry.label} className="flex justify-between">
+                        <span>{entry.label}</span>
+                        <span className="text-gray-500">{entry.count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Top categories searched
+                </p>
+                {searchAnalytics.topCategories.length === 0 ? (
+                  <p className="text-sm text-gray-600">No category data yet.</p>
+                ) : (
+                  <ul className="space-y-1 text-sm text-gray-700">
+                    {searchAnalytics.topCategories.map((entry) => (
+                      <li key={entry.label} className="flex justify-between">
+                        <span>{entry.label}</span>
+                        <span className="text-gray-500">{entry.count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
+        </AnalyticsCard>
+
+        <AnalyticsCard
+          title="Recent search sessions"
+          description="Batched view; queries are anonymized per SSOT."
+        >
+          {searchAnalyticsError ? (
+            <p className="text-sm text-gray-600">{searchAnalyticsError}</p>
+          ) : !searchAnalytics ? (
+            <p className="text-sm text-gray-600">Loading recent searches…</p>
+          ) : searchAnalytics.latestSearches.length === 0 ? (
+            <p className="text-sm text-gray-600">No telemetry yet.</p>
+          ) : (
+            <ul className="space-y-3 text-sm text-gray-700">
+              {searchAnalytics.latestSearches.map((event, index) => (
+                <li
+                  key={`${event.createdAt}-${index}`}
+                  className="flex flex-col border border-gray-100 rounded-lg p-3"
+                >
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span>{event.createdAt ? new Date(event.createdAt).toLocaleString() : "Unknown time"}</span>
+                    <span>
+                      {event.resultCount === 0 ? (
+                        <span className="text-red-500">0 matches</span>
+                      ) : (
+                        <span>{event.resultCount ?? "—"} matches</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    {event.suburb && (
+                      <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+                        {event.suburb}
+                      </span>
+                    )}
+                    {event.category && (
+                      <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+                        {event.category}
+                      </span>
+                    )}
+                    {event.tier && (
+                      <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+                        Tier: {event.tier}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </AnalyticsCard>
       </section>
 
