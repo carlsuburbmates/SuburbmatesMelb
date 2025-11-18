@@ -1,20 +1,28 @@
 # 🏢 SuburbMates - Melbourne's Digital Neighbourhood
 
-**Status:** 🎉 **Stage 2.2 Complete** - Production Ready  
-**Build:** ✅ Compiles Successfully | **Runtime:** ✅ All Features Working  
+**Status:** 🚧 **Stage 3 In Progress** - Partial Implementation Complete
+**Build:** ✅ Compiles Successfully | **Runtime:** ✅ Core Features Working
 **Tech Stack:** Next.js 15+ / Supabase PostgreSQL / TypeScript / Stripe Connect
 
 ---
 
 ## 🚀 **Current Implementation Status**
 
-### **✅ Completed Features (Stage 2.2)**
+### **✅ Completed Features (Stages 1.1-2.2)**
 - **🏠 Homepage**: Complete V3 design system with animations
 - **📋 Business Directory**: Search, filtering, and professional listings (`/directory`)
 - **🏢 Business Detail Pages**: Individual profiles with galleries (`/business/[slug]`)
 - **📞 Contact Systems**: Direct communication forms and workflows
 - **🛍️ Marketplace Integration**: Vendor product showcases and listings
 - **📱 Mobile Experience**: Responsive design with touch-optimized interactions
+
+### **🚧 Stage 3 Partial Implementation (~60% Complete)**
+- **🔍 Search Telemetry**: PII-redacted search analytics with SHA-256 hashing
+- **📊 Vendor Dashboard Infrastructure**: Routes, hooks, and API endpoints ready
+- **💳 Featured Slots API**: Premium-tier enforcement and slot management
+- **🔄 Tier Management**: Subscription handling and FIFO downgrade logic
+- **⚖️ Dispute Gating**: Auto-suspension for 3+ disputes (30 days)
+- **📈 Commission Ledger**: Immutable tracking on every transaction
 
 ### **🎭 Frontend V3 Design System**
 - **Typography**: Poppins font family (300-900 weights)
@@ -124,20 +132,35 @@ Before running payments tests, follow the [Stripe Testing Playbook](v1.1-docs/St
 | **Frontend V3** | Design System, Homepage | ✅ **Complete** |
 | **Stage 2.1** | Directory & Search | ✅ **Complete** |
 | **Stage 2.2** | Business Detail Pages | ✅ **Complete** |
-| **Stage 3.x** | Marketplace Enhancement | 📋 **Planned** |
+| **Stage 3.x** | Marketplace Enhancement | 🚧 **In Progress (60%)** |
 
 ---
 
-## 🎊 **Production Ready!**
+## 🎯 **Current Implementation Status**
 
-SuburbMates is now a **complete business directory and marketplace platform** with:
+SuburbMates is a **partially implemented marketplace platform** with:
+
+### **✅ Production Ready Components**
 - **Professional business discovery** through enhanced directory system
 - **Detailed business profiles** with galleries, showcases, and contact integration
 - **Direct customer communication** through integrated contact workflows
-- **Marketplace vendor support** with product listings and checkout flows
 - **Premium user experience** with V3 design system and smooth animations
 
-**Ready for production deployment and real-world usage!** 🚀
+### **🚧 Stage 3 Backend Infrastructure (Complete)**
+- **Search telemetry system** with PII-redacted analytics
+- **Vendor dashboard APIs** for product and tier management
+- **Featured slots management** with premium-tier enforcement
+- **Advanced Stripe webhooks** for disputes, subscriptions, and commissions
+- **Tier downgrade logic** with FIFO product unpublishing
+
+### **⏳ Stage 3 Frontend Integration (Pending)**
+- **Product CRUD UI** for vendor product management
+- **Search ranking algorithm** with tier-based results
+- **Featured slots purchase flow** for premium vendors
+- **Tier upgrade/downgrade interface** with preview functionality
+- **Vendor dashboard analytics** and insights
+
+**Backend infrastructure complete, frontend integration in progress!** 🚧
 
 ---
 

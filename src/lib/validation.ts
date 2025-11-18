@@ -160,6 +160,91 @@ export const orderUpdateStatusSchema = z.object({
 });
 
 // ============================================================================
+// SEARCH VALIDATION
+// ============================================================================
+
+const searchQueryField = z
+  .string({
+    required_error: "Search query is required",
+  })
+  .min(2, "Query must be at least 2 characters")
+  .max(100, "Query must be less than 100 characters");
+
+const searchFiltersField = z
+  .record(z.any())
+  .optional()
+  .transform((value) => {
+    if (!value) {
+      return null;
+    }
+    return Object.keys(value).length ? value : null;
+  });
+
+const searchSessionIdField = z
+  .string()
+  .max(128, "Session ID too long")
+  .optional()
+  .transform((value) => {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  });
+
+export const searchRequestSchema = z.object({
+  query: searchQueryField.optional().transform((value) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }),
+  filters: searchFiltersField,
+  session_id: searchSessionIdField,
+});
+
+export const searchTelemetrySchema = searchRequestSchema.extend({
+  result_count: z
+    .number()
+    .int("Result count must be an integer")
+    .min(0, "Result count cannot be negative")
+    .nullable()
+    .optional(),
+  user_id: z.string().uuid("Invalid user ID").nullable().optional(),
+});
+
+export const directorySearchSchema = z.object({
+  query: searchQueryField.optional().transform((value) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }),
+  suburb: z
+    .string()
+    .max(120, "Suburb name too long")
+    .optional()
+    .transform((value) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }),
+  category: z
+    .string()
+    .max(120, "Category too long")
+    .optional()
+    .transform((value) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }),
+  tier: z
+    .enum(["premium", "pro", "basic", "directory", "none"])
+    .optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(48).default(12),
+  session_id: searchSessionIdField.optional(),
+});
+
+// ============================================================================
 // REFUND REQUEST VALIDATION
 // ============================================================================
 
@@ -357,6 +442,8 @@ export type ProductUpdate = z.infer<typeof productUpdateSchema>;
 
 export type OrderCreate = z.infer<typeof orderCreateSchema>;
 export type OrderUpdateStatus = z.infer<typeof orderUpdateStatusSchema>;
+export type SearchRequestPayload = z.infer<typeof searchRequestSchema>;
+export type SearchTelemetryPayload = z.infer<typeof searchTelemetrySchema>;
 
 export type RefundRequestCreate = z.infer<typeof refundRequestCreateSchema>;
 export type RefundRequestUpdate = z.infer<typeof refundRequestUpdateSchema>;
@@ -375,3 +462,4 @@ export type BusinessProfileSearch = z.infer<typeof businessProfileSearchSchema>;
 
 export type ABNValidation = z.infer<typeof abnValidationSchema>;
 export type FileUpload = z.infer<typeof fileUploadSchema>;
+export type DirectorySearchPayload = z.infer<typeof directorySearchSchema>;

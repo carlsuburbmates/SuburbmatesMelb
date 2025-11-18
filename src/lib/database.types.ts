@@ -707,12 +707,14 @@ export type Database = {
           },
         ]
       }
-      search_telemetry: {
+      search_logs: {
         Row: {
           created_at: string | null
           filters: Json | null
           hashed_query: string
           id: string
+          result_count: number | null
+          session_id: string | null
           user_id: string | null
         }
         Insert: {
@@ -720,6 +722,8 @@ export type Database = {
           filters?: Json | null
           hashed_query: string
           id?: string
+          result_count?: number | null
+          session_id?: string | null
           user_id?: string | null
         }
         Update: {
@@ -727,11 +731,13 @@ export type Database = {
           filters?: Json | null
           hashed_query?: string
           id?: string
+          result_count?: number | null
+          session_id?: string | null
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "search_telemetry_user_id_fkey"
+            foreignKeyName: "search_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

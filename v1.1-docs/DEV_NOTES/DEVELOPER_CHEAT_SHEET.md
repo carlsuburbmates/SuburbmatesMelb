@@ -31,7 +31,7 @@ If anything conflicts, follow this order:
 **Architecture constraints:**
 
 - Express-based (tRPC) backends are forbidden
-- ORMs like Drizzle are forbidden
+- ORMs like Drizzle are forbidden (use Supabase client instead)
 - SQL databases like MySQL are forbidden
 - Legacy SDK code is forbidden
 - Platform-issued refunds are forbidden
@@ -142,7 +142,7 @@ git push origin feat/feature-name
 # 5. CI runs 4 checks automatically:
 ```
 
-- **Forbidden Strings Check**: No mysql, trpc, manus, drizzle
+- **Forbidden Strings Check**: No mysql, trpc, manus, database
 - **Required Strings Check**: Legal, schema, API docs complete
 - **Architecture Enforcement**: No forbidden imports from external systems
 - **Schema Drift**: All required fields in schema reference
@@ -199,7 +199,7 @@ const session = await stripe.checkout.sessions.create({
 
 ## 9. Supabase Query Safety
 
-Always use Supabase JS client. Never import Drizzle or MySQL code.
+Always use Supabase JS client. Never import ORM code like Drizzle or MySQL code.
 
 ```typescript
 // ✅ CORRECT

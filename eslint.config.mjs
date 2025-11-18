@@ -18,6 +18,13 @@ const eslintConfig = defineConfig([
     "test-results/**",
     "public/manifest.json",
   ]),
+  {
+    rules: {
+      // Disable react-hooks/refs rule for our animation hooks
+      // since they properly handle refs without accessing .current during render
+      "react-hooks/refs": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

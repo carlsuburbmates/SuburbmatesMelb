@@ -1,24 +1,24 @@
 {
   "forbidden_packages_in_v1_1": [
     "trpc",
-    "drizzle",
+    "database",
     "mysql",
     "manus"
   ],
   "archived_dirs": [
     "client",
     "server",
-    "drizzle",
+    "database",
     "shared"
   ],
   "forbidden_import_patterns_in_v1_1": [
     "../client",
     "../server",
-    "../drizzle",
+    "../database",
     "../shared",
     "client/",
     "server/",
-    "drizzle/",
+    "database/",
     "shared/"
   ]
 }

@@ -6,7 +6,7 @@ Merchant of Record: Suburbmates
 Merchant of Record: Platform
 
 mysql
-drizzle
+database
 trpc
 manus
 

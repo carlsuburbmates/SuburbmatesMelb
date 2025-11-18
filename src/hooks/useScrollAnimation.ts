@@ -170,7 +170,8 @@ export function useParallax(options: ParallaxOptions = {}) {
 
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (motionQuery.matches) {
-      setOffset(0);
+      // Use setTimeout to avoid synchronous setState during render
+      setTimeout(() => setOffset(0), 0);
       return;
     }
 

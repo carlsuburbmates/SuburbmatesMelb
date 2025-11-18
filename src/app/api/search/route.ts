@@ -1,39 +1,42 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
+import { directorySearchSchema } from "@/lib/validation";
+import { searchBusinessProfiles } from "@/lib/search";
 import { recordSearchTelemetry } from "@/lib/telemetry";
 import { z } from "zod";
 
-const searchSchema = z.object({
-  query: z
-    .string({
-      required_error: "Search query is required",
-    })
-    .min(2, "Query must be at least 2 characters")
-    .max(100, "Query must be less than 100 characters"),
-  filters: z
-    .record(z.any())
-    .optional()
-    .transform((value) => value ?? null),
-});
-
 export async function POST(req: NextRequest) {
   try {
-    const json = await req.json();
-    const payload = searchSchema.parse(json);
+    const payload = await req.json();
+    const parsed = directorySearchSchema.parse(payload);
 
-    await recordSearchTelemetry(payload.query, payload.filters);
+    const searchResponse = await searchBusinessProfiles(parsed);
+
+    if (
+      (parsed.query && parsed.query.length > 0) ||
+      parsed.suburb ||
+      parsed.category
+    ) {
+      await recordSearchTelemetry({
+        query: parsed.query ?? "",
+        filters: {
+          suburb: parsed.suburb,
+          category: parsed.category,
+          tier: parsed.tier,
+        },
+        result_count: searchResponse.pagination.total,
+        session_id:
+          parsed.session_id || req.headers.get("x-search-session") || null,
+      });
+    }
 
     return NextResponse.json(
       {
         success: true,
-        data: {
-          results: [],
-          message:
-            "Search API placeholder. Telemetry captured; full search implementation arriving in Stage 3 Week 2.",
-        },
+        data: searchResponse,
       },
-      { status: 202 }
+      { status: 200 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -55,9 +58,8 @@ export async function POST(req: NextRequest) {
       {
         success: false,
         error: {
-          code: "SEARCH_UNAVAILABLE",
-          message:
-            "Search service is not fully implemented yet. Please try again later.",
+          code: "SEARCH_FAILED",
+          message: "Unable to load directory results",
         },
       },
       { status: 500 }

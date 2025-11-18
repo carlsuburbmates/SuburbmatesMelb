@@ -40,12 +40,11 @@
 
 ### 5. Search Telemetry
 
-**File:** `src/lib/telemetry.ts` (NEW)
+**Files:** `src/lib/telemetry.ts`, `src/app/api/search/route.ts`
 
-- ✅ `recordSearchTelemetry()` - Hash queries with SHA-256 + salt (never store raw)
+- ✅ `recordSearchTelemetry()` - Hash queries with SHA-256 + salt (never store raw) and insert telemetry rows via service client
 - ✅ `validateTelemetryConfig()` - Warn if using insecure default salt
-- ✅ Requires `SEARCH_SALT` environment variable
-- ✅ Placeholder API route `src/app/api/search/route.ts` accepts POST `{ query, filters }`, validates payload, and records telemetry even though full search indexing/ranking is still pending. Returns `202 Accepted` with an empty result set so clients can start wiring calls without breaking UX.
+- ✅ Placeholder API route `src/app/api/search/route.ts` accepts POST `{ query, filters, session_id }`, records telemetry, and returns an empty result set so clients can start wiring calls without breaking UX.
 
 ### 6. Featured Slots API
 
@@ -178,3 +177,11 @@ SEARCH_SALT=your-secret-salt-here-min-32-chars
 - [ ] Subscription cancellation triggers FIFO unpublish
 - [ ] Commission ledger entry created on every order
 - [ ] Search telemetry hashes queries (when integrated)
+- ✅ Layout guard enforces vendor-only access and links to help/upgrade flows
+- ✅ UI messaging references SSOT non-negotiables (MoR, no SLAs, FIFO downgrade)
+
+### 9. Search Telemetry Infrastructure (NEW)
+
+- ✅ Migration `010_create_search_logs.sql` replaces the earlier `search_telemetry` table with `search_logs` storing hashed queries, filters, result counts, and session IDs.
+- ✅ `POST /api/search/telemetry` (`src/app/api/search/telemetry/route.ts`) validates payloads and delegates to `recordSearchTelemetry`.
+- ✅ `/api/search` now reuses the same telemetry helper to avoid duplicate logging paths until full search logic ships.

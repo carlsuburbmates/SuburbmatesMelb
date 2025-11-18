@@ -78,7 +78,7 @@ export function BrowseSection() {
           </form>
 
           <div className="text-white/70 text-sm mb-8">
-            Or browse all businesses in the directory
+            Or browse all businesses in directory
           </div>
 
           <Link
