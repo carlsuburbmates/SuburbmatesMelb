@@ -114,9 +114,10 @@ test.describe("Featured Slots - Premium Vendor Cap", () => {
     // marking it as pending until we have test fixtures for Premium vendors
   });
 
-  test.skip("Premium vendor can create 3 featured slots", async ({
-    request,
-  }) => {
+test.fixme(
+  "Premium vendor can create 3 featured slots",
+  "Requires premium-tier provisioning helper + webhook fixtures",
+  async ({ request }) => {
     // Create 4 products first
     for (let i = 1; i <= 4; i++) {
       const productRes = await request.post("/api/vendor/products", {
@@ -146,11 +147,13 @@ test.describe("Featured Slots - Premium Vendor Cap", () => {
       expect(slotRes.status()).toBe(201);
       await slotRes.json();
     }
-  });
+  }
+);
 
-  test.skip("Premium vendor blocked at 4th featured slot with 409", async ({
-    request,
-  }) => {
+test.fixme(
+  "Premium vendor blocked at 4th featured slot with 409",
+  "Pending premium-upgrade test utilities + featured slot fixtures",
+  async ({ request }) => {
     const res = await request.post("/api/vendor/featured-slots", {
       headers: { Authorization: `Bearer ${premiumVendorToken}` },
       data: {
@@ -163,6 +166,7 @@ test.describe("Featured Slots - Premium Vendor Cap", () => {
     const data = await res.json();
     expect(data.error).toContain("3 featured slots");
   });
+);
 
   test.afterAll(async ({ request }) => {
     // Cleanup

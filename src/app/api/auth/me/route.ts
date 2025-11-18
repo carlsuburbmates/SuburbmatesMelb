@@ -4,10 +4,10 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createSupabaseClient, supabase } from '@/lib/supabase';
+import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
-import { 
-  successResponse, 
+import {
+  successResponse,
   unauthorizedResponse,
   internalErrorResponse,
 } from '@/app/api/_utils/response';

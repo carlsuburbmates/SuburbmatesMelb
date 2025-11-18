@@ -45,6 +45,7 @@
 - ✅ `recordSearchTelemetry()` - Hash queries with SHA-256 + salt (never store raw)
 - ✅ `validateTelemetryConfig()` - Warn if using insecure default salt
 - ✅ Requires `SEARCH_SALT` environment variable
+- ✅ Placeholder API route `src/app/api/search/route.ts` accepts POST `{ query, filters }`, validates payload, and records telemetry even though full search indexing/ranking is still pending. Returns `202 Accepted` with an empty result set so clients can start wiring calls without breaking UX.
 
 ### 6. Featured Slots API
 
@@ -95,9 +96,16 @@
 ### 🔄 Pending Integration
 
 - Search telemetry recording (needs integration into directory/marketplace search endpoints)
+- Full-text query service (current `/api/search` route only logs telemetry and returns an empty placeholder payload)
 - Featured slot purchase flow UI (API ready, UI pending)
 - Unit tests for new logic
 - E2E tests for tier downgrade, dispute gating, featured slot caps
+  - `tests/e2e/featured-slots.spec.ts` currently marks premium flows with `test.fixme` because we still lack a deterministic premium-upgrade fixture + webhook simulation. Update roadmap + coverage metrics to reflect this partial state.
+- Tier-limit reconciliation — current sources disagree:
+  - `src/lib/constants.ts:28-35` defines `basic.product_quota = 10` while still citing “SSOT: Basic=3” in downstream comments (`src/lib/tier-utils.ts:43-48`).
+  - `tests/unit/tier-utils.test.ts:11-18` asserts Basic tier caps at 3 products and drives upgrade recs off that value.
+  - `supabase/migrations/009_vendor_product_quota.sql:16-57` assigns 10 products to Basic vendors, or 20 if `abn_verified = true`, and 50 for Pro.
+  Aligning these values (or clearly documenting intentional overrides via `vendors.product_quota`) is required before Stage 3 sign-off.
 
 ## Environment Variables Required
 
