@@ -1,6 +1,9 @@
 import { requireAuth } from "@/app/api/_utils/auth";
+import type { Database } from "@/lib/database.types";
 import { stripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
+
+type VendorInsert = Database["public"]["Tables"]["vendors"]["Insert"];
 
 function resolveProductQuota(tier: string, abnVerified: boolean): number {
   if (tier === "pro") {
@@ -63,22 +66,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const vendorPayload: VendorInsert = {
+      user_id: user.id,
+      tier,
+      business_name,
+      stripe_account_id: stripeAccount.id,
+      stripe_account_status: "pending",
+      vendor_status: "active",
+      can_sell_products: tier === "basic",
+      abn_verified: false,
+      product_quota: resolveProductQuota(tier, false),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
     // Create vendor record in database
     const { data: vendor, error: insertError } = await dbClient
       .from("vendors")
-      .insert({
-        user_id: user.id,
-        tier: tier,
-        business_name: business_name,
-        stripe_account_id: stripeAccount.id,
-        stripe_account_status: "pending",
-        vendor_status: "active",
-        can_sell_products: tier === "basic" ? true : false, // Pro tier requires payment
-        abn_verified: false,
-        product_quota: resolveProductQuota(tier, false),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } as any) // TODO: Fix typing after database schema is finalized
+      .insert(vendorPayload)
       .select()
       .single();
 
@@ -98,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: "Vendor account created successfully",
-      vendor_id: (vendor as any)?.id,
+      vendor_id: vendor?.id ?? null,
       stripe_account_id: stripeAccount.id,
       onboarding_url: accountLink.url,
       requires_payment: tier === "pro",

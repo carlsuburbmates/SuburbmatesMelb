@@ -16,7 +16,7 @@ export default function HelpPage() {
     {
       question: "How do I create a business profile?",
       answer:
-        "To create a business profile, click on 'Sign up' in the header and select 'Business/Vendor'. Fill in your business details, including your ABN, business address, and description. Once submitted, our team will review your profile within 24-48 hours.",
+        "To create a business profile, click on &lsquo;Sign up&rsquo; in the header and select &lsquo;Business/Vendor&rsquo;. Fill in your business details, including your ABN, business address, and description. Once submitted, our team will review your profile within 24-48 hours.",
     },
     {
       question: "How much does it cost to list my business?",
@@ -26,12 +26,12 @@ export default function HelpPage() {
     {
       question: "How do I sell digital products?",
       answer:
-        "Once your business is verified, you can add digital products to your marketplace listing. Simply go to your dashboard, click 'Add Product', and upload your digital files. Customers can purchase and download them directly from your profile.",
+        "Once your business is verified, you can add digital products to your marketplace listing. Simply go to your dashboard, click &lsquo;Add Product&rsquo;, and upload your digital files. Customers can purchase and download them directly from your profile.",
     },
     {
       question: "How do I get paid for my sales?",
       answer:
-        "We use Stripe Connect to process payments. You'll need to connect your Stripe account to receive payments. Funds are transferred directly to your bank account within 2-7 business days after a purchase is completed.",
+        "We use Stripe Connect to process payments. You&rsquo;ll need to connect your Stripe account to receive payments. Funds are transferred directly to your bank account within 2-7 business days after a purchase is completed.",
     },
     {
       question: "Can I cancel my subscription anytime?",
@@ -41,7 +41,7 @@ export default function HelpPage() {
     {
       question: "How do I update my business information?",
       answer:
-        "You can update your business information at any time by logging into your dashboard and navigating to 'Business Settings'. Changes are reflected immediately on your public profile.",
+        "You can update your business information at any time by logging into your dashboard and navigating to &lsquo;Business Settings&rsquo;. Changes are reflected immediately on your public profile.",
     },
   ];
 
@@ -201,7 +201,7 @@ export default function HelpPage() {
                         Get in Touch
                       </h2>
                       <p className="text-gray-600">
-                        Can't find what you're looking for? We're here to help!
+                        Can&rsquo;t find what you&rsquo;re looking for? We&rsquo;re here to help!
                       </p>
                     </div>
                     <div className="space-y-4">

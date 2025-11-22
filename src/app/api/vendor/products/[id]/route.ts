@@ -3,7 +3,7 @@
  * DELETE /api/vendor/products/[id] - Delete product
  *
  * Stage 3 Task 1: Product CRUD
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ */
 
 import { requireVendor } from "@/app/api/_utils/auth";
 import {
@@ -49,7 +49,7 @@ async function updateProductHandler(
       vendor.tier as VendorTier,
       existingProductData.published || false,
       dbClient,
-      (vendor as any)?.product_quota ?? null
+      vendor.product_quota ?? null
     );
 
     if (!canPublish) {

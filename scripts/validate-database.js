@@ -33,7 +33,7 @@ const CRITICAL_COLUMNS = {
   users: ['id', 'email', 'user_type'],
   vendors: ['id', 'user_id', 'tier', 'vendor_status', 'stripe_account_id'],
   products: ['id', 'vendor_id', 'title', 'price', 'published'],
-  orders: ['id', 'customer_id', 'vendor_id', 'product_id', 'total_amount'],
+  orders: ['id', 'customer_id', 'vendor_id', 'product_id', 'amount_cents'],
   refund_requests: ['id', 'order_id', 'customer_id', 'vendor_id', 'status'],
   disputes: ['id', 'order_id', 'customer_id', 'vendor_id', 'status'],
   appeals: ['id', 'vendor_id', 'appeal_type', 'status']
@@ -48,11 +48,33 @@ async function validateSchema() {
   try {
     // 1. Check all tables exist
     console.log('📋 Checking table existence...');
-    const { data: tables, error: tableError } = await supabase
-      .rpc('get_tables_list')
-      .catch(() => ({ data: null, error: 'RPC not available' }));
+    let tables = null;
+    let tableError = null;
 
-    if (tableError || !tables) {
+    try {
+      const rpcResult = await supabase.rpc('get_tables_list');
+      tables = rpcResult.data;
+      tableError = rpcResult.error;
+    } catch (rpcError) {
+      tableError = rpcError;
+    }
+
+    if (!tableError && Array.isArray(tables) && tables.length > 0) {
+      const normalizedNames = tables.map(table => {
+        if (!table) return null;
+        if (typeof table === 'string') return table;
+        return table.table_name || table.tablename || table.name || null;
+      }).filter(Boolean);
+
+      for (const table of EXPECTED_TABLES) {
+        if (normalizedNames.includes(table)) {
+          console.log(`✅ Table "${table}" exists`);
+        } else {
+          console.log(`❌ Table "${table}" missing (per RPC result)`);
+          errors++;
+        }
+      }
+    } else {
       console.log('⚠️  Using fallback method to check tables');
       
       for (const table of EXPECTED_TABLES) {

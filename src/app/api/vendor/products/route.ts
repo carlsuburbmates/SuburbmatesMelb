@@ -33,7 +33,7 @@ async function createProductHandler(req: NextRequest) {
       vendor.id,
       vendor.tier as VendorTier,
       dbClient,
-      (vendor as any)?.product_quota ?? null
+      vendor.product_quota ?? null
     );
 
     if (!canCreate) {
@@ -122,7 +122,7 @@ async function listProductsHandler(req: NextRequest) {
     ).length ?? 0;
 
   const tierLimit =
-    (vendor as any)?.product_quota ??
+    vendor.product_quota ??
     TIER_LIMITS[(vendor.tier as VendorTier) ?? "basic"]?.product_quota ??
     null;
 

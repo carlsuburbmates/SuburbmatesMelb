@@ -31,7 +31,7 @@ export default function AboutPage() {
               About SuburbMates
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Melbourne's digital neighbourhood where local businesses build
+              Melbourne&rsquo;s digital neighbourhood where local businesses build
               their brand and sell digital products.
             </p>
           </div>
@@ -47,13 +47,13 @@ export default function AboutPage() {
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
               We believe that local businesses are the heart of every community.
-              SuburbMates was created to help Melbourne's local businesses
+              SuburbMates was created to help Melbourne&rsquo;s local businesses
               thrive by providing them with a digital platform to showcase their
               products, connect with customers, and build their brand in the
               modern marketplace.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              We're building a digital ecosystem where neighbours can discover
+              We&rsquo;re building a digital ecosystem where neighbours can discover
               and support local businesses, making it easier than ever to shop
               local and strengthen community connections.
             </p>
@@ -113,7 +113,7 @@ export default function AboutPage() {
                   Support Local
                 </h3>
                 <p className="text-gray-600">
-                  We're dedicated to helping Melbourne's small businesses grow
+                  We&rsquo;re dedicated to helping Melbourne&rsquo;s small businesses grow
                   and succeed in the digital age.
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-12">Our Team</h2>
             <p className="text-lg text-gray-600 mb-12">
-              We're a passionate team of Melburnians dedicated to supporting
+              We&rsquo;re a passionate team of Melburnians dedicated to supporting
               local businesses and building stronger communities.
             </p>
             <div className="grid md:grid-cols-3 gap-8">
@@ -217,8 +217,8 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
             <p className="text-xl text-gray-300 mb-8">
-              Whether you're a local business looking to grow or a customer
-              wanting to support local, SuburbMats is here to help.
+              Whether you&rsquo;re a local business looking to grow or a customer
+              wanting to support local, SuburbMates is here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="/directory" className="btn-primary">

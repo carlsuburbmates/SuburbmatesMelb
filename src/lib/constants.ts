@@ -11,6 +11,7 @@ export const VENDOR_TIERS = {
   NONE: "none",
   BASIC: "basic",
   PRO: "pro",
+  PREMIUM: "premium",
   SUSPENDED: "suspended",
 } as const;
 
@@ -63,7 +64,7 @@ export const FEATURED_SLOT = {
   PRICE_CENTS: 2000, // A$20.00
   DURATION_DAYS: 30,
   MAX_SLOTS_PER_LGA: 5,
-  MAX_SLOTS_PER_VENDOR: 3, // Premium tier only
+  MAX_SLOTS_PER_VENDOR: 3, // per vendor across all suburbs
 } as const;
 
 // ============================================================================

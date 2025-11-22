@@ -4,8 +4,8 @@
  */
 
 import Stripe from "stripe";
-import { STRIPE_CONFIG } from './constants';
-import { logger } from './logger';
+import { STRIPE_CONFIG } from "./constants";
+import { logger } from "./logger";
 
 // Initialize Stripe client
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -20,10 +20,13 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 /**
  * Create Stripe Connect account for vendor
  */
-export async function createConnectAccount(email: string, businessName: string) {
+export async function createConnectAccount(
+  email: string,
+  businessName: string
+) {
   try {
     const account = await stripe.accounts.create({
-      type: 'standard',
+      type: "standard",
       email,
       business_profile: {
         name: businessName,
@@ -35,10 +38,13 @@ export async function createConnectAccount(email: string, businessName: string) 
       },
     });
 
-    logger.info('Stripe Connect account created', { accountId: account.id, email });
+    logger.info("Stripe Connect account created", {
+      accountId: account.id,
+      email,
+    });
     return account;
   } catch (error) {
-    logger.error('Failed to create Stripe Connect account', error);
+    logger.error("Failed to create Stripe Connect account", error);
     throw error;
   }
 }
@@ -46,18 +52,22 @@ export async function createConnectAccount(email: string, businessName: string) 
 /**
  * Create account link for onboarding
  */
-export async function createAccountLink(accountId: string, returnUrl: string, refreshUrl: string) {
+export async function createAccountLink(
+  accountId: string,
+  returnUrl: string,
+  refreshUrl: string
+) {
   try {
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
       refresh_url: refreshUrl,
       return_url: returnUrl,
-      type: 'account_onboarding',
+      type: "account_onboarding",
     });
 
     return accountLink;
   } catch (error) {
-    logger.error('Failed to create account link', error, { accountId });
+    logger.error("Failed to create account link", error, { accountId });
     throw error;
   }
 }
@@ -70,7 +80,7 @@ export async function isAccountComplete(accountId: string): Promise<boolean> {
     const account = await stripe.accounts.retrieve(accountId);
     return account.charges_enabled && account.payouts_enabled;
   } catch (error) {
-    logger.error('Failed to retrieve account status', error, { accountId });
+    logger.error("Failed to retrieve account status", error, { accountId });
     return false;
   }
 }
@@ -95,8 +105,8 @@ export async function createCheckoutSession(params: {
 }) {
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
+      mode: "payment",
+      payment_method_types: ["card"],
       line_items: [
         {
           price_data: {
@@ -121,10 +131,83 @@ export async function createCheckoutSession(params: {
       metadata: params.metadata,
     });
 
-    logger.info('Checkout session created', { sessionId: session.id, amount: params.amount });
+    logger.info("Checkout session created", {
+      sessionId: session.id,
+      amount: params.amount,
+    });
     return session;
   } catch (error) {
-    logger.error('Failed to create checkout session', error);
+    logger.error("Failed to create checkout session", error);
+    throw error;
+  }
+}
+
+export async function createFeaturedSlotCheckoutSession(params: {
+  vendorId: string;
+  businessProfileId: string;
+  lgaId: number;
+  suburbLabel: string;
+  successUrl: string;
+  cancelUrl: string;
+  vendorStripeAccountId?: string;
+  vendorTier?: string;
+}) {
+  const priceId = process.env.STRIPE_PRICE_FEATURED_30D;
+  if (!priceId) {
+    throw new Error("STRIPE_PRICE_FEATURED_30D is not configured");
+  }
+
+  try {
+    // Retrieve price to compute application fee if needed
+    const price = await stripe.prices.retrieve(priceId as string, {
+      expand: [],
+    });
+    const unitAmount = (price.unit_amount ?? 0) as number;
+
+    // Compute application fee using a provided vendorTier or default 5%
+    const applicationFeeAmount = Math.round(unitAmount * 0.05);
+    if (params.vendorTier) {
+      // opt-in: use commission rate from TIER_LIMITS if caller prefers
+      // Avoid importing TIER_LIMITS here to keep stripe helper focused; callers may compute and pass fee
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: params.vendorStripeAccountId
+        ? {
+            application_fee_amount: applicationFeeAmount,
+            transfer_data: { destination: params.vendorStripeAccountId },
+          }
+        : undefined,
+      success_url: params.successUrl,
+      cancel_url: params.cancelUrl,
+      metadata: {
+        type: "featured_slot",
+        vendor_id: params.vendorId,
+        business_profile_id: params.businessProfileId,
+        lga_id: params.lgaId.toString(),
+        suburb_label: params.suburbLabel,
+      },
+    });
+
+    logger.info("Featured slot checkout created", {
+      sessionId: session.id,
+      vendorId: params.vendorId,
+      lgaId: params.lgaId,
+    });
+
+    return session;
+  } catch (error) {
+    logger.error("Failed to create featured slot checkout", error, {
+      vendorId: params.vendorId,
+    });
     throw error;
   }
 }
@@ -135,10 +218,10 @@ export async function createCheckoutSession(params: {
 export async function retrieveCheckoutSession(sessionId: string) {
   try {
     return await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['payment_intent'],
+      expand: ["payment_intent"],
     });
   } catch (error) {
-    logger.error('Failed to retrieve checkout session', error, { sessionId });
+    logger.error("Failed to retrieve checkout session", error, { sessionId });
     throw error;
   }
 }
@@ -154,7 +237,9 @@ export async function retrievePaymentIntent(paymentIntentId: string) {
   try {
     return await stripe.paymentIntents.retrieve(paymentIntentId);
   } catch (error) {
-    logger.error('Failed to retrieve payment intent', error, { paymentIntentId });
+    logger.error("Failed to retrieve payment intent", error, {
+      paymentIntentId,
+    });
     throw error;
   }
 }
@@ -174,10 +259,10 @@ export async function createRefund(chargeId: string, amount?: number) {
       amount,
     });
 
-    logger.info('Refund created', { refundId: refund.id, chargeId, amount });
+    logger.info("Refund created", { refundId: refund.id, chargeId, amount });
     return refund;
   } catch (error) {
-    logger.error('Failed to create refund', error, { chargeId });
+    logger.error("Failed to create refund", error, { chargeId });
     throw error;
   }
 }
@@ -189,13 +274,16 @@ export async function createRefund(chargeId: string, amount?: number) {
 /**
  * Construct webhook event from request
  */
-export function constructWebhookEvent(payload: string | Buffer, signature: string) {
+export function constructWebhookEvent(
+  payload: string | Buffer,
+  signature: string
+) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-  
+
   try {
     return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
   } catch (error) {
-    logger.error('Failed to construct webhook event', error);
+    logger.error("Failed to construct webhook event", error);
     throw error;
   }
 }
@@ -212,15 +300,18 @@ export async function createSubscription(customerId: string, priceId: string) {
     const subscription = await stripe.subscriptions.create({
       customer: customerId,
       items: [{ price: priceId }],
-      payment_behavior: 'default_incomplete',
-      payment_settings: { save_default_payment_method: 'on_subscription' },
-      expand: ['latest_invoice.payment_intent'],
+      payment_behavior: "default_incomplete",
+      payment_settings: { save_default_payment_method: "on_subscription" },
+      expand: ["latest_invoice.payment_intent"],
     });
 
-    logger.info('Subscription created', { subscriptionId: subscription.id, customerId });
+    logger.info("Subscription created", {
+      subscriptionId: subscription.id,
+      customerId,
+    });
     return subscription;
   } catch (error) {
-    logger.error('Failed to create subscription', error, { customerId });
+    logger.error("Failed to create subscription", error, { customerId });
     throw error;
   }
 }
@@ -228,16 +319,21 @@ export async function createSubscription(customerId: string, priceId: string) {
 /**
  * Cancel subscription
  */
-export async function cancelSubscription(subscriptionId: string, immediately: boolean = false) {
+export async function cancelSubscription(
+  subscriptionId: string,
+  immediately: boolean = false
+) {
   try {
     const subscription = immediately
       ? await stripe.subscriptions.cancel(subscriptionId)
-      : await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+      : await stripe.subscriptions.update(subscriptionId, {
+          cancel_at_period_end: true,
+        });
 
-    logger.info('Subscription cancelled', { subscriptionId, immediately });
+    logger.info("Subscription cancelled", { subscriptionId, immediately });
     return subscription;
   } catch (error) {
-    logger.error('Failed to cancel subscription', error, { subscriptionId });
+    logger.error("Failed to cancel subscription", error, { subscriptionId });
     throw error;
   }
 }

@@ -119,7 +119,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         // Role Selection
         <div className="space-y-4">
           <p className="text-gray-600 text-center mb-6">
-            Choose how you'd like to use SuburbMates
+            Choose how you&rsquo;d like to use SuburbMates
           </p>
           
           <div className="grid gap-4">
@@ -131,7 +131,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <User className="w-6 h-6 text-gray-600" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">I'm a Customer</h3>
+                <h3 className="font-semibold text-gray-900">I&rsquo;m a Customer</h3>
                 <p className="text-sm text-gray-600">Browse and purchase from local businesses</p>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
@@ -145,7 +145,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <Store className="w-6 h-6 text-gray-600" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">I'm a Business Owner</h3>
+                <h3 className="font-semibold text-gray-900">I&rsquo;m a Business Owner</h3>
                 <p className="text-sm text-gray-600">List your business and sell digital products</p>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />

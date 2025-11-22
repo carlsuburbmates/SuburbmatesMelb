@@ -27,12 +27,11 @@ interface AnalyticsData {
 }
 
 interface BusinessAnalyticsProps {
-  businessId: string;
   isOwner?: boolean;
 }
 
-export function BusinessAnalytics({ businessId, isOwner = false }: BusinessAnalyticsProps) {
-  const animation = useFadeIn({ delay: 200, duration: 600 });
+export function BusinessAnalytics({ isOwner = false }: BusinessAnalyticsProps) {
+  const animation = useFadeIn<HTMLDivElement>({ delay: 200, duration: 600 });
 
   // Mock analytics data - in production this would come from actual analytics
   const analyticsData: AnalyticsData = {
@@ -64,7 +63,7 @@ export function BusinessAnalytics({ businessId, isOwner = false }: BusinessAnaly
 
   return (
     <div 
-      ref={animation.elementRef as any}
+      ref={animation.elementRef}
       className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${animation.className}`}
       style={animation.style}
     >

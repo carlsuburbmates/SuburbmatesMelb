@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       appeals: {
@@ -326,7 +301,7 @@ export type Database = {
       }
       featured_queue: {
         Row: {
-          category_id: number | null
+          business_profile_id: string
           created_at: string | null
           id: string
           joined_at: string | null
@@ -335,10 +310,11 @@ export type Database = {
           payment_deadline: string | null
           position: number | null
           status: string | null
+          suburb_label: string | null
           vendor_id: string | null
         }
         Insert: {
-          category_id?: number | null
+          business_profile_id: string
           created_at?: string | null
           id?: string
           joined_at?: string | null
@@ -347,10 +323,11 @@ export type Database = {
           payment_deadline?: string | null
           position?: number | null
           status?: string | null
+          suburb_label?: string | null
           vendor_id?: string | null
         }
         Update: {
-          category_id?: number | null
+          business_profile_id?: string
           created_at?: string | null
           id?: string
           joined_at?: string | null
@@ -359,14 +336,15 @@ export type Database = {
           payment_deadline?: string | null
           position?: number | null
           status?: string | null
+          suburb_label?: string | null
           vendor_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "featured_queue_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "featured_queue_business_profile_id_fkey"
+            columns: ["business_profile_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -387,7 +365,7 @@ export type Database = {
       }
       featured_slots: {
         Row: {
-          category_id: number | null
+          business_profile_id: string
           charged_amount_cents: number
           created_at: string | null
           end_date: string
@@ -396,10 +374,11 @@ export type Database = {
           start_date: string
           status: string | null
           stripe_payment_intent_id: string | null
+          suburb_label: string | null
           vendor_id: string | null
         }
         Insert: {
-          category_id?: number | null
+          business_profile_id: string
           charged_amount_cents: number
           created_at?: string | null
           end_date: string
@@ -408,10 +387,11 @@ export type Database = {
           start_date: string
           status?: string | null
           stripe_payment_intent_id?: string | null
+          suburb_label?: string | null
           vendor_id?: string | null
         }
         Update: {
-          category_id?: number | null
+          business_profile_id?: string
           charged_amount_cents?: number
           created_at?: string | null
           end_date?: string
@@ -420,14 +400,15 @@ export type Database = {
           start_date?: string
           status?: string | null
           stripe_payment_intent_id?: string | null
+          suburb_label?: string | null
           vendor_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "featured_slots_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "featured_slots_business_profile_id_fkey"
+            columns: ["business_profile_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -545,6 +526,7 @@ export type Database = {
       }
       products: {
         Row: {
+          category: string | null
           category_id: number | null
           created_at: string | null
           deleted_at: string | null
@@ -556,6 +538,7 @@ export type Database = {
           file_type: string | null
           file_url: string | null
           id: string
+          images: Json | null
           lga_id: number | null
           price: number
           published: boolean | null
@@ -566,6 +549,7 @@ export type Database = {
           vendor_id: string | null
         }
         Insert: {
+          category?: string | null
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
@@ -577,6 +561,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          images?: Json | null
           lga_id?: number | null
           price: number
           published?: boolean | null
@@ -587,6 +572,7 @@ export type Database = {
           vendor_id?: string | null
         }
         Update: {
+          category?: string | null
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
@@ -598,6 +584,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          images?: Json | null
           lga_id?: number | null
           price?: number
           published?: boolean | null
@@ -745,6 +732,38 @@ export type Database = {
           },
         ]
       }
+      search_telemetry: {
+        Row: {
+          created_at: string | null
+          filters: Json | null
+          hashed_query: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          filters?: Json | null
+          hashed_query: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          filters?: Json | null
+          hashed_query?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_telemetry_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions_log: {
         Row: {
           amount_cents: number
@@ -782,6 +801,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_events: {
+        Row: {
+          id: string
+          stripe_event_id: string
+          event_type: string
+          payload: Json | null
+          payload_summary: Json | null
+          processed_at: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          stripe_event_id: string
+          event_type: string
+          payload?: Json | null
+          payload_summary?: Json | null
+          processed_at?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          stripe_event_id?: string
+          event_type?: string
+          payload?: Json | null
+          payload_summary?: Json | null
+          processed_at?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
       }
       users: {
         Row: {
@@ -966,6 +1015,20 @@ export type Database = {
     }
     Functions: {
       auto_reject_expired_appeals: { Args: never; Returns: number }
+      fn_try_reserve_featured_slot: {
+        Args: {
+          p_vendor_id: string
+          p_lga_id: number
+          p_suburb_label: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: string
+      }
+      fn_unpublish_oldest_products: {
+        Args: { p_vendor_id: string; p_to_unpublish: number }
+        Returns: number
+      }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
       get_vendor_tier: { Args: { vendor_uuid: string }; Returns: string }
       is_appeal_within_deadline: {
@@ -1100,9 +1163,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

@@ -7,8 +7,8 @@ import { NextRequest } from 'next/server';
 import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
 import { userLoginSchema } from '@/lib/validation';
 import { logger, logEvent, BusinessEvent, logSecurityEvent, SecurityEvent } from '@/lib/logger';
-import { 
-  successResponse, 
+import {
+  successResponse,
   unauthorizedResponse,
   validationErrorResponse,
   internalErrorResponse,
@@ -19,6 +19,7 @@ import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
 import { withErrorHandler } from '@/middleware/errorHandler';
 import { ValidationError } from '@/lib/errors';
+import { Vendor } from '@/lib/types';
 
 async function loginHandler(req: NextRequest) {
   try {
@@ -68,7 +69,7 @@ async function loginHandler(req: NextRequest) {
     const userData = users[0];
 
     // Get vendor data if user has vendor account
-    let vendorData = null;
+    let vendorData: Vendor | null = null;
     const { data: vendors } = await dbClient
       .from('vendors')
       .select('*')
@@ -80,22 +81,22 @@ async function loginHandler(req: NextRequest) {
 
     // Log successful login
     logEvent(BusinessEvent.USER_LOGIN, {
-      userId: (userData as any)?.id,
-      email: (userData as any)?.email,
-      userType: (userData as any)?.user_type,
+      userId: userData.id,
+      email: userData.email,
+      userType: userData.user_type,
     });
 
     logSecurityEvent(SecurityEvent.AUTH_SUCCESS, {
-      userId: (userData as any)?.id,
-      email: (userData as any)?.email,
+      userId: userData.id,
+      email: userData.email,
     });
 
-    logger.info('User login successful', { userId: (userData as any)?.id });
+    logger.info('User login successful', { userId: userData.id });
 
     return successResponse({
       message: 'Login successful',
       user: {
-        ...(userData as any),
+        ...userData,
         token: data.session?.access_token,
       },
       vendor: vendorData,
@@ -107,7 +108,7 @@ async function loginHandler(req: NextRequest) {
     });
   } catch (error) {
     if (error instanceof ValidationError) {
-      return validationErrorResponse(error.details?.fields as Record<string, string>);
+      return validationErrorResponse(error.details?.fields as Record<string, string> || {});
     }
     throw error;
   }

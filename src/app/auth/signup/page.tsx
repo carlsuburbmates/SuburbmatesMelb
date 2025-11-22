@@ -4,7 +4,6 @@ import { Building2, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +70,7 @@ export default function Signup() {
       } else {
         setError(data.error || 'Registration failed. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);

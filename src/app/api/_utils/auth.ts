@@ -6,6 +6,7 @@
 import { NextRequest } from 'next/server';
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { UserType, USER_TYPES } from '@/lib/constants';
+import { Vendor } from '@/lib/types';
 import { getUserFromRequest, AuthContext } from '@/middleware/auth';
 
 // ============================================================================
@@ -42,7 +43,9 @@ export async function requireAdmin(req: NextRequest): Promise<AuthContext> {
 /**
  * Get vendor for authenticated user (throws if not a vendor)
  */
-export async function requireVendor(req: NextRequest) {
+export async function requireVendor(
+  req: NextRequest
+): Promise<{ authContext: AuthContext; vendor: Vendor }> {
   const authContext = await getUserFromRequest(req);
 
   const { data: vendors, error } = await authContext.dbClient
@@ -54,7 +57,7 @@ export async function requireVendor(req: NextRequest) {
     throw new ForbiddenError('Vendor account required');
   }
 
-  const vendor = vendors[0] as any; // TODO: Fix typing after database schema is finalized
+  const vendor = vendors[0] as Vendor;
 
   if (vendor.vendor_status !== 'active') {
     throw new ForbiddenError('Vendor account is not active');
@@ -73,7 +76,9 @@ export async function requireVendor(req: NextRequest) {
 /**
  * Get vendor for authenticated user (returns null if not a vendor)
  */
-export async function getVendorIfExists(req: NextRequest) {
+export async function getVendorIfExists(
+  req: NextRequest
+): Promise<{ authContext: AuthContext | null; vendor: Vendor | null }> {
   try {
     const authContext = await getUserFromRequest(req);
 
@@ -88,7 +93,7 @@ export async function getVendorIfExists(req: NextRequest) {
 
     return {
       authContext,
-      vendor: vendors[0],
+      vendor: vendors[0] as Vendor,
     };
   } catch (error) {
     if (error instanceof UnauthorizedError) {

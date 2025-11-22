@@ -109,7 +109,7 @@ export default function Blog() {
               Blog
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Insights, tips, and stories for Melbourne's local business
+              Insights, tips, and stories for Melbourne&rsquo;s local business
               community
             </p>
           </div>

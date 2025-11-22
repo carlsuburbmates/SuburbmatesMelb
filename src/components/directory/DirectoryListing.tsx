@@ -20,6 +20,8 @@ interface Business {
     name: string | null;
   };
   isFeatured: boolean;
+  featuredSuburbLabel?: string | null;
+  featuredMatchesSelection?: boolean;
   createdAt: string | null;
 }
 
@@ -49,7 +51,7 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
   const [error, setError] = useState<string | null>(null);
 
   const itemsPerPage = 12;
-  const cardsAnimation = useStaggeredAnimation(businesses.length, 100);
+  const cardsAnimation = useStaggeredAnimation<HTMLDivElement>(businesses.length, 100);
   const searchSessionId = useMemo(() => {
     if (typeof crypto !== "undefined" && crypto.randomUUID) {
       return crypto.randomUUID();
@@ -150,17 +152,21 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        ref={cardsAnimation.containerRef}
+      >
         {businesses.map((business, index) => (
           <div
             key={business.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative"
-            style={{
-              animation: `fadeIn 0.4s ease ${(cardsAnimation[index]?.delay || 0) / 1000}s both`,
-            }}
+            className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative ${cardsAnimation.getItemClassName(index)}`}
           >
             {business.isFeatured && (
-              <span className="absolute top-4 right-4 inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+              <span
+                className={`absolute top-4 right-4 inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                  business.featuredMatchesSelection ? "bg-amber-200 text-amber-900" : "bg-amber-100 text-amber-800"
+                }`}
+              >
                 <Star className="w-3 h-3" />
                 <span>Featured</span>
               </span>
@@ -177,6 +183,11 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
                 <p className="text-sm text-gray-500 mb-3">
                   {business.description || "Local business"}
                 </p>
+                {business.isFeatured && business.featuredSuburbLabel && (
+                  <p className="text-xs font-semibold text-amber-700 mb-3">
+                    Featured in {business.featuredSuburbLabel}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                   {business.suburb?.name && (
                     <span className="flex items-center space-x-1">

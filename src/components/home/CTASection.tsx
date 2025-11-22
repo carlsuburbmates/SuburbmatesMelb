@@ -48,10 +48,10 @@ export function CTASection() {
         style={contentAnimation.style}
       >
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="mb-4 md:mb-6">Melbourne's Dual Platform</h2>
+          <h2 className="mb-4 md:mb-6">Melbourne&rsquo;s Dual Platform</h2>
           <p className="text-gray-600 text-lg max-w-3xl mx-auto">
             Start with a free business directory profile, then upgrade to sell
-            digital products when you're ready to monetize your expertise.
+            digital products when you&rsquo;re ready to monetize your expertise.
           </p>
         </div>
 

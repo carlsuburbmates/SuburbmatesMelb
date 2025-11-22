@@ -13,7 +13,11 @@
     "test:e2e": "DISABLE_RATE_LIMIT=true PLAYWRIGHT_BASE_URL=http://localhost:3010 npx playwright test",
     "test:e2e:serve": "node scripts/e2e-serve.mjs",
     "test:unit": "vitest run",
-    "test:unit:watch": "vitest"
+    "test:unit:watch": "vitest",
+    "cron:check-tier-caps": "node scripts/check-tier-caps.js",
+    "cron:cleanup-search-logs": "node scripts/cleanup-search-logs.js",
+    "cron:expire-featured-slots": "node scripts/expire-featured-slots.js",
+    "cron:aggregate-analytics": "node scripts/aggregate-analytics.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
@@ -26,6 +30,8 @@
     "lucide-react": "^0.553.0",
     "next": "16.0.2",
     "next-seo": "^7.0.1",
+    "posthog-js": "^1.297.2",
+    "posthog-node": "^5.13.2",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "resend": "^6.4.2",

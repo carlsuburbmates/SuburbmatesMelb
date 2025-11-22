@@ -146,8 +146,8 @@ export function useStaggeredAnimation<T extends HTMLElement = HTMLElement>(itemC
 
   const getItemClassName = (index: number) => {
     return `transition-all duration-500 ease-out ${
-      visibleItems[index] 
-        ? 'opacity-100 transform translate-y-0' 
+      visibleItems[index]
+        ? 'opacity-100 transform translate-y-0'
         : 'opacity-0 transform translate-y-4'
     }`;
   };

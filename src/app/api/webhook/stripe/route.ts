@@ -6,7 +6,10 @@
 import {
   AUTO_DELIST_DURATION_DAYS,
   DISPUTE_AUTO_DELIST_THRESHOLD,
+  FEATURED_SLOT,
 } from "@/lib/constants";
+import type { VendorTier } from "@/lib/constants";
+import type { Database } from "@/lib/database.types";
 import {
   sendNewOrderNotificationEmail,
   sendOrderConfirmationEmail,
@@ -15,8 +18,111 @@ import { BusinessEvent, logEvent, logger } from "@/lib/logger";
 import { constructWebhookEvent } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
 import { enforceTierProductCap } from "@/lib/vendor-downgrade";
+import {
+  computeFeaturedQueuePosition,
+  getFeaturedSlotAvailability,
+  upsertFeaturedQueueEntry,
+} from "@/lib/featured-slot";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+
+type ProductRow = Database["public"]["Tables"]["products"]["Row"];
+type VendorRow = Database["public"]["Tables"]["vendors"]["Row"];
+type ProductWithVendor = ProductRow & { vendors: VendorRow };
+type OrderInsert = Database["public"]["Tables"]["orders"]["Insert"];
+type TransactionInsert =
+  Database["public"]["Tables"]["transactions_log"]["Insert"];
+type VendorUpdate = Database["public"]["Tables"]["vendors"]["Update"];
+type UserRow = Database["public"]["Tables"]["users"]["Row"];
+
+const FEATURED_SLOT_DURATION_MS = FEATURED_SLOT.DURATION_DAYS * 86400000;
+
+async function processFeaturedSlotCheckout(session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  const vendorId = metadata?.vendor_id;
+  const businessProfileId = metadata?.business_profile_id;
+  const lgaId = metadata?.lga_id ? parseInt(metadata.lga_id, 10) : NaN;
+  const suburbLabel = metadata?.suburb_label;
+
+  if (!vendorId || !businessProfileId || Number.isNaN(lgaId) || !suburbLabel) {
+    logger.error("Featured slot checkout missing metadata", {
+      sessionId: session.id,
+      metadata,
+    });
+    return;
+  }
+
+  const now = new Date();
+  const startDate = now.toISOString();
+  const endDate = new Date(now.getTime() + FEATURED_SLOT_DURATION_MS).toISOString();
+
+  try {
+    const availability = await getFeaturedSlotAvailability(
+      supabase,
+      lgaId,
+      startDate
+    );
+
+    if (availability.hasCapacity) {
+      const { data: createdSlot, error: insertError } = await supabase
+        .from("featured_slots")
+        .insert({
+          vendor_id: vendorId,
+          business_profile_id: businessProfileId,
+          lga_id: lgaId,
+          suburb_label: suburbLabel,
+          status: "active",
+          start_date: startDate,
+          end_date: endDate,
+          charged_amount_cents: session.amount_total ?? FEATURED_SLOT.PRICE_CENTS,
+          stripe_payment_intent_id: session.payment_intent as string,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        logger.error("Failed to insert featured slot after payment", insertError, {
+          vendorId,
+          lgaId,
+        });
+        return;
+      }
+
+      logEvent(BusinessEvent.FEATURED_SLOT_PURCHASED, {
+        vendorId,
+        slotId: createdSlot.id,
+        lgaId,
+      });
+      logger.info("Featured slot activated via checkout", {
+        vendorId,
+        slotId: createdSlot.id,
+        lgaId,
+      });
+      return;
+    }
+
+    const entry = await upsertFeaturedQueueEntry(
+      supabase,
+      vendorId,
+      businessProfileId,
+      lgaId,
+      suburbLabel
+    );
+    const position = await computeFeaturedQueuePosition(supabase, lgaId, entry);
+    logger.warn("Featured slot capacity exceeded post-payment; vendor queued", {
+      vendorId,
+      lgaId,
+      position,
+      sessionId: session.id,
+    });
+  } catch (error) {
+    logger.error("process_featured_slot_checkout_failed", error, {
+      vendorId,
+      lgaId,
+      sessionId: session.id,
+    });
+  }
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -50,6 +156,11 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         const metadata = session.metadata;
 
+        if (metadata?.type === "featured_slot") {
+          await processFeaturedSlotCheckout(session);
+          break;
+        }
+
         if (
           !metadata ||
           !metadata.product_id ||
@@ -80,23 +191,24 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const product = products[0];
+        const product = products[0] as ProductWithVendor;
         const commission = parseInt(metadata.commission || "0");
         const vendorAmount = session.amount_total! - commission;
 
         // Create order record
-        const { error: orderError } = await (
-          supabase.from("orders").insert as any
-        )({
+        const orderPayload: OrderInsert = {
           customer_id: metadata.customer_id,
           vendor_id: metadata.vendor_id,
           product_id: metadata.product_id,
-          total_amount: session.amount_total!,
-          commission_amount: commission,
-          vendor_amount: vendorAmount,
+          amount_cents: session.amount_total!,
+          commission_cents: commission,
+          vendor_net_cents: vendorAmount,
           stripe_payment_intent_id: session.payment_intent as string,
           status: "succeeded",
-        });
+        };
+        const { error: orderError } = await supabase
+          .from("orders")
+          .insert(orderPayload);
 
         if (orderError) {
           logger.error("Failed to create order record", orderError);
@@ -105,14 +217,15 @@ export async function POST(req: NextRequest) {
 
         // Commission ledger entry (Non-negotiable: immutable record)
         if (commission > 0) {
-          const { error: ledgerError } = await (
-            supabase.from("transactions_log").insert as any
-          )({
+          const ledgerPayload: TransactionInsert = {
             vendor_id: metadata.vendor_id,
             type: "commission_deducted",
             amount_cents: commission,
             stripe_reference: session.payment_intent as string,
-          });
+          };
+          const { error: ledgerError } = await supabase
+            .from("transactions_log")
+            .insert(ledgerPayload);
 
           if (ledgerError) {
             logger.error("Commission ledger insert failed", ledgerError, {
@@ -129,18 +242,16 @@ export async function POST(req: NextRequest) {
           .select("email")
           .eq("id", metadata.customer_id);
 
-        const customerEmail =
-          users && users.length > 0
-            ? (users[0] as any).email
-            : session.customer_email;
+        const customerRow = (users?.[0] as UserRow | undefined) ?? null;
+        const customerEmail = customerRow?.email || session.customer_email;
 
         // Send confirmation emails (async)
         if (customerEmail) {
           sendOrderConfirmationEmail(customerEmail, {
             orderId: session.id,
-            productTitle: (product as any).title,
+            productTitle: product.title ?? "Product",
             amount: session.amount_total!,
-            downloadUrl: (product as any).digital_file_url || undefined,
+            downloadUrl: product.digital_file_url || undefined,
           }).catch((err) =>
             logger.error("Failed to send order confirmation", err)
           );
@@ -150,19 +261,22 @@ export async function POST(req: NextRequest) {
         const { data: vendorUsers } = await supabase
           .from("users")
           .select("email")
-          .eq("id", (product as any).vendors.user_id);
+          .eq("id", product.vendors.user_id ?? "");
 
         if (vendorUsers && vendorUsers.length > 0) {
-          sendNewOrderNotificationEmail((vendorUsers[0] as any).email, {
-            orderId: session.id,
-            productTitle: (product as any).title,
-            customerEmail: customerEmail || "N/A",
-            amount: session.amount_total!,
-            commission,
-            netAmount: vendorAmount,
-          }).catch((err) =>
-            logger.error("Failed to send vendor notification", err)
-          );
+          const vendorEmail = (vendorUsers[0] as UserRow | undefined)?.email;
+          if (vendorEmail) {
+            sendNewOrderNotificationEmail(vendorEmail, {
+              orderId: session.id,
+              productTitle: product.title ?? "Product",
+              customerEmail: customerEmail || "N/A",
+              amount: session.amount_total!,
+              commission,
+              netAmount: vendorAmount,
+            }).catch((err) =>
+              logger.error("Failed to send vendor notification", err)
+            );
+          }
         }
 
         logEvent(BusinessEvent.ORDER_COMPLETED, {
@@ -227,7 +341,7 @@ export async function POST(req: NextRequest) {
               const vendor = vendors[0];
               const newCount = (vendor.dispute_count || 0) + 1;
 
-              const updates: Record<string, any> = {
+              const updates: VendorUpdate = {
                 dispute_count: newCount,
                 last_dispute_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -260,9 +374,10 @@ export async function POST(req: NextRequest) {
                 });
               }
 
-              const { error: updateError } = await (
-                supabase.from("vendors").update as any
-              )(updates).eq("id", vendorId);
+              const { error: updateError } = await supabase
+                .from("vendors")
+                .update(updates)
+                .eq("id", vendorId);
 
               if (updateError) {
                 logger.error(
@@ -314,9 +429,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Update vendor tier
-        const { error: tierError } = await (
-          supabase.from("vendors").update as any
-        )({
+        const tierUpdate: VendorUpdate = {
           tier: newTier,
           updated_at: new Date().toISOString(),
           ...(event.type === "customer.subscription.deleted"
@@ -324,7 +437,11 @@ export async function POST(req: NextRequest) {
                 pro_cancelled_at: new Date().toISOString(),
               }
             : {}),
-        }).eq("id", vendorId);
+        };
+        const { error: tierError } = await supabase
+          .from("vendors")
+          .update(tierUpdate)
+          .eq("id", vendorId);
 
         if (tierError) {
           logger.error("Subscription tier update failed", tierError, {
@@ -337,7 +454,7 @@ export async function POST(req: NextRequest) {
         // Enforce tier product cap (FIFO unpublish if downgraded)
         if (newTier === "basic" || newTier === "none") {
           const { unpublishedCount, error: downgradError } =
-            await enforceTierProductCap(vendorId, newTier as any);
+            await enforceTierProductCap(vendorId, newTier as VendorTier);
 
           if (downgradError) {
             logger.error("FIFO downgrade enforcement failed", {

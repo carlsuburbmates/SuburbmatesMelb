@@ -15,10 +15,97 @@ interface BusinessPageProps {
   }>;
 }
 
+interface BusinessData {
+  id: string;
+  name: string;
+  description: string;
+  suburb: string;
+  category: string;
+  slug: string;
+  isVendor: boolean;
+  productCount: number;
+  verified: boolean;
+  tier: string;
+  createdAt: string;
+  profileImageUrl?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  businessHours: Record<string, unknown>;
+  specialties: string[];
+  socialMedia: Record<string, string>;
+  rating: number;
+  reviewCount: number;
+  images: string[];
+}
+
+function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
+  const toStringValue = (value: unknown, fallback = ""): string =>
+    typeof value === "string" ? value : fallback;
+  const toNumberValue = (value: unknown, fallback = 0): number =>
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && !Number.isNaN(Number(value))
+      ? Number(value)
+      : fallback;
+
+  const businessHours =
+    raw.businessHours && typeof raw.businessHours === "object"
+      ? (raw.businessHours as Record<string, unknown>)
+      : {};
+
+  const socialMedia =
+    raw.socialMedia && typeof raw.socialMedia === "object"
+      ? (Object.entries(raw.socialMedia) as Array<[string, unknown]>).reduce(
+          (acc, [key, value]) => {
+            if (typeof value === "string") {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {} as Record<string, string>
+        )
+      : {};
+
+  const specialties = Array.isArray(raw.specialties)
+    ? raw.specialties.filter((item): item is string => typeof item === "string")
+    : [];
+
+  const images = Array.isArray(raw.images)
+    ? raw.images.filter((img): img is string => typeof img === "string")
+    : [];
+
+  return {
+    id: toStringValue(raw.id, ""),
+    name: toStringValue(raw.name, "Business"),
+    description: toStringValue(raw.description, ""),
+    suburb: toStringValue(raw.suburb, "Melbourne"),
+    category: toStringValue(raw.category, "General"),
+    slug: toStringValue(raw.slug, ""),
+    isVendor: raw.isVendor === true,
+    productCount: toNumberValue(raw.productCount, 0),
+    verified: raw.verified === true,
+    tier: toStringValue(raw.tier, "basic"),
+    createdAt: toStringValue(raw.createdAt, ""),
+    profileImageUrl: typeof raw.profileImageUrl === "string" ? raw.profileImageUrl : undefined,
+    phone: typeof raw.phone === "string" ? raw.phone : undefined,
+    email: typeof raw.email === "string" ? raw.email : undefined,
+    website: typeof raw.website === "string" ? raw.website : undefined,
+    address: typeof raw.address === "string" ? raw.address : undefined,
+    businessHours,
+    specialties,
+    socialMedia,
+    rating: toNumberValue(raw.rating, 0),
+    reviewCount: toNumberValue(raw.reviewCount, 0),
+    images,
+  };
+}
+
 export default async function BusinessPage({ params }: BusinessPageProps) {
   const { slug } = await params;
 
-  // TODO: Replace with actual API call to /api/business/[slug]
+  // Fetch business data from API
   const business = await getBusinessBySlug(slug);
 
   if (!business) {
@@ -66,125 +153,28 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   );
 }
 
-// Mock data function - replace with actual API call
-async function getBusinessBySlug(slug: string) {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  const mockBusinesses: any = {
-    'melbourne-tutoring-hub': {
-      id: '1',
-      name: 'Melbourne Tutoring Hub',
-      description: 'Professional tutoring services for VCE, university entrance and academic support across all subjects. Our experienced tutors have helped hundreds of students achieve their academic goals with personalized learning plans and proven teaching methods.',
-      suburb: 'Carlton',
-      category: 'Tutoring & Education',
-      phone: '+61 3 9123 4567',
-      email: 'hello@melbournetutoring.com.au',
-      website: 'https://melbournetutoring.com.au',
-      address: '123 Lygon Street, Carlton VIC 3053',
-      profileImageUrl: null,
-      isVendor: true,
-      productCount: 12,
-      slug: 'melbourne-tutoring-hub',
-      verified: true,
-      createdAt: '2024-01-15T10:00:00Z',
-      businessHours: {
-        monday: '9:00 AM - 6:00 PM',
-        tuesday: '9:00 AM - 6:00 PM',
-        wednesday: '9:00 AM - 6:00 PM',
-        thursday: '9:00 AM - 6:00 PM',
-        friday: '9:00 AM - 6:00 PM',
-        saturday: '10:00 AM - 4:00 PM',
-        sunday: 'Closed'
+// Fetch business data from API
+async function getBusinessBySlug(slug: string): Promise<BusinessData | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/business/${slug}`, {
+      cache: 'no-store', // Ensure fresh data
+      headers: {
+        'Content-Type': 'application/json',
       },
-      socialMedia: {
-        facebook: 'https://facebook.com/melbournetutoringhub',
-        instagram: '@melbournetutoring',
-        linkedin: 'https://linkedin.com/company/melbourne-tutoring-hub'
-      },
-      specialties: ['VCE Mathematics', 'English Literature', 'Science Tutoring', 'University Prep'],
-      rating: 4.8,
-      reviewCount: 127,
-      images: [
-        {
-          id: '1',
-          url: '/api/placeholder/800/600?text=Tutoring+Studio',
-          alt: 'Melbourne Tutoring Hub main classroom',
-          caption: 'Our modern learning environment in Carlton'
-        },
-        {
-          id: '2', 
-          url: '/api/placeholder/800/600?text=Study+Materials',
-          alt: 'Study materials and resources',
-          caption: 'Comprehensive study materials and resources'
-        },
-        {
-          id: '3',
-          url: '/api/placeholder/800/600?text=One+on+One',
-          alt: 'One-on-one tutoring session',
-          caption: 'Personalized one-on-one tutoring sessions'
-        }
-      ],
-      yearsActive: 8,
-      clientsServed: 850,
-      awards: ['Best Educational Service 2023', 'Community Choice Award'],
-      certifications: ['VCE Teaching Certification', 'Educational Excellence Certificate']
-    },
-    'creative-design-co': {
-      id: '3',
-      name: 'Creative Design Co',
-      description: 'Brand identity, web design and digital marketing solutions for small to medium businesses. We specialize in creating memorable brand experiences that drive growth and customer engagement.',
-      suburb: 'Richmond',
-      category: 'Design & Creative',
-      phone: '+61 3 9876 5432',
-      email: 'hello@creativedesignco.com.au',
-      website: 'https://creativedesignco.com.au',
-      address: '456 Bridge Road, Richmond VIC 3121',
-      isVendor: true,
-      productCount: 8,
-      slug: 'creative-design-co',
-      verified: true,
-      createdAt: '2024-01-28T09:15:00Z',
-      businessHours: {
-        monday: '8:30 AM - 5:30 PM',
-        tuesday: '8:30 AM - 5:30 PM',
-        wednesday: '8:30 AM - 5:30 PM',
-        thursday: '8:30 AM - 5:30 PM',
-        friday: '8:30 AM - 5:30 PM',
-        saturday: 'By appointment',
-        sunday: 'Closed'
-      },
-      specialties: ['Brand Identity', 'Web Design', 'Digital Marketing', 'Logo Design'],
-      rating: 4.9,
-      reviewCount: 89,
-      images: [
-        {
-          id: '1',
-          url: '/api/placeholder/800/600?text=Design+Studio',
-          alt: 'Creative Design Co studio workspace',
-          caption: 'Our creative studio in Richmond'
-        },
-        {
-          id: '2',
-          url: '/api/placeholder/800/600?text=Brand+Work',
-          alt: 'Brand design examples',
-          caption: 'Examples of our brand design work'
-        },
-        {
-          id: '3',
-          url: '/api/placeholder/800/600?text=Team+Collaboration',
-          alt: 'Team working on project',
-          caption: 'Our collaborative design process'
-        }
-      ],
-      yearsActive: 6,
-      clientsServed: 320,
-      awards: ['Melbourne Design Awards 2023', 'Creative Excellence Award'],
-      certifications: ['Adobe Certified Expert', 'Google Digital Marketing Certificate']
-    }
-  };
+    });
 
-  return mockBusinesses[slug] || null;
+    if (!response.ok) {
+      console.error(`API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.business ? normalizeBusinessData(data.business) : null;
+  } catch (error) {
+    console.error('Error fetching business data:', error);
+    return null;
+  }
 }
 
 function ProductsSkeleton() {
@@ -239,10 +229,10 @@ export async function generateMetadata({ params }: BusinessPageProps) {
   }
 
   return {
-    title: `${business.name} - ${business.suburb} | SuburbMates`,
-    description: business.description || `${business.name} - Local business in ${business.suburb}, Melbourne. ${business.category}.`,
+    title: `${business.name} - ${business.suburb || 'Melbourne'} | SuburbMates`,
+    description: business.description || `${business.name} - Local business in ${business.suburb || 'Melbourne'}, Melbourne. ${business.category || 'Services'}.`,
     openGraph: {
-      title: `${business.name} - ${business.suburb}`,
+      title: `${business.name} - ${business.suburb || 'Melbourne'}`,
       description: business.description,
       type: 'business.business',
       locale: 'en_AU',

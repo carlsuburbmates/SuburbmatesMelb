@@ -164,14 +164,12 @@ export const orderUpdateStatusSchema = z.object({
 // ============================================================================
 
 const searchQueryField = z
-  .string({
-    required_error: "Search query is required",
-  })
+  .string()
   .min(2, "Query must be at least 2 characters")
   .max(100, "Query must be less than 100 characters");
 
 const searchFiltersField = z
-  .record(z.any())
+  .record(z.string(), z.any())
   .optional()
   .transform((value) => {
     if (!value) {

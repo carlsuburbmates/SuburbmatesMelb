@@ -1,6 +1,9 @@
 import { supabaseAdmin, supabase } from "./supabase";
 import { DirectorySearchPayload } from "./validation";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 import { logger } from "./logger";
+import { resolveLgaMatch } from "./suburb-resolver";
 
 export type DirectorySearchResult = {
   id: string;
@@ -17,6 +20,8 @@ export type DirectorySearchResult = {
     name: string | null;
   };
   isFeatured: boolean;
+  featuredSuburbLabel: string | null;
+  featuredMatchesSelection: boolean;
   createdAt: string | null;
 };
 
@@ -47,20 +52,16 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let suburbIds: number[] | null = null;
+  let suburbFilter: { lgaIds: number[]; label: string | null } | null = null;
   if (payload.suburb) {
-    const { data: lgas, error } = await client
-      .from("lgas")
-      .select("id, name")
-      .ilike("name", `%${sanitize(payload.suburb)}%`);
-    if (error) {
-      logger.error("search_lga_lookup_failed", error);
-      throw error;
-    }
-    suburbIds = lgas?.map((row) => row.id) ?? [];
-    if (!suburbIds.length) {
+    const resolved = await resolveLgaMatch(client, payload.suburb);
+    if (!resolved || !resolved.lgaIds.length) {
       return buildEmptyResult(page, limit);
     }
+    suburbFilter = {
+      lgaIds: resolved.lgaIds,
+      label: resolved.matchedLabel ?? payload.suburb,
+    };
   }
 
   let categoryIds: number[] | null = null;
@@ -103,8 +104,8 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
     )
     .eq("is_public", true);
 
-  if (suburbIds) {
-    queryBuilder = queryBuilder.in("suburb_id", suburbIds);
+  if (suburbFilter) {
+    queryBuilder = queryBuilder.in("suburb_id", suburbFilter.lgaIds);
   }
 
   if (categoryIds) {
@@ -130,26 +131,39 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
     throw error;
   }
 
+  const featuredMeta = await resolveFeaturedProfileMetadata(client, {
+    lgaIds: suburbFilter?.lgaIds ?? null,
+    suburbTerm: payload.suburb ?? null,
+  });
+
   const mapped: DirectorySearchResult[] =
-    data?.map((row) => ({
-      id: row.id,
-      name: row.business_name,
-      description: row.profile_description,
-      slug: row.slug,
-      tier: row.vendor_tier,
-      suburb: {
-        id: row.lgas?.id ?? null,
-        name: row.lgas?.name ?? null,
-      },
-      category: {
-        id: row.categories?.id ?? null,
-        name: row.categories?.name ?? null,
-      },
-      isFeatured: false,
-      createdAt: row.created_at,
-    })) ?? [];
+    data?.map((row) => {
+      const meta = featuredMeta.get(row.id);
+      return {
+        id: row.id,
+        name: row.business_name,
+        description: row.profile_description,
+        slug: row.slug,
+        tier: row.vendor_tier,
+        suburb: {
+          id: row.lgas?.id ?? null,
+          name: row.lgas?.name ?? null,
+        },
+        category: {
+          id: row.categories?.id ?? null,
+          name: row.categories?.name ?? null,
+        },
+        isFeatured: Boolean(meta),
+        featuredSuburbLabel: meta?.suburbLabel ?? null,
+        featuredMatchesSelection: meta?.matchesSelection ?? false,
+        createdAt: row.created_at,
+      };
+    }) ?? [];
 
   const sorted = mapped.sort((a, b) => {
+    if (a.featuredMatchesSelection !== b.featuredMatchesSelection) {
+      return a.featuredMatchesSelection ? -1 : 1;
+    }
     if (a.isFeatured !== b.isFeatured) {
       return a.isFeatured ? -1 : 1;
     }
@@ -188,4 +202,62 @@ function buildEmptyResult(page: number, limit: number) {
       hasPreviousPage: page > 1,
     },
   };
+}
+
+type FeaturedMeta = {
+  suburbLabel: string | null;
+  lgaId: number | null;
+  matchesSelection: boolean;
+};
+
+async function resolveFeaturedProfileMetadata(
+  client: SupabaseClient<Database>,
+  {
+    lgaIds,
+    suburbTerm,
+  }: {
+    lgaIds: number[] | null;
+    suburbTerm: string | null;
+  }
+) {
+  const now = new Date().toISOString();
+  let query = client
+    .from("featured_slots")
+    .select("business_profile_id, suburb_label, lga_id")
+    .eq("status", "active")
+    .lte("start_date", now)
+    .gte("end_date", now);
+
+  if (lgaIds && lgaIds.length > 0) {
+    query = query.in("lga_id", lgaIds);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    logger.error("featured_lookup_failed", error);
+    return new Map<string, FeaturedMeta>();
+  }
+
+  const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
+
+  const featureMap = new Map<string, FeaturedMeta>();
+  (data ?? []).forEach((slot) => {
+    const matchesSuburb = normalizedSuburb
+      ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
+      : false;
+    const matchesLga = lgaIds?.length
+      ? slot.lga_id
+        ? lgaIds.includes(slot.lga_id)
+        : false
+      : false;
+
+    featureMap.set(slot.business_profile_id, {
+      suburbLabel: slot.suburb_label ?? null,
+      lgaId: slot.lga_id ?? null,
+      matchesSelection: normalizedSuburb ? matchesSuburb : matchesLga,
+    });
+  });
+
+  return featureMap;
 }

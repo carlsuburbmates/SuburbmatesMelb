@@ -19,7 +19,7 @@ export default function BusinessNotFound() {
           
           {/* Description */}
           <p className="text-gray-600 mb-8">
-            We couldn't find the business you're looking for. It may have been removed, 
+            We couldn&rsquo;t find the business you&rsquo;re looking for. It may have been removed,
             or the link might be incorrect.
           </p>
 

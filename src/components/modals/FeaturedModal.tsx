@@ -14,22 +14,22 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
     {
       icon: <Star className="w-5 h-5 text-amber-500" />,
       title: "Prime Search Position",
-      description: "Appear at the top of search results in your suburb"
+      description: "Appear at the top of search results in your suburb",
     },
     {
       icon: <MapPin className="w-5 h-5 text-blue-500" />,
       title: "Enhanced Visibility",
-      description: "Stand out with a distinctive badge and prominent placement"
+      description: "Stand out with a distinctive badge and prominent placement",
     },
     {
       icon: <Clock className="w-5 h-5 text-green-500" />,
       title: "30 Days Duration",
-      description: "Full month of featured placement for maximum exposure"
+      description: "Full month of featured placement for maximum exposure",
     },
     {
       icon: <DollarSign className="w-5 h-5 text-purple-500" />,
       title: "Affordable Investment",
-      description: "Just A$20 per placement - excellent ROI for local businesses"
+      description: "Just A$20 per placement - excellent ROI for local businesses",
     }
   ];
 
@@ -56,7 +56,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
             Boost Your Local Visibility
           </h3>
           <p className="text-gray-600 text-lg">
-            Get premium placement in your suburb's business directory and attract more customers
+            Get premium placement in your suburb&rsquo;s business directory and attract more customers
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
                 2
               </div>
               <p className="text-sm text-gray-600">
-                Your listing appears at the top of search results with a "Featured" badge
+                Your listing appears at the top of search results with a &lsquo;Featured&rsquo; badge
               </p>
             </div>
             <div className="flex items-start space-x-3">

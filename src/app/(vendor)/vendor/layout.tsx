@@ -68,6 +68,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
   }
 
   const tierLabel = vendor?.tier ?? "basic";
+  const productCount = vendor?.product_count ?? 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -86,11 +87,9 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
                   Tier:{" "}
                   <span className="font-semibold uppercase">{tierLabel}</span>
                 </span>
-                {vendor?.product_count !== undefined && (
-                  <span className="text-sm text-gray-500">
-                    • {vendor.product_count} products live
-                  </span>
-                )}
+                <span className="text-sm text-gray-500">
+                  • {productCount} products live
+                </span>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import { directorySearchSchema } from "@/lib/validation";
 import { searchBusinessProfiles } from "@/lib/search";
 import { recordSearchTelemetry } from "@/lib/telemetry";
 import { z } from "zod";
+import { ApiResponse } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         data: searchResponse,
-      },
+      } as ApiResponse<typeof searchResponse>,
       { status: 200 }
     );
   } catch (error) {

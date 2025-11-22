@@ -70,7 +70,7 @@ export default function ContactPage() {
     {
       question: "How do I create a business profile?",
       answer:
-        "Click on 'Sign up' and select 'Business/Vendor'. Fill in your business details and our team will review your profile within 24-48 hours.",
+        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Business/Vendor&rsquo;. Fill in your business details and our team will review your profile within 24-48 hours.",
     },
     {
       question: "How much does it cost to list my business?",
@@ -174,7 +174,7 @@ export default function ContactPage() {
                       Message Sent!
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Thank you for contacting us. We'll get back to you within
+                      Thank you for contacting us. We&rsquo;ll get back to you within
                       24 hours.
                     </p>
                     <Button
@@ -309,7 +309,7 @@ export default function ContactPage() {
               Ready to connect with local businesses?
             </h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join SuburbMates today and discover Melbourne's best local
+              Join SuburbMates today and discover Melbourne&rsquo;s best local
               businesses and digital products.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
