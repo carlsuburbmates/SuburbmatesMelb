@@ -13,12 +13,11 @@
 
 **START WITH THESE (v1.1 Amendments & Execution Context):**
 
-0. **FOUNDER_STRATEGY/FOUNDER_AMENDMENT_DIRECTIVE.md** ⭐ **READ FIRST**
+0. **FOUNDER_STRATEGY/FOUNDER_STRATEGY_v3.1.md** ⭐ **READ FIRST**
 
-   - All v1.1 locked principles (Vendor MoR, non-mediating, no auto-refunds, no SLAs)
-   - 6 Critical Founder Decisions (FD-1 → FD-6)
-   - 5 Resolved Ambiguities (MA-1 → MA-5)
-   - Immediate next steps for team
+   - Summarizes v1.1 locked principles + founder decisions (FD-1 → FD-6)
+   - Highlights escalation flow + agent expectations
+   - Points to archived Phase 5 directive for historical context
 
 1. **DECISIONS_LOG.md** ⭐ **Quick Reference**
 
@@ -26,32 +25,22 @@
    - Enforcement anchors (code locations, process refs)
    - Reversal triggers for each decision
 
-2. **01_STRATEGY/01.0_PROJECT_OVERVIEW.md** (565 lines)
+2. **01_STRATEGY/01_BUSINESS_STRATEGY_v3.1.md**
 
-   - Why we removed the December 1 deadline
-   - 6-phase 10-week timeline
-   - Quality-first approach
-   - Success criteria
+   - Consolidated replacement for 01.0–01.4
+   - 28 LGA scope, KPIs (Month 6: 200 vendors / 300 tx), dozens-of-automations stance
+   - Roadmap, GTM, risk mitigation in one place
 
-3. **01_STRATEGY/01.1_BUSINESS_PLAN.md** (566 lines)
+3. **06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md**
 
-   - Business model (8% commission)
-   - Revenue streams
-   - Unit economics
-   - Go-to-market strategy
+   - Escalation workflows, incident response, deployment checklist
+   - Founder daily/weekly/monthly routines
 
-4. **01_STRATEGY/01.2_ROADMAP_AND_RISK.md**
+4. **09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md**
 
-   - Product roadmap (phases 2-4+)
-   - Risk mitigation strategies
-   - Contingency plans
+   - Current Stage 3 progress, blockers, cron/test cadence
 
-5. **06_OPERATIONS_AND_DEPLOYMENT/06.4_FOUNDER_OPERATIONS.md** (610 lines)
-   - Decision matrices
-   - Escalation workflows
-   - Daily operational procedures
-   - Support bot decision trees
-6. **Stripe/STRIPE_TESTING_PLAYBOOK.md**
+5. **Stripe/STRIPE_TESTING_PLAYBOOK.md**
    - Sandbox vs staging vs production workflow
    - Stripe CLI + webhook listener instructions
    - Verification scripts checklist (verify-stripe-access, test-stripe-integration)
@@ -62,18 +51,11 @@
 
 **START WITH THESE (Stage 3 Execution Context):**
 
-0. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_HANDOFF.md** ⭐ **Execution Brief**
+0. **10_IMPLEMENTATION_GUIDES/STAGE3_EXECUTION_v3.1.md** ⭐ **Execution Brief**
 
-   - Condensed 13-task scope with acceptance criteria
-   - Team allocation & endpoints snapshot
-   - Cron jobs, webhook events, deployment checklist
-   - Risk mitigations & quick start commands
-
-1. **10_IMPLEMENTATION_GUIDES/V1_1_STAGE_3_IMPLEMENTATION_GUIDE.md** (Full Spec)
-
-   - Product CRUD, tier management, featured slots, search instrumentation
-   - Data model deltas, dispute gating setup, fee credit path
-   - Week-by-week implementation order
+   - Condensed Stage 3 scope, week-by-week order, cron/test plan
+   - Acceptance criteria + handoff checklist
+   - References archived guides for historical context
 
 2. **DECISIONS_LOG.md** (v1.1 Principles Reference)
    - All locked principles enforced in code
@@ -82,41 +64,21 @@
 
 Then read core architecture:
 
-3. **03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md** (572 lines)
+3. **03_ARCHITECTURE/03_TECHNICAL_ARCHITECTURE_v3.1.md**
 
-   - Tech stack (Next.js, Supabase, Stripe, Claude)
-   - High-level system architecture
-   - Deployment architecture
-   - Authentication flow
+   - Stack overview + diagrams + schema snapshot (replaces 03.0–03.3)
+   - Non-negotiable architecture rules, cron coverage, integrations
 
-4. **03_ARCHITECTURE/03.3_SCHEMA_REFERENCE.md** (528 lines)
+4. **04_API/04_API_REFERENCE_v3.1.md**
 
-   - 13-table database schema
-   - All table definitions with SQL
-   - Foreign keys and relationships
-   - Key business invariants
-   - Index recommendations
+   - Complete API coverage (auth, directory, marketplace, tier, featured, search, telemetry, webhooks)
+   - Request/response conventions, Stripe metadata requirements
+   - Source mapping to archived specifications
 
-5. **04_API/04.0_COMPLETE_SPECIFICATION.md** (694 lines)
-
-   - Complete API reference
-   - All 30+ endpoints
-   - Database schema (comprehensive)
-   - Implementation plan
-   - Go/no-go gates
-
-6. **04_API/04.2_ENDPOINTS_REFERENCE.md** (863 lines)
-
-   - 50+ API endpoints by feature
-   - Quick lookup by feature
-   - Request/response examples
-   - Authentication requirements
-   - Error codes
-
-7. **05_FEATURES_AND_WORKFLOWS/05.1_MVP_SPRINT_PLAN.md**
-   - Week-by-week execution breakdown
-   - Daily sprint structure
-   - Milestones and checkpoints
+5. **05_FEATURES_AND_WORKFLOWS/05_IMPLEMENTATION_PLAN_v3.1.md**
+   - Directory vs marketplace workflows
+   - Stage 3 weekly order (product CRUD → telemetry → tier/featured → cron/tests)
+   - Automation + cron scripts overview
 
 ---
 
@@ -124,40 +86,12 @@ Then read core architecture:
 
 Start here if you're building the UI, pages, and user experience.
 
-1. **02_DESIGN_AND_UX/02.0_DESIGN_SYSTEM.md** (1,040 lines)
+1. **02_DESIGN_AND_UX/02_PRODUCT_UX_v3.1.md**
 
-   - Brand essence and visual identity
-   - Color system, typography, spacing grid
-   - Component specifications
-   - Design tokens
-   - Accessibility guidelines (WCAG 2.1 AA)
+   - Consolidated design system, page layouts, homepage spec, psychology, interaction, image rules
+   - Mobile-first + accessibility guardrails
 
-2. **02_DESIGN_AND_UX/02.1_HOMEPAGE_SPECIFICATION.md** (660 lines)
-
-   - Homepage design philosophy
-   - 8-section journey structure
-   - Hero carousel psychology
-   - Full-screen mobile specs (375×667px)
-   - Navigation and CTA placement
-
-3. **02_DESIGN_AND_UX/02.2_PAGE_MAPPING_AND_LAYOUTS.md** (736 lines)
-
-   - All 13 core pages mapped
-   - Public pages (homepage, pricing, directory, product detail)
-   - Onboarding pages (signup, profile, checkout)
-   - Vendor dashboard pages (dashboard, products, featured slots)
-   - Account management pages
-   - Component breakdowns per page
-
-4. **02_DESIGN_AND_UX/02.4_PSYCHOLOGY_AND_IMMERSIVE_UX.md** (467 lines)
-
-   - Hero section psychology
-   - Behavioral design patterns
-   - Intent verification strategy
-   - Immersive storytelling
-   - Comparison with traditional SaaS designs
-
-5. **04_API/04.2_ENDPOINTS_REFERENCE.md** (863 lines)
+2. **04_API/04_API_REFERENCE_v3.1.md**
    - API endpoints for frontend consumption
    - Authentication flow
    - Request/response examples
@@ -169,107 +103,78 @@ Start here if you're building the UI, pages, and user experience.
 
 Start here if you're handling deployment, monitoring, and operations.
 
-1. **06_OPERATIONS_AND_DEPLOYMENT/06.0_DEVELOPMENT_PLAN.md**
+1. **06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md**
 
-   - Development environment setup
-   - Vercel deployment configuration
-   - Supabase + GitHub integration
-   - Local development setup
-
-2. **06_OPERATIONS_AND_DEPLOYMENT/06.1_DEPLOYMENT_PROCEDURES.md**
-
-   - Change management workflow
-   - Deployment procedures (dev → staging → production)
-   - Rollback procedures
-   - Environment configuration
-
-3. **06_OPERATIONS_AND_DEPLOYMENT/06.2_INCIDENT_RESPONSE_RUNBOOKS.md**
-
-   - Incident response procedures
-   - Escalation matrix
-   - On-call schedules
-   - Critical systems monitoring
-   - Recovery procedures
-
-4. **06_OPERATIONS_AND_DEPLOYMENT/06.3_ROLES_AND_RESPONSIBILITIES.md**
-   - Team roles and responsibilities
-   - Decision authority matrix
-   - Escalation paths
-   - On-call responsibilities
+   - Development + deployment workflow (Vercel/Supabase), change management, rollback
+   - Cron + Stripe webhook runbooks, incident response, severity matrix
+   - Roles & responsibilities plus founder operations cadence
 
 ---
 
 ### **For QA/Testing** (1.5 hours)
 
-1. **07_QUALITY_AND_LEGAL/07.0_QA_AND_TESTING_STRATEGY.md**
+1. **07_QUALITY_AND_LEGAL/07_COMPLIANCE_QA_v3.1.md**
 
-   - Unit testing strategy
-   - Integration testing
-   - End-to-end testing
-   - Performance testing (Lighthouse 90+)
-   - Security testing & RLS validation
-
-2. **07_QUALITY_AND_LEGAL/07.1_LEGAL_COMPLIANCE_AND_DATA.md**
-   - Data protection (GDPR, Australian Privacy Act)
-   - User consent and terms
-   - Support model (no SLA commitments) and vendor responsibilities
-   - Liability limits
-   - Terms of Service stance
+   - Unit/integration/e2e strategy + regression gates
+   - Accessibility + performance budgets (Lighthouse 90+), telemetry privacy
+   - Legal guardrails (vendor MoR, no SLAs, ABN optional, dispute gating, commission policy)
 
 ---
 
 ## 📁 Complete Folder Breakdown
 
-### **01_STRATEGY/** — Why & When (5 files)
+### **01_STRATEGY/** — Why & When
 
-- **01.0_PROJECT_OVERVIEW.md** - Strategic reframe, timeline, success criteria
-- **01.1_BUSINESS_PLAN.md** - Business model, revenue, unit economics
-- **01.2_ROADMAP_AND_RISK.md** - Phases 2-4+, risks, mitigations
-- **01.3_CONTENT_AND_ENGAGEMENT.md** - Community, content, engagement strategy
-- **01.4_MVP_MASTER_PLAN_SUMMARY.md** - Executive summary for founders/investors (328 lines)
+- **01_BUSINESS_STRATEGY_v3.1.md** - Consolidated strategy (vision, roadmap, GTM, KPIs). Replaces 01.0–01.4; legacy files retained only for archive.
 
-### **02_DESIGN_AND_UX/** — Look & Feel (5 files)
+### **FOUNDER_STRATEGY/** — Executive Directives
 
-- **02.0_DESIGN_SYSTEM.md** - Brand, colors, typography, components, tokens
-- **02.1_HOMEPAGE_SPECIFICATION.md** - Homepage design, hero psychology, sections
-- **02.2_PAGE_MAPPING_AND_LAYOUTS.md** - All 13 pages, layouts, wireframes
-- **02.3_PRODUCT_UX_SPECIFICATIONS.md** - Component specs, interactive patterns
-- **02.4_PSYCHOLOGY_AND_IMMERSIVE_UX.md** - UX psychology, behavioral patterns
+- **FOUNDER_STRATEGY_v3.1.md** - Founder mandates, decision log, agent expectations (Phase 5 amendment archived for reference)
 
-### **03_ARCHITECTURE/** — How It's Built (4 files)
+### **02_DESIGN_AND_UX/** — Look & Feel
 
-- **03.0_TECHNICAL_OVERVIEW.md** - Tech stack, system design, deployment
-- **03.1_VISUAL_DIAGRAMS.md** - Architecture diagrams, data flow
-- **03.2_INTEGRATIONS_AND_TOOLS.md** - Third-party integrations (Stripe, Claude, etc.)
-- **03.3_SCHEMA_REFERENCE.md** - Database schema, quick lookup (528 lines)
+- **02_PRODUCT_UX_v3.1.md** - Consolidated design system, page layouts, homepage spec, psychology, interaction + imagery rules (replaces 02.0–02.4 + LATEST_UPDATE_START_HERE files; legacy copies moved to `ARCHIVED_DOCS/legacy_design/`)
 
-### **04_API/** — What the System Does (3 files)
+### **03_ARCHITECTURE/** — How It's Built
 
-- **04.0_COMPLETE_SPECIFICATION.md** - Comprehensive spec (694 lines, everything)
-- **04.1_API_SPECIFICATION.md** - Detailed API documentation
-- **04.2_ENDPOINTS_REFERENCE.md** - Quick-lookup endpoints by feature (863 lines)
+- **03_TECHNICAL_ARCHITECTURE_v3.1.md** - Stack, diagrams, integrations, schema snapshot (replaces 03.0–03.3)
 
-### **05_FEATURES_AND_WORKFLOWS/** — User Journeys (2 files)
+### **04_API/** — What the System Does
 
-- **05.0_VENDOR_WORKFLOWS.md** - Vendor flow, customer flow, admin flow
-- **05.1_MVP_SPRINT_PLAN.md** - Week-by-week sprint breakdown, daily patterns
+- **04_API_REFERENCE_v3.1.md** - Comprehensive API/spec + request examples (replaces 04.0–04.2)
 
-### **06_OPERATIONS_AND_DEPLOYMENT/** — Run & Maintain (5 files)
+### **05_FEATURES_AND_WORKFLOWS/** — User Journeys
 
-- **06.0_DEVELOPMENT_PLAN.md** - Dev environment, CI/CD, local setup
-- **06.1_DEPLOYMENT_PROCEDURES.md** - Deployment workflow, rollback, environments
-- **06.2_INCIDENT_RESPONSE_RUNBOOKS.md** - Incident handling, escalation, recovery
-- **06.3_ROLES_AND_RESPONSIBILITIES.md** - Team roles, decision authority
-- **06.4_FOUNDER_OPERATIONS.md** - Operational decision matrices, SOP (610 lines)
+- **05_IMPLEMENTATION_PLAN_v3.1.md** - Vendor/customer flows + Stage 3 weekly plan
+- Legacy sprint plans retained only for audit.
 
-### **07_QUALITY_AND_LEGAL/** — Safety & Compliance (2 files)
+### **06_OPERATIONS_AND_DEPLOYMENT/** — Run & Maintain
 
-- **07.0_QA_AND_TESTING_STRATEGY.md** - Testing plan, coverage, performance
-- **07.1_LEGAL_COMPLIANCE_AND_DATA.md** - Legal, compliance, data protection
+- **06_OPERATIONS_v3.1.md** - Dev workflow, deployment, incident response, roles, founder ops (replaces 06.0–06.4)
 
-### **08_REFERENCE_MATERIALS/** — Supporting Data (1 file)
+### **07_QUALITY_AND_LEGAL/** — Safety & Compliance
 
-- **08.0_MELBOURNE_SUBURBS_REFERENCE.md** - Melbourne councils, suburb catchments
+- **07_COMPLIANCE_QA_v3.1.md** - QA + legal guardrails (replaces 07.0 + 07.1)
+
+### **DEV_NOTES/** — Developer Guidance
+
+- **DEV_NOTES_v3.1.md** - Build policy, architectural guards, cheat sheet (replaces prior dev notes; automation JSONs remain for guard scripts)
+
+### **Stripe/** — Payments Playbook
+
+- **STRIPE_PLAYBOOK_v3.1.md** - Config, products/pricing, webhook handling, testing (replaces older Stripe guides; PNG diagrams remain)
+
+### **08_REFERENCE_MATERIALS/** — Supporting Data
+
+- **08_MELBOURNE_SUBURBS_REFERENCE.md** - Melbourne councils, suburb catchments (28 LGAs)
+
+### **10_IMPLEMENTATION_GUIDES/** — Execution Playbooks
+
+- **STAGE3_EXECUTION_v3.1.md** - Stage 3 scope, weekly plan, cron/tests, handoff checklist
+
+### Legacy Files
+
+Superseded v1.1 documents live under `ARCHIVED_DOCS/legacy_*` (strategy, design, architecture, workflows, operations, quality, reference) for historical reference.
 
 ### **09_ARCHIVE/** — Legacy Docs (5 files)
 
@@ -308,14 +213,14 @@ Start here if you're handling deployment, monitoring, and operations.
 
 | Purpose                      | Document                                                        |
 | ---------------------------- | --------------------------------------------------------------- |
-| Understand the vision        | 01_STRATEGY/01.0_PROJECT_OVERVIEW.md                            |
-| Build the database           | 03_ARCHITECTURE/03.3_SCHEMA_REFERENCE.md                        |
-| Build the API                | 04_API/04.2_ENDPOINTS_REFERENCE.md                              |
-| Design the UI                | 02_DESIGN_AND_UX/02.0_DESIGN_SYSTEM.md                          |
-| Deploy to production         | 06_OPERATIONS_AND_DEPLOYMENT/06.1_DEPLOYMENT_PROCEDURES.md      |
-| Troubleshoot an issue        | 06_OPERATIONS_AND_DEPLOYMENT/06.2_INCIDENT_RESPONSE_RUNBOOKS.md |
-| Make an operational decision | 06_OPERATIONS_AND_DEPLOYMENT/06.4_FOUNDER_OPERATIONS.md         |
-| Understand all features      | 04_API/04.0_COMPLETE_SPECIFICATION.md                           |
+| Understand the vision        | 01_STRATEGY/01_BUSINESS_STRATEGY_v3.1.md                        |
+| Build the database           | 03_ARCHITECTURE/03_TECHNICAL_ARCHITECTURE_v3.1.md               |
+| Build the API                | 04_API/04_API_REFERENCE_v3.1.md                                  |
+| Design the UI                | 02_DESIGN_AND_UX/02_PRODUCT_UX_v3.1.md                          |
+| Deploy to production         | 06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md              |
+| Troubleshoot an issue        | 06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md              |
+| Make an operational decision | 06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md              |
+| Understand all features      | 05_FEATURES_AND_WORKFLOWS/05_IMPLEMENTATION_PLAN_v3.1.md        |
 
 ---
 

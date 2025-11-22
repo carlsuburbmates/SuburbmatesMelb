@@ -7,6 +7,8 @@
 
 ---
 
+> **Historical Reference Only:** This memo predates the Stage 3 v3.1 reorg. Current specs (tier quotas, featured-business logic, cron steps, etc.) now live in the files listed in `v1.1-docs/SSOT_DEVELOPMENT_HANDBOOK.md` → *Stage 3 Document Map*. Use this document only for background; do not rely on the old numbers (e.g., “Basic = 3”, “Premium-only featured”) without cross-checking the v3.1 sources.
+
 ## Executive Summary: Critical Corrections Required
 
 Copilot's implementation checklist requires **fundamental corrections** in three areas:

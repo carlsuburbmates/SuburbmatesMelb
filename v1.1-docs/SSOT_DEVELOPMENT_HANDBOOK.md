@@ -14,7 +14,7 @@
 
 1. **What is SuburbMates?** A hyperlocal marketplace connecting Melbourne residents with neighborhood businesses. Vendors are Merchant of Record, platform takes 5% commission, no mediation.
 
-2. **What stage are we at?** Stages 1.1-2.2 complete (auth, business listings, checkout). **Stage 3 NOT implemented** - you will build product CRUD, tier management, featured slots, search instrumentation, and dispute gating.
+2. **What stage are we at?** Stages 1.1-2.2 complete (auth, business listings, checkout). **Stage 3 is in progress** — use `09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md` to see which checklist items remain (product CRUD, tier management, featured business placements, search telemetry, cron jobs).
 
 3. **What are the non-negotiables?** 8 locked principles in Section 1. Read them. Never violate them.
 
@@ -45,6 +45,37 @@
 - [ ] I have reviewed the risk mitigations (Section 9)
 
 **If you can't check all 10 boxes, read the relevant sections below before proceeding.**
+
+---
+
+## Stage 3 Document Map (v3.1)
+
+| Domain | Canonical File | Purpose |
+| --- | --- | --- |
+| Strategy & KPIs | `01_STRATEGY/01_BUSINESS_STRATEGY_v3.1.md` | Vision, KPIs, roadmap, tier definitions |
+| Founder directives | `FOUNDER_STRATEGY/FOUNDER_STRATEGY_v3.1.md` | Locked decisions (FD‑1→FD‑6), escalation expectations |
+| Product UX | `02_DESIGN_AND_UX/02_PRODUCT_UX_v3.1.md` | Design system, page layouts, interaction patterns |
+| Architecture | `03_ARCHITECTURE/03_TECHNICAL_ARCHITECTURE_v3.1.md` | Stack, schema, integrations, cron overview |
+| API | `04_API/04_API_REFERENCE_v3.1.md` | All endpoints, payloads, telemetry + webhook expectations |
+| Workflows | `05_FEATURES_AND_WORKFLOWS/05_IMPLEMENTATION_PLAN_v3.1.md` | Directory vs marketplace responsibilities, week plan |
+| Operations | `06_OPERATIONS_AND_DEPLOYMENT/06_OPERATIONS_v3.1.md` | Dev workflow, deployment, incident response |
+| QA & Legal | `07_QUALITY_AND_LEGAL/07_COMPLIANCE_QA_v3.1.md` | Verification/QA checklist, legal guardrails |
+| Dev Notes | `DEV_NOTES/DEV_NOTES_v3.1.md` | Build policy, architectural guards, cheat sheet |
+| Stripe | `Stripe/STRIPE_PLAYBOOK_v3.1.md` | Connect setup, Checkout/webhooks, testing |
+| Implementation status | `09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md` | Stage 3 checklist progress |
+
+Archival copies of superseded docs live under `v1.1-docs/ARCHIVED_DOCS/legacy_*`.
+
+### Stage 3 Documentation Policy
+
+To keep every change anchored to the right spec, follow these rules **every time you touch Stage 3 code**:
+
+1. **Route via the Doc Map.** Before coding, identify which file(s) govern the domain you are changing (API, Ops, UX, etc.) using the table above. Those v3.1 docs are the only place to update specs—do not scatter edits elsewhere.
+2. **Update the doc in the same PR.** If you ship a change to APIs, workflows, cron jobs, or QA requirements, edit the matching v3.1 file before you mark the task done. Multi-domain changes require touching every affected file (e.g., API + Ops + QA).
+3. **Lint before handoff.** Definition of Done includes `npm run lint` and `npx tsc --noEmit`. Run both after updating the docs so CI and agents can trust the repo state.
+4. **Verifier checks docs.** The Verifier agent must confirm “Docs updated (per Stage‑3 Doc Map)” before approving. Missing docs = FAIL and send back to implementer.
+5. **Track follow-ups.** Any outstanding TODOs, staging checks, or deferred doc cleanups belong in `09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md` under “Follow-ups,” so future agents know why work was deferred.
+6. **Document removals.** If a migration, script, or doc is deleted, add a note in `09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md` first explaining why it was removed and when.
 
 ---
 
@@ -201,9 +232,9 @@
    - PostHog event tracking
 
 6. **Search Results Ranking** - `app/directory/search/page.tsx`
-   - Premium listings first, then Standard, then Basic
-   - Tier-based sorting within each tier (e.g., by creation date)
-   - Featured slots (Premium only, max 3 per category)
+   - Featured businesses for the selected suburb shown above non-featured listings
+   - Tier-based grouping (Premium → Pro → Basic → Directory) with deterministic secondary sort
+   - Telemetry events capture rank + result count for analytics
 
 7. **Search Analytics Dashboard** - `app/(vendor)/vendor/analytics/page.tsx`
    - Top search terms
@@ -216,10 +247,10 @@
    - Stripe subscription update
    - Auto-unpublish on downgrade (FIFO)
 
-9. **Featured Slot Assignment** - `app/api/vendor/featured/route.ts`
-   - POST endpoint to mark products as featured (Premium only)
-   - Max 3 featured products per business
-   - Validation: must be published, tier = Premium
+9. **Featured Business Placement** - `app/api/vendor/featured-slots/route.ts`
+   - POST endpoint purchases 30-day suburb placement (Directory/Basic/Pro eligible)
+   - Enforce metadata (`business_profile_id`, `suburb_label`, `lga_id`), max 5 active slots per LGA, max 3 slots per vendor
+   - Queue when suburb full; dashboard displays position & expiry
 
 10. **Downgrade Unpublish Logic** - `scripts/tier-downgrade-handler.js`
     - Triggered by Stripe webhook (`customer.subscription.updated`)
@@ -411,11 +442,11 @@ Response: { received: true }
 - **Logic:** Delete search_logs older than 90 days
 - **Action:** Maintain database size
 
-**3. Featured Slot Expiry**
+**3. Featured Placement Expiry**
 - **Schedule:** Daily at 1 AM UTC
 - **File:** `scripts/expire-featured-slots.js`
-- **Logic:** Check featured products, remove featured flag if tier downgraded to non-Premium
-- **Action:** Auto-unfeature products for non-Premium tiers
+- **Logic:** Check `featured_slots` by `end_date` (or vendor suspension), mark expired entries inactive, promote queue members for that suburb, enforce vendor max-slot rules
+- **Action:** Keep featured queue/rotations accurate regardless of tier
 
 **4. Analytics Aggregation**
 - **Schedule:** Daily at 4 AM UTC
@@ -438,7 +469,7 @@ CREATE TABLE products (
   images TEXT[], -- Max 3 URLs
   category VARCHAR(50),
   published BOOLEAN DEFAULT false,
-  featured BOOLEAN DEFAULT false, -- Premium tier only
+  featured BOOLEAN DEFAULT false, -- True when vendor purchased featured placement
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE (business_id, slug)
@@ -645,22 +676,23 @@ CREATE POLICY businesses_public_read ON businesses
 - [ ] Published products appear in public directory, drafts do not
 
 ### 7.2 Tier Cap Enforcement (8 checks)
-- [ ] Basic tier blocks product creation when count = 3
-- [ ] Standard tier blocks product creation when count = 10
-- [ ] Premium tier blocks product creation when count = 50
+- [ ] Directory tier cannot create or publish products (403/upgrade CTA)
+- [ ] Basic tier blocks product creation when count = 10 (or quota override value)
+- [ ] Pro tier blocks product creation when count = 50
+- [ ] Premium tier (reserved) respects same 50 cap and commission rules
 - [ ] Tier cap error returns 403 with upgrade CTA message
-- [ ] Downgrade from Premium to Standard unpublishes products >10 (FIFO)
-- [ ] Downgrade from Standard to Basic unpublishes products >3 (FIFO)
+- [ ] Downgrade from Pro/Premium to Basic unpublishes products >10 (FIFO)
+- [ ] Downgrade to Directory (or suspension) unpublishes all products (FIFO)
 - [ ] Unpublished products email notification sent to vendor
 - [ ] Vendor can manually re-publish products after downgrade (within new cap)
 
 ### 7.3 Featured Slots (6 checks)
-- [ ] `POST /api/vendor/featured` restricted to Premium tier only
-- [ ] Non-Premium tiers get 403 error when attempting to feature products
-- [ ] Max 3 featured products per business (4th attempt blocked)
-- [ ] Featured products appear first in search results (within tier group)
-- [ ] Featured flag removed when tier downgraded from Premium
-- [ ] Featured products have visual badge in directory/search
+- [ ] `POST /api/vendor/featured-slots` accepts Directory/Basic/Pro tiers with valid suburb + business profile metadata
+- [ ] Max 5 active slots per LGA enforced; queue entry created when suburb full
+- [ ] Max 3 concurrent slots per vendor enforced
+- [ ] Featured businesses appear first in search/directory results for the chosen suburb
+- [ ] Featured entry expires after 30 days or when vendor suspended; queue promotion occurs automatically
+- [ ] Featured cards display badge + expiry/queue info in vendor dashboard
 
 ### 7.4 Search Telemetry (5 checks)
 - [ ] `POST /api/search/telemetry` logs query, filters, result count, session ID
@@ -695,7 +727,7 @@ CREATE POLICY businesses_public_read ON businesses
 ### 7.8 Cron Jobs (4 checks)
 - [ ] `check-tier-caps.js` runs daily, emails vendors exceeding caps
 - [ ] `cleanup-search-logs.js` runs weekly, deletes old logs
-- [ ] `expire-featured-slots.js` runs daily, removes featured flag for non-Premium
+- [ ] `expire-featured-slots.js` runs hourly/daily, expires slots past end date and promotes queue entries
 - [ ] `aggregate-analytics.js` runs daily, powers vendor analytics dashboard
 
 ---
