@@ -79,11 +79,17 @@ export function buildPaginationMeta(
 /**
  * Apply pagination to Supabase query
  */
-export function applyPagination<T>(
+type RangeCapableQuery<T> = {
+  range?: (from: number, to: number) => T;
+};
+
+export function applyPagination<T extends RangeCapableQuery<T>>(
   query: T,
   pagination: PaginationParams
 ): T {
-  // Supabase queries have .range() method
-  // This is a generic helper that returns the query for chaining
+  const { offset, limit } = pagination;
+  if (typeof query.range === 'function') {
+    return query.range(offset, offset + limit - 1);
+  }
   return query;
 }

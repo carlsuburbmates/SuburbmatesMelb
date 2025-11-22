@@ -23,21 +23,9 @@ export async function GET(request: NextRequest) {
     // Start building the query
     let query = supabase
       .from('business_profiles')
-      .select(`
-        id,
-        business_name,
-        profile_description,
-        suburb_id,
-        category_id,
-        slug,
-        is_public,
-        created_at,
-        user_id,
-        users!inner(
-          email,
-          user_type
-        )
-      `)
+      .select(
+        `id,business_name,profile_description,suburb_id,category_id,slug,is_public,created_at,updated_at,user_id,vendor_status,vendor_tier,users:users!inner(email,user_type)`
+      )
       .eq('is_public', true);
     
     // Apply filters
@@ -92,19 +80,19 @@ export async function GET(request: NextRequest) {
     }
     
     // Transform data to match frontend interface
-    const transformedBusinesses = businesses?.map((business: any) => ({
+    const transformedBusinesses = (businesses ?? []).map((business) => ({
       id: business.id,
       name: business.business_name,
       description: business.profile_description,
-      suburb: business.suburb_id, // In production, join with suburbs table
-      category: business.category_id, // In production, join with categories table
+      suburb: business.suburb_id,
+      category: business.category_id,
       slug: business.slug,
-      isVendor: false, // TODO: Check vendors table
-      productCount: 0, // TODO: Count products if vendor
-      verified: false, // TODO: Check verification status
+      isVendor: Boolean(business.vendor_status === 'active'),
+      productCount: 0,
+      verified: business.vendor_status === 'verified',
       createdAt: business.created_at,
-      profileImageUrl: null // TODO: Add profile images
-    })) || [];
+      profileImageUrl: null,
+    }));
     
     return NextResponse.json({
       businesses: transformedBusinesses,
@@ -127,7 +115,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // TODO: Implement business profile creation
     // This would be used for vendor signup/business registration

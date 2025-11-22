@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Users, Calendar, TrendingUp } from 'lucide-react';
+import { Award, Users, TrendingUp } from 'lucide-react';
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
 
 interface BusinessShowcaseProps {
@@ -24,8 +24,8 @@ interface BusinessShowcaseProps {
 }
 
 export function BusinessShowcase({ business }: BusinessShowcaseProps) {
-  const headerAnimation = useFadeIn({ delay: 100, duration: 700 });
-  const statsAnimation = useStaggeredAnimation(4, 150);
+  const headerAnimation = useFadeIn<HTMLDivElement>({ delay: 100, duration: 700 });
+  const statsAnimation = useStaggeredAnimation<HTMLDivElement>(4, 150);
 
   const defaultAchievements = [
     {
@@ -60,7 +60,7 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
     <div className="space-y-8">
       {/* Header */}
       <div 
-        ref={headerAnimation.elementRef as any}
+        ref={headerAnimation.elementRef}
         className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${headerAnimation.className}`}
         style={headerAnimation.style}
       >
@@ -82,7 +82,7 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
 
       {/* Key Statistics */}
       <div 
-        ref={statsAnimation.containerRef as any}
+        ref={statsAnimation.containerRef}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         {achievements.map((achievement, index) => (

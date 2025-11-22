@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -114,8 +115,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [business, setBusiness] = useState(mockBusiness);
   const [products, setProducts] = useState(mockProducts);
-  const [orders, setOrders] = useState(mockOrders);
-  const [earnings, setEarnings] = useState(mockEarnings);
+  const [orders] = useState(mockOrders);
+  const [earnings] = useState(mockEarnings);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -124,14 +125,6 @@ export default function Dashboard() {
       setIsLoading(false);
     }, 1000);
   }, []);
-
-  const handleProductStatusChange = (productId: string, newStatus: string) => {
-    setProducts(
-      products.map((product) =>
-        product.id === productId ? { ...product, status: newStatus } : product
-      )
-    );
-  };
 
   const handleFeatureToggle = (productId: string) => {
     setProducts(
@@ -198,12 +191,13 @@ export default function Dashboard() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link href="/" className="flex items-center space-x-2">
-                <img
+                <Image
                   alt="SuburbMates logo"
-                  width="32"
-                  height="32"
+                  width={32}
+                  height={32}
                   className="rounded-full object-cover"
                   src="/logo1.jpg"
+                  priority
                 />
                 <span className="font-bold text-lg text-gray-900 hidden sm:block">
                   SuburbMates
@@ -310,7 +304,7 @@ export default function Dashboard() {
                       Dashboard Overview
                     </h1>
                     <p className="text-gray-600">
-                      Welcome back! Here's how your business is performing.
+                      Welcome back! Here&rsquo;s how your business is performing.
                     </p>
                   </div>
                   <button className="btn-primary flex items-center space-x-2">

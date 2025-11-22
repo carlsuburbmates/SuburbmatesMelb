@@ -8,8 +8,8 @@ import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { userSignupSchema } from '@/lib/validation';
 import { sendWelcomeEmail } from '@/lib/email';
 import { logger, logEvent, BusinessEvent } from '@/lib/logger';
-import { 
-  successResponse, 
+import {
+  successResponse,
   badRequestResponse,
   validationErrorResponse,
   internalErrorResponse,
@@ -83,7 +83,7 @@ async function signupHandler(req: NextRequest) {
       user_type: body.user_type,
       deleted_at: null,
       created_as_business_owner_at: null,
-    } as any);
+    });
 
     if (dbError) {
       logger.error('Failed to create user in database', dbError, { userId: createdUserId });
@@ -120,7 +120,7 @@ async function signupHandler(req: NextRequest) {
     );
   } catch (error) {
     if (error instanceof ValidationError) {
-      return validationErrorResponse(error.details?.fields as Record<string, string>);
+      return validationErrorResponse(error.details?.fields as Record<string, string> || {});
     }
     throw error;
   }

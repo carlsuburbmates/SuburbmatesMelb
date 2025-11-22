@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { AuthSession, User, Vendor } from '@/lib/types';
 
 interface AuthContextType {
@@ -36,12 +36,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAuthenticated = !!user && !!token;
 
-  // Check authentication on mount
-  useEffect(() => {
-    checkAuth();
+  const clearAuth = useCallback(() => {
+    setUser(null);
+    setVendor(null);
+    setToken(null);
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('vendor_data');
+    }
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -81,7 +88,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [clearAuth]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async (email: string, password: string) => {
     const response = await fetch('/api/auth/login', {
@@ -133,19 +144,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Logout error:', error);
     } finally {
       clearAuth();
-    }
-  };
-
-  const clearAuth = () => {
-    setUser(null);
-    setVendor(null);
-    setToken(null);
-    
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      localStorage.removeItem('vendor_data');
     }
   };
 

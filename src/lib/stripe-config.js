@@ -341,7 +341,7 @@ export async function handleStripeWebhook(request) {
  * Helper function to get vendor's Stripe account from database
  * This should be implemented based on your database schema
  */
-async function getVendorStripeAccount(_vendorId) {
+async function getVendorStripeAccount() {
   // TODO: Implement database query to get vendor's stripe_account_id
   // This is a placeholder that should be replaced with actual database logic
   throw new Error('Database integration not implemented');

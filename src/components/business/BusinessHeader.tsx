@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Star, MapPin, Clock, Globe, Phone, Mail } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 
@@ -44,10 +45,13 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
           <div className="flex-shrink-0">
             <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center">
               {business.profileImageUrl ? (
-                <img 
-                  src={business.profileImageUrl} 
+                <Image
+                  src={business.profileImageUrl}
                   alt={business.name}
+                  width={128}
+                  height={128}
                   className="w-full h-full rounded-lg object-cover"
+                  sizes="(min-width: 768px) 8rem, 6rem"
                 />
               ) : (
                 <span className="text-2xl md:text-3xl font-bold text-gray-600">

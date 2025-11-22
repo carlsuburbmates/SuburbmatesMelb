@@ -1,16 +1,29 @@
-/**
- * Tier Validation and Product Cap Enforcement
- * Stage 3 Task 1: Product CRUD
- */
-
-import { TIER_LIMITS, VendorTier } from "./constants";
-import { supabase } from "./supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { VendorTier, TIER_LIMITS } from "./constants";
 import type { Database } from "./database.types";
+import { supabase } from "./supabase";
+
+/**
+ * Normalize arbitrary tier labels (including historical "standard" values)
+ * into the canonical VendorTier union used throughout the app.
+ */
+export function normalizeVendorTier(
+  tier: string | null | undefined,
+  fallback: VendorTier = "basic"
+): VendorTier {
+  if (!tier) return fallback;
+  const normalized = tier.toLowerCase();
+  if (normalized === "standard") return "pro";
+  if (normalized === "premium") return "premium";
+  if (normalized === "pro") return "pro";
+  if (normalized === "suspended") return "suspended";
+  if (normalized === "none") return "none";
+  return "basic";
+}
 
 /**
  * Get tier limits for a given vendor tier
- * @param tier - Vendor tier (basic, standard, premium, none, suspended)
+ * @param tier - Vendor tier (basic, pro, premium, none, suspended)
  * @returns Tier limits object
  */
 export function getVendorTierLimits(tier: VendorTier) {
@@ -60,7 +73,7 @@ export async function canCreateProduct(
     return false;
   }
 
-  // Check product quota (SSOT: Basic=3, Pro=50)
+  // Check product quota based on tier limits
   const currentCount = await getPublishedProductCount(vendorId, client);
 
   return currentCount < allowedQuota;
@@ -109,7 +122,7 @@ export function getRecommendedTierForProductCount(
   productCount: number
 ): VendorTier | null {
   // Note: Using 'pro' not 'standard'/'premium' per VENDOR_TIERS constants
-  if (tier === "basic" && productCount >= 3) {
+  if (tier === "basic" && productCount >= TIER_LIMITS.basic.product_quota) {
     return "pro";
   }
   // Pro tier has unlimited products, no further upgrade

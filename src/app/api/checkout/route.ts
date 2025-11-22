@@ -8,9 +8,10 @@ import { supabase } from "@/lib/supabase";
 import { createCheckoutSession } from "@/lib/stripe";
 import { orderCreateSchema } from "@/lib/validation";
 import { calculateCommission } from "@/lib/constants";
+import { normalizeVendorTier } from "@/lib/tier-utils";
 import { logger, logEvent, BusinessEvent } from "@/lib/logger";
-import { 
-  successResponse, 
+import {
+  successResponse,
   notFoundResponse,
   validationErrorResponse,
   unprocessableResponse,
@@ -23,6 +24,7 @@ import { withCors } from "@/middleware/cors";
 import { withLogging } from "@/middleware/logging";
 import { withErrorHandler } from "@/middleware/errorHandler";
 import { ValidationError, NotFoundError, VendorNotActiveError } from "@/lib/errors";
+import { Vendor } from "@/lib/types";
 
 async function checkoutHandler(req: NextRequest) {
   try {
@@ -49,10 +51,12 @@ async function checkoutHandler(req: NextRequest) {
     }
 
     const product = products[0];
-    const vendor = (product as any).vendors;
+    const vendor = product.vendors as Vendor;
+    const vendorTier = normalizeVendorTier(vendor.tier);
+    const vendorId = product.vendor_id ?? vendor.id;
 
     // Check vendor status
-    if (!(vendor as any)?.is_vendor || (vendor as any)?.vendor_status !== 'active') {
+    if (!vendor?.is_vendor || vendor.vendor_status !== 'active') {
       throw new VendorNotActiveError('Product unavailable');
     }
 
@@ -61,20 +65,20 @@ async function checkoutHandler(req: NextRequest) {
     }
 
     // Calculate commission
-    const commission = calculateCommission((product as any).price, (vendor as any).tier);
+    const commission = calculateCommission(product.price, vendorTier);
 
     // Create Stripe checkout session
     const session = await createCheckoutSession({
-      productName: (product as any).title,
-      productDescription: (product as any).description || undefined,
-      amount: (product as any).price,
-      vendorStripeAccountId: (vendor as any).stripe_account_id,
+      productName: product.title,
+      productDescription: product.description || undefined,
+      amount: product.price,
+      vendorStripeAccountId: vendor.stripe_account_id,
       applicationFeeAmount: commission,
       successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${(product as any).id}`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${product.id}`,
       metadata: {
-        product_id: (product as any).id,
-        vendor_id: (product as any).vendor_id,
+        product_id: product.id,
+        vendor_id: vendorId,
         customer_id: authContext.user.id,
         commission: commission.toString(),
       },
@@ -82,9 +86,9 @@ async function checkoutHandler(req: NextRequest) {
 
     logEvent(BusinessEvent.ORDER_CREATED, {
       customerId: authContext.user.id,
-      vendorId: (product as any).vendor_id,
-      productId: (product as any).id,
-      amount: (product as any).price,
+      vendorId: product.vendor_id,
+      productId: product.id,
+      amount: product.price,
       commission,
     });
 
@@ -94,14 +98,14 @@ async function checkoutHandler(req: NextRequest) {
       sessionId: session.id,
       url: session.url,
       product: {
-        id: (product as any).id,
-        title: (product as any).title,
-        price: (product as any).price,
+        id: product.id,
+        title: product.title,
+        price: product.price,
       },
     });
   } catch (error) {
     if (error instanceof ValidationError) {
-      return validationErrorResponse(error.details?.fields as Record<string, string>);
+      return validationErrorResponse(error.details?.fields as Record<string, string> || {});
     }
     if (error instanceof NotFoundError) {
       return notFoundResponse('Product');

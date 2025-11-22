@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingBag, ExternalLink, Star, Download } from 'lucide-react';
 
 interface Product {
@@ -94,10 +95,6 @@ export function BusinessProducts({ businessId }: BusinessProductsProps) {
     return null;
   }
 
-  const formatPrice = (cents: number) => {
-    return `$${(cents / 100).toFixed(2)}`;
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -137,10 +134,12 @@ function ProductCard({ product }: { product: Product }) {
       {/* Product Image */}
       <div className="aspect-video bg-gray-100 relative">
         {product.imageUrl ? (
-          <img
+          <Image
             src={product.imageUrl}
             alt={product.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(min-width: 768px) 50vw, 100vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

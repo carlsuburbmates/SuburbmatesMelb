@@ -6,11 +6,7 @@
 import { USER_TYPES, UserType } from "@/lib/constants";
 import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import {
-  createSupabaseClient,
-  supabase,
-  supabaseAdmin,
-} from "@/lib/supabase";
+import { createSupabaseClient, supabaseAdmin } from "@/lib/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 import { NextRequest, NextResponse } from "next/server";

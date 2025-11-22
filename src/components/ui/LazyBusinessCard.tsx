@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useFadeIn } from '@/hooks/useScrollAnimation';
 
 interface LazyBusinessCardProps {
@@ -16,7 +15,6 @@ interface LazyBusinessCardProps {
 }
 
 export function LazyBusinessCard({ business, delay = 0 }: LazyBusinessCardProps) {
-  const [imageLoaded, setImageLoaded] = useState(false);
   const { elementRef, className, style } = useFadeIn<HTMLDivElement>({ delay, duration: 500 });
 
   return (
@@ -29,13 +27,9 @@ export function LazyBusinessCard({ business, delay = 0 }: LazyBusinessCardProps)
         {/* Business Avatar with lazy loading */}
         <div className="flex-shrink-0">
           <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-            {!imageLoaded ? (
-              <div className="w-full h-full bg-gray-200 rounded-lg animate-pulse"></div>
-            ) : (
-              <span className="text-xl font-bold text-gray-600">
-                {business.name.charAt(0)}
-              </span>
-            )}
+            <span className="text-xl font-bold text-gray-600">
+              {business.name.charAt(0)}
+            </span>
           </div>
         </div>
 

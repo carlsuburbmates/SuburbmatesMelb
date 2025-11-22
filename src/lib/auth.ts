@@ -1,5 +1,4 @@
 import { AuthSession, User, Vendor } from "./types";
-import { Database } from "./database.types";
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
@@ -136,15 +135,10 @@ class AuthManager {
 
     const session: AuthSession = {
       user: {
-        id: userData.id,
-        email: userData.email,
-        first_name: userData.first_name ?? undefined,
-        last_name: userData.last_name ?? undefined,
-        user_type:
-          (userData.user_type as "customer" | "vendor" | "admin") || "customer",
-        created_at: userData.created_at || new Date().toISOString(),
-        updated_at: userData.updated_at || new Date().toISOString(),
-        deleted_at: userData.deleted_at ?? undefined,
+        ...userData,
+        first_name: userData.first_name ?? null,
+        last_name: userData.last_name ?? null,
+        user_type: userData.user_type ?? "customer",
       },
       token:
         (await supabase.auth.getSession()).data.session?.access_token || "",
@@ -160,39 +154,15 @@ class AuthManager {
 
       if (!vendorError && vendorData) {
         session.vendor = {
-          id: vendorData.id,
-          user_id: vendorData.user_id || user.id,
-          tier:
-            (vendorData.tier as "none" | "basic" | "pro" | "suspended") ||
-            "none",
-          business_name: vendorData.business_name ?? undefined,
-          bio: vendorData.bio ?? undefined,
-          primary_lga_id: vendorData.primary_lga_id ?? undefined,
-          secondary_lgas: vendorData.secondary_lgas ?? undefined,
-          logo_url: vendorData.logo_url ?? undefined,
-          profile_color_hex: vendorData.profile_color_hex ?? undefined,
-          profile_url: vendorData.profile_url ?? undefined,
-          abn_verified: vendorData.abn_verified || false,
-          abn: vendorData.abn ?? undefined,
-          abn_verified_at: vendorData.abn_verified_at ?? undefined,
-          product_count: vendorData.product_count || 0,
-          storage_used_mb: vendorData.storage_used_mb || 0,
-          stripe_account_id: vendorData.stripe_account_id ?? undefined,
-          pro_subscription_id: vendorData.pro_subscription_id ?? undefined,
-          pro_subscribed_at: vendorData.pro_subscribed_at ?? undefined,
-          pro_cancelled_at: vendorData.pro_cancelled_at ?? undefined,
-          last_activity_at:
-            vendorData.last_activity_at || new Date().toISOString(),
-          inactivity_flagged_at: vendorData.inactivity_flagged_at ?? undefined,
-          suspension_reason: vendorData.suspension_reason ?? undefined,
-          suspended_at: vendorData.suspended_at ?? undefined,
-          can_appeal: vendorData.can_appeal || false,
-          payment_reversal_count: vendorData.payment_reversal_count || 0,
-          payment_reversal_window_start:
-            vendorData.payment_reversal_window_start ?? undefined,
-          created_at: vendorData.created_at || new Date().toISOString(),
-          updated_at: vendorData.updated_at || new Date().toISOString(),
-        };
+          ...vendorData,
+          user_id: vendorData.user_id ?? user.id,
+          product_count: vendorData.product_count ?? 0,
+          can_appeal: vendorData.can_appeal ?? false,
+          payment_reversal_count: vendorData.payment_reversal_count ?? 0,
+          storage_used_mb: vendorData.storage_used_mb ?? 0,
+          created_at: vendorData.created_at ?? new Date().toISOString(),
+          updated_at: vendorData.updated_at ?? new Date().toISOString(),
+        } as Vendor;
       }
     }
 
