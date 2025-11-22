@@ -4,6 +4,8 @@ import {
   redactEventSummary,
 } from "@/app/api/webhooks/stripe/route";
 import type Stripe from "stripe";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
 import { describe, expect, it } from "vitest";
 
 // Mock DB client shape used by our handler
@@ -95,7 +97,10 @@ describe("webhook handler helpers", () => {
       },
     } as unknown as Stripe.Event;
 
-    const summary = await handleStripeEvent(ev, mockDb);
+    const summary = await handleStripeEvent(
+      ev,
+      mockDb as unknown as SupabaseClient<Database>
+    );
     expect(summary.type).toBe("checkout.session.completed");
     // check that orders and transactions_log were inserted
     expect(mockDb.inserts["orders"]).toBeDefined();
@@ -124,7 +129,10 @@ describe("webhook handler helpers", () => {
     } as unknown as Stripe.Event;
 
     // call processIncomingEvent
-    const res = await processIncomingEvent(ev, mockDb);
+    const res = await processIncomingEvent(
+      ev,
+      mockDb as unknown as SupabaseClient<Database>
+    );
     expect(res.skipped).toBe(false);
     // webhook_events insert should have happened
     expect(mockDb.inserts["webhook_events"]).toBeDefined();

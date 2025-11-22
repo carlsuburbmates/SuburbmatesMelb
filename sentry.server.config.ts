@@ -37,5 +37,5 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
-const serverHub = Sentry.getCurrentHub();
-serverHub.getScope()?.setTags({ runtime: "server", deployment: environment });
+const serverScope = (Sentry as any).getCurrentHub?.().getScope?.() ?? null;
+serverScope?.setTags({ runtime: "server", deployment: environment });

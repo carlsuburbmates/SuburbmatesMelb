@@ -1,20 +1,25 @@
 import { createCheckoutSession, stripe } from "@/lib/stripe";
 import type Stripe from "stripe";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { SpyInstance } from "vitest";
 
 describe("stripe.createCheckoutSession", () => {
-  let createSpy: SpyInstance;
+  let createSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     const mockSession = {
       id: "cs_test",
+      object: "checkout.session",
       url: "https://checkout.test/session",
-    } as Partial<Stripe.Checkout.Session>;
+      lastResponse: {
+        headers: {},
+        requestId: "req_mock",
+        statusCode: 200,
+      },
+    } as unknown as Stripe.Response<Stripe.Checkout.Session>;
 
     createSpy = vi
       .spyOn(stripe.checkout.sessions, "create")
-      .mockResolvedValue(mockSession as Stripe.Checkout.Session);
+      .mockResolvedValue(mockSession);
   });
 
   afterEach(() => {
@@ -35,10 +40,10 @@ describe("stripe.createCheckoutSession", () => {
 
     expect(createSpy).toHaveBeenCalled();
     const callArg = createSpy.mock.calls[0][0] as Stripe.Checkout.SessionCreateParams;
-    expect(callArg.payment_intent_data).toBeDefined();
-    expect(callArg.payment_intent_data.application_fee_amount).toBe(100);
-    expect(callArg.payment_intent_data.transfer_data.destination).toBe(
-      "acct_123"
-    );
+    const intentData = callArg.payment_intent_data;
+    expect(intentData).toBeDefined();
+    if (!intentData) return;
+    expect(intentData.application_fee_amount).toBe(100);
+    expect(intentData.transfer_data?.destination).toBe("acct_123");
   });
 });

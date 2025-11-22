@@ -45,6 +45,16 @@ export async function GET(request: Request) {
 
     const accountId = response.stripe_user_id;
 
+    if (!accountId) {
+      return NextResponse.redirect(
+        `${
+          process.env.NEXT_PUBLIC_SITE_URL
+        }/vendor/onboarding?error=${encodeURIComponent(
+          "Missing Stripe account identifier"
+        )}`
+      );
+    }
+
     // Update vendor record with connected account status
     const { error: updateError } = await supabase
       .from("vendors")

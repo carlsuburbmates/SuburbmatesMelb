@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
 import { resolveLgaMatch, resolveSingleLga } from "@/lib/suburb-resolver";
 
 type StubResponse = {
@@ -51,7 +53,10 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveLgaMatch(stubClient, "Carlton");
+    const match = await resolveLgaMatch(
+      stubClient as unknown as SupabaseClient<Database>,
+      "Carlton"
+    );
     expect(match).not.toBeNull();
     expect(match?.lgaIds).toEqual([7]);
     expect(match?.matchedLabel).toBe("Carlton");
@@ -68,7 +73,10 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveLgaMatch(stubClient, "Testville");
+    const match = await resolveLgaMatch(
+      stubClient as unknown as SupabaseClient<Database>,
+      "Testville"
+    );
     expect(match).not.toBeNull();
     expect(match?.lgaIds).toEqual([11]);
     expect(match?.matchedLabel).toBe("Testville");
@@ -85,7 +93,10 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveSingleLga(stubClient, "Unknown");
+    const match = await resolveSingleLga(
+      stubClient as unknown as SupabaseClient<Database>,
+      "Unknown"
+    );
     expect(match).toBeNull();
   });
 });

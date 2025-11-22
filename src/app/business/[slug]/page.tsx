@@ -15,6 +15,13 @@ interface BusinessPageProps {
   }>;
 }
 
+interface BusinessImage {
+  id: string;
+  url: string;
+  alt: string;
+  caption?: string;
+}
+
 interface BusinessData {
   id: string;
   name: string;
@@ -37,7 +44,7 @@ interface BusinessData {
   socialMedia: Record<string, string>;
   rating: number;
   reviewCount: number;
-  images: string[];
+  images: BusinessImage[];
 }
 
 function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
@@ -72,8 +79,36 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     ? raw.specialties.filter((item): item is string => typeof item === "string")
     : [];
 
-  const images = Array.isArray(raw.images)
-    ? raw.images.filter((img): img is string => typeof img === "string")
+  const images: BusinessImage[] = Array.isArray(raw.images)
+    ? raw.images
+        .filter((img): img is string | Record<string, unknown> => Boolean(img))
+        .map((value, index) => {
+          if (typeof value === "string") {
+            return {
+              id: `${raw.id ?? "image"}-${index}`,
+              url: value,
+              alt: `${raw.name ?? "Business"} image ${index + 1}`,
+            };
+          }
+
+          const record = value as Record<string, unknown>;
+          const url = typeof record.url === "string" ? record.url : "";
+          return {
+            id:
+              typeof record.id === "string"
+                ? record.id
+                : `${raw.id ?? "image"}-${index}`,
+            url,
+            alt:
+              typeof record.alt === "string"
+                ? record.alt
+                : `${raw.name ?? "Business"} image ${index + 1}`,
+            caption:
+              typeof record.caption === "string"
+                ? record.caption
+                : undefined,
+          };
+        })
     : [];
 
   return {
@@ -236,7 +271,15 @@ export async function generateMetadata({ params }: BusinessPageProps) {
       description: business.description,
       type: 'business.business',
       locale: 'en_AU',
-      images: business.profileImageUrl ? [business.profileImageUrl] : [],
+      images: business.profileImageUrl
+        ? [
+            {
+              id: `${business.id}-hero`,
+              url: business.profileImageUrl,
+              alt: `${business.name} profile image`,
+            },
+          ]
+        : [],
     },
   };
 }
