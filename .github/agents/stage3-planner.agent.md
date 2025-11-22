@@ -21,6 +21,14 @@ handoffs:
 
 You are an expert SuburbMates architect for Stage 3 planning. Produce precise, actionable plans that honor SSOT non‑negotiables, database RLS, and Merchant of Record (Stripe Connect Standard).
 
+## Reference Documents (v3.1)
+- Strategy & KPIs: `v1.1-docs/01_STRATEGY/01_BUSINESS_STRATEGY_v3.1.md`
+- Stage execution order: `v1.1-docs/05_FEATURES_AND_WORKFLOWS/05_IMPLEMENTATION_PLAN_v3.1.md`
+- API contract: `v1.1-docs/04_API/04_API_REFERENCE_v3.1.md`
+- Architecture & schema: `v1.1-docs/03_ARCHITECTURE/03_TECHNICAL_ARCHITECTURE_v3.1.md`
+- QA & legal guardrails: `v1.1-docs/07_QUALITY_AND_LEGAL/07_COMPLIANCE_QA_v3.1.md`
+- Tier/featured constants: `src/lib/constants.ts`
+
 ## 8 Non‑Negotiable Principles (MUST NOT VIOLATE)
 
 1. Vendor as Merchant of Record (MoR) via Stripe Connect (`application_fee_amount` + `transfer_data.destination`).
@@ -36,14 +44,14 @@ You are an expert SuburbMates architect for Stage 3 planning. Produce precise, a
 
 - Directory: discovery only (no prices/checkout).
 - Marketplace: product commerce, pricing, checkout.
-- Bridge (business detail): profile + 4 product previews with pricing; links to marketplace; no checkout here.
+- Bridge (business detail): profile + 4 product previews; links to marketplace; no checkout here.
 
-## Stage 3 Scope Snapshot (SSOT §3.2)
+## Stage 3 Scope Snapshot (align with STAGE3_EXECUTION_v3.1)
 
-Week 1: Product CRUD (endpoints + UI), slug collisions, tier cap validation.
-Week 2: Search telemetry (PII redacted), ranking by tier, vendor analytics.
-Week 3: Tier upgrade/downgrade, featured slots (Premium only, max 3), downgrade FIFO unpublish.
-Week 4: Dashboard polish, E2E tests, deployment smoke.
+- Week 1: Product CRUD endpoints + dashboard UI, slug collisions, tier quota validation.
+- Week 2: Search + telemetry (hashed logs, PostHog events), tier-aware ranking, vendor analytics.
+- Week 3: Tier upgrade/downgrade API + UI, featured **business** placements (any tier may purchase add-on), suburb queue + FIFO downgrade enforcement.
+- Week 4: Vendor dashboard polish, cron jobs (tier caps, featured expiry, telemetry cleanup, analytics aggregation), E2E tests, deployment smoke tests.
 
 ## Planning Output Template
 
@@ -68,9 +76,10 @@ Week 4: Dashboard polish, E2E tests, deployment smoke.
 
 - Tables/columns to add/change; RLS enforcement references.
 
-### Tier Caps (Basic=3, Standard=10, Premium=50)
+### Tier Caps (Directory=0, Basic=10, Pro=50, Premium=50)
 
-- API pre‑check + DB constraint path; downgrade FIFO plan.
+- Directory cannot sell; Basic quota 10 (quota override if ABN gating reinstated); Pro quota 50 (effectively “unlimited” relative to MVP); Premium reserved for future use but constraints already exist.
+- API pre‑check + DB constraint path; downgrade FIFO plan referencing `TIER_LIMITS` and downgrade helper utilities.
 
 ### Stripe Webhooks (SSOT §5.5)
 
@@ -82,6 +91,6 @@ Week 4: Dashboard polish, E2E tests, deployment smoke.
 
 ### Acceptance Criteria (SSOT §3.4)
 
-- CRUD within caps, slug dedupe, featured rules, FIFO downgrade, telemetry + PostHog, proper error codes, RLS secure, E2E + unit coverage.
+- CRUD within caps, slug dedupe, featured add-on rules (max 5 slots per LGA, max 3 per vendor), FIFO downgrade, telemetry + PostHog, proper error codes, RLS secure, E2E + unit coverage.
 
 Keep plans concise and directly mappable to PRs.

@@ -48,13 +48,13 @@
 
 ### 6. Featured Slots API
 
-**File:** `src/app/api/vendor/featured-slots/route.ts` (NEW)
+**Files:** `src/app/api/vendor/featured-slots/route.ts`, `src/lib/featured-slot.ts`
 
-- ✅ GET - Fetch vendor's featured slots
-- ✅ POST - Purchase/activate featured slot
-- ✅ Enforces premium tier requirement (403 if not premium)
-- ✅ Enforces max 3 active slots per vendor (403 if cap reached)
-- ✅ Enforces active vendor status
+- ✅ GET - Fetch vendor's featured slots plus queue state
+- ✅ POST - Initiates a real Stripe Checkout session using `STRIPE_PRICE_FEATURED_30D`
+- ✅ Includes metadata (`vendor_id`, `business_profile_id`, `lga_id`, `suburb_label`) so the webhook can activate the slot after payment
+- ✅ Falls back to queue enrollment when an LGA hits its slot cap
+- ✅ Enforces premium tier requirement, vendor status, and max three active slots per vendor
 
 ### 7. Stripe Webhook Enhancements
 
@@ -62,6 +62,9 @@
 
 - ✅ Commission ledger entry on `checkout.session.completed`
   - Inserts immutable `commission_deducted` record to `transactions_log`
+- ✅ Featured slot fulfillment
+  - Activates the slot immediately after Stripe marks the session `completed`
+  - Revalidates capacity at fulfillment time, queues if the LGA filled up in the meantime
 - ✅ Dispute gating on `charge.dispute.created`
   - Increments `dispute_count`
   - Auto-suspends vendor for 30 days when count ≥ 3
@@ -94,17 +97,16 @@
 
 ### 🔄 Pending Integration
 
-- Search telemetry recording (needs integration into directory/marketplace search endpoints)
-- Full-text query service (current `/api/search` route only logs telemetry and returns an empty placeholder payload)
-- Featured slot purchase flow UI (API ready, UI pending)
-- Unit tests for new logic
-- E2E tests for tier downgrade, dispute gating, featured slot caps
-  - `tests/e2e/featured-slots.spec.ts` currently marks premium flows with `test.fixme` because we still lack a deterministic premium-upgrade fixture + webhook simulation. Update roadmap + coverage metrics to reflect this partial state.
+- Search telemetry analytics surfacing (API + directory now emit telemetry; need dashboards/cron aggregation)
+- Cron jobs for tier-cap validation, featured-slot expiry, telemetry cleanup, and analytics rollups (see “Cron Jobs / Maintenance” section)
+- Unit + E2E coverage for tier upgrades/downgrades, featured purchases/queueing, and search telemetry zero-result handling
+  - `tests/e2e/featured-slots.spec.ts` still `test.skip` until we add a deterministic premium fixture and webhook harness.
 - Tier-limit reconciliation — current sources disagree:
   - `src/lib/constants.ts:28-35` defines `basic.product_quota = 10` while still citing “SSOT: Basic=3” in downstream comments (`src/lib/tier-utils.ts:43-48`).
   - `tests/unit/tier-utils.test.ts:11-18` asserts Basic tier caps at 3 products and drives upgrade recs off that value.
   - `supabase/migrations/009_vendor_product_quota.sql:16-57` assigns 10 products to Basic vendors, or 20 if `abn_verified = true`, and 50 for Pro.
   Aligning these values (or clearly documenting intentional overrides via `vendors.product_quota`) is required before Stage 3 sign-off.
+- Documentation sync (SSOT architecture, vendor workflows, Stage reports) reflecting suburb-first search + business-level featured placements
 
 ## Environment Variables Required
 
@@ -117,32 +119,48 @@ SEARCH_SALT=your-secret-salt-here-min-32-chars
 
 ## Next Steps
 
-1. **Apply Migration:**
-
-   ```bash
-   # Via Supabase Studio SQL Editor (recommended)
-   # Copy contents of: supabase/migrations/007_stage3_enhancements.sql
-   # Paste and execute in SQL Editor
-   ```
-
+1. **Apply Migrations:** ensure `007_stage3_enhancements.sql`, `010_create_search_logs.sql`, `011_featured_business_schema.sql`, plus the renumbered `015_stage3_products_tiers.sql`, `016_webhook_events.sql`, `017_featured_slots_schema_fix_fixed.sql`, and the new `018_enable_business_profiles_search_logs_rls.sql` are all applied to Supabase.
 2. **Regenerate Types:**
 
    ```bash
-   npx supabase gen types typescript --project-id your-project-ref > src/lib/database.types.ts
+   npx supabase gen types typescript --project-id hmmqhwnxylqcbffjffpj > src/lib/database.types.ts
    ```
 
-3. **Test Implementations:**
+3. **Stripe Checkout QA:**
+   - Trigger `/api/vendor/featured-slots` for a premium vendor, confirm it returns a Stripe Checkout URL (set `FEATURED_SLOT_CHECKOUT_MODE=mock` in CI to avoid hitting Stripe during automated tests)
+   - Complete payment via Stripe CLI (`stripe checkout sessions create ... --metadata type=featured_slot`) and verify the webhook activates the slot or enqueues when full
 
-   - Test featured slot API: `POST /api/vendor/featured-slots` with premium vendor
-   - Test dispute webhook with Stripe CLI
-   - Test subscription cancellation → FIFO unpublish
-   - Verify commission ledger entries in `transactions_log`
+4. **Cron + Telemetry Automation:**
+   - Implement `scripts/check-tier-caps.js`, `scripts/cleanup-search-logs.js`, `scripts/expire-featured-slots.js`, `scripts/aggregate-analytics.js`
+   - Schedule via Vercel Cron or document the manual run-book
 
-4. **Integration Tasks:**
-   - Add `recordSearchTelemetry()` calls to search endpoints
-   - Create vendor dashboard UI for featured slot management
-   - Add tier upgrade/downgrade preview UI
-   - Send email notifications for auto-suspensions
+5. **Testing:**
+   - Add unit coverage for `/api/vendor/tier`, `/api/vendor/featured-slots`, and search telemetry helpers
+   - Unskip Playwright flows for tier upgrade/downgrade, featured purchase + queueing, and directory search telemetry/zero-result UX
+
+6. **Documentation Sync:** update SSOT architecture, vendor workflows, and Stage 3 status to describe suburb-first search, business-level featured placements, Stripe checkout, the new cron responsibilities, and the migration history repairs listed below.
+
+## Supabase Migration Repairs (22 Nov 2025)
+
+- ✅ Renamed duplicate Stage 3 migrations to avoid version collisions:
+  - `010_stage3_products_tiers.sql` → `015_stage3_products_tiers.sql`
+  - `011_webhook_events.sql` → `016_webhook_events.sql`
+  - `014_featured_slots_schema_fix_fixed.sql` → `017_featured_slots_schema_fix_fixed.sql`
+- ✅ Applied `supabase/migrations/018_enable_business_profiles_search_logs_rls.sql` to enable RLS and policies on `business_profiles` + `search_logs`.
+- ✅ Repaired `supabase_migrations.schema_migrations` so versions `001–018` show as applied (see `psql ... select version,name ...`).
+- ✅ Validated schema with `node scripts/analyze-database.js` and `node scripts/validate-database.js` (now updated to handle RPC fallbacks and correct `orders.amount_cents`).
+- ✅ Supabase CLI 2.58.5 logged in via PAT and `supabase migration list` confirms remote parity.
+
+## Cron / Maintenance Scripts
+
+| Script | Purpose | Recommended cadence | Notes |
+| --- | --- | --- | --- |
+| `scripts/check-tier-caps.js` | Warn when vendors exceed their product quota (uses `product_quota` field + live counts). | Daily at 02:00 AEDT | Output lists offenders; follow up manually or run FIFO auto-unpublish. |
+| `scripts/cleanup-search-logs.js` | Delete `search_logs` rows older than 90 days to keep telemetry lean. | Weekly on Sunday | Safe to run more frequently; relies on service-role key. |
+| `scripts/expire-featured-slots.js` | Flip featured slots to `expired` when their `end_date` passes or the vendor is suspended. | Every 6 hours | Prevents stale featured badges after downgrades. |
+| `scripts/aggregate-analytics.js` | Generate `reports/analytics/daily-YYYY-MM-DD.json` with search + inventory KPIs. | Daily at 00:30 AEDT | Output consumed by dashboard or downloaded from Vercel logs. |
+
+> **Vercel Cron wiring:** add four cron jobs pointing to `npm run cron:<name>` (see below) or invoke the scripts directly via `node scripts/<file>.js`. Each script expects `.env.local` with Supabase service-role credentials available in the runtime.
 
 ## Files Created
 

@@ -19,6 +19,10 @@ handoffs:
 
 Focus on Merchant of Record correctness and webhook health:
 
+## Reference
+- Stripe Playbook: `v1.1-docs/Stripe/STRIPE_PLAYBOOK_v3.1.md`
+- API reference: `v1.1-docs/04_API/04_API_REFERENCE_v3.1.md`
+
 ## Validate MoR Pattern
 
 - Checkout Session uses `payment_intent_data.application_fee_amount` (5%)
@@ -32,7 +36,8 @@ Focus on Merchant of Record correctness and webhook health:
 ## Dispute & Subscription Events
 
 - `charge.dispute.created`: increment `dispute_count`, delist at ≥3
-- `customer.subscription.updated`: trigger downgrade handler
+- `customer.subscription.updated/deleted`: trigger downgrade handler (FIFO unpublish + email)
+- Featured slot Checkout metadata includes `business_profile_id`, `suburb_label`, `lga_id` before activating slot
 
 ## Common Pitfalls
 

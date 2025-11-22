@@ -29,22 +29,28 @@ See SSOT §2 (FD-1 to FD-6). These override conflicts.
 - Marketplace (`/marketplace`): commerce, pricing, checkout; requires active vendor + tier; `products` table + RLS.
 - Bridge (`/business/[slug]`): profile + 4 product previews; link to marketplace; no checkout.
 
-## Stage 3 Implementation Scope (SSOT §3.2)
+## Stage 3 Implementation Scope (SSOT §3.2 / `05_IMPLEMENTATION_PLAN_v3.1.md`)
 
-- Week 1: Product CRUD + UI; slug collisions; tier cap validation.
-- Week 2: Search telemetry (PII redacted), ranking by tier, analytics.
-- Week 3: Tier upgrade/downgrade; featured slots (Premium only, max 3); FIFO downgrade unpublish.
-- Week 4: Vendor dashboard polish; E2E tests; deployment smoke tests.
+- Week 1: Product CRUD + vendor dashboard UI; slug collisions; tier quota validation.
+- Week 2: Search telemetry (hashed logs, PostHog events), tier-aware ranking, analytics.
+- Week 3: Tier upgrade/downgrade, featured **business** placements (Directory/Basic/Pro add-on, queue per suburb), FIFO downgrade unpublish.
+- Week 4: Vendor dashboard polish, cron jobs (tier caps, featured expiry, telemetry cleanup, analytics aggregation), E2E + deployment smoke tests.
 
-## Tier System Rules
+## Agent Quick Start
+1. Open `v1.1-docs/SSOT_DEVELOPMENT_HANDBOOK.md` and review the *Stage 3 Document Map* to know which v3.1 file governs each topic.
+2. Read the relevant master spec before starting (e.g., API work → `04_API_REFERENCE_v3.1.md`, UX work → `02_PRODUCT_UX_v3.1.md`).
+3. Run the orchestrated flow via VS Code Chat agents (Planner → Implementer → Verifier → Stripe Debugger → Deployer) so every handoff respects the SSOT plan.
 
-| Tier     | Product Cap | Featured Slots | Price (AUD/mo) |
-| -------- | ----------- | -------------- | -------------- |
-| Basic    | 3           | 0              | Free           |
-| Standard | 10          | 0              | $29            |
-| Premium  | 50          | 3              | $99            |
+## Tier System Rules (`src/lib/constants.ts`)
 
-Enforcement: DB constraint + API pre-check; 403 with upgrade CTA at cap; FIFO unpublish on downgrade.
+| Tier      | Product Cap | Featured Access        | Price (AUD/mo) | Notes |
+| --------- | ----------- | ---------------------- | -------------- | ----- |
+| Directory | 0           | Paid add-on allowed    | Free           | Discovery-only |
+| Basic     | 10          | Paid add-on allowed    | Free           | ABN badge optional; quota override if policy needs 5 vs 10 |
+| Pro       | 50          | Paid add-on allowed    | $29            | Reduced commission (6%) |
+| Premium   | 50          | Bundled slots (future) | $99            | Reserved for post-MVP |
+
+Enforcement: DB constraint + API pre-check; 403 with upgrade CTA at cap; downgrade FIFO unpublish; featured add-on limited to 5 active slots per LGA and 3 concurrent per vendor.
 
 ## Database & RLS (Critical)
 
@@ -91,6 +97,7 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## References
 
+- Doc map: `v1.1-docs/SSOT_DEVELOPMENT_HANDBOOK.md` (Stage 3 Document Map section)
 - SSOT Development Handbook
 - SSOT §3.2 (Stage 3 tasks), §5.1 (APIs), §5.3 (schema), §5.4 (RLS), §5.5 (webhooks)
 - SSOT §7 (verification checklist), §9 (risk mitigations)

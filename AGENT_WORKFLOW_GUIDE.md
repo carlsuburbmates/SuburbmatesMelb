@@ -9,7 +9,8 @@ References
 
 - Agents: `.github/agents/` (Orchestrator, Planner, Implementer, Verifier, Stripe Debugger, Deployer)
 - Root: `AGENTS.md` (principles, layers, scope)
-- SSOT: `v1.1-docs/` (Sections noted below)
+- SSOT Doc Map: `v1.1-docs/SSOT_DEVELOPMENT_HANDBOOK.md` (Doc Map section) lists every v3.1 master file
+- Primary specs: `01_BUSINESS_STRATEGY_v3.1`, `03_TECHNICAL_ARCHITECTURE_v3.1`, `04_API_REFERENCE_v3.1`, `05_IMPLEMENTATION_PLAN_v3.1`, `07_COMPLIANCE_QA_v3.1`
 
 Key Principles (never violate)
 
@@ -64,11 +65,11 @@ Agent: SuburbMates-Stage-3-Implementer (from Planner handoff)
 Non-negotiable enforcement (always implemented)
 
 - Stripe Connect MoR in Checkout Sessions
-- Tier caps at API pre-check + DB constraint/function
+- Tier caps at API pre-check + DB constraint/function (Directory=0, Basic=10, Pro=50)
 - RLS policies; zero service-role use for user ops
-- Featured slots: Premium only; max 3
+- Featured business placements: paid add-on for Directory/Basic/Pro, metadata recorded, max 5 active slots per LGA (3 per vendor)
 - Downgrade FIFO: unpublish oldest first
-- Webhooks: signature verification; disputes (≥3 → delist 30 days); subscription updates
+- Webhooks: signature verification; disputes (≥3 → delist 30 days); subscription updates drive downgrade handler
 
 Code changes (typical locations)
 
@@ -98,7 +99,7 @@ Checks (evidence-based)
 - Non-negotiables (MoR, non‑mediating, commission non‑refundable, no SLAs, PWA, no LLM writes, dispute gating, downgrade FIFO)
 - Tier caps: DB-level + API 403 with upgrade CTA
 - RLS: vendors see/edit own; public reads published; no admin bypass
-- Featured slots: Premium-only, cap 3
+- Featured business placements: Directory/Basic/Pro add-on, metadata recorded, max 5 active slots per LGA (3 per vendor)
 - Webhooks: signature verified; disputes/subscriptions handled
 - Telemetry: PII-redacted queries + PostHog events
 - Tests listed and coverage expectations
