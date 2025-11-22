@@ -37,5 +37,12 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
-const serverScope = (Sentry as any).getCurrentHub?.().getScope?.() ?? null;
-serverScope?.setTags({ runtime: "server", deployment: environment });
+type SentryWithHub = typeof Sentry & {
+  getCurrentHub?: () => {
+    getScope?: () => {
+      setTags?: (tags: Record<string, string>) => void;
+    };
+  };
+};
+const serverHub = (Sentry as SentryWithHub).getCurrentHub?.();
+serverHub?.getScope?.()?.setTags?.({ runtime: "server", deployment: environment });

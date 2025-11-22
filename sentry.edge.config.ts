@@ -39,5 +39,12 @@ Sentry.init({
 });
 
 // Tag runtime/deployment for tracing.
-const edgeScope = (Sentry as any).getCurrentHub?.().getScope?.() ?? null;
-edgeScope?.setTags({ runtime: "edge", deployment: environment });
+type SentryWithHub = typeof Sentry & {
+  getCurrentHub?: () => {
+    getScope?: () => {
+      setTags?: (tags: Record<string, string>) => void;
+    };
+  };
+};
+const edgeHub = (Sentry as SentryWithHub).getCurrentHub?.();
+edgeHub?.getScope?.()?.setTags?.({ runtime: "edge", deployment: environment });
