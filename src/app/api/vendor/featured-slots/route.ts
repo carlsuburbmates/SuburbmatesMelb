@@ -15,7 +15,6 @@ import sanitizeForLogging, {
 } from "@/lib/telemetry-sanitizer";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-import type Stripe from "stripe";
 
 type FeaturedSlotRow = Database["public"]["Tables"]["featured_slots"]["Row"];
 type FeaturedQueueRow = Database["public"]["Tables"]["featured_queue"]["Row"];
@@ -291,6 +290,7 @@ export async function POST(req: NextRequest) {
         "fn_try_reserve_featured_slot",
         {
           p_vendor_id: vendor.id,
+          p_business_profile_id: profile.id,
           p_lga_id: targetLgaId,
           p_suburb_label: safeSuburbLabel,
           p_start_date: startDate,
@@ -389,20 +389,15 @@ export async function POST(req: NextRequest) {
           cancelUrl: `${siteUrl}/vendor/dashboard?featured=cancelled`,
           vendorStripeAccountId: vendor.stripe_account_id ?? undefined,
           vendorTier: vendor.tier ?? undefined,
+          metadata: {
+            reserved_slot_id: String(reservedSlotId),
+          },
         });
-
-        const metadata: Stripe.Metadata = {
-          ...(created.metadata ?? {}),
-          reserved_slot_id: reservedSlotId,
-          type: "featured_slot",
-        };
-
-        created.metadata = metadata;
 
         session = {
           id: created.id,
           url: created.url,
-          metadata,
+          metadata: created.metadata,
         };
       }
 

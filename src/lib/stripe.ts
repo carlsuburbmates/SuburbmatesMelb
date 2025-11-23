@@ -7,8 +7,20 @@ import Stripe from "stripe";
 import { STRIPE_CONFIG } from "./constants";
 import { logger } from "./logger";
 
-// Initialize Stripe client
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+function resolveStripeSecret() {
+  const explicitKey = process.env.STRIPE_SECRET_KEY;
+  if (explicitKey && explicitKey.length > 0) {
+    return explicitKey;
+  }
+  if (process.env.NODE_ENV === "test") {
+    // Vitest environment: use a deterministic mock key so the SDK can be constructed
+    return "sk_test_mock";
+  }
+  throw new Error("STRIPE_SECRET_KEY is not configured");
+}
+
+// Initialize Stripe client (safe for unit tests without a real key)
+export const stripe = new Stripe(resolveStripeSecret(), {
   apiVersion: "2025-10-29.clover",
   typescript: true,
 });
@@ -151,6 +163,7 @@ export async function createFeaturedSlotCheckoutSession(params: {
   cancelUrl: string;
   vendorStripeAccountId?: string;
   vendorTier?: string;
+  metadata?: Record<string, string | number | null | undefined>;
 }) {
   const priceId = process.env.STRIPE_PRICE_FEATURED_30D;
   if (!priceId) {
@@ -171,6 +184,21 @@ export async function createFeaturedSlotCheckoutSession(params: {
       // Avoid importing TIER_LIMITS here to keep stripe helper focused; callers may compute and pass fee
     }
 
+    const metadata: Stripe.Metadata = {
+      type: "featured_slot",
+      vendor_id: params.vendorId,
+      business_profile_id: params.businessProfileId,
+      lga_id: params.lgaId.toString(),
+      suburb_label: params.suburbLabel,
+    };
+
+    if (params.metadata) {
+      for (const [key, value] of Object.entries(params.metadata)) {
+        if (value === undefined || value === null) continue;
+        metadata[key] = String(value);
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -188,13 +216,7 @@ export async function createFeaturedSlotCheckoutSession(params: {
         : undefined,
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
-      metadata: {
-        type: "featured_slot",
-        vendor_id: params.vendorId,
-        business_profile_id: params.businessProfileId,
-        lga_id: params.lgaId.toString(),
-        suburb_label: params.suburbLabel,
-      },
+      metadata,
     });
 
     logger.info("Featured slot checkout created", {

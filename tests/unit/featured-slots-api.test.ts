@@ -2,23 +2,93 @@ import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
 
-// Mock modules used by the route
-vi.mock("@/app/api/_utils/auth", () => ({
-  requireAuth: async () => {
-    return {
-      user: { id: "user-1" },
-      dbClient: {
-        from: () => ({
-          select: () => ({
-            maybeSingle: async () => ({
-              featured_slot_cap: 5,
-              name: "LGATest",
-            }),
-          }),
-        }),
-      },
-    };
+process.env.FEATURED_SLOT_CHECKOUT_MODE = "live-test";
+process.env.NEXT_PUBLIC_SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+const vendorRow = {
+  id: "vendor-1",
+  user_id: "user-1",
+  vendor_status: "active",
+  stripe_account_id: "acct_123",
+  tier: "pro",
+};
+
+const profileRow = {
+  id: "profile-1",
+  user_id: "user-1",
+  business_name: "Test Vendor",
+};
+
+const lgaRow = {
+  id: 77,
+  featured_slot_cap: 5,
+  name: "City of Melbourne",
+};
+
+type QueryResult<T> = { data: T; error: null };
+
+function createQueryBuilder<T>(data: T) {
+  const response: QueryResult<T> = { data, error: null };
+  const promise = Promise.resolve(response);
+  const builder: Record<string, unknown> = {
+    select: () => builder,
+    eq: () => builder,
+    neq: () => builder,
+    lte: () => builder,
+    gte: () => builder,
+    order: () => promise,
+    limit: () => builder,
+    maybeSingle: () => promise,
+  };
+  builder.then = promise.then.bind(promise);
+  builder.catch = promise.catch.bind(promise);
+  builder.finally = promise.finally.bind(promise);
+  return builder;
+}
+
+const mockDbClient = {
+  from: (table: string) => {
+    switch (table) {
+      case "vendors":
+        return createQueryBuilder(vendorRow);
+      case "business_profiles":
+        return createQueryBuilder(profileRow);
+      case "lgas":
+        return createQueryBuilder(lgaRow);
+      case "featured_slots":
+        return createQueryBuilder([] as unknown[]);
+      case "featured_queue":
+        return createQueryBuilder([] as unknown[]);
+      default:
+        return createQueryBuilder(null);
+    }
   },
+};
+
+const createSessionMock = vi.hoisted(() =>
+  vi.fn(async () => ({
+    id: "cs_123",
+    url: "https://checkout.test/session",
+    metadata: {
+      reserved_slot_id: "reserved-uuid",
+    },
+  }))
+);
+
+vi.mock("@/app/api/_utils/auth", () => ({
+  requireAuth: async () => ({
+    user: { id: "user-1" },
+    dbClient: mockDbClient,
+  }),
+}));
+
+vi.mock("@/lib/suburb-resolver", () => ({
+  resolveSingleLga: vi.fn(async () => ({
+    lgaId: lgaRow.id,
+    lgaName: lgaRow.name,
+    suburbLabel: "Richmond",
+  })),
 }));
 
 vi.mock("@/lib/supabase", async () => {
@@ -36,10 +106,7 @@ vi.mock("@/lib/supabase", async () => {
 });
 
 vi.mock("@/lib/stripe", () => ({
-  createFeaturedSlotCheckoutSession: vi.fn(async () => ({
-    id: "cs_123",
-    url: "https://checkout.test/session",
-  })),
+  createFeaturedSlotCheckoutSession: createSessionMock,
 }));
 
 import { POST } from "@/app/api/vendor/featured-slots/route";
@@ -65,7 +132,7 @@ function makeReq(
 
 describe("featured-slots API - reservation behavior", () => {
   beforeEach(() => {
-    vi.resetModules();
+    createSessionMock.mockClear();
   });
 
   it("returns 201 with checkout when reservation succeeds", async () => {
@@ -77,6 +144,11 @@ describe("featured-slots API - reservation behavior", () => {
     // Should return reserved slot id and a checkout session
     expect(body.data.reservedSlotId).toBe("reserved-uuid");
     expect(body.data.sessionId).toBe("cs_123");
+    expect(createSessionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ reserved_slot_id: "reserved-uuid" }),
+      })
+    );
   });
 
   it("returns 409 when RPC indicates lga cap exceeded", async () => {

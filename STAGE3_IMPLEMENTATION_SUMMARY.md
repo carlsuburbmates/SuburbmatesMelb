@@ -52,7 +52,7 @@
 
 - ✅ GET - Fetch vendor's featured slots plus queue state
 - ✅ POST - Initiates a real Stripe Checkout session using `STRIPE_PRICE_FEATURED_30D`
-- ✅ Includes metadata (`vendor_id`, `business_profile_id`, `lga_id`, `suburb_label`) so the webhook can activate the slot after payment
+- ✅ Includes metadata (`vendor_id`, `business_profile_id`, `lga_id`, `suburb_label`, `reserved_slot_id`) so the webhook can activate the slot after payment
 - ✅ Falls back to queue enrollment when an LGA hits its slot cap
 - ✅ Enforces premium tier requirement, vendor status, and max three active slots per vendor
 
