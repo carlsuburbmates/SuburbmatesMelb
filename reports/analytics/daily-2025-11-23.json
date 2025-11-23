@@ -1,0 +1,16 @@
+{
+  "date": "2025-11-23",
+  "generatedAt": "2025-11-23T19:35:01.680Z",
+  "search": {
+    "totalEvents": 0,
+    "zeroResultCount": 0,
+    "zeroResultRate": 0,
+    "topSuburbs": [],
+    "topCategories": []
+  },
+  "inventory": {
+    "totalProducts": 6,
+    "liveProducts": 6,
+    "activeVendors": 66
+  }
+}

@@ -38,6 +38,26 @@ Add the following to `vercel.json` (or Project Settings → Cron Jobs) so each a
 
 Each API route simply invokes the matching script (`scripts/check-tier-caps.js`, etc.) or you can wire them via `package.json` commands using `vercel.json`’s `command` property. After deployment, verify logs via **Vercel → Functions → Cron Jobs** and in `reports/analytics/` for local dry runs.
 
+Local dry-run commands (all load `.env.local` automatically):
+- `npm run cron:check-tier-caps`
+- `npm run cron:expire-featured-slots`
+- `npm run cron:cleanup-search-logs`
+- `npm run cron:aggregate-analytics`
+- Stripe sanity checks before any release:
+  - `npm run stripe:verify` to confirm env vars + API access
+  - `npm run stripe:featured-qa` to capture featured checkout evidence (reports saved under `reports/featured-slot-qa-*.md`)
+
+#### 2.1.1 Latest Dry-Run Snapshot (2025-11-24)
+
+Executed all four cron scripts against the shared Supabase project to validate schedules before launch:
+
+- `npm run cron:check-tier-caps` → “All vendors are within their product quotas.”
+- `npm run cron:cleanup-search-logs` → Deleted 0 rows older than `2025-08-25T19:34:50Z`.
+- `npm run cron:expire-featured-slots` → Processed 3 slots (0 expired, 0 cancelled due to vendor status).
+- `npm run cron:aggregate-analytics` → Generated `reports/analytics/daily-2025-11-23.json` for the dashboard rollup.
+
+Store future dry-run evidence in `reports/analytics/` (dated JSON) or `reports/ops/*.md` so the Deployer agent can link back to real logs.
+
 ### 2.2 Deployment Runbook (Staging → Production)
 
 1. **Prep**: Ensure env vars (Stripe keys, Supabase, Sentry DSN, PostHog, MAPBOX) are set in Vercel for the target environment.
