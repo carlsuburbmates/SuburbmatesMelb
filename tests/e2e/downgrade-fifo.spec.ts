@@ -1,63 +1,64 @@
-import { test } from "@playwright/test";
-
-/**
- * E2E Tests: Tier Downgrade FIFO Unpublish
- *
- * SSOT §3.2: On tier downgrade, oldest published products unpublished first (FIFO).
- *
- * Critical flows:
- * 1. Pro vendor with 10 products downgrades to Basic (cap=3)
- * 2. System unpublishes 7 oldest products automatically
- * 3. Vendor notified of unpublished products
- * 4. Vendor can manually choose which 3 to keep published
- *
- * Note: This test simulates webhook events; requires Stripe webhook handler integration.
- */
+import { expect, test } from "@playwright/test";
+import {
+  cleanupVendorFixture,
+  createVendorFixture,
+  type VendorFixture,
+} from "../utils/vendor-fixture";
+import { getSupabaseAdminClient } from "../utils/supabase";
 
 test.describe("Tier Downgrade - FIFO Unpublish", () => {
-  test.skip("Downgrade from Pro to Basic unpublishes oldest products", async () => {
-    // This test requires:
-    // 1. Vendor account with Pro tier (requires Stripe subscription)
-    // 2. Ability to simulate Stripe webhook for subscription cancellation
-    // 3. Verification that FIFO logic runs correctly
-    // Implementation steps:
-    // - Create Pro vendor (via Stripe subscription webhook simulation)
-    // - Create 10 published products with staggered timestamps
-    // - Simulate Stripe webhook: customer.subscription.deleted
-    // - Verify oldest 7 products are unpublished
-    // - Verify newest 3 remain published
-    // - Verify vendor receives email notification with unpublished list
-    // Marking as skip until we have Stripe test fixtures and webhook simulation helpers
+  let fixture: VendorFixture | null = null;
+
+  test.beforeAll(async () => {
+    fixture = await createVendorFixture({
+      tier: "pro",
+      productCount: 5,
+    });
   });
 
-  test.skip("Downgrade from Premium to Pro unpublishes excess products", async () => {
-    // Similar to above but Premium (50 products) → Pro (50 products) has no unpublish
-    // Premium (51 products) → Pro (50 products) unpublishes 1 oldest
-    // Implementation requires Premium tier test fixtures
+  test.afterAll(async () => {
+    if (fixture) {
+      await cleanupVendorFixture(fixture);
+    }
   });
 
-  test.skip("Downgrade preview shows which products will be unpublished", async () => {
-    // Test GET /api/vendor/downgrade-preview endpoint
-    // Returns list of products that would be unpublished on tier change
-    // Requires:
-    // - Endpoint implementation for preview
-    // - Pro vendor with >3 products
-  });
-});
+  test("Downgrade from Pro to Basic unpublishes oldest products", async ({
+    request,
+  }) => {
+    if (!fixture) {
+      throw new Error("Vendor fixture was not created");
+    }
 
-/**
- * Unit-level webhook simulation for FIFO logic
- * (Can be implemented without full Stripe integration)
- */
-test.describe("FIFO Logic - Direct API Test", () => {
-  test.skip("enforceTierProductCap unpublishes oldest products", async () => {
-    // This would test the vendor-downgrade.ts logic directly
-    // by creating a test endpoint that calls enforceTierProductCap()
-    // Steps:
-    // 1. Create vendor with 10 published products
-    // 2. Call test endpoint: POST /api/test/enforce-tier-cap with tier=basic
-    // 3. Verify 7 oldest products unpublished
-    // 4. Verify response includes unpublished product list
-    // Requires test-only API endpoint (not in production)
+    const res = await request.patch("/api/vendor/tier", {
+      headers: { Authorization: `Bearer ${fixture.token}` },
+      data: { tier: "basic" },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.tier).toBe("basic");
+    expect(body.data.unpublishedCount).toBe(2);
+
+    const admin = getSupabaseAdminClient();
+    const { data: products, error } = await admin
+      .from("products")
+      .select("id,published,created_at")
+      .eq("vendor_id", fixture.vendorId)
+      .order("created_at", { ascending: true });
+    if (error) {
+      throw error;
+    }
+    expect(products?.length).toBe(5);
+    const oldestTwo = products!.slice(0, 2);
+    const newestThree = products!.slice(2);
+    expect(oldestTwo.every((p) => p.published === false)).toBe(true);
+    expect(newestThree.every((p) => p.published === true)).toBe(true);
+
+    const { data: vendorRow } = await admin
+      .from("vendors")
+      .select("tier")
+      .eq("id", fixture.vendorId)
+      .maybeSingle();
+    expect(vendorRow?.tier).toBe("basic");
   });
 });

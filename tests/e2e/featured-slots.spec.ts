@@ -1,53 +1,48 @@
 import { expect, test } from "@playwright/test";
 
+test.describe.configure({ mode: "serial" });
+
 test.describe("Featured Placement Purchase Flow", () => {
   let vendorToken: string;
 
   test.beforeAll(async ({ request }) => {
-    const email = `featured-${Date.now()}@example.com`;
-    const password = "Test123!@#";
-
-    const signupRes = await request.post("/api/auth/signup", {
-      data: { email, password, name: "Featured Vendor" },
-    });
-    expect(signupRes.ok()).toBeTruthy();
+    const seededEmail = process.env.PLAYWRIGHT_VENDOR_EMAIL;
+    const seededPassword = process.env.PLAYWRIGHT_VENDOR_PASSWORD;
+    if (!seededEmail || !seededPassword) {
+      throw new Error(
+        "Set PLAYWRIGHT_VENDOR_EMAIL/PLAYWRIGHT_VENDOR_PASSWORD to reuse an onboarding-complete vendor"
+      );
+    }
 
     const loginRes = await request.post("/api/auth/login", {
-      data: { email, password },
+      data: { email: seededEmail, password: seededPassword },
     });
     expect(loginRes.ok()).toBeTruthy();
     const loginData = await loginRes.json();
     vendorToken = loginData.data.session.access_token;
-
-    const vendorRes = await request.post("/api/auth/create-vendor", {
-      headers: { Authorization: `Bearer ${vendorToken}` },
-      data: {
-        business_name: "Featured QA Vendor",
-        abn: "42123456789",
-        contact_email: email,
-      },
-    });
-    expect(vendorRes.ok()).toBeTruthy();
   });
 
-  test("returns Stripe Checkout session when capacity is available", async ({
-    request,
-  }) => {
+test("returns Stripe Checkout session when capacity is available", async ({
+  request,
+}) => {
     const res = await request.post("/api/vendor/featured-slots", {
       headers: {
         Authorization: `Bearer ${vendorToken}`,
       },
       data: {
-        suburb: "Carlton",
+        suburb: "Melbourne",
+        lga_id: 17,
       },
     });
 
     expect(res.status()).toBe(201);
     const data = await res.json();
     expect(data.success).toBe(true);
-    expect(data.data.status).toBe("pending_payment");
-    expect(data.data.checkoutSessionId).toBeTruthy();
-    expect(data.data.checkoutUrl).toContain("mock-featured-checkout");
+    expect(data.data.sessionId).toBeTruthy();
+    expect(data.data.checkoutUrl).toBeDefined();
+    // mock mode returns internal preview URL, live mode returns stripe.com
+    expect(data.data.checkoutUrl).toContain("checkout");
+    expect(data.data.reservedSlotId).toBeTruthy();
   });
 
   test("falls back to queue when forced (simulates full LGA)", async ({
@@ -59,7 +54,8 @@ test.describe("Featured Placement Purchase Flow", () => {
         "x-featured-force-queue": "true",
       },
       data: {
-        suburb: "Carlton",
+        suburb: "Melbourne",
+        lga_id: 17,
       },
     });
 

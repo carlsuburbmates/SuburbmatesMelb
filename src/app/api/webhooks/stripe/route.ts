@@ -1,19 +1,18 @@
 import {
   AUTO_DELIST_DURATION_DAYS,
   DISPUTE_AUTO_DELIST_THRESHOLD,
+  TIER_LIMITS,
 } from "@/lib/constants";
+import type { VendorTier } from "@/lib/constants";
 import type { Json } from "@/lib/database.types";
+import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 import { emitPosthogEvent } from "@/lib/telemetry-client";
 import sanitizeForLogging, {
   minimalEventPayload,
 } from "@/lib/telemetry-sanitizer";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-10-29.clover",
-});
+import type Stripe from "stripe";
 
 // Build a minimal redacted payload summary for telemetry and storage
 export function redactEventSummary(event: Stripe.Event) {
@@ -86,6 +85,11 @@ export function redactEventSummary(event: Stripe.Event) {
           ? (subscriptionMeta["tier"] as string)
           : null,
     };
+  } else if (t === "account.updated") {
+    summary.account_id = obj["id"];
+    summary.charges_enabled = obj["charges_enabled"] ?? false;
+    summary.payouts_enabled = obj["payouts_enabled"] ?? false;
+    summary.requirements_due = obj["requirements"]?.["currently_due"] ?? [];
   } else {
     summary.raw = { id: obj.id || null };
   }
@@ -145,9 +149,21 @@ export async function handleStripeEvent(
         .limit(1)
         .maybeSingle();
       if (!existingOrder) {
-        const commission = metadata?.commission
-          ? parseInt(metadata.commission, 10)
-          : Math.round((amountCents || 0) * 0.05);
+        let commissionRate = 0.05;
+        if (metadata?.vendor_id) {
+          const { data: commissionRow } = await db
+            .from("vendors")
+            .select("commission_rate")
+            .eq("id", metadata.vendor_id)
+            .maybeSingle();
+          if (
+            commissionRow &&
+            typeof commissionRow.commission_rate === "number"
+          ) {
+            commissionRate = commissionRow.commission_rate;
+          }
+        }
+        const commission = Math.round((amountCents || 0) * commissionRate);
         const vendorNet = (amountCents || 0) - commission;
         await db.from("orders").insert({
           customer_id: metadata?.customer_id || null,
@@ -227,7 +243,12 @@ export async function handleStripeEvent(
         ).toISOString();
         await db
           .from("vendors")
-          .update({ vendor_status: "suspended", delist_until: until })
+          .update({
+            vendor_status: "suspended",
+            tier: "suspended",
+            auto_delisted_until: until,
+            suspension_reason: `Auto-suspended: ${vendor.dispute_count} Stripe disputes`,
+          })
           .eq("id", vendorId);
       }
     }
@@ -245,27 +266,53 @@ export async function handleStripeEvent(
             "vendor_id"
           ] as string)
         : undefined;
-    const newTier =
+    const rawTier =
       subscription && subscription["metadata"]
-        ? ((subscription["metadata"] as Record<string, unknown>)[
-            "tier"
-          ] as string)
+        ? ((subscription["metadata"] as Record<string, unknown>)["tier"] as
+            | string
+            | undefined)
         : undefined;
-    if (vendorId && newTier && db) {
-      await db.from("vendors").update({ tier: newTier }).eq("id", vendorId);
+    if (vendorId && rawTier && db) {
+      const normalizedTier =
+        (rawTier.toLowerCase() as VendorTier) ?? ("basic" as VendorTier);
+      await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
       const { data: cntRes } = await db
         .from("products")
         .select("id", { count: "exact" })
         .eq("vendor_id", vendorId)
         .eq("published", true);
       const publishedCount = Array.isArray(cntRes) ? cntRes.length : 0;
-      const quota = newTier === "basic" ? 10 : newTier === "pro" ? 50 : 0;
+      const quota =
+        TIER_LIMITS[normalizedTier]?.product_quota ??
+        TIER_LIMITS.basic.product_quota;
       if (publishedCount > quota) {
         const toUnpublish = publishedCount - quota;
         await db.rpc("fn_unpublish_oldest_products", {
           p_vendor_id: vendorId,
           p_to_unpublish: toUnpublish,
         });
+      }
+    }
+    return redactEventSummary(event);
+  }
+
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    if (db) {
+      const { data: vendorRow } = await db
+        .from("vendors")
+        .select("id")
+        .eq("stripe_account_id", account.id)
+        .maybeSingle();
+      if (vendorRow) {
+        await db
+          .from("vendors")
+          .update({
+            stripe_account_status: account.charges_enabled ? "active" : "pending",
+            stripe_onboarding_complete:
+              account.charges_enabled && account.payouts_enabled,
+          })
+          .eq("id", vendorRow.id);
       }
     }
     return redactEventSummary(event);
