@@ -70,6 +70,13 @@ Store future dry-run evidence in `reports/analytics/` (dated JSON) or `reports/o
 4. **Promote to Production**: Approve deploy once smoke tests pass. Monitor Sentry/PostHog for at least one full cron cycle.
 5. **Rollback plan**: If issues, redeploy previous build via Vercel dashboard and, if needed, revert migrations using Supabase PITR.
 
+### 2.3 Data Hygiene & Test Cleanup
+- **Supabase fixtures:** QA utilities (`tests/utils/vendor-fixture.ts`, `scripts/manual-featured-checkout.ts`) create seeded vendors/business profiles. After each run, call their `cleanupVendorFixture` helper or delete rows where `email LIKE 'qa-%'` to keep the shared project tidy. Don’t leave mock featured slots active—set `status='expired'` or delete once evidence is archived.
+- **Stripe artifacts:** Follow the Stripe Playbook’s cleanup section—delete disposable Connect accounts, revoke CLI sessions, and purge obsolete webhook endpoints.
+- **Report archives:** Move older markdown/JSON logs into `reports/archive/<yyyy-mm-dd>/` so the repo root only holds the most recent manual QA + SSOT verification. Example: `mkdir -p reports/archive/2025-11-19 && mv reports/*-2025-11-19.md reports/archive/2025-11-19/`.
+- **Test output directories:** Remove `.last-run.json`, Playwright screenshots/videos, and other generated artifacts once CI evidence is recorded (`rm -rf test-results/`). New runs will recreate the folders.
+- **Env review:** On cleanup days confirm `.env.local` matches `.env.example` and revoke any temporary Supabase service keys that were exposed during debugging.
+
 ## 3. Incident Response
 - **Severity tiers:** Sev0 (checkout failure), Sev1 (featured queue stuck), Sev2 (UI bug), Sev3 (doc typo). Each has response window (Sev0 <15 min ack, Sev1 <30 min, etc.).
 - **Runbooks:**

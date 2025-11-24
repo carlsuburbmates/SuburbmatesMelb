@@ -1018,6 +1018,7 @@ export type Database = {
       fn_try_reserve_featured_slot: {
         Args: {
           p_vendor_id: string
+          p_business_profile_id: string
           p_lga_id: number
           p_suburb_label: string
           p_start_date: string

@@ -18,6 +18,7 @@
 3. **Stripe Connect onboarding** (required for selling) → handles identity/KYC + payouts.
 4. **Tier card** on dashboard shows Directory/Basic/Pro, product caps, featured eligibility.
 5. **Upgrade/downgrade** via `/api/vendor/tier` with CTA referencing caps + FIFO unpublish when downgrading.
+6. **Marketplace access checks** → All vendor APIs call `requireVendor`, which now blocks actions until Stripe Connect is complete (`stripe_account_status=active` + `stripe_onboarding_complete=true`). Support tooling exposes `/api/vendor/onboarding/status` (GET/POST/PUT) so vendors can retry onboarding or request a fresh dashboard login link.
 
 ### 2.2 Product Management
 - POST `/api/vendor/products`: slug generation, tier quota validation, publish toggle, storage quotas.
@@ -48,7 +49,7 @@
 | Week 1 | **Product CRUD & UI** | Product API routes, slug utilities, vendor dashboard product grid, tier cap validation, search resolver for suburb→LGA. |
 | Week 2 | **Search telemetry & ranking** | `/api/search` (tier-aware ordering), `/api/search/telemetry`, PostHog event emission, analytics endpoint, zero-result handling. |
 | Week 3 | **Tier & featured revamp** | `/api/vendor/tier`, featured business schema migration (business_profile_id + suburb_label), Stripe Checkout integration, queue management, FIFO downgrade automation. |
-| Week 4 | **Cron + QA + docs** | Cron scripts (tier caps, featured expiry, search cleanup, analytics aggregation), resume skipped Playwright specs (featured slots, tier flows), SSOT updates, deployment smoke tests. |
+| Week 4 | **Cron + QA + docs** | Cron scripts (tier caps, featured expiry, search cleanup, analytics aggregation), resume skipped Playwright specs (featured slots, tier flows), SSOT updates, deployment smoke tests, run Stripe verification commands (`npm run stripe:verify`, `npm run stripe:featured-qa`). |
 
 Each week ends with Verifier checklist (agents in `.github/agents`) ensuring SSOT compliance before moving to next phase.
 
@@ -58,6 +59,10 @@ Each week ends with Verifier checklist (agents in `.github/agents`) ensuring SSO
 - `scripts/expire-featured-slots.js`: Mark expired slots, promote queue entries.
 - `scripts/aggregate-analytics.js`: Summarize search/product metrics for vendor dashboard.
 - Vercel Cron recommended schedule: tier caps daily 09:00 AEST, featured expiry hourly, search cleanup weekly Sunday 02:00, analytics nightly 23:00.
+- Stripe helper scripts (test mode):
+  - `npm run stripe:create-products` → bootstrap required products/prices in test mode.
+  - `npm run stripe:verify` → confirm env/API/Connect readiness.
+  - `npm run stripe:featured-qa` → execute featured checkout mock flow + log evidence.
 
 ## 6. Quality Gates
 - End-to-end coverage for tier upgrade/downgrade, featured purchase (mock header until Stripe webhooks active in CI), search telemetry logging, dispute gating.

@@ -33,8 +33,9 @@ All charges must set `payment_intent_data.application_fee_amount` (5% commission
 Use `stripe listen --forward-to localhost:3000/api/webhook/stripe` during dev; run `stripe trigger <event>` to replay.
 
 ## 4. Testing Checklist
-- `npm run stripe:test` (script) verifies API keys, Connect status, and webhook secret.
+- `npm run stripe:verify` runs `scripts/verify-stripe-access.js` (env checks, API connectivity, Connect + products) and prints actionable remediation steps.
 - Featured purchase test: run `/api/vendor/featured-slots` POST with `x-featured-checkout-mode: mock` header in tests; real flow requires Stripe CLI.
+- `npm run stripe:featured-qa` executes the scripted mock checkout + webhook replay (`scripts/manual-featured-checkout.ts`) and records reports under `reports/featured-slot-qa-*.md`.
 - Subscription downgrade: simulate `customer.subscription.deleted` event and confirm tier API enforces FIFO removal + vendor email.
 - ACL quick-ref: confirm responsibilities matrix (vendor vs buyer vs platform) before policy changes.
 
@@ -46,7 +47,14 @@ Use `stripe listen --forward-to localhost:3000/api/webhook/stripe` during dev; r
 | Featured slot activates without payment | Use real Checkout for prod; mock header should only be allowed in tests (`NODE_ENV=test`). |
 | Refund processed but commission refunded | Should never happen: verify `transactions_log` entry; if Stripe auto-refunded fee, log incident and adjust via manual fee charge. |
 
-## 6. Source Mapping
+## 6. Cleanup & Hygiene
+- **Test Connect accounts:** After each QA cycle, remove any disposable Connect accounts created by fixtures (e.g., `qa-featured-vendor@example.com`). Dashboard → Connect → Accounts → delete the test account so onboarding queues stay accurate.
+- **Stripe CLI sessions:** Run `stripe logout` (or revoke individual tokens) once local testing is done so webhooks can’t be replayed from abandoned machines.
+- **Webhook endpoints:** Periodically prune expired endpoints under Developers → Webhooks. Only `localhost` and production URLs should remain; remove stale ngrok/CLI entries.
+- **Metadata audit:** Search recent events for `qa-` or `playwright-` metadata and purge any lingering featured slots/orders tied to seeded vendors once evidence is archived.
+- **Report linkage:** When `npm run stripe:featured-qa` generates a markdown log, move older runs into `reports/archive/<date>/` so only the latest proof stays at the repo root.
+
+## 7. Source Mapping
 | Section | Legacy reference |
 | --- | --- |
 | Setup & products | `STRIPE_SETUP_SUMMARY.md`, `STRIPE_IMPLEMENTATION_COMPLETE.md` |

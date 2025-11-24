@@ -18,7 +18,7 @@
 1. **Vendor is merchant of record:** Stripe Connect Standard with `transfer_data.destination`; Suburbmates only takes application fee. Commission is non-refundable even on vendor-issued refunds.
 2. **Platform non-mediating:** Refunds/disputes stay between customer and vendor. Platform logs status, enforces dispute gating (auto-delist for 30 days after ≥3 disputes) but never issues refunds on behalf of vendors.
 3. **No SLAs / limited support obligations:** FAQ + founder escalation (per SSOT). Marketing copy must avoid uptime promises.
-4. **ABN policy:** Optional but incentivized. Api `POST /api/vendors/verify-abn` pings ABR (GUID in `.env.local`). Verified ABN grants badge + higher Basic cap (10 products). Stripe Connect handles mandatory identity/KYC; Suburbmates stores only ABN and badge flag.
+4. **ABN policy:** Optional but incentivized. Api `POST /api/vendors/verify-abn` pings ABR (GUID in `.env.local`). Verified ABN grants badge + increased Basic cap (3 → 10 products). Stripe Connect handles mandatory identity/KYC; Suburbmates stores only ABN and badge flag.
 5. **Data privacy:**
    - Store minimal PII; purge/obfuscate upon deletion (after retention window).
    - Search telemetry hashed with `SEARCH_SALT`; logs trimmed after 90 days.
@@ -27,6 +27,8 @@
 
 ## 3. Testing Checklists
 - **API regression:** Tier upgrade/downgrade (FIFO), featured purchase flow (Stripe checkout + webhook), telemetry endpoint (hashes + PostHog emit), Cron script dry-runs.
+- **Tier downgrade notifications:** Vitest `tests/unit/webhook-handler.test.ts` simulates subscription downgrades to confirm FIFO unpublishes trigger `sendTierDowngradeEmail` and that `charge.dispute.closed` with outcome `won` decrements `vendors.dispute_count`.
+- **Featured badge evidence:** Screenshot `reports/assets/featured-badge-20251124.png` taken from the live dev server documents the Directory banner + badge treatment used in manual QA.
 - **RLS verification:** Attempt cross-vendor access for `products`, `business_profiles`, `search_logs`. Ensure public read only for published records.
 - **Stripe webhook replay:** Use `stripe trigger` events for checkout completion, disputes, subscription updates; confirm ledger + vendor status updates.
 - **Telemetry privacy:** Inspect stored `hashed_query` values (never raw), ensure filters JSON contains only sanitized data.

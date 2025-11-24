@@ -64,6 +64,8 @@
 | Stripe | `Stripe/STRIPE_PLAYBOOK_v3.1.md` | Connect setup, Checkout/webhooks, testing |
 | Implementation status | `09_STAGE_REPORTS/09_IMPLEMENTATION_STATUS.md` | Stage 3 checklist progress |
 
+> **Archival policy:** Any superseded or exploratory docs are now parked under `v1.1-docs/ARCHIVED_DOCS/` with a README explaining which v3.1 file replaced them. If you find guidance outside the table above, move it to the archive folder and update the README rather than editing it in place.
+
 Archival copies of superseded docs live under `v1.1-docs/ARCHIVED_DOCS/legacy_*`.
 
 ### Stage 3 Documentation Policy
@@ -720,7 +722,7 @@ CREATE POLICY businesses_public_read ON businesses
 
 ### 7.7 Database Integrity (4 checks)
 - [ ] `products.slug` unique constraint per business (duplicate slugs blocked)
-- [ ] `products.featured` index exists and performant
+- [x] Legacy `products.featured` index removed (featured slots now tracked via `featured_slots` table)
 - [ ] `search_logs` table created with correct schema
 - [ ] All RLS policies enabled on relevant tables
 

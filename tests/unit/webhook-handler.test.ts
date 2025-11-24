@@ -6,12 +6,28 @@ import {
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
-import { describe, expect, it } from "vitest";
+import { enforceTierProductCap } from "@/lib/vendor-downgrade";
+import { sendTierDowngradeEmail } from "@/lib/email";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+vi.mock("@/lib/vendor-downgrade", () => ({
+  enforceTierProductCap: vi.fn(),
+}));
+
+vi.mock("@/lib/email", () => ({
+  sendTierDowngradeEmail: vi.fn().mockResolvedValue({ success: true }),
+}));
+
+const enforceTierProductCapMock = vi.mocked(enforceTierProductCap);
+const sendTierDowngradeEmailMock = vi.mocked(sendTierDowngradeEmail);
 
 // Mock DB client shape used by our handler
 interface MockQuery {
   eq: (..._args: unknown[]) => {
-    limit: (..._count: unknown[]) => { maybeSingle: () => Promise<null> };
+    limit: (..._count: unknown[]) => {
+      maybeSingle: () => Promise<{ data: null; error: null }>;
+    };
+    maybeSingle: () => Promise<{ data: null; error: null }>;
   };
 }
 
@@ -20,35 +36,50 @@ interface MockDb {
   from: (table: string) => {
     select: (_cols: string, _opts?: unknown) => MockQuery;
     insert: (row: unknown) => Promise<{ data: unknown }>;
-    update: (_row: unknown) => Promise<{ data: null }>;
-    delete: () => Promise<{ data: null }>;
+    update: (_row: unknown) => { eq: () => Promise<{ data: null }> };
+    delete: () => { eq: () => Promise<{ data: null }> };
     rpc: () => Promise<{ data: null }>;
   };
 }
 
 function createMockDb(): MockDb {
   const inserts: Record<string, unknown[]> = {};
+  const makeSelectQuery = (): MockQuery => ({
+    eq: () => ({
+      limit: () => ({
+        maybeSingle: async () => ({ data: null, error: null }),
+      }),
+      maybeSingle: async () => ({ data: null, error: null }),
+    }),
+  });
+  const makeMutation = () => ({
+    eq: async () => ({ data: null }),
+  });
   return {
     inserts,
     from(table: string) {
       return {
-        select: () => ({
-          eq: () => ({
-            limit: () => ({ maybeSingle: async () => null }),
-          }),
-        }),
+        select: () => makeSelectQuery(),
         insert: async (row: unknown) => {
           inserts[table] = inserts[table] || [];
           inserts[table].push(row);
           return { data: row };
         },
-        update: async () => ({ data: null }),
-        delete: async () => ({ data: null }),
+        update: () => makeMutation(),
+        delete: () => makeMutation(),
         rpc: async () => ({ data: null }),
       };
     },
   };
 }
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  enforceTierProductCapMock.mockResolvedValue({
+    unpublishedCount: 0,
+    unpublishedProducts: [],
+  });
+});
 
 describe("webhook handler helpers", () => {
   it("redacts checkout.session.completed payload correctly", () => {
@@ -139,5 +170,236 @@ describe("webhook handler helpers", () => {
     // orders and transactions logged
     expect(mockDb.inserts["orders"]).toBeDefined();
     expect(mockDb.inserts["transactions_log"]).toBeDefined();
+  });
+
+  it("handleStripeEvent updates vendor records on account.updated", async () => {
+    const vendorUpdates: Record<string, unknown>[] = [];
+    const mockDb = {
+      inserts: {},
+      from(table: string) {
+        if (table === "vendors") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { id: "vendor-123" },
+                  error: null,
+                }),
+              }),
+            }),
+            update: (payload: Record<string, unknown>) => ({
+              eq: async () => {
+                vendorUpdates.push(payload);
+                return { data: null };
+              },
+            }),
+            insert: async (row: unknown) => ({ data: row }),
+            delete: () => ({ eq: async () => ({ data: null }) }),
+            rpc: async () => ({ data: null }),
+          };
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
+              limit: () => ({
+                maybeSingle: async () => ({ data: null, error: null }),
+              }),
+            }),
+          }),
+          insert: async (row: unknown) => ({ data: row }),
+          update: () => ({ eq: async () => ({ data: null }) }),
+          delete: () => ({ eq: async () => ({ data: null }) }),
+          rpc: async () => ({ data: null }),
+        };
+      },
+    };
+
+    const ev = {
+      type: "account.updated",
+      data: {
+        object: {
+          id: "acct_123",
+          charges_enabled: true,
+          payouts_enabled: true,
+          requirements: { currently_due: [] },
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    const summary = await handleStripeEvent(
+      ev,
+      mockDb as unknown as SupabaseClient<Database>
+    );
+    expect(summary.type).toBe("account.updated");
+    expect(summary.account_id).toBe("acct_123");
+    expect(vendorUpdates).toHaveLength(1);
+    expect(vendorUpdates[0]).toMatchObject({
+      stripe_account_status: "active",
+      stripe_onboarding_complete: true,
+    });
+  });
+
+  it("decrements dispute count when a dispute is closed in favor of the vendor", async () => {
+    const vendorUpdates: Record<string, unknown>[] = [];
+    const mockDb = {
+      inserts: {},
+      from(table: string) {
+        if (table === "vendors") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { dispute_count: 3 },
+                  error: null,
+                }),
+              }),
+            }),
+            update: (payload: Record<string, unknown>) => ({
+              eq: async () => {
+                vendorUpdates.push(payload);
+                return { data: null };
+              },
+            }),
+            insert: async (row: unknown) => ({ data: row }),
+            delete: () => ({ eq: async () => ({ data: null }) }),
+            rpc: async () => ({ data: null }),
+          };
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
+              limit: () => ({
+                maybeSingle: async () => ({ data: null, error: null }),
+              }),
+            }),
+          }),
+          insert: async (row: unknown) => ({ data: row }),
+          update: () => ({ eq: async () => ({ data: null }) }),
+          delete: () => ({ eq: async () => ({ data: null }) }),
+          rpc: async () => ({ data: null }),
+        };
+      },
+    };
+
+    const ev = {
+      type: "charge.dispute.closed",
+      data: {
+        object: {
+          id: "dp_test",
+          metadata: { vendor_id: "vendor-42" },
+          outcome: { type: "won" },
+          status: "won",
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    await handleStripeEvent(
+      ev,
+      mockDb as unknown as SupabaseClient<Database>
+    );
+
+    expect(vendorUpdates).toHaveLength(1);
+    expect(vendorUpdates[0]).toMatchObject({ dispute_count: 2 });
+  });
+
+  it("sends downgrade notification email when subscription downgrade unpublishes products", async () => {
+    enforceTierProductCapMock.mockResolvedValueOnce({
+      unpublishedCount: 2,
+      unpublishedProducts: [
+        { id: "prod-1", title: "Alpha" },
+        { id: "prod-2", title: null },
+      ],
+    });
+    const vendorUpdates: Record<string, unknown>[] = [];
+    const mockDb = {
+      inserts: {},
+      from(table: string) {
+        if (table === "vendors") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: {
+                    business_name: "Downgrade Bakery",
+                    user_id: "user-7",
+                    tier: "pro",
+                  },
+                  error: null,
+                }),
+              }),
+            }),
+            update: (payload: Record<string, unknown>) => ({
+              eq: async () => {
+                vendorUpdates.push(payload);
+                return { data: null };
+              },
+            }),
+            insert: async (row: unknown) => ({ data: row }),
+            delete: () => ({ eq: async () => ({ data: null }) }),
+            rpc: async () => ({ data: null }),
+          };
+        }
+        if (table === "users") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { email: "owner@example.com" },
+                  error: null,
+                }),
+              }),
+            }),
+            insert: async (row: unknown) => ({ data: row }),
+            update: () => ({ eq: async () => ({ data: null }) }),
+            delete: () => ({ eq: async () => ({ data: null }) }),
+            rpc: async () => ({ data: null }),
+          };
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
+              limit: () => ({
+                maybeSingle: async () => ({ data: null, error: null }),
+              }),
+            }),
+          }),
+          insert: async (row: unknown) => ({ data: row }),
+          update: () => ({ eq: async () => ({ data: null }) }),
+          delete: () => ({ eq: async () => ({ data: null }) }),
+          rpc: async () => ({ data: null }),
+        };
+      },
+    };
+
+    const ev = {
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          metadata: { vendor_id: "vendor-7", tier: "basic" },
+          status: "canceled",
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    await handleStripeEvent(
+      ev,
+      mockDb as unknown as SupabaseClient<Database>
+    );
+
+    expect(vendorUpdates).toHaveLength(1);
+    expect(vendorUpdates[0]).toMatchObject({ tier: "basic" });
+    expect(sendTierDowngradeEmailMock).toHaveBeenCalledTimes(1);
+    expect(sendTierDowngradeEmailMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "owner@example.com",
+        businessName: "Downgrade Bakery",
+        oldTier: "pro",
+        newTier: "basic",
+        unpublishedCount: 2,
+      })
+    );
   });
 });

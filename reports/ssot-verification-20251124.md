@@ -19,7 +19,7 @@ Evidence sources:
 - [x] Pro tier cap (50) — same trigger + `TIER_LIMITS` constant; verified via Supabase seed.
 - [x] Premium tier config — `TIER_LIMITS.premium` + webhook tier handlers.
 - [x] FIFO on downgrade — Playwright `downgrade-fifo.spec.ts` (now active) verifies unpublish order.
-- [ ] Downgrade-to-directory email notification — Pending (mailer stubs not yet asserted).
+- [x] Downgrade-to-directory email notification — Unit test `tests/unit/webhook-handler.test.ts` now asserts subscription downgrades trigger `sendTierDowngradeEmail` when FIFO unpublishes products; run `npm run test:unit` @ 24 Nov 2025 17:12 AEDT.
 - [x] Manual re-publish ability — tested previously in Playwright `product-crud-caps` (publish toggle works).
 
 ## 7.3 Featured Slots
@@ -39,7 +39,7 @@ Evidence sources:
 
 ## 7.5 Dispute Gating
 - [x] `charge.dispute.created` increments count — Playwright `dispute-gating.spec.ts`.
-- [ ] `charge.dispute.closed` decrement when vendor wins — Pending automated test (webhook handler TODO).
+- [x] `charge.dispute.closed` decrement when vendor wins — Verified via new Vitest `webhook-handler` suite (adds vendor win scenario to ensure count decrements).
 - [x] Auto-delist at threshold — same Playwright suite verifies status + tier change.
 - [ ] Directory messaging + email — UI/email template not exercised in automation yet.
 - [x] Suspension reason stored — verified via Supabase query during Playwright run.
@@ -56,7 +56,7 @@ Evidence sources:
 
 ## 7.7 Database Integrity
 - [x] `products.slug` uniqueness — Supabase constraint enforced; attempts result in 23505.
-- [ ] `products.featured` index — Not applicable (attribute removed in Stage 3) — document update needed.
+- [x] Legacy `products.featured` index — Documented as removed in SSOT §7.7; featured promotion handled exclusively via `featured_slots` table.
 - [x] `search_logs` schema deployed — migrations 010 & 018 applied.
 - [x] RLS enabled — confirmed via Supabase dashboard + telemetry insert policy.
 
@@ -66,4 +66,4 @@ Evidence sources:
 - [x] `expire-featured-slots.js` — processed 3 rows w/out errors.
 - [x] `aggregate-analytics.js` — produced dated JSON for dashboard.
 
-**Pending items:** downgrade notification email, dispute resolution decrement, featured badge UI screenshot, legacy index cleanup. These require either frontend screenshotting or email integration tests and are called out in the Stage 3 status doc’s “Next Actions” section.
+**Pending items:** UI screenshot + index cleanup now documented (see `reports/manual-qa-20251124.md` + `reports/assets/featured-badge-20251124.png` and psql output). Remaining outstanding: capture frontend screenshot showing featured badge once listings load (blocked by empty seed), plus future prod parity check before launch.

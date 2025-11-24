@@ -27,11 +27,13 @@
 - Added `npm run stripe:verify` (env + API audit) and `npm run stripe:featured-qa` (mock checkout harness) so ops can verify payments before every deploy.
 - Doc updates: 28 LGA scope, “dozens of automations” wording, ABN optional messaging, `00_MASTER_DECISIONS.md` created.
 - Supabase migrations repaired + extended (versions `015–018`), RLS enabled on `business_profiles`/`search_logs`, CLI validated via `supabase migration list` after PAT login.
+- Vitest suite now asserts downgrade email + dispute-closed decrement behavior (`tests/unit/webhook-handler.test.ts` run via `npm run test:unit` on 24 Nov 2025).
+- Manual UI evidence captured (`reports/assets/featured-badge-20251124.png`) while verifying directory featured badges; DB index audit confirmed legacy `products.featured` index removed via psql.
+- Legacy docs/collateral moved under `v1.1-docs/ARCHIVED_DOCS/` with a README describing replacements; ad-hoc analysis files (Docs-Reorganisation, Copilot corrections) now live under `ARCHIVED_DOCS/internal_analysis/`.
 
 ## 3. Next Actions
-1. Automate outstanding SSOT checklist items (downgrade notification emails, dispute closure decrements, legacy `products.featured` index cleanup) and attach evidence.
-2. Finish doc consolidation (Phase 1) by archiving legacy files after teams sign off.
-3. Prepare Phase 2 specs (search UI polish, analytics surfaces) once telemetry data stable.
+1. Finish doc consolidation (Phase 1) by archiving legacy files after teams sign off.
+2. Prepare Phase 2 specs (search UI polish, analytics surfaces) once telemetry data stable.
 
 ## 4. References
 - `STAGE3_IMPLEMENTATION_SUMMARY.md` — high-level scope + remaining risks.

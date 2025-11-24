@@ -13,6 +13,7 @@ import type { Database } from "@/lib/database.types";
 import {
   sendNewOrderNotificationEmail,
   sendOrderConfirmationEmail,
+  sendTierDowngradeEmail,
 } from "@/lib/email";
 import { BusinessEvent, logEvent, logger } from "@/lib/logger";
 import { constructWebhookEvent } from "@/lib/stripe";
@@ -34,6 +35,49 @@ type TransactionInsert =
   Database["public"]["Tables"]["transactions_log"]["Insert"];
 type VendorUpdate = Database["public"]["Tables"]["vendors"]["Update"];
 type UserRow = Database["public"]["Tables"]["users"]["Row"];
+const adminClient = supabaseAdmin ?? supabase;
+
+async function fetchVendorContact(vendorId: string) {
+  if (!adminClient) return { vendor: null as VendorRow | null, email: null as string | null };
+  const { data: vendor, error } = await adminClient
+    .from("vendors")
+    .select("id,business_name,user_id,tier,dispute_count,vendor_status")
+    .eq("id", vendorId)
+    .maybeSingle();
+  if (error) {
+    logger.error("Failed to load vendor contact", { vendorId, error });
+    return { vendor: null, email: null };
+  }
+  let email: string | null = null;
+  if (vendor?.user_id) {
+    const { data: user } = await adminClient
+      .from("users")
+      .select("email")
+      .eq("id", vendor.user_id)
+      .maybeSingle();
+    email = user?.email ?? null;
+  }
+  return { vendor, email };
+}
+
+async function resolveVendorIdFromDispute(dispute: Stripe.Dispute) {
+  if (dispute.metadata?.vendor_id) {
+    return dispute.metadata.vendor_id;
+  }
+  const chargeId =
+    typeof dispute.charge === "string"
+      ? dispute.charge
+      : dispute.charge?.id;
+  if (!chargeId || !adminClient) {
+    return null;
+  }
+  const { data } = await adminClient
+    .from("orders")
+    .select("vendor_id")
+    .eq("stripe_payment_intent_id", chargeId)
+    .maybeSingle();
+  return data?.vendor_id ?? null;
+}
 
 const FEATURED_SLOT_DURATION_MS = FEATURED_SLOT.DURATION_DAYS * 86400000;
 
@@ -291,6 +335,48 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case "charge.dispute.closed": {
+        const dispute = event.data.object as Stripe.Dispute;
+        const vendorId = await resolveVendorIdFromDispute(dispute);
+        if (!vendorId) {
+          logger.warn("Unable to resolve vendor for closed dispute", {
+            disputeId: dispute.id,
+          });
+          break;
+        }
+        const { vendor } = await fetchVendorContact(vendorId);
+        if (!vendor) {
+          break;
+        }
+        const outcomeType =
+          (dispute.outcome as { type?: string } | undefined)?.type ||
+          dispute.status;
+        const vendorWon = outcomeType === "won";
+        if (!vendorWon) {
+          logger.info("Dispute closed without vendor win", {
+            disputeId: dispute.id,
+            vendorId,
+            outcomeType,
+          });
+          break;
+        }
+        const newCount = Math.max((vendor.dispute_count || 0) - 1, 0);
+        const { error: updateError } = await adminClient
+          .from("vendors")
+          .update({
+            dispute_count: newCount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", vendorId);
+        if (updateError) {
+          logger.error("Failed to decrement dispute count", updateError, {
+            vendorId,
+            disputeId: dispute.id,
+          });
+        }
+        break;
+      }
+
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
         logger.info("Refund processed", {
@@ -314,80 +400,54 @@ export async function POST(req: NextRequest) {
           typeof dispute.charge === "string"
             ? dispute.charge
             : dispute.charge?.id;
-        if (chargeId) {
-          // Find vendor via order
-          const { data: orders } = await supabase
-            .from("orders")
-            .select("vendor_id")
-            .eq("stripe_payment_intent_id", chargeId)
-            .limit(1);
+        const vendorId = await resolveVendorIdFromDispute(dispute);
+        if (!vendorId) {
+          logger.warn("Unable to resolve vendor for dispute", {
+            disputeId: dispute.id,
+          });
+          break;
+        }
+        const { vendor } = await fetchVendorContact(vendorId);
+        if (!vendor) {
+          break;
+        }
 
-          if (orders && orders.length > 0) {
-            const vendorId = orders[0].vendor_id;
+        const newCount = (vendor.dispute_count || 0) + 1;
+        const updates: VendorUpdate = {
+          dispute_count: newCount,
+          last_dispute_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
 
-            if (!vendorId) {
-              logger.warn("Order missing vendor_id", { chargeId });
-              break;
-            }
+        if (
+          newCount >= DISPUTE_AUTO_DELIST_THRESHOLD &&
+          vendor.vendor_status === "active"
+        ) {
+          const suspensionEnd = new Date(
+            Date.now() + AUTO_DELIST_DURATION_DAYS * 86400000
+          );
+          updates.vendor_status = "suspended";
+          updates.tier = "suspended";
+          updates.auto_delisted_until = suspensionEnd.toISOString();
+          updates.suspension_reason = `Auto-suspended: ${newCount} Stripe disputes`;
 
-            // Get current dispute count
-            const { data: vendors } = await supabase
-              .from("vendors")
-              .select("id, dispute_count, vendor_status, tier")
-              .eq("id", vendorId)
-              .limit(1);
+          logEvent(BusinessEvent.VENDOR_SUSPENDED, {
+            vendorId,
+            reason: "dispute_threshold",
+            disputeCount: newCount,
+            suspendedUntil: suspensionEnd.toISOString(),
+          });
+        }
 
-            if (vendors && vendors.length > 0) {
-              const vendor = vendors[0];
-              const newCount = (vendor.dispute_count || 0) + 1;
+        const { error: updateError } = await adminClient
+          .from("vendors")
+          .update(updates)
+          .eq("id", vendorId);
 
-              const updates: VendorUpdate = {
-                dispute_count: newCount,
-                last_dispute_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              };
-
-              // Auto-suspend if threshold reached
-              if (
-                newCount >= DISPUTE_AUTO_DELIST_THRESHOLD &&
-                vendor.vendor_status === "active"
-              ) {
-                const suspensionEnd = new Date(
-                  Date.now() + AUTO_DELIST_DURATION_DAYS * 86400000
-                );
-                updates.vendor_status = "suspended";
-                updates.tier = "suspended";
-                updates.auto_delisted_until = suspensionEnd.toISOString();
-                updates.suspension_reason = `Auto-suspended: ${newCount} Stripe disputes`;
-
-                logEvent(BusinessEvent.VENDOR_SUSPENDED, {
-                  vendorId,
-                  reason: "dispute_threshold",
-                  disputeCount: newCount,
-                  suspendedUntil: suspensionEnd.toISOString(),
-                });
-
-                logger.warn("Vendor auto-suspended (dispute threshold)", {
-                  vendorId,
-                  disputeCount: newCount,
-                  suspendedUntil: suspensionEnd.toISOString(),
-                });
-              }
-
-              const { error: updateError } = await supabase
-                .from("vendors")
-                .update(updates)
-                .eq("id", vendorId);
-
-              if (updateError) {
-                logger.error(
-                  "Failed to update vendor dispute count",
-                  updateError,
-                  { vendorId }
-                );
-              }
-            }
-          }
+        if (updateError) {
+          logger.error("Failed to update vendor dispute count", updateError, {
+            vendorId,
+          });
         }
         break;
       }
@@ -404,6 +464,19 @@ export async function POST(req: NextRequest) {
           });
           break;
         }
+
+        const { vendor: vendorProfile, email: vendorEmail } =
+          await fetchVendorContact(vendorId);
+        if (!vendorProfile) {
+          logger.warn("Vendor not found for subscription event", {
+            vendorId,
+            subscriptionId: subscription.id,
+          });
+          break;
+        }
+
+        const oldTier = vendorProfile.tier || "basic";
+        const businessName = vendorProfile.business_name || "Your business";
 
         // Determine new tier based on subscription status
         let newTier: string;
@@ -438,7 +511,7 @@ export async function POST(req: NextRequest) {
               }
             : {}),
         };
-        const { error: tierError } = await supabase
+        const { error: tierError } = await adminClient
           .from("vendors")
           .update(tierUpdate)
           .eq("id", vendorId);
@@ -453,7 +526,7 @@ export async function POST(req: NextRequest) {
 
         // Enforce tier product cap (FIFO unpublish if downgraded)
         if (newTier === "basic" || newTier === "none") {
-          const { unpublishedCount, error: downgradError } =
+          const { unpublishedCount, unpublishedProducts, error: downgradError } =
             await enforceTierProductCap(vendorId, newTier as VendorTier);
 
           if (downgradError) {
@@ -468,6 +541,18 @@ export async function POST(req: NextRequest) {
               newTier,
               unpublishedCount,
             });
+            if (vendorEmail) {
+              void sendTierDowngradeEmail({
+                to: vendorEmail,
+                businessName,
+                oldTier,
+                newTier,
+                unpublishedCount,
+                productTitles: unpublishedProducts.map(
+                  (p) => p.title || "Untitled product"
+                ),
+              });
+            }
           }
         }
 

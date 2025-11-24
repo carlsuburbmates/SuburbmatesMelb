@@ -37,14 +37,3 @@ Sentry.init({
   enableLogs: environment !== "production",
   sendDefaultPii: true,
 });
-
-// Tag runtime/deployment for tracing.
-type SentryWithHub = typeof Sentry & {
-  getCurrentHub?: () => {
-    getScope?: () => {
-      setTags?: (tags: Record<string, string>) => void;
-    };
-  };
-};
-const edgeHub = (Sentry as SentryWithHub).getCurrentHub?.();
-edgeHub?.getScope?.()?.setTags?.({ runtime: "edge", deployment: environment });

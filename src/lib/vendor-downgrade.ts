@@ -13,16 +13,18 @@ import { supabaseAdmin } from "@/lib/supabase";
  * Enforce product cap for a vendor after tier change.
  * Unpublishes oldest published products (FIFO) if current count exceeds new limit.
  */
+type UnpublishedProduct = { id: string; title: string | null };
+
 export async function enforceTierProductCap(
   vendorId: string,
   newTier: keyof typeof TIER_LIMITS
-): Promise<{ unpublishedCount: number; error?: string }> {
+): Promise<{ unpublishedCount: number; unpublishedProducts: UnpublishedProduct[]; error?: string }> {
   const limit = TIER_LIMITS[newTier].product_quota;
 
   // Fetch all published products ordered by creation date (oldest first)
   if (!supabaseAdmin) {
     logger.error("supabaseAdmin not initialized");
-    return { unpublishedCount: 0, error: "Database client not available" };
+    return { unpublishedCount: 0, unpublishedProducts: [], error: "Database client not available" };
   }
 
   const { data: products, error } = await supabaseAdmin
@@ -38,7 +40,7 @@ export async function enforceTierProductCap(
       newTier,
       error,
     });
-    return { unpublishedCount: 0, error: error.message };
+    return { unpublishedCount: 0, unpublishedProducts: [], error: error.message };
   }
 
   if (!products || products.length <= limit) {
@@ -48,7 +50,7 @@ export async function enforceTierProductCap(
       count: products?.length || 0,
       limit,
     });
-    return { unpublishedCount: 0 };
+    return { unpublishedCount: 0, unpublishedProducts: [] };
   }
 
   // Unpublish excess (oldest products first)
@@ -56,11 +58,7 @@ export async function enforceTierProductCap(
   const toUnpublish = products.slice(0, excessCount).map((p) => p.id);
 
   if (toUnpublish.length === 0) {
-    return { unpublishedCount: 0 };
-  }
-
-  if (!supabaseAdmin) {
-    return { unpublishedCount: 0, error: "Database client not available" };
+    return { unpublishedCount: 0, unpublishedProducts: [] };
   }
 
   const { error: updateError } = await supabaseAdmin
@@ -75,7 +73,7 @@ export async function enforceTierProductCap(
       toUnpublishCount: toUnpublish.length,
       error: updateError,
     });
-    return { unpublishedCount: 0, error: updateError.message };
+    return { unpublishedCount: 0, unpublishedProducts: [], error: updateError.message };
   }
 
   logEvent(BusinessEvent.VENDOR_PRODUCTS_AUTO_UNPUBLISHED, {
@@ -92,7 +90,11 @@ export async function enforceTierProductCap(
     newPublishedCount: limit,
   });
 
-  return { unpublishedCount: toUnpublish.length };
+  const unpublishedProducts: UnpublishedProduct[] = products
+    .slice(0, excessCount)
+    .map((p) => ({ id: p.id, title: p.title ?? null }));
+
+  return { unpublishedCount: toUnpublish.length, unpublishedProducts };
 }
 
 /**

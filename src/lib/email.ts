@@ -152,6 +152,35 @@ export async function sendVendorApprovedEmail(email: string, businessName: strin
   });
 }
 
+export async function sendTierDowngradeEmail(params: {
+  to: string;
+  businessName: string;
+  oldTier: string;
+  newTier: string;
+  unpublishedCount: number;
+  productTitles: string[];
+}): Promise<EmailResult> {
+  const previewTitles = params.productTitles.slice(0, 5);
+  const remaining = params.productTitles.length - previewTitles.length;
+  const listHtml = previewTitles
+    .map((title) => `<li>${title || "Untitled product"}</li>`)
+    .join("");
+
+  return sendEmail({
+    to: params.to,
+    subject: `Tier changed to ${params.newTier.toUpperCase()} — ${params.unpublishedCount} product(s) unpublished`,
+    html: `
+      <h1>Heads up from ${PLATFORM.NAME}</h1>
+      <p>${params.businessName} was downgraded from <strong>${params.oldTier.toUpperCase()}</strong> to <strong>${params.newTier.toUpperCase()}</strong>.</p>
+      <p>We automatically unpublished <strong>${params.unpublishedCount}</strong> of your oldest products so you stay within the new tier limit.</p>
+      ${previewTitles.length ? `<p>Recently unpublished items:</p><ul>${listHtml}</ul>` : ""}
+      ${remaining > 0 ? `<p>and ${remaining} more…</p>` : ""}
+      <p>You can review and republish products from your <a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/products">dashboard</a> whenever you're ready.</p>
+      <p>Questions? Reply to this email or contact ${PLATFORM.SUPPORT_EMAIL}.</p>
+    `,
+  });
+}
+
 /**
  * Order confirmation for customer
  */

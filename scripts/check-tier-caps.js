@@ -25,7 +25,7 @@ if (!url || !serviceKey) {
 const DEFAULT_TIER_LIMITS = {
   none: 0,
   directory: 0,
-  basic: 10,
+  basic: 3,
   pro: 50,
   premium: 50,
   suspended: 0,

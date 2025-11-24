@@ -5,8 +5,10 @@ import {
 } from "@/lib/constants";
 import type { VendorTier } from "@/lib/constants";
 import type { Json } from "@/lib/database.types";
+import { sendTierDowngradeEmail } from "@/lib/email";
 import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
+import { enforceTierProductCap } from "@/lib/vendor-downgrade";
 import { emitPosthogEvent } from "@/lib/telemetry-client";
 import sanitizeForLogging, {
   minimalEventPayload,
@@ -203,53 +205,66 @@ export async function handleStripeEvent(
     return redactEventSummary(event);
   }
 
-  if (
-    event.type === "charge.dispute.created" ||
-    event.type === "charge.dispute.closed"
-  ) {
-    const dispute = event.data.object as unknown as Record<string, unknown>;
-    const vendorId =
-      dispute && dispute["metadata"]
-        ? ((dispute["metadata"] as Record<string, unknown>)[
-            "vendor_id"
-          ] as string)
-        : undefined;
+  if (event.type === "charge.dispute.created") {
+    const dispute = event.data.object as Stripe.Dispute;
+    const vendorId = dispute.metadata?.vendor_id;
     if (vendorId && db) {
-      // Safely increment dispute_count without relying on db.raw which
-      // may be untyped in the Supabase client typings.
-      const { data: existingVendor } = await db
+      const { data: vendorRow } = await db
+        .from("vendors")
+        .select("dispute_count,vendor_status")
+        .eq("id", vendorId)
+        .maybeSingle();
+      if (vendorRow) {
+        const newCount = (vendorRow.dispute_count || 0) + 1;
+        await db
+          .from("vendors")
+          .update({
+            dispute_count: newCount,
+            last_dispute_at: new Date().toISOString(),
+          })
+          .eq("id", vendorId);
+        if (
+          newCount >= DISPUTE_AUTO_DELIST_THRESHOLD &&
+          vendorRow.vendor_status === "active"
+        ) {
+          const until = new Date(
+            Date.now() + AUTO_DELIST_DURATION_DAYS * 24 * 60 * 60 * 1000
+          ).toISOString();
+          await db
+            .from("vendors")
+            .update({
+              vendor_status: "suspended",
+              tier: "suspended",
+              auto_delisted_until: until,
+              suspension_reason: `Auto-suspended: ${newCount} Stripe disputes`,
+            })
+            .eq("id", vendorId);
+        }
+      }
+    }
+    return redactEventSummary(event);
+  }
+
+  if (event.type === "charge.dispute.closed") {
+    const dispute = event.data.object as Stripe.Dispute;
+    const vendorId = dispute.metadata?.vendor_id;
+    if (vendorId && db) {
+      const { data: vendorRow } = await db
         .from("vendors")
         .select("dispute_count")
         .eq("id", vendorId)
         .maybeSingle();
-
-      const currentCount = Number(existingVendor?.dispute_count ?? 0) || 0;
-      const newCount = currentCount + 1;
-
-      await db
-        .from("vendors")
-        .update({ dispute_count: newCount })
-        .eq("id", vendorId);
-
-      const { data: vendor } = await db
-        .from("vendors")
-        .select("dispute_count")
-        .eq("id", vendorId)
-        .single();
-
-      if (vendor && vendor.dispute_count >= DISPUTE_AUTO_DELIST_THRESHOLD) {
-        const until = new Date(
-          Date.now() + AUTO_DELIST_DURATION_DAYS * 24 * 60 * 60 * 1000
-        ).toISOString();
-        await db
-          .from("vendors")
-          .update({
-            vendor_status: "suspended",
-            tier: "suspended",
-            auto_delisted_until: until,
-            suspension_reason: `Auto-suspended: ${vendor.dispute_count} Stripe disputes`,
-          })
-          .eq("id", vendorId);
+      if (vendorRow) {
+        const outcomeType =
+          (dispute.outcome as { type?: string } | undefined)?.type ||
+          dispute.status;
+        if (outcomeType === "won") {
+          const newCount = Math.max((vendorRow.dispute_count || 0) - 1, 0);
+          await db
+            .from("vendors")
+            .update({ dispute_count: newCount })
+            .eq("id", vendorId);
+        }
       }
     }
     return redactEventSummary(event);
@@ -275,22 +290,56 @@ export async function handleStripeEvent(
     if (vendorId && rawTier && db) {
       const normalizedTier =
         (rawTier.toLowerCase() as VendorTier) ?? ("basic" as VendorTier);
-      await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
-      const { data: cntRes } = await db
-        .from("products")
-        .select("id", { count: "exact" })
-        .eq("vendor_id", vendorId)
-        .eq("published", true);
-      const publishedCount = Array.isArray(cntRes) ? cntRes.length : 0;
-      const quota =
-        TIER_LIMITS[normalizedTier]?.product_quota ??
-        TIER_LIMITS.basic.product_quota;
-      if (publishedCount > quota) {
-        const toUnpublish = publishedCount - quota;
-        await db.rpc("fn_unpublish_oldest_products", {
-          p_vendor_id: vendorId,
-          p_to_unpublish: toUnpublish,
+
+      let previousTier = "basic";
+      let businessName = "Your business";
+      let vendorEmail: string | null = null;
+
+      try {
+        const { data: vendorProfile } = await db
+          .from("vendors")
+          .select("business_name,user_id,tier")
+          .eq("id", vendorId)
+          .maybeSingle();
+
+        if (vendorProfile) {
+          previousTier = vendorProfile.tier || previousTier;
+          businessName = vendorProfile.business_name || businessName;
+          if (vendorProfile.user_id) {
+            const { data: vendorUser } = await db
+              .from("users")
+              .select("email")
+              .eq("id", vendorProfile.user_id)
+              .maybeSingle();
+            if (vendorUser && typeof vendorUser.email === "string") {
+              vendorEmail = vendorUser.email;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to load vendor contact for downgrade email", {
+          vendorId,
+          error,
         });
+      }
+
+      await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
+      if (normalizedTier === "basic" || normalizedTier === "none") {
+        const { unpublishedCount, unpublishedProducts } =
+          await enforceTierProductCap(vendorId, normalizedTier);
+
+        if (unpublishedCount > 0 && vendorEmail) {
+          const titles =
+            unpublishedProducts?.map((p) => p.title || "Untitled product") || [];
+          void sendTierDowngradeEmail({
+            to: vendorEmail,
+            businessName,
+            oldTier: previousTier,
+            newTier: normalizedTier,
+            unpublishedCount,
+            productTitles: titles,
+          });
+        }
       }
     }
     return redactEventSummary(event);

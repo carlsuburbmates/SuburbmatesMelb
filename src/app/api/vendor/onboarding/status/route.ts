@@ -209,3 +209,48 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * API Route: PUT /api/vendor/onboarding/status
+ *
+ * Generates a Stripe dashboard login link for vendors with completed onboarding.
+ */
+export async function PUT(request: Request) {
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Authorization header required" },
+        { status: 401 }
+      );
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json({ error: "Invalid authentication" }, { status: 401 });
+    }
+    const { data: vendor, error: vendorError } = await supabase
+      .from("vendors")
+      .select("stripe_account_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (vendorError || !vendor || !vendor.stripe_account_id) {
+      return NextResponse.json(
+        { error: "Stripe Connect account not found" },
+        { status: 404 }
+      );
+    }
+    const loginLink = await stripe.accounts.createLoginLink(
+      vendor.stripe_account_id
+    );
+    return NextResponse.json({
+      dashboard_url: loginLink.url,
+    });
+  } catch (error) {
+    console.error("Error creating Stripe dashboard link:", error);
+    return NextResponse.json(
+      { error: "Failed to create dashboard link" },
+      { status: 500 }
+    );
+  }
+}

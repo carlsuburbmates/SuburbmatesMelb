@@ -41,7 +41,7 @@ Rules: Directory endpoints never expose product pricing; each profile returns up
 | `/api/vendor/tier` | GET | Returns current tier, quota usage, available upgrades/downgrades. |
 | `/api/vendor/tier` | PATCH | Upgrade/downgrade tier. Upgrades may trigger Stripe subscription; downgrades enforce FIFO unpublish. |
 
-Tier limits (Basic 10, Pro unlimited) also enforced in DB triggers (`products_enforce_tier_cap`).
+Tier limits (Basic 3, Pro 50, Premium 50) also enforced in DB triggers (`products_enforce_tier_cap`).
 
 ## 5. Featured Business APIs
 | Endpoint | Method | Description |

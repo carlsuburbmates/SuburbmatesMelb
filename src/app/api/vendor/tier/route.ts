@@ -2,6 +2,7 @@ import { requireAuth } from "@/app/api/_utils/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { TIER_LIMITS, VendorTier } from "@/lib/constants";
 import { enforceTierProductCap, getDowngradePreview } from "@/lib/vendor-downgrade";
+import { sendTierDowngradeEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
@@ -99,6 +100,9 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json();
     const targetTier = (body?.tier || "").toLowerCase();
+    const oldTier = vendor.tier || "basic";
+    const vendorEmail = authContext.user.email;
+    const businessName = vendor.business_name || "Your business";
 
     if (!targetTier || !TIER_LIMITS[targetTier as VendorTier]) {
       return NextResponse.json(
@@ -169,6 +173,17 @@ export async function PATCH(req: NextRequest) {
         targetTier as VendorTier
       );
       unpublishedCount = result.unpublishedCount;
+      if (unpublishedCount > 0 && vendorEmail) {
+        void sendTierDowngradeEmail({
+          to: vendorEmail,
+          businessName,
+          oldTier,
+          newTier: targetTier,
+          unpublishedCount,
+          productTitles:
+            result.unpublishedProducts?.map((p) => p.title || "Untitled product") || [],
+        });
+      }
     }
 
     return NextResponse.json(

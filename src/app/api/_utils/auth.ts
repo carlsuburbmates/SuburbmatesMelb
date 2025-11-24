@@ -67,6 +67,14 @@ export async function requireVendor(
     throw new ForbiddenError('Vendor cannot sell products');
   }
 
+  if (!vendor.stripe_account_id) {
+    throw new ForbiddenError('Stripe Connect account required before listing products');
+  }
+
+  if (!vendor.stripe_onboarding_complete || vendor.stripe_account_status !== 'active') {
+    throw new ForbiddenError('Stripe onboarding incomplete. Finish Connect setup to continue.');
+  }
+
   return {
     authContext,
     vendor,

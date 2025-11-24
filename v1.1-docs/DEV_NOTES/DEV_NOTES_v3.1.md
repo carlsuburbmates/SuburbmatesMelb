@@ -40,3 +40,11 @@ This file aggregates the practical guidance every engineer needs while working i
 | Cheat sheet | `DEVELOPER_CHEAT_SHEET.md`, `smv1.md` |
 
 For deeper context, review the archived files or the automation JSON configs.
+
+## 6. Test Utilities Inventory
+- `tests/utils/env.ts` – loads `.env.local` so Vitest/Playwright runs mirror local secrets.
+- `tests/utils/supabase.ts` – provides `getSupabaseAdminClient`/`createSupabaseAnonClient`; relied on by webhook + vendor downgrade specs.
+- `tests/utils/stripe.ts` – wraps Stripe SDK helpers for webhook signature generation; used by `webhook-handler` tests and manual QA scripts.
+- `tests/utils/vendor-fixture.ts` – creates authenticated vendor fixtures (optionally with seeded products) and exposes `cleanupVendorFixture`.
+
+> None of these helpers are optional: every activated Playwright/Vitest suite references them. When adding new utilities, document them here and clean up seeded records via `cleanupVendorFixture` or Supabase scripts after each run.

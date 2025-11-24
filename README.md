@@ -89,6 +89,13 @@ Before running payments tests, follow the [Stripe Testing Playbook](v1.1-docs/St
 4. Copy the generated `whsec_…` into `.env.local`, trigger test events (`stripe trigger checkout.session.completed`), then run Playwright/manual flows.
 5. Record the session results under `reports/stripe-cli-YYYYMMDD.md`.
 
+### **Handy Stripe Scripts**
+```bash
+npm run stripe:verify        # Verifies env vars, API connectivity, Connect + product/price IDs
+npm run stripe:featured-qa   # Runs the end-to-end featured slot mock checkout + webhook simulation
+```
+Both commands read `.env.local`, so keep your test keys in sync before executing.
+
 ---
 
 ## 🎯 **Core Principles**

@@ -36,13 +36,3 @@ Sentry.init({
   enableLogs: environment !== "production",
   sendDefaultPii: true,
 });
-
-type SentryWithHub = typeof Sentry & {
-  getCurrentHub?: () => {
-    getScope?: () => {
-      setTags?: (tags: Record<string, string>) => void;
-    };
-  };
-};
-const serverHub = (Sentry as SentryWithHub).getCurrentHub?.();
-serverHub?.getScope?.()?.setTags?.({ runtime: "server", deployment: environment });

@@ -1,15 +1,25 @@
 import { requireAuth } from "@/app/api/_utils/auth";
+import { TIER_LIMITS } from "@/lib/constants";
 import type { Database } from "@/lib/database.types";
 import { stripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 
 type VendorInsert = Database["public"]["Tables"]["vendors"]["Insert"];
 
-function resolveProductQuota(tier: string, abnVerified: boolean): number {
+function resolveTierDefaults(tier: string, abnVerified: boolean) {
   if (tier === "pro") {
-    return 50;
+    return {
+      productQuota: TIER_LIMITS.pro.product_quota,
+      commissionRate: TIER_LIMITS.pro.commission_rate,
+      canSell: TIER_LIMITS.pro.can_sell,
+    };
   }
-  return abnVerified ? 20 : 10;
+  const quota = abnVerified ? 10 : TIER_LIMITS.basic.product_quota;
+  return {
+    productQuota: quota,
+    commissionRate: TIER_LIMITS.basic.commission_rate,
+    canSell: TIER_LIMITS.basic.can_sell,
+  };
 }
 
 /**
@@ -66,6 +76,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const tierDefaults = resolveTierDefaults(tier, false);
+
     const vendorPayload: VendorInsert = {
       user_id: user.id,
       tier,
@@ -73,9 +85,11 @@ export async function POST(request: NextRequest) {
       stripe_account_id: stripeAccount.id,
       stripe_account_status: "pending",
       vendor_status: "active",
-      can_sell_products: tier === "basic",
+      can_sell_products: tierDefaults.canSell,
       abn_verified: false,
-      product_quota: resolveProductQuota(tier, false),
+      product_quota: tierDefaults.productQuota,
+      commission_rate: tierDefaults.commissionRate,
+      stripe_onboarding_complete: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
