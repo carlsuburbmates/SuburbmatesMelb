@@ -1,7 +1,6 @@
 import {
   AUTO_DELIST_DURATION_DAYS,
   DISPUTE_AUTO_DELIST_THRESHOLD,
-  TIER_LIMITS,
 } from "@/lib/constants";
 import type { VendorTier } from "@/lib/constants";
 import type { Json } from "@/lib/database.types";

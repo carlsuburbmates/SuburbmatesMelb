@@ -396,10 +396,6 @@ export async function POST(req: NextRequest) {
         });
 
         // Dispute gating (Non-negotiable: 3+ disputes = 30-day auto-delist)
-        const chargeId =
-          typeof dispute.charge === "string"
-            ? dispute.charge
-            : dispute.charge?.id;
         const vendorId = await resolveVendorIdFromDispute(dispute);
         if (!vendorId) {
           logger.warn("Unable to resolve vendor for dispute", {

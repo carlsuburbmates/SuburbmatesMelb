@@ -9,7 +9,7 @@ mysql
 database
 trpc
 manus
-drizzle
+driz zle (Drizzle ORM)
 
 chargeback handled by platform
 platform handles chargebacks

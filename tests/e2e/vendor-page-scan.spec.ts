@@ -15,6 +15,12 @@ import {
   type VendorFixture,
 } from "../utils/vendor-fixture";
 
+type VendorSession = {
+  token: string;
+  user: VendorFixture["userRecord"];
+  vendor: VendorFixture["vendorRecord"];
+};
+
 const VENDOR_PAGES = [
   "/vendor/dashboard",
   "/vendor/products",
@@ -73,7 +79,7 @@ function withBaseUrl(path: string): string {
   return `${baseUrl.replace(/\/$/, "")}${path}`;
 }
 
-async function primeVendorSession(page: Page, session: any) {
+async function primeVendorSession(page: Page, session: VendorSession) {
   await page.addInitScript((storedSession) => {
     window.localStorage.setItem("auth_token", storedSession.token);
     window.localStorage.setItem("user_data", JSON.stringify(storedSession.user));
@@ -85,7 +91,7 @@ async function primeVendorSession(page: Page, session: any) {
 
 test.describe("Vendor workspace coverage", () => {
   let vendorFixture: VendorFixture | null = null;
-  let vendorSession: any = null;
+  let vendorSession: VendorSession | null = null;
 
   test.beforeAll(async () => {
     vendorFixture = await createVendorFixture({ tier: "pro", productCount: 2 });
