@@ -1,6 +1,7 @@
 import "./env";
 import { randomUUID } from "node:crypto";
 import { TIER_LIMITS, type VendorTier } from "@/lib/constants";
+import type { User, Vendor } from "@/lib/types";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 
 interface CreateVendorOptions {
@@ -16,6 +17,8 @@ export interface VendorFixture {
   email: string;
   password: string;
   token: string;
+  userRecord: User;
+  vendorRecord: Vendor;
 }
 
 const TEST_STRIPE_ACCOUNT_ID =
@@ -125,6 +128,24 @@ export async function createVendorFixture(
       .eq("id", vendorId);
   }
 
+  const { data: vendorRecord, error: fetchVendorError } = await admin
+    .from("vendors")
+    .select("*")
+    .eq("id", vendorId)
+    .single();
+  if (fetchVendorError || !vendorRecord) {
+    throw fetchVendorError || new Error("Unable to fetch vendor record");
+  }
+
+  const { data: userRecord, error: fetchUserError } = await admin
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+  if (fetchUserError || !userRecord) {
+    throw fetchUserError || new Error("Unable to fetch user record");
+  }
+
   return {
     userId,
     vendorId,
@@ -132,6 +153,8 @@ export async function createVendorFixture(
     email,
     password,
     token,
+    userRecord: userRecord as User,
+    vendorRecord: vendorRecord as Vendor,
   };
 }
 

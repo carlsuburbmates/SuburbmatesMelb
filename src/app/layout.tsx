@@ -113,7 +113,7 @@ export default function RootLayout({
           </a>
 
           <Header />
-          <main id="main-content">{children}</main>
+          <main id="main-content" className="pt-16 md:pt-24">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

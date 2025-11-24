@@ -10,6 +10,7 @@ if (!stripeSecret) {
 if (!webhookSecret) {
   throw new Error("STRIPE_WEBHOOK_SECRET is required for webhook tests");
 }
+const resolvedWebhookSecret = webhookSecret as string;
 
 const stripe = new Stripe(stripeSecret, {
   apiVersion: "2025-10-29.clover",
@@ -19,7 +20,7 @@ export function signStripeEvent(payload: Record<string, unknown>) {
   const body = JSON.stringify(payload);
   const header = stripe.webhooks.generateTestHeaderString({
     payload: body,
-    secret: webhookSecret,
+    secret: resolvedWebhookSecret,
   });
   return { body, header };
 }

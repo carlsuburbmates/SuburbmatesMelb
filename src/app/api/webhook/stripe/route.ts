@@ -17,7 +17,7 @@ import {
 } from "@/lib/email";
 import { BusinessEvent, logEvent, logger } from "@/lib/logger";
 import { constructWebhookEvent } from "@/lib/stripe";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import { enforceTierProductCap } from "@/lib/vendor-downgrade";
 import {
   computeFeaturedQueuePosition,
@@ -349,8 +349,8 @@ export async function POST(req: NextRequest) {
           break;
         }
         const outcomeType =
-          (dispute.outcome as { type?: string } | undefined)?.type ||
-          dispute.status;
+          ((dispute as { outcome?: { type?: string } }).outcome?.type ??
+            dispute.status);
         const vendorWon = outcomeType === "won";
         if (!vendorWon) {
           logger.info("Dispute closed without vendor win", {

@@ -1,67 +1,52 @@
 import { expect, test } from "@playwright/test";
+import { TIER_LIMITS } from "../../src/lib/constants";
+import {
+  cleanupVendorFixture,
+  createVendorFixture,
+  type VendorFixture,
+} from "../utils/vendor-fixture";
+import { getSupabaseAdminClient } from "../utils/supabase";
 
 /**
  * E2E Tests: Product CRUD Tier Cap Enforcement
  *
  * Tier caps must be enforced at DB and API levels.
- * Basic=10 (20 if ABN verified), Pro=50
+ * Basic tier quota follows `TIER_LIMITS.basic.product_quota` (3 by default, 10 with ABN override), Pro=50.
  *
  * Critical flows:
- * 1. Basic vendor can create 3 products
- * 2. Basic vendor blocked at 4th product with 403 + upgrade CTA
+ * 1. Basic vendor can create up to the tier quota
+ * 2. Basic vendor blocked when exceeding quota with 403 + upgrade CTA
  * 3. Unpublishing product allows publishing another
  */
 
-const BASIC_CAP = 10;
+const BASIC_CAP = TIER_LIMITS.basic.product_quota;
 const testRunId = Date.now();
 
 test.describe.configure({ mode: "serial" });
 
 test.describe("Product CRUD - Tier Cap Enforcement", () => {
   let vendorToken: string;
+  let vendorFixture: VendorFixture | null = null;
   const productIds: string[] = [];
 
-  test.beforeAll(async ({ request }) => {
-    // Create test user and vendor account
-    const email = `cap-test-${Date.now()}@gmail.com`;
-    const password = "Test123!@#";
+  test.beforeAll(async () => {
+    vendorFixture = await createVendorFixture({ tier: "basic" });
+    vendorToken = vendorFixture.token;
 
-    // Signup
-    const signupRes = await request.post("/api/auth/signup", {
-      data: { email, password, name: "Cap Test Vendor" },
-    });
-    expect(signupRes.ok()).toBeTruthy();
-
-    // Login
-    const loginRes = await request.post("/api/auth/login", {
-      data: { email, password },
-    });
-    expect(loginRes.ok()).toBeTruthy();
-    const loginData = await loginRes.json();
-    vendorToken = loginData.data.session.access_token;
-
-    // Create vendor account (defaults to Basic tier)
-    const vendorRes = await request.post("/api/auth/create-vendor", {
-      headers: { Authorization: `Bearer ${vendorToken}` },
-      data: {
-        business_name: "Cap Test Business",
-        abn: "12345678901",
-        contact_email: email,
-      },
-    });
-    expect(vendorRes.ok()).toBeTruthy();
+    const admin = getSupabaseAdminClient();
+    await admin
+      .from("vendors")
+      .update({ product_quota: BASIC_CAP })
+      .eq("id", vendorFixture.vendorId);
   });
 
-  test.afterAll(async ({ request }) => {
-    // Cleanup: delete created products
-    for (const productId of productIds) {
-      await request.delete(`/api/vendor/products/${productId}`, {
-        headers: { Authorization: `Bearer ${vendorToken}` },
-      });
+  test.afterAll(async () => {
+    if (vendorFixture) {
+      await cleanupVendorFixture(vendorFixture);
     }
   });
 
-  test("Basic vendor can create 10 published products", async ({ request }) => {
+  test("Basic vendor can create up to the tier quota", async ({ request }) => {
     for (let i = 1; i <= BASIC_CAP; i++) {
       const res = await request.post("/api/vendor/products", {
         headers: { Authorization: `Bearer ${vendorToken}` },
@@ -81,19 +66,19 @@ test.describe("Product CRUD - Tier Cap Enforcement", () => {
     }
   });
 
-  test("Basic vendor blocked at 11th product with 403 and upgrade CTA", async ({
+  test("Basic vendor blocked when exceeding quota with 403 and upgrade CTA", async ({
     request,
   }) => {
     const res = await request.post("/api/vendor/products", {
       headers: { Authorization: `Bearer ${vendorToken}` },
-        data: {
-          name: `Product ${testRunId}-extra`,
-          description: "Should be blocked",
-          price: 1400,
-          status: "published",
-          published: true,
-          category: "test",
-        },
+      data: {
+        name: `Product ${testRunId}-extra`,
+        description: "Should be blocked",
+        price: 1400,
+        status: "published",
+        published: true,
+        category: "test",
+      },
     });
 
     expect(res.status()).toBe(403);

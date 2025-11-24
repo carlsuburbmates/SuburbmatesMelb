@@ -139,7 +139,7 @@ function TierManagementCard({
                 {isDowngrade && !isCurrent && (
                   <button
                     type="button"
-                    className="text-xs text-gray-600 hover:text-gray-900"
+                    className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 min-h-[44px] min-w-[140px]"
                     disabled={previewLoading}
                     onClick={() => onPreview(tier.id)}
                   >
@@ -198,6 +198,7 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
   const [suburbInput, setSuburbInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const suburbFieldId = "featured-slot-suburb";
 
   const fetchData = useCallback(async () => {
     try {
@@ -349,10 +350,11 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <label className="block text-sm font-medium text-gray-700">
+        <label htmlFor={suburbFieldId} className="block text-sm font-medium text-gray-700">
           Request a featured placement
         </label>
         <input
+          id={suburbFieldId}
           type="text"
           value={suburbInput}
           onChange={(event) => setSuburbInput(event.target.value)}

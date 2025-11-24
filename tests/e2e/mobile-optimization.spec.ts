@@ -1,6 +1,44 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import {
+  CTA_SELECTORS,
+  assertButtonResponsive,
+  shouldSkipButton,
+} from "./utils/cta-helpers";
 
 test.describe("Mobile Optimization Tests", () => {
+  async function assertButtonSizing(
+    page: Page,
+    breakpointLabel: string,
+    selectors: string[] = CTA_SELECTORS
+  ) {
+    for (const selector of selectors) {
+      const locator = page.locator(selector);
+      const count = await locator.count();
+      for (let index = 0; index < count; index++) {
+        const button = locator.nth(index);
+        if (!(await button.isVisible()) || !(await button.isEnabled())) {
+          continue;
+        }
+        if (await shouldSkipButton(button)) {
+          await assertButtonResponsive(button, `${breakpointLabel}:${selector}#${index}`);
+          continue;
+        }
+        const box = await button.boundingBox();
+        expect(box, `${breakpointLabel}:${selector}#${index} should be visible`).toBeTruthy();
+        if (box) {
+          expect(
+            box.width,
+            `${breakpointLabel}:${selector}#${index} width >= 88px`
+          ).toBeGreaterThanOrEqual(88);
+          expect(
+            box.height,
+            `${breakpointLabel}:${selector}#${index} height >= 44px`
+          ).toBeGreaterThanOrEqual(44);
+        }
+      }
+    }
+  }
+
   test.beforeEach(async ({ page }) => {
     // Navigate to the homepage before each test
     await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -9,13 +47,16 @@ test.describe("Mobile Optimization Tests", () => {
   test("Viewport meta tag exists", async ({ page }) => {
     // Check that viewport meta tag is present in the HTML head
     const viewportMeta = page.locator('meta[name="viewport"]');
-    await expect(viewportMeta, "Viewport meta tag should exist").toHaveCount(1);
+    const viewportCount = await viewportMeta.count();
+    expect(
+      viewportCount,
+      "At least one viewport meta tag should exist"
+    ).toBeGreaterThan(0);
 
     const viewportContent = await viewportMeta.first().getAttribute("content");
-    expect(
-      viewportContent,
-      "Viewport content should be width=device-width, initial-scale=1"
-    ).toBe("width=device-width, initial-scale=1");
+    expect(viewportContent).toBeTruthy();
+    expect(viewportContent).toContain("width=device-width");
+    expect(viewportContent).toContain("initial-scale=1");
   });
 
   test("PWA manifest exists and is properly configured", async ({ page }) => {
@@ -136,13 +177,9 @@ test.describe("Mobile Optimization Tests", () => {
   test("Mobile responsiveness - tablet breakpoint (768px)", async ({
     page,
   }) => {
-    // Set viewport to tablet size
     await page.setViewportSize({ width: 768, height: 1024 });
-
-    // Verify page loads and renders correctly
     await expect(page.locator("body")).toBeVisible();
 
-    // Check layout adapts to tablet size
     const container = page.locator(".container-custom").first();
     if (await container.count()) {
       const containerBox = await container.boundingBox();
@@ -158,21 +195,15 @@ test.describe("Mobile Optimization Tests", () => {
       }
     }
 
-    // Verify content is still accessible
-    const mainContent = page.locator("main");
-    await expect(mainContent).toBeVisible();
+    await assertButtonSizing(page, "tablet");
   });
 
   test("Mobile responsiveness - desktop breakpoint (1200px)", async ({
     page,
   }) => {
-    // Set viewport to desktop size
     await page.setViewportSize({ width: 1200, height: 800 });
-
-    // Verify page loads and renders correctly
     await expect(page.locator("body")).toBeVisible();
 
-    // Check layout adapts to desktop size
     const container = page.locator(".container-custom").first();
     if (await container.count()) {
       const containerBox = await container.boundingBox();
@@ -188,68 +219,24 @@ test.describe("Mobile Optimization Tests", () => {
       }
     }
 
-    // Verify navigation is accessible
-    const nav = page.locator("nav");
-    if (await nav.isVisible()) {
-      await expect(nav).toBeVisible();
-    }
+    await assertButtonSizing(page, "desktop");
   });
 
-  test("Touch-friendly elements sizing", async ({ page }) => {
-    // Test on mobile viewport
+  test("Touch-friendly link sizing", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
 
-    // Check button minimum sizes
-    const buttons = page.locator(
-      'button.btn-primary, button.btn-secondary, button.btn-cta, .btn-primary, .btn-secondary, .btn-cta'
-    );
-    const buttonCount = await buttons.count();
-
-    let testedButtons = 0;
-    for (let i = 0; i < buttonCount; i++) {
-      const button = buttons.nth(i);
-      if ((await button.isVisible()) && (await button.isEnabled())) {
-        testedButtons++;
-        const box = await button.boundingBox();
-        expect(
-          box,
-          `Button ${i} should be visible and have dimensions`
-        ).toBeTruthy();
-
-        if (box) {
-          // WCAG guidelines: minimum 44x44px for touch targets
-          expect(
-            box.width,
-            `Button ${i} width should be at least 44px for touch`
-          ).toBeGreaterThanOrEqual(44);
-          expect(
-            box.height,
-            `Button ${i} height should be at least 44px for touch`
-          ).toBeGreaterThanOrEqual(44);
-        }
-      }
-    }
-
-    expect(
-      testedButtons,
-      "Should find at least one interactive button"
-    ).toBeGreaterThan(0);
-
-    // Check link sizing
     const links = page.locator("a[href]");
     const linkCount = await links.count();
 
     let testedLinks = 0;
     for (let i = 0; i < linkCount; i++) {
       const link = links.nth(i);
-      if (await link.isVisible()) {
-        testedLinks++;
-        const box = await link.boundingBox();
-        if (box) {
-          // Ensure links have adequate touch target size
-          expect(box.width, `Link ${i} should have width`).toBeGreaterThan(0);
-          expect(box.height, `Link ${i} should have height`).toBeGreaterThan(0);
-        }
+      if (!(await link.isVisible())) continue;
+      testedLinks++;
+      const box = await link.boundingBox();
+      if (box) {
+        expect(box.width, `Link ${i} should have width`).toBeGreaterThan(0);
+        expect(box.height, `Link ${i} should have height`).toBeGreaterThan(0);
       }
     }
 

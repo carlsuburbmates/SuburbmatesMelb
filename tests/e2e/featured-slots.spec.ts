@@ -1,25 +1,38 @@
 import { expect, test } from "@playwright/test";
+import {
+  cleanupVendorFixture,
+  createVendorFixture,
+  type VendorFixture,
+} from "../utils/vendor-fixture";
 
 test.describe.configure({ mode: "serial" });
 
 test.describe("Featured Placement Purchase Flow", () => {
   let vendorToken: string;
+  let vendorFixture: VendorFixture | null = null;
 
   test.beforeAll(async ({ request }) => {
     const seededEmail = process.env.PLAYWRIGHT_VENDOR_EMAIL;
     const seededPassword = process.env.PLAYWRIGHT_VENDOR_PASSWORD;
-    if (!seededEmail || !seededPassword) {
-      throw new Error(
-        "Set PLAYWRIGHT_VENDOR_EMAIL/PLAYWRIGHT_VENDOR_PASSWORD to reuse an onboarding-complete vendor"
-      );
+
+    if (seededEmail && seededPassword) {
+      const loginRes = await request.post("/api/auth/login", {
+        data: { email: seededEmail, password: seededPassword },
+      });
+      expect(loginRes.ok()).toBeTruthy();
+      const loginData = await loginRes.json();
+      vendorToken = loginData.data.session.access_token;
+      return;
     }
 
-    const loginRes = await request.post("/api/auth/login", {
-      data: { email: seededEmail, password: seededPassword },
-    });
-    expect(loginRes.ok()).toBeTruthy();
-    const loginData = await loginRes.json();
-    vendorToken = loginData.data.session.access_token;
+    vendorFixture = await createVendorFixture({ tier: "pro" });
+    vendorToken = vendorFixture.token;
+  });
+
+  test.afterAll(async () => {
+    if (vendorFixture) {
+      await cleanupVendorFixture(vendorFixture);
+    }
   });
 
 test("returns Stripe Checkout session when capacity is available", async ({

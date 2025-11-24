@@ -2,7 +2,7 @@ import {
   handleStripeEvent,
   processIncomingEvent,
   redactEventSummary,
-} from "@/app/api/webhooks/stripe/route";
+} from "@/app/api/webhooks/stripe/handler";
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";

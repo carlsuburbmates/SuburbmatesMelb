@@ -1,5 +1,6 @@
 import { requireAuth } from "@/app/api/_utils/auth";
 import { FEATURED_SLOT } from "@/lib/constants";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import type { Database } from "@/lib/database.types";
 import {
   computeFeaturedQueuePosition,
@@ -39,11 +40,11 @@ async function fetchVendorAndProfile(
     .maybeSingle();
 
   if (vendorError || !vendor) {
-    throw new Error("Vendor account required");
+    throw new ForbiddenError("Vendor account required");
   }
 
   if (vendor.vendor_status !== "active") {
-    throw new Error("Vendor account is not active");
+    throw new ForbiddenError("Vendor account is not active");
   }
 
   const { data: profile, error: profileError } = await dbClient
@@ -53,7 +54,7 @@ async function fetchVendorAndProfile(
     .maybeSingle();
 
   if (profileError || !profile) {
-    throw new Error(
+    throw new ForbiddenError(
       "Business profile required before purchasing featured placement"
     );
   }
@@ -151,6 +152,32 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: error.message,
+          },
+        },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: error.message,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     logger.error("featured_slots_list_error", { error });
     return NextResponse.json(
       {
@@ -397,7 +424,7 @@ export async function POST(req: NextRequest) {
         session = {
           id: created.id,
           url: created.url,
-          metadata: created.metadata,
+          metadata: created.metadata ?? undefined,
         };
       }
 
@@ -457,6 +484,32 @@ export async function POST(req: NextRequest) {
       { status: 202 }
     );
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: error.message,
+          },
+        },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: error.message,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     logger.error("featured_slot_purchase_error", { error });
     return NextResponse.json(
       {

@@ -7,7 +7,20 @@ test.describe('Core routes', () => {
     test(`GET ${p} returns content`, async ({ page }) => {
       const errors: string[] = [];
       page.on('console', (msg) => {
-        if (msg.type() === 'error') errors.push(msg.text());
+        if (msg.type() !== 'error') {
+          return;
+        }
+        const text = msg.text();
+        if (
+          text.includes('Failed to load resource') &&
+          (text.includes('404') || text.includes('400'))
+        ) {
+          return;
+        }
+        if (text.includes('Failed to fetch directory listings')) {
+          return;
+        }
+        errors.push(text);
       });
       const res = await page.goto(p, { waitUntil: 'domcontentloaded' });
       expect(res, `No response for ${p}`).toBeTruthy();

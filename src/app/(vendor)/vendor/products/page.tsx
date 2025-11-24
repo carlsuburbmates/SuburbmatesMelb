@@ -172,7 +172,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-sm text-gray-500 hover:text-gray-900"
+                className="inline-flex h-11 min-w-[110px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
               >
                 Reset
               </button>
@@ -181,11 +181,12 @@ const handleTogglePublish = async (product: VendorProduct) => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-title" className="block text-sm font-medium text-gray-700 mb-1">
                 Title
               </label>
               <input
                 required
+                id="product-title"
                 name="title"
                 value={formState.title}
                 onChange={handleInputChange}
@@ -195,11 +196,12 @@ const handleTogglePublish = async (product: VendorProduct) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-description" className="block text-sm font-medium text-gray-700 mb-1">
                 Description
               </label>
               <textarea
                 required
+                id="product-description"
                 name="description"
                 value={formState.description}
                 onChange={handleInputChange}
@@ -211,11 +213,12 @@ const handleTogglePublish = async (product: VendorProduct) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="product-price" className="block text-sm font-medium text-gray-700 mb-1">
                   Price (AUD)
                 </label>
                 <input
                   required
+                  id="product-price"
                   name="price"
                   type="number"
                   min="0.01"
@@ -226,10 +229,11 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="product-category" className="block text-sm font-medium text-gray-700 mb-1">
                   Category
                 </label>
                 <input
+                  id="product-category"
                   name="category"
                   value={formState.category}
                   onChange={handleInputChange}
@@ -240,10 +244,11 @@ const handleTogglePublish = async (product: VendorProduct) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-images" className="block text-sm font-medium text-gray-700 mb-1">
                 Image URLs (max 3, one per line)
               </label>
               <textarea
+                id="product-images"
                 name="images"
                 value={formState.images}
                 onChange={handleInputChange}
@@ -351,7 +356,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
           <button
             onClick={refresh}
             type="button"
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="inline-flex h-11 min-w-[140px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
           >
             Refresh product list
           </button>
@@ -428,7 +433,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
                           onClick={() =>
                             handleEditProduct(product as VendorProduct)
                           }
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-gray-700 hover:border-gray-900"
+                          className="inline-flex min-h-[44px] min-w-[110px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-700 hover:border-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
                         >
                           <Edit className="w-3.5 h-3.5 mr-1" />
                           Edit
@@ -436,14 +441,14 @@ const handleTogglePublish = async (product: VendorProduct) => {
                         <button
                           type="button"
                           onClick={() => handleTogglePublish(product)}
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
+                          className="inline-flex min-h-[44px] min-w-[120px] items-center justify-center rounded-full border border-gray-900 px-4 text-sm font-semibold text-gray-900 hover:bg-gray-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
                         >
                           {product.published ? "Unpublish" : "Publish"}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(product.id)}
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border border-red-200 text-red-600 hover:border-red-400"
+                          className="inline-flex min-h-[44px] min-w-[110px] items-center justify-center rounded-full border border-red-200 px-4 text-sm font-semibold text-red-600 hover:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
                         >
                           <Trash2 className="w-3.5 h-3.5 mr-1" />
                           Delete

@@ -112,10 +112,13 @@ async function ensureVendorUser(): Promise<VendorContext> {
     throw new Error("Unable to obtain Supabase session for QA vendor");
   }
 
+  const authUser = user as User;
+  const authSession = session as Session;
+
   await adminClient.from("users").upsert(
     {
-      id: user.id,
-      email: user.email ?? email,
+      id: authUser.id,
+      email: authUser.email ?? email,
       user_type: "vendor",
     },
     { onConflict: "id" }
@@ -130,12 +133,12 @@ async function ensureVendorUser(): Promise<VendorContext> {
     throw new Error("Missing Melbourne LGA record");
   }
 
-  const slug = `qa-featured-${user.id.slice(0, 8)}`;
+  const slug = `qa-featured-${authUser.id.slice(0, 8)}`;
   const profileRes = await adminClient
     .from("business_profiles")
     .upsert(
       {
-        user_id: user.id,
+        user_id: authUser.id,
         business_name: "QA Featured Vendor",
         slug,
         vendor_status: "active",
@@ -155,7 +158,7 @@ async function ensureVendorUser(): Promise<VendorContext> {
   const existingVendor = await adminClient
     .from("vendors")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", authUser.id)
     .maybeSingle();
 
   if (existingVendor.error) {
@@ -164,7 +167,7 @@ async function ensureVendorUser(): Promise<VendorContext> {
 
   let vendorId = existingVendor.data?.id ?? null;
   const vendorPayload = {
-    user_id: user.id,
+    user_id: authUser.id,
     business_name: "QA Featured Vendor",
     vendor_status: "active",
     can_sell_products: true,
@@ -203,8 +206,8 @@ async function ensureVendorUser(): Promise<VendorContext> {
   }
 
   return {
-    user,
-    session,
+    user: authUser,
+    session: authSession,
     vendorId,
     businessProfileId: profileRes.data.id,
     lgaId: melbourne.id,
