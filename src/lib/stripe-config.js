@@ -8,6 +8,8 @@
  */
 
 import { stripe } from './stripe.ts';
+import { supabaseAdmin } from './supabase.ts';
+import { sendRefundConfirmationEmail } from './email.ts';
 
 // Required environment variables
 const REQUIRED_ENV_VARS = {
@@ -351,31 +353,102 @@ async function getVendorStripeAccount() {
  * Placeholder handlers for webhook events
  * These should be implemented based on your business logic
  */
-async function handleCheckoutSessionCompleted(session) {
+export async function handleCheckoutSessionCompleted(session) {
   console.log('Checkout session completed:', session.id);
   // TODO: Update order status, notify vendor, etc.
 }
 
-async function handlePaymentIntentSucceeded(paymentIntent) {
+export async function handlePaymentIntentSucceeded(paymentIntent) {
   console.log('Payment intent succeeded:', paymentIntent.id);
   // TODO: Update order status, send confirmation emails, etc.
 }
 
-async function handleChargeRefunded(charge) {
+export async function handleChargeRefunded(charge) {
   console.log('Charge refunded:', charge.id);
-  // TODO: Update order status, notify parties, etc.
-  // REMEMBER: Platform does NOT issue refunds - vendors handle this
+
+  if (!supabaseAdmin) {
+    console.error('Supabase admin client not available');
+    return;
+  }
+
+  try {
+    // 1. Find the order
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .or(`stripe_charge_id.eq.${charge.id},stripe_payment_intent_id.eq.${charge.payment_intent}`)
+      .single();
+
+    if (orderError || !order) {
+      console.error('Order not found for refunded charge:', charge.id);
+      return;
+    }
+
+    // Determine status based on partial or full refund
+    let newStatus = 'refunded';
+    if (charge.amount_refunded < order.amount_cents) {
+        newStatus = 'partially_refunded';
+    }
+
+    // 2. Update order status
+    const { error: updateError } = await supabaseAdmin
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', order.id);
+
+    if (updateError) {
+      console.error('Failed to update order status:', updateError);
+      return;
+    }
+
+    console.log(`Order ${order.id} status updated to ${newStatus}`);
+
+    // 3. Notify customer
+    // Fetch customer details
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from('users')
+      .select('email')
+      .eq('id', order.customer_id)
+      .single();
+
+    if (customerError || !customer) {
+      console.error('Customer not found for order:', order.id);
+      return;
+    }
+
+    // Fetch product details
+    const { data: product, error: productError } = await supabaseAdmin
+      .from('products')
+      .select('title')
+      .eq('id', order.product_id)
+      .single();
+
+    if (productError || !product) {
+      console.error('Product not found for order:', order.id);
+      return;
+    }
+
+    // Send email
+    await sendRefundConfirmationEmail(customer.email, {
+      orderId: order.id,
+      productTitle: product.title,
+      amount: charge.amount_refunded // Amount in cents
+    });
+
+    console.log(`Refund confirmation email sent to ${customer.email}`);
+
+  } catch (err) {
+    console.error('Error handling charge refund:', err);
+  }
 }
 
-async function handleDisputeCreated(dispute) {
+export async function handleDisputeCreated(dispute) {
   console.log('Dispute created:', dispute.id);
   // TODO: Log dispute, notify vendor, update risk metrics
   // REMEMBER: Platform does NOT handle disputes - vendors handle this
 }
 
-async function handleSubscriptionEvent(eventType, subscription) {
+export async function handleSubscriptionEvent(eventType, subscription) {
   console.log(`${eventType}:`, subscription.id);
   // TODO: Update vendor tier based on subscription status
 }
-
-// Export all functions for use in other modules
