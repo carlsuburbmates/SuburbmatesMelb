@@ -410,6 +410,17 @@ export const fileUploadSchema = z.object({
 });
 
 // ============================================================================
+// CONTACT FORM VALIDATION
+// ============================================================================
+
+export const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  subject: z.string().min(1, "Subject is required"),
+  message: z.string().min(1, "Message is required"),
+});
+
+// ============================================================================
 // STRIPE WEBHOOK VALIDATION
 // ============================================================================
 
@@ -461,3 +472,4 @@ export type BusinessProfileSearch = z.infer<typeof businessProfileSearchSchema>;
 export type ABNValidation = z.infer<typeof abnValidationSchema>;
 export type FileUpload = z.infer<typeof fileUploadSchema>;
 export type DirectorySearchPayload = z.infer<typeof directorySearchSchema>;
+export type ContactForm = z.infer<typeof contactFormSchema>;
