@@ -8,17 +8,36 @@
  */
 
 import { stripe } from './stripe.ts';
+import { supabaseAdmin, supabase } from './supabase';
 
-// Required environment variables
-const REQUIRED_ENV_VARS = {
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  STRIPE_CLIENT_ID: process.env.STRIPE_CLIENT_ID,
-  STRIPE_PRODUCT_VENDOR_PRO: process.env.STRIPE_PRODUCT_VENDOR_PRO,
-  STRIPE_PRICE_VENDOR_PRO_MONTH: process.env.STRIPE_PRICE_VENDOR_PRO_MONTH,
-  STRIPE_PRODUCT_FEATURED_30D: process.env.STRIPE_PRODUCT_FEATURED_30D,
-  STRIPE_PRICE_FEATURED_30D: process.env.STRIPE_PRICE_FEATURED_30D,
-};
+const ENV_VAR_KEYS = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_CLIENT_ID',
+  'STRIPE_PRODUCT_VENDOR_PRO',
+  'STRIPE_PRICE_VENDOR_PRO_MONTH',
+  'STRIPE_PRODUCT_FEATURED_30D',
+  'STRIPE_PRICE_FEATURED_30D',
+];
+
+const REQUIRED_ENV_VARS = new Proxy({}, {
+  get: function(target, prop) {
+    return process.env[prop];
+  },
+  ownKeys: function(target) {
+    return ENV_VAR_KEYS;
+  },
+  getOwnPropertyDescriptor: function(target, prop) {
+    if (ENV_VAR_KEYS.includes(prop)) {
+      return {
+        enumerable: true,
+        configurable: true,
+        value: process.env[prop],
+        writable: true
+      };
+    }
+  }
+});
 
 // Placeholder values that indicate incomplete setup
 const PLACEHOLDER_VALUES = [
@@ -341,10 +360,26 @@ export async function handleStripeWebhook(request) {
  * Helper function to get vendor's Stripe account from database
  * This should be implemented based on your database schema
  */
-async function getVendorStripeAccount() {
-  // TODO: Implement database query to get vendor's stripe_account_id
-  // This is a placeholder that should be replaced with actual database logic
-  throw new Error('Database integration not implemented');
+async function getVendorStripeAccount(vendorId) {
+  const client = supabaseAdmin || supabase;
+
+  try {
+    const { data, error } = await client
+      .from('vendors')
+      .select('stripe_account_id')
+      .eq('id', vendorId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching vendor stripe account:', error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Unexpected error fetching vendor stripe account:', err);
+    return null;
+  }
 }
 
 /**
