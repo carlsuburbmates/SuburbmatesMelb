@@ -38,14 +38,33 @@ export function BusinessContact({ business }: BusinessContactProps) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // TODO: Implement contact form submission
-    // This would send an email to the business owner
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-    
-    alert('Message sent successfully! The business will get back to you soon.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
-    setShowContactForm(false);
-    setIsSubmitting(false);
+    try {
+      const response = await fetch('/api/business/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessId: business.id,
+          ...formData,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      alert('Message sent successfully! The business will get back to you soon.');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      setShowContactForm(false);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
