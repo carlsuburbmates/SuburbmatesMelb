@@ -356,6 +356,26 @@ export async function sendVendorSuspensionEmail(
 }
 
 /**
+ * Send contact form email to support
+ */
+export async function sendContactFormEmail(
+  data: { name: string; email: string; subject: string; message: string }
+): Promise<EmailResult> {
+  return sendEmail({
+    to: PLATFORM.SUPPORT_EMAIL,
+    replyTo: data.email,
+    subject: `[Contact Form] ${data.subject}`,
+    html: `
+      <h1>New Contact Message</h1>
+      <p><strong>From:</strong> ${data.name} (${data.email})</p>
+      <p><strong>Subject:</strong> ${data.subject}</p>
+      <h2>Message:</h2>
+      <p>${data.message.replace(/\n/g, '<br>')}</p>
+    `,
+  });
+}
+
+/**
  * Appeal decision notification
  */
 export async function sendAppealDecisionEmail(
