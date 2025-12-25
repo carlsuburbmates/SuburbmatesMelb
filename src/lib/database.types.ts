@@ -107,6 +107,7 @@ export type Database = {
           id: string
           is_public: boolean | null
           is_vendor: boolean | null
+          phone: string | null
           profile_description: string | null
           slug: string
           suburb_id: number | null
@@ -122,6 +123,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           is_vendor?: boolean | null
+          phone?: string | null
           profile_description?: string | null
           slug: string
           suburb_id?: number | null
@@ -137,6 +139,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           is_vendor?: boolean | null
+          phone?: string | null
           profile_description?: string | null
           slug?: string
           suburb_id?: number | null

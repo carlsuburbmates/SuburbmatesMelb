@@ -51,7 +51,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         user_id,
         is_vendor,
         vendor_tier,
-        vendor_status
+        vendor_status,
+        phone
       `)
       .eq('slug', slug)
       .eq('is_public', true)
@@ -186,7 +187,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       profileImageUrl: null, // TODO: Add profile images
       
       // Extended business details for detail page
-      phone: null, // TODO: Add to schema
+      phone: business.phone,
       email: userEmail,
       website: null, // TODO: Add to schema
       address: null, // TODO: Add to schema
