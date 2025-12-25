@@ -46,7 +46,7 @@ See SSOT §2 (FD-1 to FD-6). These override conflicts.
 | Tier      | Product Cap | Featured Access        | Price (AUD/mo) | Notes |
 | --------- | ----------- | ---------------------- | -------------- | ----- |
 | Directory | 0           | Paid add-on allowed    | Free           | Discovery-only |
-| Basic     | 10          | Paid add-on allowed    | Free           | ABN badge optional; quota override if policy needs 5 vs 10 |
+| Basic     | 5           | Paid add-on allowed    | Free           | ABN badge optional; quota override if policy needs 5 vs 10 |
 | Pro       | 50          | Paid add-on allowed    | $29            | Reduced commission (6%) |
 | Premium   | 50          | Bundled slots (future) | $99            | Reserved for post-MVP |
 

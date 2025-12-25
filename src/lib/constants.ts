@@ -26,7 +26,7 @@ export const TIER_LIMITS = {
     can_sell: false,
   },
   basic: {
-    product_quota: 3,
+    product_quota: 5,
     storage_quota_gb: 5,
     commission_rate: 0.08, // 8%
     monthly_fee: 0,

@@ -83,7 +83,7 @@ describe("vendor downgrade helpers", () => {
   });
 
   it("unpublishes the oldest products first when exceeding the cap", async () => {
-    mockState.products = makeProducts(5);
+    mockState.products = makeProducts(7);
     const result = await enforceTierProductCap("vendor-1", "basic");
     expect(result.unpublishedCount).toBe(2);
     expect(result.unpublishedProducts.map((p) => p.id)).toEqual([
@@ -102,7 +102,7 @@ describe("vendor downgrade helpers", () => {
   });
 
   it("preview lists the exact products that will be unpublished", async () => {
-    mockState.products = makeProducts(5);
+    mockState.products = makeProducts(7);
     const preview = await getDowngradePreview("vendor-1", "basic");
     expect(preview.willUnpublish).toBe(2);
     expect(preview.affectedProducts.map((p) => p.id)).toEqual([
