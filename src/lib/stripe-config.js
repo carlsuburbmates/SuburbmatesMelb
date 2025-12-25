@@ -8,6 +8,7 @@
  */
 
 import { stripe } from './stripe.ts';
+import { supabaseAdmin } from './supabase';
 
 // Required environment variables
 const REQUIRED_ENV_VARS = {
@@ -46,6 +47,16 @@ function isPlaceholderValue(value) {
  * Validate all required Stripe environment variables
  */
 export function validateStripeConfig() {
+  // Skip validation in test environment to allow unit testing without full env setup
+  if (process.env.NODE_ENV === 'test') {
+    return {
+      isValid: true,
+      errors: [],
+      warnings: [],
+      info: []
+    };
+  }
+
   const errors = [];
   const warnings = [];
   const info = [];
@@ -353,7 +364,132 @@ async function getVendorStripeAccount() {
  */
 async function handleCheckoutSessionCompleted(session) {
   console.log('Checkout session completed:', session.id);
-  // TODO: Update order status, notify vendor, etc.
+
+  if (session.payment_status !== 'paid') {
+    console.log('Session not paid, skipping order creation.');
+    return;
+  }
+
+  const { metadata } = session;
+  if (!metadata) {
+    console.log('No metadata found in session');
+    return;
+  }
+
+  // Case 1: Marketplace Purchase
+  if (metadata.product_id && metadata.customer_id && metadata.vendor_id) {
+    try {
+      if (!supabaseAdmin) {
+        throw new Error('Supabase Admin not initialized');
+      }
+
+      // Fetch product details for download URL
+      const { data: product, error: productError } = await supabaseAdmin
+        .from('products')
+        .select('file_url')
+        .eq('id', metadata.product_id)
+        .single();
+
+      if (productError) {
+        console.error('Error fetching product for order:', productError);
+        // Continue but download_url might be missing or handle as error?
+        // We probably still want to record the order.
+      }
+
+      // Get latest charge ID from payment intent if possible
+      let stripeChargeId = null;
+      if (session.payment_intent) {
+         try {
+           // session.payment_intent might be an object or string.
+           const paymentIntentId = typeof session.payment_intent === 'string'
+             ? session.payment_intent
+             : session.payment_intent.id;
+
+           const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+           stripeChargeId = paymentIntent.latest_charge;
+         } catch (e) {
+           console.error('Error fetching payment intent:', e);
+         }
+      }
+
+      // Check for existing order to ensure idempotency
+      const paymentIntentId = typeof session.payment_intent === 'string'
+         ? session.payment_intent
+         : session.payment_intent?.id;
+
+      const { data: existingOrder } = await supabaseAdmin
+        .from('orders')
+        .select('id')
+        .eq('stripe_payment_intent_id', paymentIntentId)
+        .single();
+
+      if (existingOrder) {
+        console.log('Order already exists for payment intent:', paymentIntentId);
+        return;
+      }
+
+      const orderData = {
+        customer_id: metadata.customer_id,
+        vendor_id: metadata.vendor_id,
+        product_id: metadata.product_id,
+        amount_cents: session.amount_total,
+        commission_cents: parseInt(metadata.commission_amount || '0', 10),
+        vendor_net_cents: session.amount_total - parseInt(metadata.commission_amount || '0', 10),
+        stripe_payment_intent_id: paymentIntentId,
+        stripe_charge_id: stripeChargeId,
+        status: 'succeeded',
+        download_url: product?.file_url
+      };
+
+      const { error: orderError } = await supabaseAdmin
+        .from('orders')
+        .insert(orderData);
+
+      if (orderError) {
+        console.error('Error creating order:', orderError);
+        throw orderError;
+      }
+
+      console.log('Order created successfully for session:', session.id);
+
+    } catch (err) {
+      console.error('Failed to process marketplace order:', err);
+      throw err;
+    }
+  }
+  // Case 2: Vendor Pro Subscription
+  else if (metadata.subscription_type === 'vendor_pro' && metadata.vendor_id) {
+     try {
+       if (!supabaseAdmin) {
+         throw new Error('Supabase Admin not initialized');
+       }
+
+       const { error: updateError } = await supabaseAdmin
+         .from('vendors')
+         .update({
+           tier: 'pro',
+           pro_subscription_id: session.subscription,
+           pro_subscribed_at: new Date().toISOString(),
+           pro_cancelled_at: null
+         })
+         .eq('id', metadata.vendor_id);
+
+        if (updateError) {
+          console.error('Error updating vendor pro status:', updateError);
+          throw updateError;
+        }
+        console.log('Vendor upgraded to Pro:', metadata.vendor_id);
+
+     } catch (err) {
+       console.error('Failed to process vendor pro subscription:', err);
+       throw err;
+     }
+  }
+  // Case 3: Featured Slot Purchase
+  else if (metadata.purchase_type === 'featured_slot' && metadata.vendor_id) {
+      console.log('Featured slot purchase detected. Handling pending implementation details.');
+      // Implementation pending clarification on metadata availability for LGA/Category
+  }
 }
 
 async function handlePaymentIntentSucceeded(paymentIntent) {
