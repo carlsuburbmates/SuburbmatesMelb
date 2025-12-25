@@ -386,6 +386,37 @@ export async function sendAppealDecisionEmail(
   });
 }
 
+/**
+ * Dispute notification for vendor
+ */
+export async function sendDisputeNotificationEmail(
+  email: string,
+  businessName: string,
+  disputeDetails: {
+    amount: number;
+    reason: string;
+    orderId: string;
+  }
+): Promise<EmailResult> {
+  return sendEmail({
+    to: email,
+    subject: `⚠️ Action Required: Dispute Received`,
+    html: `
+      <h1>Dispute Received</h1>
+      <p>Hi ${businessName},</p>
+      <p>We have received a dispute for one of your transactions.</p>
+      <h2>Dispute Details</h2>
+      <p><strong>Order ID:</strong> ${disputeDetails.orderId}</p>
+      <p><strong>Amount:</strong> A$${(disputeDetails.amount / 100).toFixed(2)}</p>
+      <p><strong>Reason:</strong> ${disputeDetails.reason}</p>
+      <p><strong>⚠️ Important:</strong> As the Merchant of Record, you are responsible for handling this dispute.</p>
+      <p>Please log in to your <a href="https://dashboard.stripe.com/disputes" target="_blank">Stripe Dashboard</a> immediately to review and respond to this dispute. Failure to respond may result in lost revenue and increased dispute fees.</p>
+      <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
+      <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+  });
+}
+
 // ============================================================================
 // BATCH EMAIL
 // ============================================================================
