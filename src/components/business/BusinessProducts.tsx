@@ -20,72 +20,45 @@ interface Product {
 
 interface BusinessProductsProps {
   businessId: string;
+  vendorId?: string;
 }
 
-export function BusinessProducts({ businessId }: BusinessProductsProps) {
+export function BusinessProducts({ businessId, vendorId }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call to /api/products?vendor_id=${businessId}
     const fetchProducts = async () => {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+      // If no vendorId is provided, we can't fetch products from the vendor-based API
+      // However, we might fallback to using businessId if the API supports it, or just return empty
+      // But based on our implementation, we need vendorId.
+      const idToUse = vendorId;
       
-      // Mock products data
-      const mockProducts: Product[] = [
-        {
-          id: '1',
-          title: 'VCE Mathematics Study Guide',
-          description: 'Comprehensive study guide covering all VCE Mathematics topics with practice questions and solutions.',
-          price: 2500, // $25.00 in cents
-          imageUrl: '/api/placeholder/300/200',
-          category: 'Study Guides',
-          downloadCount: 342,
-          rating: 4.8,
-          slug: 'vce-mathematics-study-guide',
-          isFeatured: true
-        },
-        {
-          id: '2',
-          title: 'English Literature Essay Templates',
-          description: 'Professional essay templates and structure guides for VCE English Literature students.',
-          price: 1500, // $15.00 in cents
-          category: 'Templates',
-          downloadCount: 156,
-          rating: 4.6,
-          slug: 'english-literature-essay-templates',
-          isFeatured: false
-        },
-        {
-          id: '3',
-          title: 'University Entrance Exam Prep',
-          description: 'Complete preparation package for university entrance exams including practice tests.',
-          price: 4900, // $49.00 in cents
-          category: 'Exam Prep',
-          downloadCount: 89,
-          rating: 4.9,
-          slug: 'university-entrance-exam-prep',
-          isFeatured: false
-        },
-        {
-          id: '4',
-          title: 'Science Study Notes Bundle',
-          description: 'Detailed study notes for Biology, Chemistry, and Physics with diagrams and explanations.',
-          price: 3500, // $35.00 in cents
-          category: 'Study Notes',
-          downloadCount: 203,
-          rating: 4.7,
-          slug: 'science-study-notes-bundle',
-          isFeatured: false
-        }
-      ];
+      if (!idToUse) {
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
 
-      setProducts(mockProducts);
-      setLoading(false);
+      try {
+        const response = await fetch(`/api/products?vendor_id=${idToUse}`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+
+        const data = await response.json();
+        setProducts(data.products || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProducts();
-  }, [businessId]);
+  }, [businessId, vendorId]);
 
   if (loading) {
     return <ProductsSkeleton />;
