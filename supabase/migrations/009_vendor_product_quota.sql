@@ -17,8 +17,8 @@ BEGIN
         quota := 50;
     ELSE
         quota := CASE
-            WHEN NEW.abn_verified IS TRUE THEN 20
-            ELSE 10
+            WHEN NEW.abn_verified IS TRUE THEN 10
+            ELSE 5
         END;
     END IF;
 
@@ -42,17 +42,17 @@ CREATE TRIGGER trigger_vendor_product_quota
 UPDATE vendors
 SET product_quota = CASE
     WHEN tier = 'pro' THEN 50
-    WHEN abn_verified IS TRUE THEN 20
-    ELSE 10
+    WHEN abn_verified IS TRUE THEN 10
+    ELSE 5
 END
 WHERE product_quota IS DISTINCT FROM (
     CASE
         WHEN tier = 'pro' THEN 50
-        WHEN abn_verified IS TRUE THEN 20
-        ELSE 10
+        WHEN abn_verified IS TRUE THEN 10
+        ELSE 5
     END
 );
 
-COMMENT ON FUNCTION set_vendor_product_quota() IS 'Assigns product_quota based on tier and ABN verification (Basic:10/20, Pro:50).';
+COMMENT ON FUNCTION set_vendor_product_quota() IS 'Assigns product_quota based on tier and ABN verification (Basic:5/10, Pro:50).';
 
 COMMIT;
