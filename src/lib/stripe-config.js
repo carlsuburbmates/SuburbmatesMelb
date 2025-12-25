@@ -8,9 +8,11 @@
  */
 
 import { stripe } from './stripe.ts';
+import { supabaseAdmin } from './supabase.ts';
 
 // Required environment variables
-const REQUIRED_ENV_VARS = {
+// Use a function to get env vars so they are read at runtime, allowing for easier testing
+const getRequiredEnvVars = () => ({
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   STRIPE_CLIENT_ID: process.env.STRIPE_CLIENT_ID,
@@ -18,7 +20,7 @@ const REQUIRED_ENV_VARS = {
   STRIPE_PRICE_VENDOR_PRO_MONTH: process.env.STRIPE_PRICE_VENDOR_PRO_MONTH,
   STRIPE_PRODUCT_FEATURED_30D: process.env.STRIPE_PRODUCT_FEATURED_30D,
   STRIPE_PRICE_FEATURED_30D: process.env.STRIPE_PRICE_FEATURED_30D,
-};
+});
 
 // Placeholder values that indicate incomplete setup
 const PLACEHOLDER_VALUES = [
@@ -49,9 +51,10 @@ export function validateStripeConfig() {
   const errors = [];
   const warnings = [];
   const info = [];
+  const envVars = getRequiredEnvVars();
 
   // Check required variables
-  Object.entries(REQUIRED_ENV_VARS).forEach(([key, value]) => {
+  Object.entries(envVars).forEach(([key, value]) => {
     if (isPlaceholderValue(value)) {
       errors.push({
         variable: key,
@@ -62,11 +65,11 @@ export function validateStripeConfig() {
   });
 
   // Additional validation for specific configurations
-  if (REQUIRED_ENV_VARS.STRIPE_CLIENT_ID && !isPlaceholderValue(REQUIRED_ENV_VARS.STRIPE_CLIENT_ID)) {
+  if (envVars.STRIPE_CLIENT_ID && !isPlaceholderValue(envVars.STRIPE_CLIENT_ID)) {
     // Test Connect configuration
     info.push({
       message: 'Stripe Connect Client ID is configured',
-      detail: `Client ID: ${REQUIRED_ENV_VARS.STRIPE_CLIENT_ID.substring(0, 15)}...`
+      detail: `Client ID: ${envVars.STRIPE_CLIENT_ID.substring(0, 15)}...`
     });
   }
 
@@ -213,7 +216,8 @@ export async function createVendorProCheckoutSession({
     throw new Error('Stripe configuration incomplete for Vendor Pro subscription');
   }
 
-  if (isPlaceholderValue(REQUIRED_ENV_VARS.STRIPE_PRICE_VENDOR_PRO_MONTH)) {
+  const envVars = getRequiredEnvVars();
+  if (isPlaceholderValue(envVars.STRIPE_PRICE_VENDOR_PRO_MONTH)) {
     throw new Error('Vendor Pro price not configured');
   }
 
@@ -222,7 +226,7 @@ export async function createVendorProCheckoutSession({
       payment_method_types: ['card'],
       mode: 'subscription',
       line_items: [{
-        price: REQUIRED_ENV_VARS.STRIPE_PRICE_VENDOR_PRO_MONTH,
+        price: envVars.STRIPE_PRICE_VENDOR_PRO_MONTH,
         quantity: 1,
       }],
       success_url: successUrl,
@@ -230,6 +234,11 @@ export async function createVendorProCheckoutSession({
       metadata: {
         vendor_id: vendorId,
         subscription_type: 'vendor_pro',
+      },
+      subscription_data: {
+        metadata: {
+          vendor_id: vendorId,
+        },
       },
     });
 
@@ -253,7 +262,8 @@ export async function createFeaturedCheckoutSession({
     throw new Error('Stripe configuration incomplete for Featured purchase');
   }
 
-  if (isPlaceholderValue(REQUIRED_ENV_VARS.STRIPE_PRICE_FEATURED_30D)) {
+  const envVars = getRequiredEnvVars();
+  if (isPlaceholderValue(envVars.STRIPE_PRICE_FEATURED_30D)) {
     throw new Error('Featured Business price not configured');
   }
 
@@ -262,7 +272,7 @@ export async function createFeaturedCheckoutSession({
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: [{
-        price: REQUIRED_ENV_VARS.STRIPE_PRICE_FEATURED_30D,
+        price: envVars.STRIPE_PRICE_FEATURED_30D,
         quantity: 1,
       }],
       success_url: successUrl,
@@ -291,7 +301,7 @@ export async function handleStripeWebhook(request) {
   }
 
   const sig = request.headers.get('stripe-signature');
-  const webhookSecret = REQUIRED_ENV_VARS.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = getRequiredEnvVars().STRIPE_WEBHOOK_SECRET;
 
   let event;
 
@@ -351,9 +361,34 @@ async function getVendorStripeAccount() {
  * Placeholder handlers for webhook events
  * These should be implemented based on your business logic
  */
-async function handleCheckoutSessionCompleted(session) {
+export async function handleCheckoutSessionCompleted(session) {
   console.log('Checkout session completed:', session.id);
-  // TODO: Update order status, notify vendor, etc.
+
+  // Handle Vendor Pro Subscription
+  if (session.metadata?.subscription_type === 'vendor_pro' && session.metadata?.vendor_id) {
+    const vendorId = session.metadata.vendor_id;
+    const subscriptionId = session.subscription;
+
+    if (supabaseAdmin) {
+      const { error } = await supabaseAdmin
+        .from('vendors')
+        .update({
+          tier: 'pro',
+          pro_subscription_id: subscriptionId,
+          pro_subscribed_at: new Date().toISOString(),
+          pro_cancelled_at: null
+        })
+        .eq('id', vendorId);
+
+      if (error) {
+        console.error('Failed to update vendor tier:', error);
+      } else {
+        console.log(`Updated vendor ${vendorId} to Pro tier`);
+      }
+    } else {
+      console.error('Supabase Admin not initialized, cannot update vendor tier');
+    }
+  }
 }
 
 async function handlePaymentIntentSucceeded(paymentIntent) {
@@ -373,9 +408,73 @@ async function handleDisputeCreated(dispute) {
   // REMEMBER: Platform does NOT handle disputes - vendors handle this
 }
 
-async function handleSubscriptionEvent(eventType, subscription) {
+export async function handleSubscriptionEvent(eventType, subscription) {
   console.log(`${eventType}:`, subscription.id);
-  // TODO: Update vendor tier based on subscription status
+
+  let vendorId = subscription.metadata?.vendor_id;
+
+  if (!supabaseAdmin) {
+    console.error('Supabase Admin not initialized, cannot handle subscription event');
+    return;
+  }
+
+  // If metadata is missing, try to find vendor by subscription ID
+  if (!vendorId) {
+    const { data, error } = await supabaseAdmin
+      .from('vendors')
+      .select('id')
+      .eq('pro_subscription_id', subscription.id)
+      .single();
+
+    if (data) {
+      vendorId = data.id;
+    } else if (error) {
+      console.warn('Could not find vendor for subscription:', subscription.id);
+      return;
+    }
+  }
+
+  if (!vendorId) {
+    console.warn('Vendor ID not found for subscription:', subscription.id);
+    return;
+  }
+
+  // Determine new tier based on status
+  // active, trialing -> pro
+  // canceled, unpaid, past_due, incomplete, incomplete_expired -> basic
+
+  let newTier = 'basic';
+  const activeStatuses = ['active', 'trialing'];
+
+  if (activeStatuses.includes(subscription.status)) {
+    newTier = 'pro';
+  }
+
+  const updates = {
+    tier: newTier
+  };
+
+  if (newTier === 'basic') {
+    // If downgraded/cancelled, maybe record when?
+    // If status is canceled, it's definitely cancelled.
+    if (subscription.status === 'canceled') {
+      updates.pro_cancelled_at = new Date().toISOString();
+    }
+  } else {
+    // If active, clear cancellation if it was set (e.g. resubscribed)
+    updates.pro_cancelled_at = null;
+  }
+
+  const { error } = await supabaseAdmin
+    .from('vendors')
+    .update(updates)
+    .eq('id', vendorId);
+
+  if (error) {
+    console.error(`Failed to update vendor ${vendorId} tier to ${newTier}:`, error);
+  } else {
+    console.log(`Updated vendor ${vendorId} tier to ${newTier} (status: ${subscription.status})`);
+  }
 }
 
 // Export all functions for use in other modules
