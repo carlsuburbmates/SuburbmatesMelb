@@ -193,8 +193,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       businessHours: null, // TODO: Add to schema
       specialties: [], // TODO: Add to schema
       socialMedia: {}, // TODO: Add to schema
-      rating,
-      reviewCount,
+      rating, // Calculated from product reviews
+      reviewCount, // Count of approved reviews
       images: [] // TODO: Add images
     };
 
