@@ -109,7 +109,7 @@ export const businessProfileCreateSchema = z.object({
   category_id: z.number().int().positive().optional(),
   contact_email: z.string().email().optional(),
   contact_phone: z.string().max(20).optional(),
-  website_url: z.string().url().optional(),
+  website: z.string().url().optional(),
   address: z.string().max(200).optional(),
 });
 

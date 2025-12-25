@@ -51,7 +51,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         user_id,
         is_vendor,
         vendor_tier,
-        vendor_status
+        vendor_status,
+        website
       `)
       .eq('slug', slug)
       .eq('is_public', true)
@@ -188,7 +189,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // Extended business details for detail page
       phone: null, // TODO: Add to schema
       email: userEmail,
-      website: null, // TODO: Add to schema
+      website: business.website,
       address: null, // TODO: Add to schema
       businessHours: null, // TODO: Add to schema
       specialties: [], // TODO: Add to schema
