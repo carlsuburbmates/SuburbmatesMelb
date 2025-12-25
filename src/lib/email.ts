@@ -386,6 +386,40 @@ export async function sendAppealDecisionEmail(
   });
 }
 
+/**
+ * Business contact form email
+ */
+export async function sendBusinessContactEmail(params: {
+  toEmail: string;
+  businessName: string;
+  senderName: string;
+  senderEmail: string;
+  senderPhone?: string;
+  message: string;
+}): Promise<EmailResult> {
+  return sendEmail({
+    to: params.toEmail,
+    replyTo: params.senderEmail,
+    subject: `New Message from ${params.senderName} via ${PLATFORM.NAME}`,
+    html: `
+      <h1>New Message for ${params.businessName}</h1>
+      <p>You have received a new inquiry via your SuburbMates profile.</p>
+
+      <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>From:</strong> ${params.senderName}</p>
+        <p><strong>Email:</strong> <a href="mailto:${params.senderEmail}">${params.senderEmail}</a></p>
+        ${params.senderPhone ? `<p><strong>Phone:</strong> <a href="tel:${params.senderPhone}">${params.senderPhone}</a></p>` : ''}
+
+        <p><strong>Message:</strong></p>
+        <p style="white-space: pre-wrap;">${params.message}</p>
+      </div>
+
+      <p>You can reply directly to this email to contact ${params.senderName}.</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+  });
+}
+
 // ============================================================================
 // BATCH EMAIL
 // ============================================================================
