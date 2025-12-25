@@ -23,67 +23,35 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
   const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
-    // TODO: Replace with actual API call to /api/reviews?business_id=${businessId}
     const fetchReviews = async () => {
-      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
-      
-      // Mock reviews data
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          customerName: 'Sarah M.',
-          rating: 5,
-          comment: 'Excellent tutoring service! My daughter\'s grades improved significantly after just a few sessions. The tutors are very professional and explain concepts clearly.',
-          createdAt: '2024-03-15T10:00:00Z',
-          helpful: 8,
-          verified: true
-        },
-        {
-          id: '2',
-          customerName: 'David L.',
-          rating: 5,
-          comment: 'Highly recommend! They helped me prepare for my university entrance exams. The study materials are comprehensive and the one-on-one sessions were incredibly helpful.',
-          createdAt: '2024-03-10T14:30:00Z',
-          helpful: 5,
-          verified: true
-        },
-        {
-          id: '3',
-          customerName: 'Jennifer K.',
-          rating: 4,
-          comment: 'Great service overall. The tutors are knowledgeable and patient. My son really enjoyed the sessions and his confidence in mathematics has improved a lot.',
-          createdAt: '2024-03-05T16:45:00Z',
-          helpful: 3,
-          verified: false
-        },
-        {
-          id: '4',
-          customerName: 'Michael R.',
-          rating: 5,
-          comment: 'Outstanding! They offer flexible scheduling which was perfect for our busy family. The results speak for themselves - my daughter achieved her target ATAR.',
-          createdAt: '2024-02-28T11:20:00Z',
-          helpful: 12,
-          verified: true
-        },
-        {
-          id: '5',
-          customerName: 'Lisa T.',
-          rating: 4,
-          comment: 'Very professional and well-organized. The tutors provide regular progress updates which I appreciate. Good value for money.',
-          createdAt: '2024-02-20T09:15:00Z',
-          helpful: 2,
-          verified: true
+      try {
+        const response = await fetch(`/api/reviews?business_id=${businessId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews');
         }
-      ];
+        const data = await response.json();
 
-      const avgRating = mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length;
-      
-      setReviews(mockReviews);
-      setAverageRating(avgRating);
-      setLoading(false);
+        const reviewsData = data.reviews || [];
+        setReviews(reviewsData);
+
+        if (reviewsData.length > 0) {
+          const avgRating = reviewsData.reduce((sum: number, review: Review) => sum + review.rating, 0) / reviewsData.length;
+          setAverageRating(avgRating);
+        } else {
+          setAverageRating(0);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setReviews([]);
+        setAverageRating(0);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchReviews();
+    if (businessId) {
+      fetchReviews();
+    }
   }, [businessId]);
 
   if (loading) {
