@@ -90,6 +90,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Check if business is also a vendor and get product count
     let isVendor = false;
     let productCount = 0;
+    let rating = 0;
+    let reviewCount = 0;
 
     if (business.is_vendor && business.user_id) {
       try {
@@ -103,9 +105,35 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         if (vendor) {
           isVendor = vendor.can_sell_products || false;
           productCount = vendor.product_count || 0;
+
+          // Calculate rating from reviews if vendor can sell products
+          if (isVendor) {
+            // Get all products for this vendor
+            const { data: products } = await supabase
+              .from('products')
+              .select('id')
+              .eq('vendor_id', vendor.id);
+
+            if (products && products.length > 0) {
+              const productIds = products.map(p => p.id);
+
+              // Fetch approved reviews for these products
+              const { data: reviews, count } = await supabase
+                .from('reviews')
+                .select('rating', { count: 'exact' })
+                .in('product_id', productIds)
+                .eq('status', 'approved');
+
+              if (reviews && reviews.length > 0) {
+                const totalRating = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+                rating = Number((totalRating / reviews.length).toFixed(1));
+                reviewCount = count || reviews.length;
+              }
+            }
+          }
         }
       } catch (vendorError) {
-        console.warn('Could not fetch vendor data:', vendorError);
+        console.warn('Could not fetch vendor data or reviews:', vendorError);
         // Continue without vendor data - not critical
       }
     }
@@ -165,8 +193,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       businessHours: null, // TODO: Add to schema
       specialties: [], // TODO: Add to schema
       socialMedia: {}, // TODO: Add to schema
-      rating: 0, // TODO: Calculate from reviews
-      reviewCount: 0, // TODO: Count reviews
+      rating,
+      reviewCount,
       images: [] // TODO: Add images
     };
 
