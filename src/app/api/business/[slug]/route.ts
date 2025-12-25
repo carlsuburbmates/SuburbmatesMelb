@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { businessProfileUpdateSchema } from '@/lib/validation';
+import { getUserFromRequest } from '@/middleware/auth';
+import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -212,17 +215,105 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PUT() {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // TODO: Implement business profile update
-    // This would be used by business owners to update their profiles
+    const { slug } = await params;
     
-    return NextResponse.json(
-      { error: 'Business update endpoint not implemented yet' },
-      { status: 501 }
-    );
+    if (!slug) {
+      return NextResponse.json(
+        { error: 'Business slug is required' },
+        { status: 400 }
+      );
+    }
+
+    // 1. Authenticate user
+    const authContext = await getUserFromRequest(request);
+    const userId = authContext.user.id;
+
+    // 2. Validate input body
+    const body = await request.json();
+    const validationResult = businessProfileUpdateSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validationResult.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const {
+      business_name,
+      description,
+      lga_id,
+      category_id,
+      // The following fields are in the schema but not in the database table business_profiles yet
+      // contact_email,
+      // contact_phone,
+      // website_url,
+      // address
+    } = validationResult.data;
+
+    // 3. Fetch existing business profile to check ownership
+    const { data: business, error: fetchError } = await supabase
+      .from('business_profiles')
+      .select('id, user_id')
+      .eq('slug', slug)
+      .single();
+
+    if (fetchError || !business) {
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 }
+      );
+    }
+
+    // 4. Verify ownership (allow admins to bypass)
+    if (business.user_id !== userId && authContext.user.user_type !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized to update this business profile' },
+        { status: 403 }
+      );
+    }
+
+    // 5. Prepare update data
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (business_name) updateData.business_name = business_name;
+    if (description !== undefined) updateData.profile_description = description;
+    if (lga_id) updateData.suburb_id = lga_id;
+    if (category_id) updateData.category_id = category_id;
+
+    // 6. Perform update
+    const { data: updatedBusiness, error: updateError } = await supabase
+      .from('business_profiles')
+      .update(updateData)
+      .eq('id', business.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Update error:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update business profile' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: 'Business profile updated successfully',
+      business: updatedBusiness
+    });
     
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     console.error('API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
