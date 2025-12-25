@@ -108,6 +108,7 @@ export type Database = {
           is_public: boolean | null
           is_vendor: boolean | null
           profile_description: string | null
+          profile_image_url: string | null
           slug: string
           suburb_id: number | null
           updated_at: string | null
@@ -123,6 +124,7 @@ export type Database = {
           is_public?: boolean | null
           is_vendor?: boolean | null
           profile_description?: string | null
+          profile_image_url?: string | null
           slug: string
           suburb_id?: number | null
           updated_at?: string | null
@@ -138,6 +140,7 @@ export type Database = {
           is_public?: boolean | null
           is_vendor?: boolean | null
           profile_description?: string | null
+          profile_image_url?: string | null
           slug?: string
           suburb_id?: number | null
           updated_at?: string | null
