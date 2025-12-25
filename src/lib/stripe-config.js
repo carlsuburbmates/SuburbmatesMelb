@@ -8,6 +8,9 @@
  */
 
 import { stripe } from './stripe.ts';
+import { supabaseAdmin } from './supabase.ts';
+import { sendDisputeNotificationEmail } from './email.ts';
+import { logger } from './logger.ts';
 
 // Required environment variables
 const REQUIRED_ENV_VARS = {
@@ -367,10 +370,84 @@ async function handleChargeRefunded(charge) {
   // REMEMBER: Platform does NOT issue refunds - vendors handle this
 }
 
-async function handleDisputeCreated(dispute) {
-  console.log('Dispute created:', dispute.id);
-  // TODO: Log dispute, notify vendor, update risk metrics
-  // REMEMBER: Platform does NOT handle disputes - vendors handle this
+export async function handleDisputeCreated(dispute) {
+  logger.warn('Dispute created', { disputeId: dispute.id });
+
+  if (!supabaseAdmin) {
+    logger.error('Supabase admin client not initialized');
+    return;
+  }
+
+  try {
+    const paymentIntentId = dispute.payment_intent;
+    const chargeId = dispute.charge;
+
+    // 1. Find the order
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select('id, vendor_id, amount_cents')
+      .or(`stripe_payment_intent_id.eq.${paymentIntentId},stripe_charge_id.eq.${chargeId}`)
+      .single();
+
+    if (orderError || !order) {
+      logger.error('Order not found for dispute', { disputeId: dispute.id, error: orderError });
+      return;
+    }
+
+    // 2. Get vendor details
+    const { data: vendor, error: vendorError } = await supabaseAdmin
+      .from('vendors')
+      .select('id, business_name, user_id, dispute_count')
+      .eq('id', order.vendor_id)
+      .single();
+
+    if (vendorError || !vendor) {
+      logger.error('Vendor not found for dispute', { vendorId: order.vendor_id, error: vendorError });
+      return;
+    }
+
+    // 3. Get user email
+    const { data: user, error: userError } = await supabaseAdmin
+      .auth.admin.getUserById(vendor.user_id);
+
+    if (userError || !user || !user.user) {
+      logger.error('User not found for vendor', { userId: vendor.user_id, error: userError });
+      return;
+    }
+
+    // 4. Update risk metrics
+    const { error: updateError } = await supabaseAdmin
+      .from('vendors')
+      .update({
+        dispute_count: (vendor.dispute_count || 0) + 1,
+        last_dispute_at: new Date().toISOString()
+      })
+      .eq('id', vendor.id);
+
+    if (updateError) {
+      logger.error('Failed to update vendor risk metrics', { vendorId: vendor.id, error: updateError });
+    }
+
+    // 5. Notify vendor
+    await sendDisputeNotificationEmail(
+      user.user.email,
+      vendor.business_name || 'Vendor',
+      {
+        amount: dispute.amount || order.amount_cents,
+        reason: dispute.reason || 'Unknown',
+        orderId: order.id
+      }
+    );
+
+    logger.info('Dispute handled successfully', {
+      disputeId: dispute.id,
+      orderId: order.id,
+      vendorId: vendor.id
+    });
+
+  } catch (error) {
+    logger.error('Error handling dispute', { disputeId: dispute.id, error });
+  }
 }
 
 async function handleSubscriptionEvent(eventType, subscription) {
