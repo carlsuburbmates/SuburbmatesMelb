@@ -46,6 +46,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         id,
         business_name,
         profile_description,
+        profile_image_url,
         suburb_id,
         category_id,
         slug,
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       verified: business.vendor_status === 'verified',
       tier: business.vendor_tier || 'directory',
       createdAt: business.created_at,
-      profileImageUrl: null, // TODO: Add profile images
+      profileImageUrl: business.profile_image_url || null,
       
       // Extended business details for detail page
       phone: business.phone,
