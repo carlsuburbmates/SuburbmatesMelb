@@ -3,10 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing required Supabase environment variables');
+  logger.error('Missing required Supabase environment variables');
   throw new Error('Missing required Supabase environment variables');
 }
 
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      logger.error('Database error', new Error(error.message), { code: error.code });
       return NextResponse.json(
         { error: 'Business not found' },
         { status: 404 }
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       
       userEmail = userData?.email || null;
     } catch (userError) {
-      console.warn('Could not fetch user email:', userError);
+      logger.warn('Could not fetch user email', { error: userError });
       // Continue without email - not critical
     }
 
@@ -138,7 +139,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           }
         }
       } catch (vendorError) {
-        console.warn('Could not fetch vendor data or reviews:', vendorError);
+        logger.warn('Could not fetch vendor data or reviews', { error: vendorError });
         // Continue without vendor data - not critical
       }
     }
@@ -157,7 +158,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         
         suburbName = suburb?.name || null;
       } catch (suburbError) {
-        console.warn('Could not fetch suburb name:', suburbError);
+        logger.warn('Could not fetch suburb name', { error: suburbError });
       }
     }
 
@@ -171,7 +172,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         
         categoryName = category?.name || null;
       } catch (categoryError) {
-        console.warn('Could not fetch category name:', categoryError);
+        logger.warn('Could not fetch category name', { error: categoryError });
       }
     }
 
@@ -208,7 +209,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
   } catch (error) {
-    console.error('Unexpected API error:', error);
+    logger.error('Unexpected API error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -277,7 +278,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // 5. Prepare update data
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
@@ -295,7 +296,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (updateError) {
-      console.error('Update error:', updateError);
+      logger.error('Update error', new Error(updateError.message), { code: updateError.code });
       return NextResponse.json(
         { error: 'Failed to update business profile' },
         { status: 500 }
@@ -315,7 +316,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
 
-    console.error('API error:', error);
+    logger.error('API error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
