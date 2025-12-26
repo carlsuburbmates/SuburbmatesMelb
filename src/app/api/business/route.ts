@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
     const { data: businesses, error } = await query;
     
     if (error) {
-      console.error('Database error:', error);
+      logger.error('Database error', new Error(error.message), { code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch businesses' },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -126,7 +127,7 @@ export async function POST() {
     );
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -2,6 +2,7 @@ import { requireAuth } from "@/app/api/_utils/auth";
 import { TIER_LIMITS } from "@/lib/constants";
 import type { Database } from "@/lib/database.types";
 import { stripe } from "@/lib/stripe";
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 
 type VendorInsert = Database["public"]["Tables"]["vendors"]["Insert"];
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
       requires_payment: tier === "pro",
     });
   } catch (error) {
-    console.error("Error creating vendor:", error);
+    logger.error("Error creating vendor", error);
     return NextResponse.json(
       { error: "Failed to create vendor account" },
       { status: 500 }
