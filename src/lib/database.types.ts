@@ -116,6 +116,7 @@ export type Database = {
           user_id: string
           vendor_status: string | null
           vendor_tier: string | null
+          website: string | null
         }
         Insert: {
           business_name: string
@@ -133,6 +134,7 @@ export type Database = {
           user_id: string
           vendor_status?: string | null
           vendor_tier?: string | null
+          website?: string | null
         }
         Update: {
           business_name?: string
@@ -150,6 +152,7 @@ export type Database = {
           user_id?: string
           vendor_status?: string | null
           vendor_tier?: string | null
+          website?: string | null
         }
         Relationships: [
           {
