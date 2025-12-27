@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/app/api/_utils/auth';
+import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -115,18 +117,94 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    // TODO: Implement business profile creation
-    // This would be used for vendor signup/business registration
-    
-    return NextResponse.json(
-      { error: 'Business creation endpoint not implemented yet' },
-      { status: 501 }
-    );
+    const authContext = await requireAuth(request);
+    const { user, dbClient } = authContext;
+
+    // Check if user already has a business profile
+    const { data: existingProfile, error: profileError } = await dbClient
+      .from('business_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (existingProfile) {
+      return NextResponse.json(
+        { error: 'User already has a business profile' },
+        { status: 409 }
+      );
+    }
+
+    if (profileError) {
+      console.error('Database error checking profile:', profileError);
+      return NextResponse.json(
+        { error: 'Database error' },
+        { status: 500 }
+      );
+    }
+
+    const body = await request.json();
+    const {
+      business_name,
+      profile_description,
+      suburb_id,
+      category_id
+    } = body;
+
+    if (!business_name) {
+      return NextResponse.json(
+        { error: 'Business name is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get vendor details if they exist
+    const { data: vendor } = await dbClient
+      .from('vendors')
+      .select('tier, vendor_status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const slug = await generateUniqueBusinessSlug(business_name, dbClient);
+
+    const { data: newProfile, error: insertError } = await dbClient
+      .from('business_profiles')
+      .insert({
+        user_id: user.id,
+        business_name,
+        slug,
+        profile_description,
+        suburb_id,
+        category_id,
+        is_public: true, // Default to public or make it pending? Assuming public for now.
+        is_vendor: !!vendor,
+        vendor_status: vendor?.vendor_status || null,
+        vendor_tier: vendor?.tier || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error creating business profile:', insertError);
+      return NextResponse.json(
+        { error: 'Failed to create business profile' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: 'Business profile created successfully',
+      business: newProfile,
+    });
     
   } catch (error) {
     console.error('API error:', error);
+    if (error instanceof Error && error.message.includes('No authorization token provided')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

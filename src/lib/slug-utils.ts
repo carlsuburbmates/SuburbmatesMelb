@@ -48,6 +48,29 @@ async function slugExistsForVendor(
 }
 
 /**
+ * Check if slug exists globally in business_profiles
+ * @param slug - Slug to check
+ * @returns True if slug exists
+ */
+async function slugExistsGlobal(
+  slug: string,
+  client: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("business_profiles")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error checking global slug existence:", error);
+    return false;
+  }
+
+  return !!data;
+}
+
+/**
  * Generate unique slug with numeric suffix on collision
  * @param vendorId - Vendor UUID
  * @param title - Product title
@@ -70,6 +93,40 @@ export async function generateUniqueSlug(
 
   // Keep incrementing counter until we find unique slug
   while (await slugExistsForVendor(vendorId, slug, client)) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+
+    // Safety limit to prevent infinite loops
+    if (counter > 100) {
+      slug = `${baseSlug}-${Date.now()}`;
+      break;
+    }
+  }
+
+  return slug;
+}
+
+/**
+ * Generate unique business slug with numeric suffix on collision
+ * @param name - Business name
+ * @returns Unique slug for this business (e.g., "my-business-2")
+ */
+export async function generateUniqueBusinessSlug(
+  name: string,
+  client: SupabaseClient<Database> = supabase
+): Promise<string> {
+  const baseSlug = slugify(name);
+
+  // If base slug is empty after slugify, use fallback
+  if (!baseSlug) {
+    return `business-${Date.now()}`;
+  }
+
+  let slug = baseSlug;
+  let counter = 2;
+
+  // Keep incrementing counter until we find unique slug
+  while (await slugExistsGlobal(slug, client)) {
     slug = `${baseSlug}-${counter}`;
     counter++;
 
