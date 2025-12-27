@@ -1,0 +1,33 @@
+name: Roll back last merge commit
+description: Revert the last merge on main (use only if finalized merge was broken)
+command: |
+  set -e
+  
+  echo "=== Current main HEAD ==="
+  git log -1 --oneline
+  
+  echo ""
+  echo "⚠️  WARNING: This will revert the last merge commit on main"
+  echo "Continue? (type 'yes' to confirm)"
+  read -r CONFIRM
+  
+  if [ "$CONFIRM" != "yes" ]; then
+    echo "Rollback cancelled"
+    exit 0
+  fi
+  
+  echo "=== Checking out main ==="
+  git checkout main
+  
+  echo "=== Pulling latest ==="
+  git pull --ff-only origin main
+  
+  echo "=== Reverting last merge ==="
+  git revert -m 1 HEAD
+  
+  echo "=== Pushing rollback to origin ==="
+  git push origin main
+  
+  echo "✅ Rollback complete"
+
+arguments: []

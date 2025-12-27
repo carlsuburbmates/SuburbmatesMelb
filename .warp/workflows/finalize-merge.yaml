@@ -1,0 +1,29 @@
+name: Finalize merge to main
+description: Merge a branch into main and push after validation has passed
+command: |
+  set -e
+  BRANCH="{{branch}}"
+  
+  echo "=== Checking out main ==="
+  git checkout main
+  
+  echo "=== Pulling latest main ==="
+  git pull --ff-only origin main
+  
+  echo "=== Merging $BRANCH into main ==="
+  git merge --no-ff origin/$BRANCH -m "Merge $BRANCH (Co-Authored-By: Warp <agent@warp.dev>)"
+  
+  echo "=== Validating build after merge ==="
+  npm ci
+  npm run build
+  npm run lint
+  
+  echo "=== Pushing to origin ==="
+  git push origin main
+  
+  echo "✅ Merge of $BRANCH complete and pushed to main"
+
+arguments:
+  - name: branch
+    default_value: dependabot/npm_and_yarn/npm_and_yarn-3c3c744ce7
+    description: Remote branch to finalize merge

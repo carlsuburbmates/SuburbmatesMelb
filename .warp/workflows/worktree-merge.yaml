@@ -1,0 +1,39 @@
+name: Worktree merge and validate
+description: Create a linked worktree, merge a remote branch into main, build+lint, then clean up
+command: |
+  set -e
+  BRANCH="{{branch}}"
+  WT=".wt-${BRANCH//\//-}"
+  
+  echo "=== Fetching $BRANCH ==="
+  git fetch origin $BRANCH
+  
+  echo "=== Creating worktree at $WT ==="
+  git worktree add "$WT" main
+  
+  cd "$WT"
+  echo "=== Attempting merge of $BRANCH into main ==="
+  if ! git merge --no-ff origin/$BRANCH; then
+    echo "❌ Merge conflict detected in $WT"
+    echo "Resolve conflicts, then run: git add . && git commit"
+    exit 1
+  fi
+  
+  echo "=== Installing dependencies ==="
+  npm ci
+  
+  echo "=== Building ==="
+  npm run build
+  
+  echo "=== Linting ==="
+  npm run lint
+  
+  echo "✅ Validation passed for $BRANCH"
+  cd ..
+  echo "=== Cleaning up worktree ==="
+  git worktree remove "$WT" --force
+
+arguments:
+  - name: branch
+    default_value: dependabot/npm_and_yarn/npm_and_yarn-3c3c744ce7
+    description: Remote branch to test merge
