@@ -99,6 +99,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let productCount = 0;
     let rating = 0;
     let reviewCount = 0;
+    let vendorId: string | undefined = undefined;
 
     if (business.is_vendor && business.user_id) {
       try {
@@ -112,6 +113,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         if (vendor) {
           isVendor = vendor.can_sell_products || false;
           productCount = vendor.product_count || 0;
+          vendorId = vendor.id;
 
           // Calculate rating from reviews if vendor can sell products
           if (isVendor) {
@@ -186,6 +188,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       category: categoryName,
       slug: business.slug,
       isVendor: isVendor,
+      vendorId: vendorId, // ID from vendors table
       productCount: productCount,
       verified: business.vendor_status === 'verified',
       tier: business.vendor_tier || 'directory',

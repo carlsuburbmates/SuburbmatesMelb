@@ -30,6 +30,7 @@ interface BusinessData {
   category: string;
   slug: string;
   isVendor: boolean;
+  vendorId?: string;
   productCount: number;
   verified: boolean;
   tier: string;
@@ -119,6 +120,7 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     category: toStringValue(raw.category, "General"),
     slug: toStringValue(raw.slug, ""),
     isVendor: raw.isVendor === true,
+    vendorId: typeof raw.vendorId === "string" ? raw.vendorId : undefined,
     productCount: toNumberValue(raw.productCount, 0),
     verified: raw.verified === true,
     tier: toStringValue(raw.tier, "basic"),
@@ -167,7 +169,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             
             {business.isVendor && business.productCount > 0 && (
               <Suspense fallback={<ProductsSkeleton />}>
-                <BusinessProducts businessId={business.id} />
+                <BusinessProducts businessId={business.id} vendorId={business.vendorId} />
               </Suspense>
             )}
             
