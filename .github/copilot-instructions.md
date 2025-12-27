@@ -1,24 +1,32 @@
 ````instructions
 # Suburbmates V1.1 – AI Coding Agent Instructions
 
-> **⚠️ PROJECT LOCATION:** This codebase is located at `/Users/carlg/Documents/PROJECTS/Rovodev Projects/sm/suburbmates-v1`. Do NOT reference or use `/Users/carlg/Documents/suburbmates-v1` (a separate, legacy project folder).
+> **⚠️ PROJECT LOCATION:** This codebase is located at `/home/runner/work/SuburbmatesMelb/SuburbmatesMelb` in CI/CD environments. For local development, use your workspace root. Do NOT reference `/Users/carlg/Documents/suburbmates-v1` (a separate, legacy project folder).
 
-**Last Updated:** November 15, 2025  
+**Last Updated:** December 27, 2025  
 **Stack:** Next.js 15+ / Supabase PostgreSQL / Stripe Connect Standard / Vercel  
-**Current Stage:** 2.2 Complete (Business Detail Pages & V3 Design System)  
-**Truth Source:** Live codebase → `v1.1-docs/` → Design Plans
+**Current Stage:** 3.x In Progress (~60% Complete) - Marketplace Enhancement  
+**Truth Source:** Live codebase → `v1.1-docs/` → `AGENTS.md` → Design Plans
 
 ---
 
-## Current Implementation Status (Stage 2.2 Complete)
+## Current Implementation Status (Stage 3.x In Progress)
 
-### ✅ Production-Ready Features
+### ✅ Production-Ready Features (Stages 1.1-2.2 Complete)
 - **Directory System** (`/directory`): Search, filtering, business discovery with professional presentation
 - **Business Detail Pages** (`/business/[slug]`): Complete profiles with galleries, statistics, achievements, contact forms
 - **Frontend V3 Design System**: Poppins typography, grayscale color palette, enhanced animations
 - **Performance Optimizations**: Lazy loading, image optimization, scroll animations with IntersectionObserver
 - **Mobile-Responsive Design**: Professional presentation across all devices
 - **SEO Optimization**: Metadata, sitemap, structured data
+
+### 🚧 Stage 3 Partial Implementation (~60% Complete)
+- **Search Telemetry**: PII-redacted search analytics with SHA-256 hashing
+- **Vendor Dashboard Infrastructure**: Routes, hooks, and API endpoints ready
+- **Featured Slots API**: Premium-tier enforcement and slot management
+- **Tier Management**: Subscription handling and FIFO downgrade logic
+- **Dispute Gating**: Auto-suspension for 3+ disputes (30 days)
+- **Commission Ledger**: Immutable tracking on every transaction
 
 ### 🎭 Frontend V3 Design System (Implemented)
 - **Typography**: Poppins font family, 9-scale hierarchy
@@ -27,9 +35,29 @@
 - **Performance**: Optimized image loading, lazy rendering, minimal reflows
 
 ### 🔄 Development Status
-- **Build**: `npm run build` → Production-ready, no TypeScript errors, all workspace warnings resolved
+- **Build**: `npm run build` → Production-ready, no TypeScript errors
 - **Dev**: `npm run dev` → localhost:3000, fully functional
 - **Deploy**: Vercel auto-deploy on git push to `main`
+- **Cron Jobs**: Tier caps, featured slots expiry, telemetry cleanup, analytics aggregation
+
+---
+
+## Custom Agents (VS Code Chat)
+
+**Location**: `.github/agents/`
+
+SuburbMates uses specialized VS Code Chat agents for Stage 3 implementation:
+
+- **Orchestrator** (`stage3-orchestrator.agent.md`): Guided workflow with confirm-to-proceed handoffs
+- **Planner** (`stage3-planner.agent.md`): Planning with SSOT enforcement
+- **Implementer** (`stage3-implementer.agent.md`): Code implementation with caps/RLS/MoR validation
+- **Verifier** (`ssot-verifier.agent.md`): SSOT/tier/RLS compliance checks
+- **Stripe Debugger** (`stripe-debugger.agent.md`): MoR/webhooks debugging
+- **Deployer** (`stage3-deployer.agent.md`): Staging checklist validation
+
+**Usage**: See `AGENTS.md` for complete agent workflow documentation.
+
+**VS Code Setup**: Requires `.vscode/settings.json` with `chat.useAgentsMdFile: true` and `chat.useNestedAgentsMdFiles: true`.
 
 ---
 
@@ -268,12 +296,13 @@ npm run lint         # ESLint validation (includes forbidden strings check)
 
 If docs conflict, follow this priority:
 
-1. **Live codebase** (Stage 2.2 complete): Current working implementation is source of truth
-2. **`v1.1-docs/`** (SSOT): Architecture, API specs, business rules
-3. **`FRONTEND_V3_IMPLEMENTATION_PLAN.md`**: Design system, animations, performance
-4. **`ITERATION_EFFICIENCY_ANALYSIS.md`**: Development workflow optimizations
-5. Code comments & examples
-6. External best practices (advisory)
+1. **Live codebase** (Stage 3 in progress): Current working implementation is source of truth
+2. **`v1.1-docs/`** (SSOT): Architecture, API specs, business rules (see `00_README_MASTER_INDEX.md`)
+3. **`AGENTS.md`**: Custom agent workflow and Stage 3 implementation guidance
+4. **`STAGE3_IMPLEMENTATION_SUMMARY.md`**: Stage 3 changes, migrations, and verification
+5. **`.github/agents/`**: Specialized agent instructions for Stage 3 execution
+6. Code comments & examples
+7. External best practices (advisory)
 
 ---
 
@@ -282,7 +311,7 @@ If docs conflict, follow this priority:
 | Task | Files to Review | Pattern |
 |------|-----------------|---------|
 | Add API endpoint | `src/app/api/[resource]/[action]/route.ts` | Use validation schemas + response helpers |
-| Add DB table | `supabase/migrations/00X_*.sql` + `src/lib/types.ts` | Add RLS policies for vendor ownership |
+| Add DB table | `supabase/migrations/0XX_*.sql` + `src/lib/types.ts` | Add RLS policies for vendor ownership |
 | Add Stripe logic | `src/lib/stripe.ts` + `src/app/api/webhook/stripe/route.ts` | Always use `application_fee_amount` for commission |
 | Add form validation | `src/lib/validation.ts` | Use Zod schemas; reference constants from `constants.ts` |
 | Fix vendor tier issue | `src/lib/constants.ts` (`TIER_LIMITS`) + `src/lib/types.ts` | Check `vendor.tier` and `product_count` against quotas |
@@ -290,6 +319,10 @@ If docs conflict, follow this priority:
 | Implement animation | `@/hooks/useScrollAnimation` | IntersectionObserver pattern for fade-in on scroll |
 | Add gallery component | `src/components/business/ImageGallery` | Modal viewer, thumbnail preview, keyboard navigation |
 | Style with V3 system | Poppins font, grayscale palette | Check `src/lib/colors.ts` and `tailwind.config.js` |
+| Stage 3 tasks | See `AGENTS.md` + `v1.1-docs/10_IMPLEMENTATION_GUIDES/STAGE3_EXECUTION_v3.1.md` | Use custom agents for orchestrated workflow |
+| Debug Stripe issues | Use `stripe-debugger` agent + `v1.1-docs/Stripe/STRIPE_TESTING_PLAYBOOK.md` | Follow MoR pattern validation |
+| Vendor tier downgrade | `src/lib/vendor-downgrade.ts` | FIFO unpublish logic (oldest products first) |
+| Search telemetry | `src/lib/telemetry.ts` + `src/app/api/search/telemetry/route.ts` | SHA-256 hashed queries (PII-redacted) |
 
 ---
 
@@ -306,11 +339,65 @@ If docs conflict, follow this priority:
 
 ## Stuck? Read These First
 
-1. **Frontend V3 Design System**: `FRONTEND_V3_IMPLEMENTATION_PLAN.md` (typography, colors, animations)
-2. **Stage 2.2 Components**: `/src/components/business/` (business detail page patterns)
-3. **Scroll Animations**: `/src/hooks/useScrollAnimation.ts` (IntersectionObserver usage)
-4. **Architecture overview**: `v1.1-docs/03_ARCHITECTURE/03.0_TECHNICAL_OVERVIEW.md`
-5. **API endpoints**: `v1.1-docs/04_API/` (directory vs marketplace, MoR model)
-6. **Current iteration notes**: `ITERATION_EFFICIENCY_ANALYSIS.md` (development workflow)
+1. **Quick Start**: `README.md` (overview, setup, current status)
+2. **Documentation Index**: `v1.1-docs/00_README_MASTER_INDEX.md` (complete navigation guide)
+3. **Custom Agents**: `AGENTS.md` (Stage 3 orchestrated workflow)
+4. **Stage 3 Status**: `STAGE3_IMPLEMENTATION_SUMMARY.md` (changes, migrations, verification)
+5. **Architecture Overview**: `v1.1-docs/03_ARCHITECTURE/03_TECHNICAL_ARCHITECTURE_v3.1.md`
+6. **API Reference**: `v1.1-docs/04_API/04_API_REFERENCE_v3.1.md` (directory vs marketplace, MoR model)
+7. **Stage 3 Execution**: `v1.1-docs/10_IMPLEMENTATION_GUIDES/STAGE3_EXECUTION_v3.1.md`
+8. **Stripe Testing**: `v1.1-docs/Stripe/STRIPE_TESTING_PLAYBOOK.md` (sandbox workflow, webhook testing)
+9. **Business Strategy**: `v1.1-docs/01_STRATEGY/01_BUSINESS_STRATEGY_v3.1.md` (vision, roadmap, KPIs)
+10. **Founder Decisions**: `v1.1-docs/FOUNDER_STRATEGY/FOUNDER_STRATEGY_v3.1.md` (locked principles, escalation flow)
+
+---
+
+## 8 Non-Negotiable Principles (NEVER VIOLATE)
+
+1. **Vendor as Merchant of Record** — Vendors use own Stripe accounts; platform fee via `application_fee_amount`
+2. **Platform Non-Mediating** — No dispute mediation, refunds, or customer service by platform
+3. **Commission Non-Refundable** — Platform commission kept even if vendor refunds customer
+4. **No SLAs** — No uptime, delivery, or quality guarantees from platform
+5. **PWA Only (v1.1)** — No native apps; PWA with install prompts
+6. **FAQ + Escalation (No LLM Writes)** — Customer support via FAQ + founder; NO LLM database writes
+7. **Dispute Gating** — 3+ Stripe disputes = auto-delist vendor for 30 days
+8. **Downgrade Auto-Unpublish** — Tier downgrades unpublish oldest products first (FIFO)
+
+---
+
+## Cron Jobs & Maintenance
+
+Stage 3 includes automated maintenance scripts (see `STAGE3_IMPLEMENTATION_SUMMARY.md`):
+
+- `npm run cron:check-tier-caps` — Daily at 02:00 AEDT (warns on quota violations)
+- `npm run cron:cleanup-search-logs` — Weekly (deletes logs >90 days)
+- `npm run cron:expire-featured-slots` — Every 6 hours (expires slots past end_date)
+- `npm run cron:aggregate-analytics` — Daily at 00:30 AEDT (generates KPI reports)
+
+**Verification Scripts**:
+- `npm run stripe:verify` — Validates Stripe config, API connectivity, product IDs
+- `npm run stripe:featured-qa` — End-to-end featured slot checkout + webhook test
+
+---
+
+## Environment Variables
+
+Required for Stage 3 features:
+
+```env
+# Core (Stages 1-2)
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+STRIPE_SECRET_KEY=...
+NEXT_PUBLIC_STRIPE_PUBLIC_KEY=...
+RESEND_API_KEY=...
+SENTRY_DSN=...
+
+# Stage 3 Additions
+SEARCH_SALT=your-secret-salt-min-32-chars  # SHA-256 hashing for search telemetry
+STRIPE_PRICE_FEATURED_30D=price_xxx         # Featured slot product price ID
+FEATURED_SLOT_CHECKOUT_MODE=live            # 'mock' for CI/testing, 'live' for production
+```
 
 ````
