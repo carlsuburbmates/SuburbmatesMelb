@@ -57,7 +57,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         vendor_tier,
         vendor_status,
         phone,
-        website
+        website,
+        images
       `)
       .eq('slug', slug)
       .eq('is_public', true)
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       socialMedia: {}, // TODO: Add to schema
       rating,
       reviewCount,
-      images: [] // TODO: Add images
+      images: Array.isArray(business.images) ? business.images : []
     };
 
     return NextResponse.json({
