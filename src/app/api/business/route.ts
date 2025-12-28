@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
+import { logger } from '@/lib/logger';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
     const { data: businesses, error } = await query;
     
     if (error) {
-      console.error('Database error:', error);
+      logger.error('Database error', new Error(error.message), { code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch businesses' },
         { status: 500 }
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -201,7 +202,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', error);
     if (error instanceof Error && error.message.includes('No authorization token provided')) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
