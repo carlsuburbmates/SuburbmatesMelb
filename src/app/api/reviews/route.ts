@@ -57,8 +57,11 @@ export async function GET(request: NextRequest) {
     }
 
     const transformedReviews = reviews.map((review) => {
-      // @ts-expect-error users is an array or object depending on join, but here it is an object because of simple relation
-      const user = review.users;
+
+
+      const usersData = review.users;
+      const user = Array.isArray(usersData) ? usersData[0] : usersData;
+      // @ts-ignore - Supabase types can vary between array/object based on join
       const customerName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous';
 
       return {
