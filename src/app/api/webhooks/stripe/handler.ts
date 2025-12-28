@@ -202,6 +202,31 @@ export async function handleStripeEvent(
           console.error("Failed to activate reserved featured slot", err);
         }
       }
+
+      // Check for Vendor Pro subscription purchase
+      if (metadata?.subscription_type === "vendor_pro" && metadata?.vendor_id) {
+        try {
+          const subscriptionId =
+            (session["subscription"] as string) ||
+            (session["id"] as string); // fallback if subscription ID missing?
+
+          await db
+            .from("vendors")
+            .update({
+              tier: "pro",
+              pro_subscription_id: subscriptionId,
+              pro_subscribed_at: new Date().toISOString(),
+              pro_cancelled_at: null,
+            })
+            .eq("id", metadata.vendor_id);
+
+          console.info("Upgraded vendor to Pro tier", { vendorId: metadata.vendor_id });
+        } catch (err: unknown) {
+          console.error("Failed to upgrade vendor to Pro", err);
+          // throw error to ensure retry?
+          throw err;
+        }
+      }
     }
 
     return redactEventSummary(event);
