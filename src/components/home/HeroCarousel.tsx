@@ -62,6 +62,10 @@ export function HeroCarousel() {
     setCurrentSlide(index);
   };
 
+  const handleScrollClick = () => {
+    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+  };
+
   return (
     <section
       ref={parallaxRef}
@@ -142,14 +146,18 @@ export function HeroCarousel() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-6 md:bottom-8 right-4 md:right-8 animate-bounce hidden md:flex">
-        <div className="flex flex-col items-center text-white/70">
+      <button
+        onClick={handleScrollClick}
+        className="absolute bottom-6 md:bottom-8 right-4 md:right-8 animate-bounce hidden md:flex focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg p-2"
+        aria-label="Scroll to next section"
+      >
+        <div className="flex flex-col items-center text-white/70 hover:text-white transition-colors">
           <span className="text-xs mb-2 font-medium tracking-wider uppercase">
             Scroll
           </span>
           <ChevronDown className="w-5 h-5" />
         </div>
-      </div>
+      </button>
     </section>
   );
 }
