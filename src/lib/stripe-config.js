@@ -8,7 +8,7 @@
  */
 
 import { stripe } from './stripe.ts';
-import { supabaseAdmin } from './supabase.ts';
+import { supabaseAdmin, supabase } from './supabase.ts';
 
 // Required environment variables
 // Use a function to get env vars so they are read at runtime, allowing for easier testing
@@ -351,10 +351,26 @@ export async function handleStripeWebhook(request) {
  * Helper function to get vendor's Stripe account from database
  * This should be implemented based on your database schema
  */
-async function getVendorStripeAccount() {
-  // TODO: Implement database query to get vendor's stripe_account_id
-  // This is a placeholder that should be replaced with actual database logic
-  throw new Error('Database integration not implemented');
+async function getVendorStripeAccount(vendorId) {
+  const client = supabaseAdmin || supabase;
+
+  try {
+    const { data, error } = await client
+      .from('vendors')
+      .select('stripe_account_id')
+      .eq('id', vendorId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching vendor stripe account:', error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Unexpected error fetching vendor stripe account:', err);
+    return null;
+  }
 }
 
 /**
