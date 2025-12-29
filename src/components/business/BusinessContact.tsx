@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, Mail, Globe, MapPin, MessageCircle, Send } from 'lucide-react';
+import { Phone, Mail, Globe, MapPin, MessageCircle, Send, CheckCircle } from 'lucide-react';
 
 interface Business {
   id: string;
@@ -19,6 +19,7 @@ interface BusinessContactProps {
 
 export function BusinessContact({ business }: BusinessContactProps) {
   const [showContactForm, setShowContactForm] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -42,10 +43,15 @@ export function BusinessContact({ business }: BusinessContactProps) {
     // This would send an email to the business owner
     await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
     
-    alert('Message sent successfully! The business will get back to you soon.');
+    setSuccess(true);
     setFormData({ name: '', email: '', phone: '', message: '' });
-    setShowContactForm(false);
     setIsSubmitting(false);
+  };
+
+  const handleReset = () => {
+    setSuccess(false);
+    // Keep form open so user can send another message
+    setShowContactForm(true);
   };
 
   return (
@@ -153,11 +159,35 @@ export function BusinessContact({ business }: BusinessContactProps) {
               Contact Business
             </button>
           </div>
+        ) : success ? (
+          <div
+            className="text-center py-8 animate-in fade-in duration-300"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600" aria-hidden="true" />
+            </div>
+            <h4 className="text-xl font-semibold text-gray-900 mb-2">Message Sent!</h4>
+            <p className="text-gray-600 mb-6">
+              Thanks for reaching out. {business.name} will get back to you shortly.
+            </p>
+            <button
+              onClick={handleReset}
+              className="text-blue-600 hover:text-blue-800 font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm"
+            >
+              Send another message
+            </button>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex justify-end">
+               <span className="text-xs text-gray-500" aria-hidden="true">* Required fields</span>
+            </div>
+
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name *
+                Your Name <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"
@@ -166,13 +196,15 @@ export function BusinessContact({ business }: BusinessContactProps) {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                aria-required="true"
+                placeholder="e.g. John Doe"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
               />
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address *
+                Email Address <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <input
                 type="email"
@@ -181,7 +213,9 @@ export function BusinessContact({ business }: BusinessContactProps) {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                aria-required="true"
+                placeholder="name@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
               />
             </div>
 
@@ -195,13 +229,14 @@ export function BusinessContact({ business }: BusinessContactProps) {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                placeholder="0400 000 000"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
               />
             </div>
 
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                Message *
+                Message <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <textarea
                 id="message"
@@ -209,33 +244,34 @@ export function BusinessContact({ business }: BusinessContactProps) {
                 value={formData.message}
                 onChange={handleInputChange}
                 required
+                aria-required="true"
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
-                placeholder="Tell them about your inquiry..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none placeholder:text-gray-400"
+                placeholder="Hi, I'm interested in..."
               />
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex space-x-3 pt-2">
               <button
                 type="button"
                 onClick={() => setShowContactForm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 btn-primary inline-flex items-center justify-center"
+                className="flex-1 btn-primary inline-flex items-center justify-center min-w-[140px]"
               >
                 {isSubmitting ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                     <span>Sending...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <Send className="w-4 h-4" />
+                    <Send className="w-4 h-4" aria-hidden="true" />
                     <span>Send Message</span>
                   </div>
                 )}
