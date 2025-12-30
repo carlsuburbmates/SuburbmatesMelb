@@ -40,6 +40,11 @@ The following phrases are **BANNED** in all copy and docs (except here):
 *   "business directory" (unless referring to legacy code structure)
 *   "Secure transaction via SuburbMates"
 
+### G) Route Inventory (IA Lock)
+*   **Public Routes**: `/` (Home), `/marketplace` (Search), `/products/[slug]`, `/business/[slug]`, `/directory`.
+*   **Vendor Routes**: `/vendor/dashboard`, `/vendor/products`, `/vendor/settings`, `/vendor/onboarding`.
+*   **API**: `/api/auth/*`, `/api/vendor/*` (Protected), `/api/webhooks/stripe` (Critical Events).
+
 ---
 
 ## 📂 Folder Structure
