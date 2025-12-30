@@ -3,20 +3,20 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About SuburbMates - Melbourne's Digital Neighbourhood",
   description:
-    "Learn about SuburbMates - connecting Melbourne's local businesses with their community through a digital marketplace and business directory.",
+    "Learn about SuburbMates - connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
   keywords:
     "about, Melbourne businesses, local marketplace, digital directory, community platform",
   openGraph: {
     title: "About SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connecting Melbourne's local businesses with their community through a digital marketplace and business directory.",
+      "Connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "About SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connecting Melbourne's local businesses with their community through a digital marketplace and business directory.",
+      "Connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
   },
 };
 

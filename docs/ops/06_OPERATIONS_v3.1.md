@@ -93,7 +93,7 @@ Store future dry-run evidence in `reports/analytics/` (dated JSON) or `reports/o
 | Support Agent (automation-first) | Claude-powered bot | FAQ + autop responses; escalate to founder when automations fail. |
 | Finance Ops | (tbd) | Reconcile Stripe payouts vs ledger, monitor commission ledger. |
 
-All ops rely on dozens of automations to stay lean; manual fallbacks exist but are last resort.
+All ops rely on automated workflows to stay lean; manual fallbacks exist but are last resort.
 
 ## 5. Founder Operations Playbook
 - **Daily:** Review Sentry digest, check cron logs, scan featured queue utilization, respond to escalations (<1 hr/day).

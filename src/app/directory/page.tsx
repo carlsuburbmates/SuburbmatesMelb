@@ -73,6 +73,6 @@ function DirectoryListingSkeleton() {
 }
 
 export const metadata = {
-  title: 'Business Directory - SuburbMates',
+  title: 'Creator Directory - SuburbMates',
   description: 'Discover local studios and creators in your Melbourne suburb. Connect with neighborhood services and digital marketplace vendors.',
 };

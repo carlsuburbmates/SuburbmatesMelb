@@ -25,7 +25,7 @@ This document consolidates every UX artifact into one implementable brief. All p
 ## 3. Homepage & Marketing Content _(source: 02.1 + homepage v2.1 evolved)_
 - **Hero:** Founder-led messaging (“Melbourne creators selling local-first”), search box with suburb autocomplete, CTA pair: `Browse directory` (primary blue) + `Become a vendor` (ghost). Background uses grayscale portrait with accent gradient overlay.
 - **Sections:** Social proof, “How it works” (3 cards), featured business carousel (suburb-specific), featured slot upsell (“$20 featured placement for 30 days”), FAQ accordion, closing CTA.
-- **Copy rules:** Transparent commission messaging (6–8%), highlight dozens of automations for zero-manual support, explicitly note “No SLAs. Founder escalation via FAQ.”
+- **Copy rules:** Transparent commission messaging (6–8%), highlight automation features for zero-manual support, explicitly note “No SLAs. Founder escalation via FAQ.”
 
 ## 4. Product & Vendor UX Specs _(source: 02.3)_
 - **Directory search:** Input pill with icons (search + filter). Filters for category, suburb (required), tier. Zero-state instructs to choose Melbourne suburb. Featured vendors show “Featured” badge + queue position.

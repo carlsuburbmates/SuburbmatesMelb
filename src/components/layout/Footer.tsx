@@ -80,7 +80,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/directory" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  Business Directory
+                  Creator Directory
                 </Link>
               </li>
               <li>

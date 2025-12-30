@@ -150,12 +150,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                <div className="flex items-start space-x-3">
                   <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5" />
                   <div>
-                     <p className="text-sm font-medium text-gray-900">Secure transaction via SuburbMates</p>
-                     <p className="text-xs text-gray-500 mt-1">
-                        Your payment is held securely regardless of the seller. 
-                        Digital delivery is instant and guaranteed by our platform.
-                     </p>
-                  </div>
+                      <p className="text-sm font-medium text-gray-900">Sold by {businessProfile.business_name}. Payments processed by Stripe.</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                         SuburbMates is a discovery platform; creators handle sales via Stripe.
+                      </p>
+
+                   </div>
                </div>
             </div>
 
