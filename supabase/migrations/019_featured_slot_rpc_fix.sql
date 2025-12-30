@@ -17,7 +17,9 @@ CREATE OR REPLACE FUNCTION fn_try_reserve_featured_slot(
   p_lga_id integer,
   p_suburb_label text,
   p_start_date timestamptz,
-  p_end_date timestamptz
+  p_end_date timestamptz,
+  p_lga_cap integer,
+  p_vendor_cap integer
 ) RETURNS uuid AS $$
 DECLARE
   v_count int;
@@ -31,7 +33,7 @@ BEGIN
       AND status = 'active'
       AND NOT (end_date < p_start_date OR start_date > p_end_date);
 
-  IF v_count >= 5 THEN
+  IF v_count >= p_lga_cap THEN
     RAISE EXCEPTION 'lga_cap_exceeded' USING ERRCODE = 'P0001';
   END IF;
 
@@ -40,7 +42,7 @@ BEGIN
       AND status = 'active'
       AND NOT (end_date < p_start_date OR start_date > p_end_date);
 
-  IF v_vendor_count >= 3 THEN
+  IF v_vendor_count >= p_vendor_cap THEN
     RAISE EXCEPTION 'vendor_cap_exceeded' USING ERRCODE = 'P0002';
   END IF;
 

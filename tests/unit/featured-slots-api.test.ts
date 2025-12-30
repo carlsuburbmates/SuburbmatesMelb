@@ -78,11 +78,15 @@ const createSessionMock = vi.hoisted(() =>
   }))
 );
 
-vi.mock("@/app/api/_utils/auth", () => ({
-  requireAuth: async () => ({
+const requireAuthMock = vi.hoisted(() =>
+  vi.fn(async () => ({
     user: { id: "user-1" },
     dbClient: mockDbClient,
-  }),
+  }))
+);
+
+vi.mock("@/app/api/_utils/auth", () => ({
+  requireAuth: requireAuthMock,
 }));
 
 vi.mock("@/lib/suburb-resolver", () => ({
@@ -172,5 +176,52 @@ describe("featured-slots API - reservation behavior", () => {
     expect(res.status).toBe(409);
     expect(body.success).toBe(false);
     expect(body.error.code).toBe("LGA_CAP_EXCEEDED");
+  });
+
+  it("calculates a future start_date when LGA is at capacity (FIFO)", async () => {
+    // Current time: 2024-01-01T12:00:00Z
+    const now = new Date("2024-01-01T12:00:00Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+
+    const lgaCap = 5;
+    const lgaWithCap = { ...lgaRow, featured_slot_cap: lgaCap };
+
+    // 5 slots already active, ending at different times
+    const existingSlots = Array.from({ length: lgaCap }).map((_, i) => ({
+      end_date: new Date(now.getTime() + (i + 1) * 3600000).toISOString(), // +1h, +2h... +5h
+    }));
+
+    // Mock DB to return cap and existing slots
+    const customMockDb = {
+      from: (table: string) => {
+        if (table === "lgas") return createQueryBuilder(lgaWithCap);
+        if (table === "featured_slots") return createQueryBuilder(existingSlots);
+        return mockDbClient.from(table);
+      },
+    };
+
+    // We need to re-mock or use a local override for the test
+    // For this specific test, we'll override the auth mock's dbClient
+    requireAuthMock.mockResolvedValueOnce({
+      user: { id: "user-1" },
+      dbClient: customMockDb,
+    });
+
+    const req = makeReq({ suburb: "Richmond" });
+    const res = await POST(req as unknown as NextRequest);
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    
+    // The earliest freeing slot is the 1st one (index 0), but wait...
+    // The loop in route.ts logic:
+    // freeingSlotIndex = sortedSlots.length - slotCap = 5 - 5 = 0
+    // So it follows sortedSlots[0].end_date + 1 min
+    const expectedStart = new Date(new Date(existingSlots[0].end_date).getTime() + 60000);
+    
+    expect(body.data.scheduledStartDate).toBe(expectedStart.toISOString());
+    
+    vi.useRealTimers();
   });
 });

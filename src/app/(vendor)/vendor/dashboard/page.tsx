@@ -260,7 +260,16 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
           `Slots are full. You're queued for ${json.data.suburb} (position #${json.data.position}).`
         );
       } else {
-        setSuccessMessage(`Featured placement activated for the next ${FEATURED_SLOT.DURATION_DAYS} days.`);
+        const scheduledStart = json.data.scheduledStartDate ? new Date(json.data.scheduledStartDate) : new Date();
+        const isFuture = scheduledStart.getTime() > Date.now() + 1000 * 60; // 1 min buffer
+        
+        if (isFuture) {
+          setSuccessMessage(
+            `Featured placement scheduled to start on ${scheduledStart.toLocaleDateString("en-AU")}.`
+          );
+        } else {
+          setSuccessMessage(`Featured placement activated for the next ${FEATURED_SLOT.DURATION_DAYS} days.`);
+        }
       }
       setSuburbInput("");
       await fetchData();

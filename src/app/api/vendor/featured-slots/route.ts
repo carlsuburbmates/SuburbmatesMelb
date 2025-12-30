@@ -338,6 +338,8 @@ export async function POST(req: NextRequest) {
         p_suburb_label: safeSuburbLabel,
         p_start_date: startDateIso,
         p_end_date: endDateIso,
+        p_lga_cap: slotCap,
+        p_vendor_cap: FEATURED_SLOT.MAX_SLOTS_PER_VENDOR,
       }
     );
     
