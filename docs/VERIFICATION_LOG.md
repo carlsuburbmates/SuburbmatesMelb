@@ -1,5 +1,20 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
+## 2025-12-31 — PR6: Search Relevance & Ranking Truth (main) — Verified
+
+- **Commit**: `592e52ef68700ac3119934788009fb9def7c92c9` ([592e52e](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/592e52ef68700ac3119934788009fb9def7c92c9))
+- **Status**: ✅ VERIFIED COMPLETE
+- **Evidence Snippets**:
+    - **Determinism**: `src/lib/search.ts:163-175` (featured > tier > recency)
+    - **Cap Enforcement**: `src/app/api/vendor/featured-slots/route.ts:274-275` (LGA Cap = 5)
+    - **Relevance Audit**: `pricing/page.tsx` (tier-based claims match `tierWeight` implementation)
+- **Gates**:
+    - **SSOT**: Pass
+    - **Lint**: Pass (Clean gate run)
+    - **Unit Tests**: Pass (44/44, `npm run test:unit`)
+    - **Build**: Pass (`npm run build`)
+- **Verdict**: PR6 is verified as truthful and documentation-aligned.
+
 ## 2025-12-30 — PR5: Post-merge Reconciliation & Hardening (main) — Verified
 
 - **Commit**: `e2bf5b31d0db17466540c422896da99853925761` (Definitive Main)
