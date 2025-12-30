@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import { FilterInputs } from "./FilterInputs";
 import { useEffect } from "react";
@@ -17,6 +17,7 @@ interface MobileFilterDrawerProps {
 export function MobileFilterDrawer({
   isOpen, onClose, selectedCategory, selectedSuburb, onFilterChange, onClear
 }: MobileFilterDrawerProps) {
+  const shouldReduceMotion = useReducedMotion();
   
   // Prevent body scroll when open
   useEffect(() => {
@@ -43,10 +44,10 @@ export function MobileFilterDrawer({
           
           {/* Drawer */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { y: "100%" }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { y: "100%" }}
+            transition={shouldReduceMotion ? { duration: 0.1 } : { type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-xl p-6 pb-20 md:hidden max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">

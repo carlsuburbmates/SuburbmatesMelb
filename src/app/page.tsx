@@ -7,6 +7,8 @@ import { FreshSignals } from "@/components/home/FreshSignals";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { WhyJoinSection } from "@/components/home/WhyJoinSection";
 
+export const revalidate = 3600; // 1 hour
+
 export default function Home() {
   return (
     <>

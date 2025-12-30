@@ -7,6 +7,7 @@ import { BusinessProducts } from "../BusinessProducts";
 import { BusinessReviews } from "../BusinessReviews";
 import { ImageGallery } from "../ImageGallery";
 import { BusinessShowcase } from "../BusinessShowcase";
+import { StickyActionBar } from "../StickyActionBar";
 import { Container } from "@/components/layout/Container";
 import { Separator } from "@/components/ui/separator";
 
@@ -111,6 +112,7 @@ export function BusinessProfileRenderer({ business, templateKey = "standard" }: 
               </div>
            </div>
         </Container>
+        <StickyActionBar business={mappedBusiness} />
       </main>
     );
   }
@@ -157,6 +159,7 @@ export function BusinessProfileRenderer({ business, templateKey = "standard" }: 
           </div>
         </div>
       </Container>
+      <StickyActionBar business={mappedBusiness} />
     </main>
   );
 }
