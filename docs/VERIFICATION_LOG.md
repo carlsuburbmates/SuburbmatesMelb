@@ -1,5 +1,17 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
+## 2025-12-31 — PR3: Post-merge Verification (main)
+Branch: main
+Commit: bc6e7ff940a8547179ec5d8edd9fb3ea0e34f61f
+Status: PASS
+- **Repo state:** Clean. Merged via --no-ff.
+- **Unit tests:** 100% PASS (including new FIFO stacking test).
+- **Lint:** PASS (1 minor warning in unrelated file).
+- **Build:** SUCCESS.
+Verdict: ✅ PR3 MERGED & VERIFIED ON MAIN
+
+---
+
 ## 2025-12-31 — PR3: Featured FIFO Re-Verification
 Branch: fix/pr3-featured-fifo
 Commit: 7338a055b3e64e984b34be7fb3a6789dbb28f427
