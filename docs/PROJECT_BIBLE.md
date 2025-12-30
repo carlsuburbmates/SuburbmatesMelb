@@ -61,6 +61,63 @@ graph TD
     Stripe -->|Webhooks| API
 ```
 
+## 3. Information Architecture & Route Map (v1.1)
+*Structure-only definition for Phase 1 launch.*
+
+### 3.1 Public Funnel IA
+`Home` → `Discover` → `Creator Profile` → `Share` → `Upgrade`
+
+### 3.2 Page Groups
+*   **Public**: Home, Discover/Directory, Creator Profile, Collections, Marketplace, Pricing, About, Help/FAQ, Legal, 404/500
+*   **Auth**: Signup, Login, Password Reset, Verify Email
+*   **Creator App**: Dashboard, Profile Editor, Products, Stripe/Payouts, Featured, Verification, Settings
+*   **Admin**: Overview, Disputes, Claims, Moderation, Featured Audit
+
+### 3.3 Route Inventory Table
+| Route | File path (if exists) | Purpose | Auth | Data source | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `/` | `src/app/page.tsx` | Landing page | Public | Static/ISR | Exists |
+| `/about` | `src/app/about/page.tsx` | Brand story | Public | Static | Exists |
+| `/pricing` | `src/app/pricing/page.tsx` | Tiers & benefits | Public | Static | Exists |
+| `/directory` | `src/app/directory/page.tsx` | Main search/browse | Public | DB (ISR) | Exists |
+| `/business/[slug]` | `src/app/business/[slug]/page.tsx` | Creator Profile (Public) | Public | DB | Exists |
+| `/marketplace` | `src/app/marketplace/page.tsx` | Product aggregator | Public | DB (ISR) | Exists |
+| `/products/[slug]` | `src/app/products/[slug]/page.tsx` | Product details | Public | DB | Exists |
+| `/blog` | `src/app/blog/page.tsx` | Content marketing | Public | Static/CMS | Exists |
+| `/contact` | `src/app/contact/page.tsx` | Support entry | Public | Static | Exists |
+| `/help` | `src/app/help/page.tsx` | FAQ/Support | Public | Static | Exists |
+| `/collections` | - | Curated lists | Public | DB | **Missing** |
+| `/legal/terms` | - | Terms of Service | Public | Static | **Missing** |
+| `/legal/privacy` | - | Privacy Policy | Public | Static | **Missing** |
+| `/auth/login` | `src/app/auth/login/page.tsx` | Sign in | Auth | - | Exists |
+| `/auth/signup` | `src/app/auth/signup/page.tsx` | Registration | Auth | - | Exists |
+| `/auth/verify` | - | Email verification | Auth | - | **Missing** |
+| `/dashboard` | `src/app/dashboard/page.tsx` | Vendor metrics (Legacy path) | App | DB | **Needs restructure -> /app/dashboard** |
+| `/app/profile` | - | Edit profile | App | DB | **Missing** |
+| `/app/products` | - | Manage products | App | DB | **Missing** |
+| `/app/payouts` | - | Stripe Connect view | App | Stripe API | **Missing** |
+| `/app/settings` | - | Account settings | App | DB | **Missing** |
+| `/admin` | - | Internal ops | Admin | DB | **Missing** |
+
+### 3.4 Backlog (Structure-only): Pages & Spec Blocks
+
+#### Pages to create/restructure
+*   **Collections Index** (`/collections`): Grid of curated topics (e.g., "New Drops", "Ceramics Under $50").
+*   **Legal Wrapper** (`/legal/*`): Unified layout for Terms/Privacy with versioning.
+*   **Creator App Layout** (`/app/layout.tsx`): Sidebar nav, auth guard, shell.
+*   **Product Manager** (`/app/products`): CRUD list for physical/digital items.
+*   **Featured Booking** (`/app/featured`): Slot selector + Stripe Checkout integration.
+
+#### Cross-cutting spec blocks
+*   **Nav System**: Mobile bottom bar (App) vs Sticky header (Public).
+*   **Card Archetypes**: Unified "Creator Card" and "Product Card" variants (Grid/List/Compact).
+*   **Empty States**: "Illustrative" empty states for Dashboard/Products/Orders.
+*   **Share/OG**: Dynamic OpenGraph image generation for Profiles/Products.
+*   **Performance Budgets**: LCP < 2.5s, CLS < 0.1.
+*   **Copy Constraints**: Ban "business directory", enforce "creator platform".
+
+---
+
 ### Database Schema (ERD)
 *Simplified view of key relationships.*
 ```mermaid

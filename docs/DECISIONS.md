@@ -59,3 +59,11 @@ These values are canonical and must match **both**:
 ---
 
 Any document contradicting the decisions above should be updated immediately or annotated with a TODO pointing back here.
+
+## 7. Pre-launch Safe Defaults (until Phase 2+)
+
+*   **Custom domains**: Phase 2 (platform subdomain/slug only for now).
+*   **Contact model**: External links only (no in-app messaging pre-launch).
+*   **Collections**: Manual editorial + timestamp-based “New this week”; no “trending” claims pre-launch.
+*   **Verification**: ABN badge only; no quota changes unless enforced.
+*   **Motion/perf**: Intent-only animations; reduced-motion respected; no heavy sliders/parallax.
