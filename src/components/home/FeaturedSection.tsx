@@ -5,6 +5,7 @@ import { LazyImage } from "@/components/ui/LazyImage";
 import { useFadeIn } from "@/hooks/useScrollAnimation";
 import { analytics } from "@/lib/analytics";
 import { generateImageUrl, getImageBySection } from "@/lib/images";
+import { FEATURED_SLOT } from "@/lib/constants";
 import { useState } from "react";
 
 export function FeaturedSection() {
@@ -55,11 +56,11 @@ export function FeaturedSection() {
             </div>
             <div className="flex items-center text-white/80">
               <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
-              <span className="text-sm">30 days of featured visibility</span>
+              <span className="text-sm">{FEATURED_SLOT.DURATION_DAYS} days of featured visibility</span>
             </div>
             <div className="flex items-center text-white/80">
               <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
-              <span className="text-sm">Just A$20 per placement</span>
+              <span className="text-sm">Just A${FEATURED_SLOT.PRICE_CENTS / 100} per placement</span>
             </div>
           </div>
           <button

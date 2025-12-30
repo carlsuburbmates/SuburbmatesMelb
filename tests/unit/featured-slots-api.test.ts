@@ -37,6 +37,8 @@ function createQueryBuilder<T>(data: T) {
     neq: () => builder,
     lte: () => builder,
     gte: () => builder,
+    in: () => builder,
+    gt: () => builder,
     order: () => promise,
     limit: () => builder,
     maybeSingle: () => promise,

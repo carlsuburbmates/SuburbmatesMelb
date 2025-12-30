@@ -1,6 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+vi.hoisted(() => {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://dummy.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'dummy-key';
+});
+
 // Hoist mocks manually if needed, but vitest hoists vi.mock automatically.
 // The issue is that the factory function cannot reference variables outside of it.
 // We must return the mocks from the factory.

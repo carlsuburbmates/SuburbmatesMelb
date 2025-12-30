@@ -17,7 +17,7 @@ export default function HelpPage() {
     {
       question: "How do I create a creator profile?",
       answer:
-        "To create a profile, click on &lsquo;Sign up&rsquo; in the header and select &lsquo;Creator&rsquo;. Fill in your details including your studio name and description. We review profiles within 24-48 hours to ensure community quality.",
+        "To create a profile, click on &lsquo;Sign up&rsquo; in the header and select &lsquo;Creator&rsquo;. Fill in your details including your studio name and description. We review profiles shortly to ensure community quality.",
     },
     {
       question: "How much does it cost to list my products?",

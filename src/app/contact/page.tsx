@@ -65,7 +65,7 @@ export default function ContactPage() {
     {
       question: "How do I create a profile?",
       answer:
-        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Creator&rsquo;. Fill in your details and we will review your profile within 48 hours.",
+        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Creator&rsquo;. Fill in your details and we will review your profile shortly.",
     },
     {
       question: "How much does it cost?",
@@ -169,8 +169,7 @@ export default function ContactPage() {
                       Message Sent!
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Thank you for contacting us. We&rsquo;ll get back to you within
-                      24 hours.
+                      Thank you for contacting us. We&rsquo;ll get back to you shortly.
                     </p>
                     <Button
                       onClick={() => setIsSubmitted(false)}
