@@ -1,19 +1,20 @@
-# Suburbmates — Verification Log (Rolling Evidence)
+## 2025-12-31 — PR6: Reconciled Verification (main)
 
-## 2025-12-31 — PR6: Search Relevance & Ranking Truth (main) — Verified
-
-- **Commit**: `592e52ef68700ac3119934788009fb9def7c92c9` ([592e52e](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/592e52ef68700ac3119934788009fb9def7c92c9))
+- **Commit**: `ab45479093ae6c8590408846156de7af4fe9804f` ([ab45479](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/ab45479093ae6c8590408846156de7af4fe9804f))
 - **Status**: ✅ VERIFIED COMPLETE
-- **Evidence Snippets**:
-    - **Determinism**: `src/lib/search.ts:163-175` (featured > tier > recency)
-    - **Cap Enforcement**: `src/app/api/vendor/featured-slots/route.ts:274-275` (LGA Cap = 5)
-    - **Relevance Audit**: `pricing/page.tsx` (tier-based claims match `tierWeight` implementation)
-- **Gates**:
-    - **SSOT**: Pass
-    - **Lint**: Pass (Clean gate run)
-    - **Unit Tests**: Pass (44/44, `npm run test:unit`)
-    - **Build**: Pass (`npm run build`)
-- **Verdict**: PR6 is verified as truthful and documentation-aligned.
+- **Verbatim Gates**:
+  - `ssot:check`: PASS (SSOT Compliance Verified)
+  - `lint`: PASS (Clean)
+  - `test:unit`: PASS (44/44 passed)
+  - `build`: PASS (Compiled successfully)
+- **Cap Proof Chain**:
+  - Constants: `src/lib/constants.ts:83`
+  - API: `src/app/api/vendor/featured-slots/route.ts:275`
+  - RPC: `supabase/migrations/019_featured_slot_rpc_fix.sql:36`
+- **Copy Audit**:
+  - `pricing/page.tsx:52` (Highest ranking): ✅ PASS
+  - `vendor/dashboard/page.tsx:665` (Media assets): ❌ FAIL (Qualitative claim only)
+- **Verdict**: PR6 is verified for ordering logic and cap enforcement. Copy variance noted for manual action.
 
 ## 2025-12-30 — PR5: Post-merge Reconciliation & Hardening (main) — Verified
 
