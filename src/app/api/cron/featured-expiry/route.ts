@@ -94,7 +94,8 @@ export async function GET(req: Request) {
                 email,
                 businessName,
                 suburb,
-                slot.end_date
+                slot.end_date,
+                reminderDays
             );
 
             if (result.success) {
