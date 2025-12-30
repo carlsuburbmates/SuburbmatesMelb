@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/vendor/dashboard", label: "Overview" },
   { href: "/vendor/products", label: "Products" },
   { href: "/vendor/analytics", label: "Analytics" },
+  { href: "/vendor/settings", label: "Settings" },
 ];
 
 export default function VendorLayout({ children }: { children: ReactNode }) {

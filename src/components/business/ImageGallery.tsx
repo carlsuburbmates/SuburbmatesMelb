@@ -11,7 +11,7 @@ interface ImageGalleryProps {
     alt: string;
     caption?: string;
   }[];
-  businessName: string;
+  businessName?: string;
 }
 
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {

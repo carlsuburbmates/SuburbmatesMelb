@@ -36,7 +36,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Directory</span>
+            <span>Back to Search</span>
           </Link>
         </div>
 
@@ -79,7 +79,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                     )}
                     {business.isVendor && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Marketplace Vendor
+                        Marketplace Seller
                       </span>
                     )}
                   </div>
@@ -118,7 +118,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
 
               {/* Quick Actions */}
               <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-8">
-                <div className="flex flex-row md:flex-col gap-3">
+                <div className="flex flex-row flex-wrap md:flex-col gap-3">
                   {business.website && (
                     <a
                       href={business.website}

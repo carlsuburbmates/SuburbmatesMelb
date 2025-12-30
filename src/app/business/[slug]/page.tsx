@@ -5,9 +5,11 @@ import { BusinessInfo } from '@/components/business/BusinessInfo';
 import { BusinessContact } from '@/components/business/BusinessContact';
 import { BusinessProducts } from '@/components/business/BusinessProducts';
 import { BusinessReviews } from '@/components/business/BusinessReviews';
+import { StickyActionBar } from '@/components/business/StickyActionBar';
 import { ImageGallery } from '@/components/business/ImageGallery';
 import { BusinessShowcase } from '@/components/business/BusinessShowcase';
 import { Container } from '@/components/layout/Container';
+import { BusinessProfileRenderer } from '@/components/business/templates/BusinessProfileRenderer';
 
 interface BusinessPageProps {
   params: Promise<{
@@ -46,6 +48,8 @@ interface BusinessData {
   rating: number;
   reviewCount: number;
   images: BusinessImage[];
+  templateKey?: string;
+  themeConfig?: Record<string, unknown>;
 }
 
 function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
@@ -136,6 +140,8 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     rating: toNumberValue(raw.rating, 0),
     reviewCount: toNumberValue(raw.reviewCount, 0),
     images,
+    templateKey: typeof raw.templateKey === "string" ? raw.templateKey : undefined,
+    themeConfig: raw.themeConfig && typeof raw.themeConfig === "object" ? (raw.themeConfig as Record<string, unknown>) : undefined,
   };
 }
 
@@ -150,43 +156,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <BusinessHeader business={business} />
-      
-      <Container className="py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            <BusinessInfo business={business} />
-            
-            {/* Image Gallery */}
-            {business.images && business.images.length > 0 && (
-              <ImageGallery images={business.images} businessName={business.name} />
-            )}
-            
-            {/* Business Showcase */}
-            <BusinessShowcase business={business} />
-            
-            {business.isVendor && business.productCount > 0 && (
-              <Suspense fallback={<ProductsSkeleton />}>
-                <BusinessProducts businessId={business.id} vendorId={business.vendorId} />
-              </Suspense>
-            )}
-            
-            <Suspense fallback={<ReviewsSkeleton />}>
-              <BusinessReviews businessId={business.id} />
-            </Suspense>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              <BusinessContact business={business} />
-            </div>
-          </div>
-        </div>
-      </Container>
-    </main>
+    <BusinessProfileRenderer 
+      business={business} 
+      templateKey={business.templateKey || "standard"} 
+      themeConfig={business.themeConfig} 
+    />
   );
 }
 

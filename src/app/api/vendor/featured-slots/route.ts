@@ -283,56 +283,78 @@ export async function POST(req: NextRequest) {
 
     const now = new Date().toISOString();
 
-    const { data: activeInLga } = await authContext.dbClient
+    // FIFO SCHEDULING LOGIC
+    // Query all active and scheduled slots that end in the future
+    const { data: futureSlots } = await authContext.dbClient
       .from("featured_slots")
-      .select("id")
+      .select("end_date")
       .eq("lga_id", targetLgaId)
-      .eq("status", "active")
-      .lte("start_date", now)
-      .gte("end_date", now);
+      .in("status", ["active", "scheduled"])
+      .gt("end_date", now)
+      .order("end_date", { ascending: true });
 
-    const lgaActiveCount = activeInLga?.length ?? 0;
-    const effectiveActiveCount = forceQueue ? slotCap : lgaActiveCount;
+    const sortedSlots = futureSlots || [];
+    let calculatedStartDate = new Date(); // Default to now
 
-    let reservedSlotId: string | null = null;
+    // If we are at or over capacity, find when the next slot opens
+    // The slot that opens up capacity is the one that finishes earliest among the block that is "blocking" us.
+    // If Cap=5, and we have 5 slots, the 1st one to finish (index 0) allows the 6th one to start.
+    // If we have 10 slots (stacked up), and Cap=5.
+    // We need to be the 11th.
+    // The slots freeing up capacity are at indices: 0 (frees for 6th), 1 (frees for 7th)... 5 (frees for 11th).
+    // General formula: Index to follow = (current_count - cap).
+    // If count=5, cap=5 -> index 0. Start after slot[0].
+    // If count=1, cap=5 -> index -4. (count < cap), so start now.
+    
+    // However, we also need to respect that we can't start *before* now.
+    
+    if (sortedSlots.length >= slotCap) {
+        const freeingSlotIndex = sortedSlots.length - slotCap;
+        const freeingSlot = sortedSlots[freeingSlotIndex];
+        // Add a small buffer (e.g. 1 second or 1 minute) to avoid exact-boundary overlap issues with DB constraints
+        const releaseDate = new Date(freeingSlot.end_date);
+        calculatedStartDate = new Date(releaseDate.getTime() + 1000 * 60); // +1 minute
+    }
 
-    if (effectiveActiveCount < slotCap) {
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-      const mockCheckout = useMockCheckout
-        ? {
-            id: `cs_mock_${Date.now()}`,
-            url: `${siteUrl}/mock-featured-checkout`,
-          }
-        : null;
-      const startDate = new Date().toISOString();
-      const endDate = new Date(
-        Date.now() + FEATURED_SLOT.DURATION_DAYS * 24 * 60 * 60 * 1000
-      ).toISOString();
+    const startDateIso = calculatedStartDate.toISOString();
+    const endDateIso = new Date(
+        calculatedStartDate.getTime() + FEATURED_SLOT.DURATION_DAYS * 24 * 60 * 60 * 1000
+    ).toISOString();
 
-      if (!supabaseAdmin) {
-        throw new Error("Supabase admin client not configured");
-      }
-      const rpcResult = await supabaseAdmin.rpc(
-        "fn_try_reserve_featured_slot",
-        {
-          p_vendor_id: vendor.id,
-          p_business_profile_id: profile.id,
-          p_lga_id: targetLgaId,
-          p_suburb_label: safeSuburbLabel,
-          p_start_date: startDate,
-          p_end_date: endDate,
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const mockCheckout = useMockCheckout
+      ? {
+          id: `cs_mock_${Date.now()}`,
+          url: `${siteUrl}/mock-featured-checkout`,
         }
-      );
-      const _rpc = rpcResult as unknown as {
-        data?: string | null;
-        error?: unknown;
-      };
-      const reservationError = _rpc.error;
-      reservedSlotId = _rpc.data ?? null;
+      : null;
 
-      if (reservationError) {
-        let message = "Reservation failed";
+    if (!supabaseAdmin) {
+      throw new Error("Supabase admin client not configured");
+    }
+
+    // Try reserve with the calculated dates
+    const rpcResult = await supabaseAdmin.rpc(
+      "fn_try_reserve_featured_slot",
+      {
+        p_vendor_id: vendor.id,
+        p_business_profile_id: profile.id,
+        p_lga_id: targetLgaId,
+        p_suburb_label: safeSuburbLabel,
+        p_start_date: startDateIso,
+        p_end_date: endDateIso,
+      }
+    );
+    
+    const _rpc = rpcResult as unknown as {
+      data?: string | null;
+      error?: unknown;
+    };
+    const reservationError = _rpc.error;
+    let reservedSlotId = _rpc.data ?? null;
+
+    if (reservationError) {
+      let message = "Reservation failed";
         if (
           reservationError &&
           typeof reservationError === "object" &&
@@ -345,35 +367,52 @@ export async function POST(req: NextRequest) {
         } else if (typeof reservationError === "string") {
           message = reservationError;
         }
+
+        // Map known DB consistency errors to friendly messages
         if (message.includes("lga_cap_exceeded")) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: {
-                code: "LGA_CAP_EXCEEDED",
-                message: "Featured slots are full for that council",
-              },
-            },
-            { status: 409 }
-          );
+           // This shouldn't happen with our calculation unless race condition
+           return NextResponse.json(
+             {
+               success: false,
+               error: {
+                 code: "LGA_CAP_EXCEEDED",
+                 message: "This slot became unavailable during processing. Please try again.",
+               },
+             },
+             { status: 409 }
+           );
         }
 
         if (message.includes("vendor_cap_exceeded")) {
-          return NextResponse.json(
+            return NextResponse.json(
+              {
+                success: false,
+                error: {
+                  code: "VENDOR_CAP_EXCEEDED",
+                  message: "You have reached your featured slots cap",
+                },
+              },
+              { status: 409 }
+            );
+        }
+        
+        logger.error("featured_slot_reservation_error", {
+            error: reservationError,
+        });
+
+        return NextResponse.json(
             {
               success: false,
               error: {
-                code: "VENDOR_CAP_EXCEEDED",
-                message: "You have reached your featured slots cap",
+                code: "RESERVATION_FAILED",
+                message: "Unable to reserve featured slot",
               },
             },
-            { status: 409 }
-          );
-        }
+            { status: 500 }
+        );
+    }
 
-        logger.error("featured_slot_reservation_error", {
-          error: reservationError,
-        });
+    if (!reservedSlotId) {
         return NextResponse.json(
           {
             success: false,
@@ -384,29 +423,17 @@ export async function POST(req: NextRequest) {
           },
           { status: 500 }
         );
-      }
+    }
 
-      if (!reservedSlotId) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "RESERVATION_FAILED",
-              message: "Unable to reserve featured slot",
-            },
-          },
-          { status: 500 }
-        );
-      }
-
-      let session: {
+    let session: {
         id?: string;
         url?: string | null;
         metadata?: Record<string, unknown>;
-      } | null = null;
-      if (mockCheckout) {
+    } | null = null;
+
+    if (mockCheckout) {
         session = mockCheckout as { id: string; url: string };
-      } else {
+    } else {
         const created = await createFeaturedSlotCheckoutSession({
           vendorId: vendor.id,
           businessProfileId: profile.id,
@@ -426,62 +453,19 @@ export async function POST(req: NextRequest) {
           url: created.url,
           metadata: created.metadata ?? undefined,
         };
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          data: {
-            checkoutUrl: session?.url ?? null,
-            sessionId: session?.id ?? null,
-            reservedSlotId: reservedSlotId ? String(reservedSlotId) : null,
-          },
-        },
-        { status: 201 }
-      );
     }
-
-    const queueEntry = await upsertFeaturedQueueEntry(
-      authContext.dbClient,
-      vendor.id,
-      profile.id,
-      targetLgaId,
-      safeSuburbLabel
-    );
-
-    // Emit telemetry for the reservation (sanitized)
-    try {
-      const telemetry = minimalEventPayload({
-        vendor_id: vendor.id,
-        lga_id: targetLgaId,
-        reserved_slot_id: reservedSlotId ? String(reservedSlotId) : "",
-        event: "featured_slot_reserved",
-      }) as Record<string, unknown>;
-      void emitPosthogEvent("featured_slot_reserved", telemetry);
-      logger.info(
-        "featured_slot_reserved",
-        sanitizeForLogging(telemetry) as Record<string, unknown>
-      );
-    } catch (e) {
-      logger.warn("featured_slot_telemetry_failed", { error: e });
-    }
-
-    const position = await computeFeaturedQueuePosition(
-      authContext.dbClient,
-      targetLgaId,
-      queueEntry
-    );
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          status: "queued",
-          position,
-          suburb: safeSuburbLabel,
+          checkoutUrl: session?.url ?? null,
+          sessionId: session?.id ?? null,
+          reservedSlotId: reservedSlotId ? String(reservedSlotId) : null,
+          scheduledStartDate: startDateIso, // Return this for UI feedback
         },
       },
-      { status: 202 }
+      { status: 201 }
     );
   } catch (error) {
     if (error instanceof UnauthorizedError) {

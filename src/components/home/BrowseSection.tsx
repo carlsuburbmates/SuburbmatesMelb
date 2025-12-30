@@ -4,7 +4,7 @@ import { LazyImage } from "@/components/ui/LazyImage";
 import { useFadeIn } from "@/hooks/useScrollAnimation";
 import { analytics } from "@/lib/analytics";
 import { generateImageUrl, getImageBySection } from "@/lib/images";
-import { Search } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -53,9 +53,9 @@ export function BrowseSection() {
       >
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-white mb-6">Browse by Suburb</h2>
-          <p className="text-white/90 text-lg mb-8">
-            Discover local businesses in your neighborhood. Find everything from
-            cafes to consultants, all verified and locally focused.
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Discover local talent in your neighborhood. Find everything from
+            gardeners and pet sitters to digital artists and consultants.
           </p>
 
           {/* Search Bar */}
@@ -78,14 +78,15 @@ export function BrowseSection() {
           </form>
 
           <div className="text-white/70 text-sm mb-8">
-            Or browse all businesses in directory
+            Or browse all studios in directory
           </div>
 
           <Link
             href="/directory"
-            className="btn-secondary bg-white text-gray-900 hover:bg-gray-100"
+            className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700 transition-colors"
           >
-            Browse Now
+            Or browse all studios in directory
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
       </div>

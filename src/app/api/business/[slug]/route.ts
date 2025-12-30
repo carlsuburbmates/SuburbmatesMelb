@@ -59,7 +59,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         vendor_status,
         phone,
         website,
-        images
+        images,
+        template_key,
+        theme_config
       `)
       .eq('slug', slug)
       .eq('is_public', true)

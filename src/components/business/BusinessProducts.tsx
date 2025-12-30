@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ShoppingBag, ExternalLink, Star, Download } from 'lucide-react';
+import { ShoppingBag, ExternalLink, Search } from 'lucide-react';
+import { ProductCard, ProductCardSkeleton } from '@/components/marketplace/ProductCard';
+import { Input } from '@/components/ui/input';
 
 interface Product {
   id: string;
@@ -19,19 +20,19 @@ interface Product {
 }
 
 interface BusinessProductsProps {
-  businessId: string;
+  businessId?: string;
   vendorId?: string;
+  limit?: number;
+  view?: string;
 }
 
-export function BusinessProducts({ businessId, vendorId }: BusinessProductsProps) {
+export function BusinessProducts({ businessId, vendorId, limit }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchProducts = async () => {
-      // If no vendorId is provided, we can't fetch products from the vendor-based API
-      // However, we might fallback to using businessId if the API supports it, or just return empty
-      // But based on our implementation, we need vendorId.
       const idToUse = vendorId;
       
       if (!idToUse) {
@@ -48,7 +49,9 @@ export function BusinessProducts({ businessId, vendorId }: BusinessProductsProps
         }
 
         const data = await response.json();
-        setProducts(data.products || []);
+        // Ensure data exists and is array
+        const allProducts = data.products || [];
+        setProducts(allProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
@@ -60,145 +63,97 @@ export function BusinessProducts({ businessId, vendorId }: BusinessProductsProps
     fetchProducts();
   }, [businessId, vendorId]);
 
+  // Filtering
+  const filteredProducts = products.filter(product => 
+     product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Slicing (apply limit after filter if needed, OR before? Usually limit is "latest X", so applied before filter if we only fetched X. But here we fetched all (if limit was undefined in fetch, but our API uses limit...))
+  // Wait, if I pass limit to BusinessProducts component (e.g. 6), the API fetch was NOT using it in previous code?
+  // Previous code: `const allProducts = data.products || []; setProducts(limit ? allProducts.slice(0, limit) : allProducts);`
+  // But wait, the API call should probably limit it IF we don't want to filter all of them? 
+  // But if we want to Search, we need ALL products.
+  // PR8 says: "Search/Filter within the vendor's own products"
+  // If I only fetch 6, I can't search effectively.
+  // So if `limit` is present (Dashboard/Profile preview), maybe Search is disabled?
+  // Or I fetch all and slice for display?
+  // Let's assume if limit is present, we are in "Preview Mode" (no search).
+  // If no limit (Shop Tab), we enable Search.
+
+  const isPreview = !!limit;
+  const displayProducts = isPreview ? products.slice(0, limit) : filteredProducts;
+
   if (loading) {
-    return <ProductsSkeleton />;
+     return (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+               <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {[...Array(limit || 3)].map((_, i) => (
+                  <div key={i} className="h-64"><ProductCardSkeleton /></div>
+               ))}
+            </div>
+        </div>
+     );
   }
 
   if (products.length === 0) {
-    return null;
+     // Only hide if NOT searching (no products at all)
+     // If searching and no results, show "No results".
+     // But here products.length 0 means vendor has no products.
+    return null; 
   }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div className="flex items-center space-x-2">
           <ShoppingBag className="w-5 h-5 text-gray-600" />
           <h2 className="text-xl font-semibold text-gray-900">Digital Products</h2>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {products.length} {products.length === 1 ? 'product' : 'products'}
+            {products.length}
           </span>
         </div>
         
-        <Link 
-          href={`/marketplace?vendor=${businessId}`}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
-        >
-          <span>View All Products</span>
-          <ExternalLink className="w-3 h-3" />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProductCard({ product }: { product: Product }) {
-  const formatPrice = (cents: number) => {
-    return `$${(cents / 100).toFixed(2)}`;
-  };
-
-  return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-      {/* Product Image */}
-      <div className="aspect-video bg-gray-100 relative">
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.title}
-            fill
-            className="object-cover"
-            sizes="(min-width: 768px) 50vw, 100vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Download className="w-8 h-8 text-gray-400" />
-          </div>
-        )}
-        
-        {product.isFeatured && (
-          <div className="absolute top-3 left-3">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-              Featured
-            </span>
-          </div>
-        )}
-        
-        <div className="absolute top-3 right-3">
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white text-gray-800 shadow-sm">
-            {product.category}
-          </span>
-        </div>
-      </div>
-
-      {/* Product Info */}
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-          {product.title}
-        </h3>
-        
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {product.description}
-        </p>
-
-        {/* Rating and Downloads */}
-        <div className="flex items-center justify-between mb-3 text-sm text-gray-500">
-          <div className="flex items-center space-x-1">
-            <Star className="w-4 h-4 text-amber-400 fill-current" />
-            <span>{product.rating}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Download className="w-4 h-4" />
-            <span>{product.downloadCount} downloads</span>
-          </div>
-        </div>
-
-        {/* Price and CTA */}
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-bold text-gray-900">
-            {formatPrice(product.price)}
-          </div>
-          <Link
-            href={`/products/${product.slug}`}
-            className="inline-flex items-center px-3 py-1.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-          >
-            View Product
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProductsSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="animate-pulse">
-        <div className="flex items-center justify-between mb-6">
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="aspect-video bg-gray-200"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                <div className="flex justify-between items-center">
-                  <div className="h-5 bg-gray-200 rounded w-16"></div>
-                  <div className="h-8 bg-gray-200 rounded w-20"></div>
-                </div>
-              </div>
+        {/* Only show Search filter if NOT in preview mode and we have enough products to warrant search (e.g. > 4) */}
+        {!isPreview && products.length > 4 && (
+            <div className="relative w-full sm:w-64">
+               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+               <Input 
+                  placeholder="Search products..." 
+                  className="pl-9 h-9 text-sm" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+               />
             </div>
-          ))}
-        </div>
+        )}
+
+        {/* View All Link (only if preview) */}
+        {isPreview && (
+            <Link 
+            href={`/marketplace?vendor=${businessId}`}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1 whitespace-nowrap"
+            >
+            <span>View All</span>
+            <ExternalLink className="w-3 h-3" />
+            </Link>
+        )}
+      </div>
+
+      {displayProducts.length === 0 && searchQuery && (
+          <div className="text-center py-12 text-gray-500">
+              No products match &quot;{searchQuery}&quot;
+          </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {displayProducts.map((product) => (
+          <div key={product.id} className="h-full">
+               <ProductCard product={product as any} showVendor={false} />
+          </div>
+        ))}
       </div>
     </div>
   );

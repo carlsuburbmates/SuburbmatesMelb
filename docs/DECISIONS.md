@@ -17,19 +17,35 @@ This document locks the cross-functional decisions that every other v1.1 artifac
 
 ## 3. Automation Claim
 
-- Until the `[172] AI Automations` spec exists, **all documents must describe the platform as having “dozens of automations”** (no “44+” references).
+- **SSOT NOTE (Implemented):** automation features in development; no counts stated publicly until spec exists.
 - Once the spec is authored, update this section with the official count + link.
 
 ## 4. Vendor Verification
 
 - **Mandatory:** Email verification + Stripe Connect onboarding (Stripe handles identity/KYC and payout accounts).
-- **Optional but incentivized:** ABN submission + verification. Verified ABNs unlock the badge and higher Basic-tier product limits (10 vs 5).
-- **Data handling:** Suburbmates stores the ABN value and badge flag only; Stripe retains KYC/ID evidence.
+- **Optional:** ABN submission + checksum validation (format integrity).
+- **SSOT NOTE (Implemented):** ABN verification currently awards a **badge/trust signal only**. It does **not** change tier quotas unless explicitly enforced in code + DB triggers.
+- **Data handling:** Suburbmates stores ABN value and badge flag only; Stripe retains KYC/ID evidence.
+
+### 4.1 Vendor Tiers & Quotas (SSOT — Implemented)
+These values are canonical and must match **both**:
+- `src/lib/constants.ts` (`TIER_LIMITS`, `FEATURED_SLOT`)
+- Supabase enforcement trigger for published product quotas (see `supabase/migrations/020_basic_tier_cap.sql`)
+
+| Tier (key) | Public name | Monthly fee | Product quota | Storage (GB) | Commission | Custom Domain | Landing Page | Featured capability |
+|---|---|---:|---:|---:|---:|---|---|---|
+| `none` | None | $0 | 0 | 0 | 0% | No | No | N/A |
+| `basic` | Basic | $0 | 3 | 5 | 8% | No | Yes | Can purchase featured (paid) |
+| `pro` | Pro | $29 | 50 | 10 | 6% | Yes | Yes | Can purchase featured (paid) |
+| `premium` | PREMIUM | $99 | 50 | 20 | 5% | Yes | Yes | Up to 3 concurrent featured placements (paid) |
+| `suspended`| Suspended | $0 | 0 | 0 | 0% | No | No | N/A |
 
 ## 5. Featured Slot Pricing & Duration
 
 - Price: **$20 AUD** per slot.
 - Duration: **30 days** (rolling), maximum **5 active slots per LGA**.
+- **SSOT NOTE (Implemented):** Featured is **paid**. “Premium” does not grant free credits unless implemented explicitly.
+- **Mechanics:** FIFO scheduling enabled; reminders sent 3 days before expiry.
 - All revenue/reports must use this configuration.
 
 ## 6. Commission Rates

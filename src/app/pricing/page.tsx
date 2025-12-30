@@ -2,79 +2,73 @@
 
 import { Check, Star } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { FEATURED_SLOT, TIER_LIMITS } from "@/lib/constants";
 
 export default function Pricing() {
-  const [annualBilling, setAnnualBilling] = useState(false);
-
   const pricingPlans = [
     {
+      key: "basic" as const,
       name: "Basic",
-      description:
-        "Perfect for small local businesses starting their online presence",
-      price: annualBilling ? 0 : 0,
-      period: annualBilling ? "/year" : "/month",
+      description: "Get listed. Build trust. Sell a small catalogue.",
+      priceCents: TIER_LIMITS.basic.monthly_fee,
       featured: false,
       features: [
-        "Up to 3 products",
-        "Basic business profile",
-        "Directory listing",
-        "Customer reviews",
-        "Analytics dashboard",
-        "Email support",
+        `Up to ${TIER_LIMITS.basic.product_quota} published products`,
+        `${TIER_LIMITS.basic.storage_quota_gb}GB storage`,
+        `Commission: ${Math.round(TIER_LIMITS.basic.commission_rate * 100)}%`,
+        "Public creator profile + directory listing",
+        "Sell via Stripe Connect (onboarding required)",
+        "ABN badge (optional)",
       ],
-      cta: "Get Started",
+      cta: "Create profile",
       ctaLink: "/auth/signup",
     },
     {
-      name: "Standard",
-      description: "For growing businesses with more products and features",
-      price: annualBilling ? 294 : 29,
-      period: annualBilling ? "/year" : "/month",
+      key: "pro" as const,
+      name: "Pro",
+      description: "More inventory, better ranking, lower commission.",
+      priceCents: TIER_LIMITS.pro.monthly_fee,
       featured: true,
       features: [
-        "Up to 10 products",
-        "Enhanced business profile",
-        "Directory listing with priority",
-        "Customer reviews & ratings",
-        "Advanced analytics",
-        "Priority email support",
-        "Featured in weekly newsletter",
-        "Social media integration",
+        `Up to ${TIER_LIMITS.pro.product_quota} published products`,
+        `${TIER_LIMITS.pro.storage_quota_gb}GB storage`,
+        `Commission: ${Math.round(TIER_LIMITS.pro.commission_rate * 100)}%`,
+        "Higher directory ranking vs Basic",
+        `Featured placement available (paid, ${FEATURED_SLOT.DURATION_DAYS} days / $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)})`,
       ],
-      cta: "Start Free Trial",
+      cta: "Upgrade to Pro",
       ctaLink: "/auth/signup",
     },
     {
+      key: "premium" as const,
       name: "Premium",
-      description: "For established businesses with extensive product catalogs",
-      price: annualBilling ? 990 : 99,
-      period: annualBilling ? "/year" : "/month",
+      description: "Top ranking and the lowest commission.",
+      priceCents: TIER_LIMITS.premium.monthly_fee,
       featured: false,
       features: [
-        "Up to 50 products",
-        "Premium business profile",
-        "Directory listing with top priority",
-        "Customer reviews & ratings",
-        "Advanced analytics with custom reports",
-        "24/7 priority support",
-        "Featured in weekly newsletter",
-        "Social media integration",
-        "3 featured product slots",
-        "Custom branding options",
-        "API access",
-        "Bulk product management",
+        `Up to ${TIER_LIMITS.premium.product_quota} published products`,
+        `${TIER_LIMITS.premium.storage_quota_gb}GB storage`,
+        `Commission: ${Math.round(TIER_LIMITS.premium.commission_rate * 100)}%`,
+        "Highest directory ranking",
+        "Up to 3 concurrent featured placements (paid)",
       ],
-      cta: "Start Free Trial",
+      cta: "Upgrade to Premium",
       ctaLink: "/auth/signup",
     },
   ];
 
+  const formatPrice = (cents: number) => (cents === 0 ? "Free" : `$${(cents / 100).toFixed(0)}`);
+  
   const faqs = [
     {
       question: "Can I change my plan later?",
       answer:
-        "Yes, you can upgrade or downgrade your plan at any time. When upgrading, you will immediately get access to all new features. When downgrading, your new plan will take effect at the next billing cycle.",
+        "Yes, you can upgrade or downgrade your plan at any time. When upgrading, changes apply immediately. When downgrading, your new plan will take effect at the next billing cycle.",
+    },
+    {
+      question: "Do you offer annual billing?",
+      answer:
+        "Not yet. Pricing is monthly during beta to keep plans simple and avoid misleading claims.",
     },
     {
       question: "What payment methods do you accept?",
@@ -84,7 +78,7 @@ export default function Pricing() {
     {
       question: "Is there a setup fee?",
       answer:
-        "No, there are no setup fees for any of our plans. You only pay the monthly or annual subscription fee based on your chosen plan.",
+        "No, there are no setup fees for any of our plans. You only pay the monthly subscription fee based on your chosen plan.",
     },
     {
       question: "Can I cancel my subscription?",
@@ -97,9 +91,9 @@ export default function Pricing() {
         "If you reach your product limit, you will have the option to upgrade to a higher plan or archive inactive products to free up space. We will notify you before you reach your limit.",
     },
     {
-      question: "Do you offer discounts for annual billing?",
+      question: "How does featured placement work?",
       answer:
-        "Yes, annual billing includes a 17% discount compared to monthly billing. You save over two months of subscription fees when paying annually.",
+        `Featured placements are paid, time-boxed placements. A slot runs for ${FEATURED_SLOT.DURATION_DAYS} days and councils have a cap of ${FEATURED_SLOT.MAX_SLOTS_PER_LGA} active slots.`,
     },
   ];
 
@@ -113,44 +107,10 @@ export default function Pricing() {
               Simple, Transparent Pricing
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Choose the perfect plan for your business. Start with our free
+              Choose the perfect plan for your studio. Start with our free
               Basic plan and upgrade as you grow.
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Pricing Toggle */}
-      <div className="container-custom py-8">
-        <div className="flex items-center justify-center">
-          <span
-            className={`mr-3 text-sm font-medium ${
-              !annualBilling ? "text-gray-900" : "text-gray-500"
-            }`}
-          >
-            Monthly
-          </span>
-          <button
-            onClick={() => setAnnualBilling(!annualBilling)}
-            className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            aria-pressed={annualBilling}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                annualBilling
-                  ? "translate-x-6 bg-gray-900"
-                  : "translate-x-1 bg-gray-400"
-              }`}
-            />
-          </button>
-          <span
-            className={`ml-3 text-sm font-medium ${
-              annualBilling ? "text-gray-900" : "text-gray-500"
-            }`}
-          >
-            Annual{" "}
-            <span className="text-green-600 font-semibold">(Save 17%)</span>
-          </span>
         </div>
       </div>
 
@@ -171,7 +131,7 @@ export default function Pricing() {
                   <div className="flex items-center justify-center">
                     <Star className="h-4 w-4 text-yellow-400 mr-1" />
                     <span className="text-sm font-semibold text-white">
-                      Most Popular
+                      Best Value
                     </span>
                   </div>
                 </div>
@@ -186,11 +146,11 @@ export default function Pricing() {
                 <div className="mb-6">
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-gray-900">
-                      {plan.price === 0 ? "Free" : `$${plan.price}`}
+                      {formatPrice(plan.priceCents)}
                     </span>
-                    <span className="text-gray-600 ml-2">{plan.period}</span>
+                    <span className="text-gray-600 ml-2">/month</span>
                   </div>
-                  {plan.price === 0 && (
+                  {plan.priceCents === 0 && (
                     <p className="text-sm text-green-600 mt-1">Forever free</p>
                   )}
                 </div>
@@ -252,7 +212,7 @@ export default function Pricing() {
             Ready to get started?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join hundreds of Melbourne businesses already using SuburbMates to
+            Join the verified community of Melbourne makers and studios using SuburbMates to
             grow their online presence.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

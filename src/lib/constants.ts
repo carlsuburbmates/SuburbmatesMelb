@@ -24,13 +24,20 @@ export const TIER_LIMITS = {
     commission_rate: 0,
     monthly_fee: 0,
     can_sell: false,
+    marketplace_cap: 0,
+    has_landing_page: false,
+    has_custom_domain: false,
   },
   basic: {
-    product_quota: 5,
+    // SSOT: must match DB quota enforcement (see supabase/migrations/020_basic_tier_cap.sql)
+    product_quota: 3,
     storage_quota_gb: 5,
     commission_rate: 0.08, // 8%
     monthly_fee: 0,
     can_sell: true,
+    marketplace_cap: 3, // Matches product_quota
+    has_landing_page: true, // Basic profile builder
+    has_custom_domain: false,
   },
   pro: {
     product_quota: 50,
@@ -38,6 +45,9 @@ export const TIER_LIMITS = {
     commission_rate: 0.06, // 6%
     monthly_fee: 2900, // A$29.00 in cents
     can_sell: true,
+    marketplace_cap: 50,
+    has_landing_page: true,
+    has_custom_domain: true,
   },
   premium: {
     product_quota: 50, // Premium tier per SSOT §3.2
@@ -45,7 +55,11 @@ export const TIER_LIMITS = {
     commission_rate: 0.05, // 5%
     monthly_fee: 9900, // A$99.00 in cents
     can_sell: true,
-    featured_slots: 3, // Exclusive feature
+    marketplace_cap: 50,
+    has_landing_page: true,
+    has_custom_domain: true,
+    // SSOT: "featured_slots" is a capability cap (max concurrent placements), not free credits.
+    featured_slots: 3,
   },
   suspended: {
     product_quota: 0,
@@ -53,6 +67,9 @@ export const TIER_LIMITS = {
     commission_rate: 0,
     monthly_fee: 0,
     can_sell: false,
+    marketplace_cap: 0,
+    has_landing_page: false,
+    has_custom_domain: false,
   },
 } as const;
 
@@ -65,6 +82,8 @@ export const FEATURED_SLOT = {
   DURATION_DAYS: 30,
   MAX_SLOTS_PER_LGA: 5,
   MAX_SLOTS_PER_VENDOR: 3, // per vendor across all suburbs
+  FIFO_SCHEDULING: true, // Implements queue if full
+  EXPIRY_REMINDER_DAYS: 3, // Notify 3 days before expiry
 } as const;
 
 // ============================================================================

@@ -9,7 +9,7 @@ import { useFadeIn } from '@/hooks/useScrollAnimation';
 const faqs = [
   {
     question: 'What\'s the difference between directory and marketplace?',
-    answer: 'Directory profiles are free and showcase your business information. Marketplace lets you sell digital products for a 6-8% commission. Every vendor starts with a directory profile.'
+    answer: 'Directory profiles are free and showcase your studio information. Marketplace lets you sell digital products for a 6-8% commission. Every vendor starts with a directory profile.'
   },
   {
     question: 'How much does it cost?',

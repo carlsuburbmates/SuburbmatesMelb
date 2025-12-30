@@ -74,5 +74,5 @@ function DirectoryListingSkeleton() {
 
 export const metadata = {
   title: 'Business Directory - SuburbMates',
-  description: 'Discover local businesses in your Melbourne suburb. Connect with neighborhood services and digital marketplace vendors.',
+  description: 'Discover local studios and creators in your Melbourne suburb. Connect with neighborhood services and digital marketplace vendors.',
 };

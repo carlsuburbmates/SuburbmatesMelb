@@ -1,4 +1,9 @@
 import { AuthSession, User, Vendor } from "./types";
+import {
+  VENDOR_STATUS,
+  type VendorTier,
+  TIER_LIMITS,
+} from "./constants";
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
@@ -194,9 +199,12 @@ class AuthManager {
       abn_verified: false,
       product_count: 0,
       storage_used_mb: 0,
-      product_quota: 0,
-      storage_quota_gb: 0,
-      commission_rate: 0,
+      product_quota: TIER_LIMITS.none.product_quota,
+      storage_quota_gb: TIER_LIMITS.none.storage_quota_gb,
+      commission_rate: TIER_LIMITS.none.commission_rate,
+      has_custom_domain: TIER_LIMITS.none.has_custom_domain,
+      has_landing_page: TIER_LIMITS.none.has_landing_page,
+      marketplace_cap: TIER_LIMITS.none.marketplace_cap,
     })
       .select()
       .single();

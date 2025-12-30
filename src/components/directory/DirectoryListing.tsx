@@ -124,13 +124,13 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
           <MapPin className="w-12 h-12 text-gray-400" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          No businesses found
+          No studios found
         </h3>
         <p className="text-gray-600 mb-6">
           Try adjusting your search criteria or explore different suburbs and categories.
         </p>
         <Link href="/directory" className="btn-primary">
-          Browse All Businesses
+          Browse All Studios
         </Link>
       </div>
     );
@@ -142,9 +142,9 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-gray-600">
-          Showing {businesses.length} of {totalCount} businesses
+          Showing {businesses.length} of {totalCount} local studios
           {suburb && <span> near {suburb}</span>}
-          {category && <span> â€¢ Category: {category}</span>}
+          {category && <span> • Category: {category}</span>}
         </p>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <Clock className="w-4 h-4" />
@@ -153,7 +153,7 @@ export function DirectoryListing({ suburb, category, search, page }: DirectoryLi
       </div>
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         ref={cardsAnimation.containerRef}
       >
         {businesses.map((business, index) => (

@@ -6,6 +6,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { MobileNav } from "@/components/layout/MobileNav";
+import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -113,8 +115,10 @@ export default function RootLayout({
           </a>
 
           <Header />
-          <main id="main-content" className="pt-16 md:pt-24">{children}</main>
+          <main id="main-content" className="pt-16 md:pt-24 min-h-screen pb-20 md:pb-0">{children}</main>
           <Footer />
+          <Toaster position="bottom-center" />
+          <MobileNav />
         </AuthProvider>
       </body>
     </html>

@@ -49,8 +49,8 @@ export function CTASection() {
       >
         <div className="text-center mb-12 md:mb-16">
           <h2 className="mb-4 md:mb-6">Melbourne&rsquo;s Dual Platform</h2>
-          <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-            Start with a free business directory profile, then upgrade to sell
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Start with a free verified studio profile, then upgrade to sell
             digital products when you&rsquo;re ready to monetize your expertise.
           </p>
         </div>
@@ -64,7 +64,7 @@ export function CTASection() {
             <h3 className="mb-4">Build Your Brand</h3>
             <p className="text-gray-600 mb-6 text-sm leading-relaxed">
               Create a free directory profile to establish your local presence.
-              Perfect for service businesses and professionals.
+              Perfect for service providers and studios.
             </p>
             <button onClick={handleCreatorCTA} className="btn-primary">
               Start Free

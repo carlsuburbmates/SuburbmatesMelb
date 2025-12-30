@@ -14,7 +14,8 @@ interface Review {
 }
 
 interface BusinessReviewsProps {
-  businessId: string;
+  businessId?: string;
+  vendorId?: string; // Add vendorId as optional
 }
 
 export function BusinessReviews({ businessId }: BusinessReviewsProps) {

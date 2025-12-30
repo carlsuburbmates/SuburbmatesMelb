@@ -22,9 +22,14 @@
 | `archive/quarantine/` | **UNVERIFIED** legacy docs. | ☣️ Quarantine |
 | `archive/superseded/` | Verified outdated files. | 🗑️ Archive |
 
+> The **ONLY** Source of Truth for Product Rules (tiers, quotas, featured, commissions) is:
+> - `src/lib/constants.ts` (canonical values)
+> - `docs/DECISIONS.md` (human-readable mirror; must match constants)
+> - Supabase migration-enforced constraints (quota enforcement, RLS) where applicable
+
 ## 🛠️ How to use this documentation
 1.  **Always check `PROJECT_BIBLE.md` first.**
-2.  If you need to know *why* a decision was made, check `DECISIONS.md`.
-3.  If you need to know *what to do next*, check `guides/` or your active `task.md`.
-4.  **Ignore** anything in `archive/` unless specifically looking for history.
-
+2.  If you need to know *product rules*, check `src/lib/constants.ts` + `DECISIONS.md`.
+3.  If you need to know *why* a decision was made, check `DECISIONS.md`.
+4.  If you need to know *what to do next*, check `guides/` or your active `task.md`.
+5.  **Ignore** anything in `archive/` unless specifically looking for history.

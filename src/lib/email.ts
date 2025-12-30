@@ -417,6 +417,38 @@ export async function sendDisputeNotificationEmail(
   });
 }
 
+/**
+ * Featured slot expiry reminder
+ */
+export async function sendFeaturedSlotExpiryEmail(
+  email: string,
+  businessName: string,
+  suburb: string,
+  expiryDate: string
+): Promise<EmailResult> {
+  const formattedDate = new Date(expiryDate).toLocaleDateString('en-AU', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  return sendEmail({
+    to: email,
+    subject: `Featured Slot Expiring Soon - ${suburb}`,
+    html: `
+      <h1>Your Featured Slot is Expiring Soon</h1>
+      <p>Hi ${businessName},</p>
+      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in 3 days).</p>
+      <p>To keep your top spot and continue getting premium visibility, you can renew your slot from your dashboard.</p>
+      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Manage Featured Slots</a></p>
+      <p>If you choose not to renew, your slot will become available for other local studios.</p>
+      <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+  });
+}
+
 // ============================================================================
 // BATCH EMAIL
 // ============================================================================
