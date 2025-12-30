@@ -1,3 +1,8 @@
+# Compliance & QA Master (Non-Authoritative)
+> **⚠️ NON-AUTHORITATIVE**
+> This file is for compliance/QA reference only.
+> **Product truth, positioning, and public claims live ONLY in [`docs/README.md`](../README.md).**
+
 # Suburbmates v1.1 — Compliance & QA Master (v3.1)
 
 > Last updated: 19 November 2025  

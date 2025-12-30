@@ -1,3 +1,8 @@
+# Operations & Deployment (Non-Authoritative)
+> **⚠️ NON-AUTHORITATIVE**
+> This file is for operations reference only.
+> **Product truth, positioning, and public claims live ONLY in [`docs/README.md`](../README.md).**
+
 # Suburbmates v1.1 — Operations & Deployment (v3.1)
 
 > Last updated: 19 November 2025  

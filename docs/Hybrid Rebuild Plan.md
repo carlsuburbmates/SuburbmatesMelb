@@ -1,3 +1,8 @@
+# Hybrid Rebuild Plan (Non-Authoritative)
+> **⚠️ NON-AUTHORITATIVE**
+> This file is for reference only.
+> **Product truth, positioning, and public claims live ONLY in [`docs/README.md`](./README.md).**
+
 ## Summary (SUPPORTED)
 
 The hybrid rebuild plan is directionally correct and **passes the core gate**: it avoids a costly rewrite and focuses effort on the only surface that can make you a benchmark (public “front-of-house” funnel). It is **not complete** yet because it doesn’t explicitly lock in the non-negotiables for credibility, coherence, “alive-but-fast,” signature visual system, motion discipline, and performance budgets. I’m tightening it by adding explicit “definition of done” criteria for each gate, and sequencing implementation so you don’t drift back into generic-directory patterns. The result is still a hybrid rebuild—just with guardrails that make “trendsetter” achievable, not aspirational. 

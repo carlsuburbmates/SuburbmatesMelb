@@ -1,3 +1,8 @@
+# Product UX Master Spec (Non-Authoritative)
+> **⚠️ NON-AUTHORITATIVE**
+> This file is for design reference only.
+> **Product truth, positioning, and public claims live ONLY in [`docs/README.md`](../README.md).**
+
 # Suburbmates v1.1 — Product UX Master Spec (v3.1)
 
 > Last updated: 19 November 2025  
@@ -64,4 +69,4 @@ This document consolidates every UX artifact into one implementable brief. All p
 | Psychology & interactivity | `02.4_PSYCHOLOGY_AND_IMMERSIVE_UX.md`, `02-ux-interactivity-layer-v1.0.md` |
 | Imagery | `image-specifications.md` |
 
-Future design tweaks should be applied here first; downstream engineers and QA reference only this v3.1 file plus the master decisions doc.
+Future design tweaks should be applied here first; downstream engineers and QA reference ONLY `docs/README.md` for product truth.
