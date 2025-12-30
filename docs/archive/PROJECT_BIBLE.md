@@ -1,4 +1,4 @@
-# 📖# 🗄️ PROJECT BIBLE (ARCHIVED / DEPRECATED)
+# ️ PROJECT BIBLE (ARCHIVED / DEPRECATED)
 
 > [!WARNING]
 > **This document is no longer the Single Source of Truth.**
