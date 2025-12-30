@@ -11,6 +11,156 @@ Each entry must include:
 
 ---
 
+## 2025-12-30 — PR1: Final Credibility Sign-off
+
+**Context:** Final corrective sweep and narrative tightening for PR1.
+**Branch:** `fix/pr1-positioning-sweep`
+**Commit:** `c4d7840`
+**Author/Agent:** Antigravity (Antigravity Agent)
+**Scope:** Core application positioning and trust signals.
+
+### A) Enforcement Checks (Required)
+
+#### A1) ssot:check
+**Command:** `npm run ssot:check`
+**Result:** PASS
+**Output:**
+```text
+> suburbmatesv1@0.1.0 ssot:check
+> rg -n "join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components --glob "!docs/README.md"
+
+docs/VERIFICATION_LOG.md
+33:> rg -n "join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components --glob "!docs/README.md"
+39:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+44:docs/VERIFICATION_LOG.md:43:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+45:docs/QA_CHECKLIST.md:13:* [ ] No generic “business directory” framing; copy matches SSOT positioning.
+46:docs/QA_CHECKLIST.md:19:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+47:docs/EXECUTION_PLAN.md:24:   No “generic business directory” framing. Must match SSOT positioning.
+48:docs/EXECUTION_PLAN.md:56:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+149:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+
+docs/EXECUTION_PLAN.md
+24:   No “generic business directory” framing. Must match SSOT positioning.
+56:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+127:* No “annual subscription” mention unless SSOT allows and code supports.
+
+docs/QA_CHECKLIST.md
+13:* [ ] No generic “business directory” framing; copy matches SSOT positioning.
+19:* `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
+```
+
+#### A2) Banned Phrase Cleanliness (src)
+**Command:** `rg -n "local businesses|Melbourne born|business hours|support team|live chat|Phone Support|Office|verified" src/app src/components`
+**Result:** Matches found (ONLY valid "verified" badges/ABN code)
+**Output:**
+```text
+src/components/modals/FeaturedModal.tsx
+146:          Featured placement is available to verified creators only. Subject to community guidelines.
+
+src/components/business/BusinessReviews.tsx
+13:  verified: boolean;
+179:                    {review.verified && (
+
+src/app/api/reviews/route.ts
+42:        verified_purchase,
+74:        verified: review.verified_purchase
+
+src/components/business/BusinessHeader.tsx
+19:  verified: boolean;
+75:                    {business.verified && (
+
+src/components/business/BusinessShowcase.tsx
+9:    verified: boolean;
+70:          {business.verified && (
+
+src/app/business/[slug]/page.tsx
+37:  verified: boolean;
+129:    verified: raw.verified === true,
+
+src/app/api/vendor/connect/callback/route.ts
+63:        stripe_account_status: "verified",
+
+src/app/products/[slug]/page.tsx
+132:                        {/* Simple verified badge if they are pro/premium */}
+
+src/app/api/business/[slug]/route.ts
+196:      verified: business.vendor_status === 'verified',
+
+src/app/api/auth/create-vendor/route.ts
+90:      abn_verified: false,
+
+src/app/api/business/route.ts
+95:      verified: business.vendor_status === 'verified',
+```
+
+### B) Build / Lint / Tests
+
+#### B1) Lint
+**Command:** `npm run lint`
+**Result:** FAIL (36 problems: 11 errors, 25 warnings)
+**Output:**
+```text
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/marketplace/page.tsx
+  64:68  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/components/business/BusinessProducts.tsx
+  154:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/components/business/templates/BusinessProfileRenderer.tsx
+   3:10  warning  'useMemo' is defined but never used       @typescript-eslint/no-unused-vars
+  15:13  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:17  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:79  warning  'themeConfig' is defined but never used   @typescript-eslint/no-unused-vars
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/components/marketplace/ProductCard.tsx
+  3:20  warning  'Star' is defined but never used             @typescript-eslint/no-unused-vars
+  3:26  warning  'ExternalLink' is defined but never used     @typescript-eslint/no-unused-vars
+  4:19  warning  'BusinessProfile' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/lib/auth.ts
+  3:3  warning  'VENDOR_STATUS' is defined but never used  @typescript-eslint/no-unused-vars
+  4:8  warning  'VendorTier' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/tests/unit/deprecated-webhook-route.test.ts
+  36:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+```
+
+### C) Evidence Snippets
+
+#### C1) about/page.tsx (Updated Narrative)
+**Path:** `src/app/about/page.tsx:50-51`
+```tsx
+SuburbMates is Melbourne-first — providing a creator platform where local makers build their brand and list digital products for the neighbourhood.
+```
+
+#### C2) layout.tsx (Description Change)
+**Path:** `src/app/layout.tsx:21-22`
+```tsx
+  description:
+    "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
+```
+
+#### C3) contact/page.tsx (Simplified Info)
+**Path:** `src/app/contact/page.tsx:55-62`
+```tsx
+  const contactInfo = [
+    {
+      icon: Mail,
+      title: "Email",
+      value: "hello@suburbmates.com.au",
+      action: "mailto:hello@suburbmates.com.au",
+    },
+  ];
+```
+
+### D) Non-Copy Changes
+
+* **src/app/contact/page.tsx**: Removed unused `Clock`, `MapPin`, and `Phone` imports.
+* **src/components/home/StaticHero.tsx**: Removed unused `Link` import; escaped `&rsquo;`.
+* **src/app/about/page.tsx**: Escaped unescaped entities (`&rsquo;`, `&quot;`).
+
+---
+
 ## 2025-12-30 — Baseline Doc Governance Verification
 
 **Context:** Post-purge baseline verification of new documentation set.

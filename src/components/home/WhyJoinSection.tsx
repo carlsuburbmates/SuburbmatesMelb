@@ -14,8 +14,8 @@ export function WhyJoinSection() {
     'No setup fees or monthly costs for directory profiles',
     'Keep 92-94% of every digital product sale',
     'Local customer base in your suburb',
-    'Verified studio credentials and reviews',
-    'Direct customer relationships (no platform interference)',
+    'Studio credentials and reviews',
+    'Direct neighbour relationships (no platform interference)',
     'Australian-owned and operated'
   ];
   // The animation now uses the length of the new features array
@@ -81,7 +81,7 @@ export function WhyJoinSection() {
                       ))}
                     </div>
                     <p className="text-sm text-white/80">
-                      Join Melbourne&rsquo;s verified local creators and studios on SuburbMates
+                      Join Melbourne&rsquo;s local creators and studios on SuburbMates
                     </p>
                   </div>
                 </div>

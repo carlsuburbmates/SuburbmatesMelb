@@ -112,7 +112,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title={selectedRole ? `Join as ${selectedRole === 'vendor' ? 'Vendor' : 'Customer'}` : 'Join SuburbMates'}
+      title={selectedRole ? `Join as ${selectedRole === 'vendor' ? 'Creator' : 'Customer'}` : 'Join SuburbMates'}
       className="max-w-lg"
     >
       {!selectedRole ? (
@@ -132,7 +132,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">I&rsquo;m a Customer</h3>
-                <p className="text-sm text-gray-600">Browse and purchase from local businesses</p>
+                <p className="text-sm text-gray-600">Browse and purchase from local creators</p>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
@@ -145,8 +145,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <Store className="w-6 h-6 text-gray-600" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">I&rsquo;m a Business Owner</h3>
-                <p className="text-sm text-gray-600">List your business and sell digital products</p>
+                <h3 className="font-semibold text-gray-900">I&rsquo;m a Creator</h3>
+                <p className="text-sm text-gray-600">Build your local profile and sell digital products</p>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
@@ -219,7 +219,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <>
               <div>
                 <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Business Name
+                  Creator / Studio Name
                 </label>
                 <input
                   type="text"

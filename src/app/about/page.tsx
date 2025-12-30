@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Learn about SuburbMates - connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
   keywords:
-    "about, Melbourne businesses, local marketplace, digital directory, community platform",
+    "about, Melbourne creators, local marketplace, digital directory, community platform",
   openGraph: {
     title: "About SuburbMates - Melbourne's Digital Neighbourhood",
     description:
@@ -31,7 +31,7 @@ export default function AboutPage() {
               About SuburbMates
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Melbourne&rsquo;s digital neighbourhood where local businesses build
+              Melbourne&rsquo;s digital neighbourhood where local creators build
               their brand and sell digital products.
             </p>
           </div>
@@ -46,16 +46,11 @@ export default function AboutPage() {
               Our Mission
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
-              We believe that local businesses are the heart of every community.
-              SuburbMates was created to help Melbourne&rsquo;s local businesses
-              thrive by providing them with a digital platform to showcase their
-              products, connect with customers, and build their brand in the
-              modern marketplace.
+              Melbourne is full of world-class digital creators, but they often lack a local home to connect with their own community.
+              SuburbMates is Melbourne-first — providing a creator platform where local makers build their brand and list digital products for the neighbourhood.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              We&rsquo;re building a digital ecosystem where neighbours can discover
-              and support local businesses, making it easier than ever to shop
-              local and strengthen community connections.
+              We&rsquo;re building a space where neighbours can discover the talent right in their backyard, supporting local creators and making &quot;shop local&quot; a digital reality.
             </p>
           </div>
         </div>
@@ -86,11 +81,10 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  Community First
+                  Local-First
                 </h3>
                 <p className="text-gray-600">
-                  We prioritize building genuine connections between local
-                  businesses and their communities.
+                  We believe digital products shouldn&rsquo;t feel placeless. We connect creators to their actual neighbours.
                 </p>
               </div>
               <div className="text-center">
@@ -110,11 +104,10 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  Support Local
+                  Support Creators
                 </h3>
                 <p className="text-gray-600">
-                  We&rsquo;re dedicated to helping Melbourne&rsquo;s small businesses grow
-                  and succeed in the digital age.
+                  We built this for Melbourne&rsquo;s creators, providing a platform to showcase and sell with minimal friction.
                 </p>
               </div>
               <div className="text-center">
@@ -134,76 +127,10 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  Innovation
+                  Community Ecosystem
                 </h3>
                 <p className="text-gray-600">
-                  We use modern technology to create meaningful connections
-                  between businesses and customers.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="py-16 bg-white">
-        <div className="container-custom">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">100+</div>
-              <div className="text-gray-600">Local Businesses</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">50+</div>
-              <div className="text-gray-600">Melbourne Suburbs</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">10K+</div>
-              <div className="text-gray-600">Happy Customers</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Team Section */}
-      <div className="py-16 bg-gray-50">
-        <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-12">Our Team</h2>
-            <p className="text-lg text-gray-600 mb-12">
-              We&rsquo;re a passionate team of Melburnians dedicated to supporting
-              local businesses and building stronger communities.
-            </p>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  Sarah Chen
-                </h3>
-                <p className="text-gray-600 mb-2">Founder & CEO</p>
-                <p className="text-sm text-gray-500">
-                  Former small business owner passionate about local commerce
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  Michael Rodriguez
-                </h3>
-                <p className="text-gray-600 mb-2">CTO</p>
-                <p className="text-sm text-gray-500">
-                  Tech expert with 15+ years building community platforms
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  Emma Thompson
-                </h3>
-                <p className="text-gray-600 mb-2">Head of Partnerships</p>
-                <p className="text-sm text-gray-500">
-                  Community connector with deep local business relationships
+                  We use technology to strengthen existing community bonds within suburbs.
                 </p>
               </div>
             </div>
@@ -217,12 +144,12 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
             <p className="text-xl text-gray-300 mb-8">
-              Whether you&rsquo;re a local business looking to grow or a customer
-              wanting to support local, SuburbMates is here to help.
+              Whether you&rsquo;re a Melbourne creator looking to grow or a neighbour
+              wanting to support local talent, SuburbMates is here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="/directory" className="btn-primary">
-                Browse Local Businesses
+                Browse Local Creators
               </a>
               <a href="/marketplace" className="btn-secondary">
                 Explore Marketplace

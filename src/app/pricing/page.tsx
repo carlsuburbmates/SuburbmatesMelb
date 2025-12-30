@@ -212,7 +212,7 @@ export default function Pricing() {
             Ready to get started?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join the verified community of Melbourne makers and studios using SuburbMates to
+            Join the community of Melbourne makers and studios using SuburbMates to
             grow their online presence.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

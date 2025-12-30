@@ -19,9 +19,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "SuburbMates - Melbourne's Digital Neighbourhood",
   description:
-    "Connect with local businesses and discover digital products in your suburb. No sign-up required to browse.",
+    "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
   keywords:
-    "Melbourne businesses, local directory, digital marketplace, suburb businesses, local services, digital products",
+    "Melbourne creators, local directory, digital marketplace, suburb creators, local services, digital products",
   authors: [{ name: "SuburbMates" }],
   creator: "SuburbMates",
   publisher: "SuburbMates",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connect with local businesses and discover digital products in your suburb. No sign-up required to browse.",
+      "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
     url: "https://suburbmates.com.au",
     siteName: "SuburbMates",
     locale: "en_AU",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connect with local businesses and discover digital products in your suburb. No sign-up required to browse.",
+      "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
     images: ["/og-image.jpg"],
     creator: "@suburbmates",
   },

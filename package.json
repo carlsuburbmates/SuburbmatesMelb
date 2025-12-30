@@ -21,7 +21,7 @@
     "stripe:verify": "node scripts/verify-stripe-access.js",
     "stripe:featured-qa": "tsx scripts/manual-featured-checkout.ts",
     "stripe:create-products": "tsx scripts/create-test-products.ts",
-    "ssot:check": "rg -n \"join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates\" docs src/app src/components --glob \"!docs/README.md\""
+    "ssot:check": "if rg -n \"join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates|certified local expert|verified creator\" src/app src/components docs --glob \"!docs/README.md\" --glob \"!docs/archive/**\" --glob \"!docs/PROJECT_BIBLE.md\" --glob \"!docs/EXECUTION_PLAN.md\" --glob \"!docs/QA_CHECKLIST.md\" --glob \"!docs/VERIFICATION_LOG.md\"; then echo 'SSOT Banned Phrases Found!' && exit 1; else echo 'SSOT Compliance Verified' && exit 0; fi"
   },
   "dependencies": {
     "@radix-ui/react-separator": "^1.1.8",

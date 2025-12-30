@@ -25,6 +25,7 @@ export default async function Marketplace() {
          id,
          user_id,
          tier,
+         abn_verified,
          business_profiles:user_id (
             business_name,
             slug,
@@ -41,6 +42,7 @@ export default async function Marketplace() {
     .from("vendors")
     .select(`
       tier,
+      abn_verified,
       business_profiles!inner (
         business_name,
         slug,
@@ -96,12 +98,12 @@ export default async function Marketplace() {
                               {profile.business_name}
                            </h3>
                            <p className="text-sm text-gray-500 line-clamp-2 mb-3">
-                              {profile.profile_description || "Certified local expert."}
+                              {profile.profile_description || "Melbourne local creator."}
                            </p>
-                           {v.tier === 'premium' && (
+                           {v.abn_verified && (
                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200">
                                   <ShieldCheck className="w-3 h-3 mr-1" />
-                                  Premium Vendor
+                                  ABN Verified
                                </span>
                            )}
                         </Link>
@@ -137,7 +139,7 @@ export default async function Marketplace() {
                               name: profileData.business_name || "Unknown",
                               slug: profileData.slug || "#",
                               imageUrl: profileData.profile_image_url || undefined,
-                              isVerified: ['pro', 'premium'].includes(vendorData?.tier || '')
+                              isVerified: vendorData?.abn_verified || false
                           } : undefined}
                        />
                     </div>

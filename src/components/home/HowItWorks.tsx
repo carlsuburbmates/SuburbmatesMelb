@@ -11,7 +11,7 @@ export function HowItWorks() {
     {
       number: '01',
       title: 'Create Profile',
-      description: 'Set up your free verified studio profile in minutes. Add photos, contact details, and showcase your services.',
+      description: 'Set up your free studio profile in minutes. Add photos, contact details, and showcase your services.',
       icon: '👤'
     },
     {

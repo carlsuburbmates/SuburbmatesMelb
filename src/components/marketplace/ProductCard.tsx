@@ -106,7 +106,9 @@ export function ProductCard({ product, vendor, showVendor = false }: ProductCard
                         {vendor.name}
                     </span>
                     {vendor.isVerified && (
-                        <Check className="w-3 h-3 text-blue-500" />
+                        <div title="ABN Verified">
+                            <Check className="w-3 h-3 text-blue-500" />
+                        </div>
                     )}
                 </Link>
                 <Link href={`/products/${product.slug}`} className="text-xs font-medium text-blue-600 hover:text-blue-800">

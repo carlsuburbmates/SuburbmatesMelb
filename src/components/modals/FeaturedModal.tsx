@@ -29,7 +29,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
     {
       icon: <DollarSign className="w-5 h-5 text-purple-500" />,
       title: "Affordable Investment",
-      description: "Just A$20 per placement - excellent ROI for local businesses",
+      description: "Just A$20 per placement - excellent value for local creators",
     }
   ];
 
@@ -103,7 +103,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
                 1
               </div>
               <p className="text-sm text-gray-600">
-                Purchase featured placement for your business listing
+                Purchase featured placement for your creator profile
               </p>
             </div>
             <div className="flex items-start space-x-3">
@@ -143,7 +143,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
 
         {/* Fine Print */}
         <p className="text-xs text-gray-500 text-center">
-          Featured placement is available to verified businesses only. Subject to community guidelines.
+          Featured placement is available to ABN Verified partners only. Subject to community guidelines.
         </p>
       </div>
     </Modal>

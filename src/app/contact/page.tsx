@@ -4,7 +4,7 @@ import { Container } from "@/components/layout/Container";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
-import { Clock, Mail, MapPin, MessageSquare, Phone, Send } from "lucide-react";
+import { Mail, MessageSquare, Send } from "lucide-react";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -59,46 +59,28 @@ export default function ContactPage() {
       value: "hello@suburbmates.com.au",
       action: "mailto:hello@suburbmates.com.au",
     },
-    {
-      icon: Phone,
-      title: "Phone",
-      value: "+61 3 1234 5678",
-      action: "tel:+61312345678",
-    },
-    {
-      icon: MapPin,
-      title: "Office",
-      value: "123 Swanston St, Melbourne VIC 3000",
-      action: null,
-    },
-    {
-      icon: Clock,
-      title: "Business Hours",
-      value: "Monday - Friday: 9am - 5pm AEST",
-      action: null,
-    },
   ];
 
   const faqs = [
     {
-      question: "How do I create a business profile?",
+      question: "How do I create a profile?",
       answer:
-        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Business/Vendor&rsquo;. Fill in your business details and our team will review your profile within 24-48 hours.",
+        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Creator&rsquo;. Fill in your details and we will review your profile within 48 hours.",
     },
     {
-      question: "How much does it cost to list my business?",
+      question: "How much does it cost?",
       answer:
-        "Basic listing is free! We offer three tiers: Basic (3 products, free), Standard (10 products, $29/month), and Premium (50 products, $99/month).",
+        "Basic listing is free! We offer tiered plans for creators looking for more products and visibility.",
     },
     {
       question: "How do I sell digital products?",
       answer:
-        "Once verified, you can add digital products to your marketplace. Simply go to your dashboard and upload your digital files.",
+        "Once your profile is active, you can add products to your listing. Simply go to your dashboard and upload your digital files.",
     },
     {
       question: "How do I get paid?",
       answer:
-        "We use Stripe Connect. Connect your Stripe account to receive payments. Funds transfer to your bank account within 2-7 business days.",
+        "We use Stripe Connect. Connect your bank account to receive payments automatically after each sale.",
     },
   ];
 
@@ -113,7 +95,7 @@ export default function ContactPage() {
                 Contact Us
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
-                Get in touch with our team for any questions or support
+                Get in touch with our founders for any questions or support
               </p>
             </div>
           </Container>
@@ -319,18 +301,18 @@ export default function ContactPage() {
         <div className="bg-gray-900 text-white py-16">
           <Container className="text-center">
             <h2 className="text-3xl font-bold mb-6">
-              Ready to connect with local businesses?
+              Ready to connect with local creators?
             </h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
               Join SuburbMates today and discover Melbourne&rsquo;s best local
-              businesses and digital products.
+              creators and digital products.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 onClick={() => (window.location.href = "/directory")}
                 className="bg-white text-gray-900 hover:bg-gray-100"
               >
-                Browse Businesses
+                Browse Creators
               </Button>
               <Button
                 variant="outline"

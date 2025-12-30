@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Star, MapPin, Clock, Globe, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, Globe, Phone, Mail, Check } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 
 interface Business {
@@ -73,8 +73,8 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                   
                   <div className="flex items-center space-x-2 flex-shrink-0 mt-1">
                     {business.verified && (
-                      <div className="flex items-center justify-center w-6 h-6 bg-amber-100 rounded-full">
-                        <Star className="w-4 h-4 text-amber-500 fill-current" />
+                      <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full" title="ABN Verified">
+                        <Check className="w-3 h-3 text-blue-500" />
                       </div>
                     )}
                     {business.isVendor && (

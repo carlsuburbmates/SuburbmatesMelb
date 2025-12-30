@@ -7,7 +7,6 @@ import {
   getImageBySection,
   getImagePriority,
 } from "@/lib/images";
-import Link from 'next/link';
 import { Search } from "lucide-react";
 
 const heroImages = getImageBySection("hero");
@@ -45,7 +44,7 @@ export function StaticHero() {
               Build Your Brand
             </h1>
             <p className="text-white/90 text-lg md:text-2xl font-light mb-6 md:mb-8 animate-slide-up">
-              Melbourne's digital neighbourhood
+              Melbourne&rsquo;s creator directory
             </p>
             <p className="text-xs text-white/70 flex items-center mt-3">
               <Search className="h-3 w-3 mr-1" />

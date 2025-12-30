@@ -23,7 +23,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-gray-600 max-w-md mb-6">
-              Melbourne&rsquo;s digital neighbourhood where local businesses build their brand and sell digital products.
+              Melbourne&rsquo;s digital neighbourhood where local creators build their brand and sell digital products.
             </p>
             
             {/* Newsletter Signup */}

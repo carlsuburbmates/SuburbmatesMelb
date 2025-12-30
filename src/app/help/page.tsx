@@ -15,34 +15,34 @@ export default function HelpPage() {
 
   const faqs = [
     {
-      question: "How do I create a business profile?",
+      question: "How do I create a creator profile?",
       answer:
-        "To create a business profile, click on &lsquo;Sign up&rsquo; in the header and select &lsquo;Business/Vendor&rsquo;. Fill in your business details, including your ABN, business address, and description. Once submitted, our team will review your profile within 24-48 hours.",
+        "To create a profile, click on &lsquo;Sign up&rsquo; in the header and select &lsquo;Creator&rsquo;. Fill in your details including your studio name and description. We review profiles within 24-48 hours to ensure community quality.",
     },
     {
-      question: "How much does it cost to list my business?",
+      question: "How much does it cost to list my products?",
       answer:
-        "Basic listing is completely free! We offer three tiers: Basic (3 products, free), Standard (10 products, $29/month), and Premium (50 products, $99/month). You can upgrade or downgrade at any time.",
+        "Basic listing is completely free! We offer tiered plans for growing creators. You can upgrade or downgrade at any time from your dashboard.",
     },
     {
       question: "How do I sell digital products?",
       answer:
-        "Once your business is verified, you can add digital products to your marketplace listing. Simply go to your dashboard, click &lsquo;Add Product&rsquo;, and upload your digital files. Customers can purchase and download them directly from your profile.",
+        "Once your profile is active, you can add digital products to your listing. Simply go to your dashboard, click &lsquo;Add Product&rsquo;, and upload your digital files. Neighbours can purchase and download them directly from your profile.",
     },
     {
       question: "How do I get paid for my sales?",
       answer:
-        "We use Stripe Connect to process payments. You&rsquo;ll need to connect your Stripe account to receive payments. Funds are transferred directly to your bank account within 2-7 business days after a purchase is completed.",
+        "We use Stripe Connect to process payments safely. You&rsquo;ll need to connect your Stripe account to receive payments. Funds are transferred to your bank account automatically after a purchase is completed.",
     },
     {
       question: "Can I cancel my subscription anytime?",
       answer:
-        "Yes, you can cancel your subscription at any time from your dashboard. Your subscription will remain active until the end of your current billing period. When downgrading, your oldest products will be unpublished first (FIFO).",
+        "Yes, you can cancel your subscription at any time from your dashboard. Your subscription will remain active until the end of your current billing period.",
     },
     {
-      question: "How do I update my business information?",
+      question: "How do I update my profile information?",
       answer:
-        "You can update your business information at any time by logging into your dashboard and navigating to &lsquo;Business Settings&rsquo;. Changes are reflected immediately on your public profile.",
+        "You can update your profile and studio information at any time by logging into your dashboard and navigating to &lsquo;Settings&rsquo;. Changes are reflected immediately on your public profile.",
     },
   ];
 
@@ -50,26 +50,14 @@ export default function HelpPage() {
     {
       icon: BookOpen,
       title: "Documentation",
-      description: "Comprehensive guides and tutorials",
+      description: "Quick guides and tutorials",
       action: "Read Docs",
-    },
-    {
-      icon: MessageSquare,
-      title: "Live Chat",
-      description: "Chat with our support team",
-      action: "Start Chat",
     },
     {
       icon: Mail,
       title: "Email Support",
-      description: "Send us your questions",
+      description: "Get help from the founder",
       action: "Email Us",
-    },
-    {
-      icon: Phone,
-      title: "Phone Support",
-      description: "Call our business hours",
-      action: "Call Us",
     },
   ];
 
@@ -121,7 +109,7 @@ export default function HelpPage() {
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
                 Find answers to common questions or get in touch with our
-                support team
+                founders
               </p>
             </div>
           </Container>
@@ -209,10 +197,6 @@ export default function HelpPage() {
                               if (option.title === "Email Support") {
                                 window.location.href =
                                   "mailto:hello@suburbmates.com.au";
-                              } else if (option.title === "Phone Support") {
-                                window.location.href = "tel:+61312345678";
-                              } else if (option.title === "Live Chat") {
-                                setIsContactModalOpen(true);
                               }
                             }}
                             className="w-full"
@@ -283,23 +267,22 @@ export default function HelpPage() {
           <Container className="text-center">
             <h2 className="text-3xl font-bold mb-6">Still need help?</h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Our support team is ready to assist you with any questions or
-              issues you may have.
+              We are ready to assist you with any questions or issues you may have.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 variant="secondary"
-                onClick={() => setIsContactModalOpen(true)}
+                onClick={() => (window.location.href = "mailto:hello@suburbmates.com.au")}
                 className="bg-white text-gray-900 hover:bg-gray-100"
               >
-                Contact Support
+                Email Support
               </Button>
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = "/directory")}
                 className="border-white text-white hover:bg-white hover:text-gray-900"
               >
-                Browse Businesses
+                Browse Creators
               </Button>
             </div>
           </Container>

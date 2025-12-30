@@ -50,7 +50,7 @@ export function CTASection() {
         <div className="text-center mb-12 md:mb-16">
           <h2 className="mb-4 md:mb-6">Melbourne&rsquo;s Dual Platform</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Start with a free verified studio profile, then upgrade to sell
+            Start with a free studio profile, then upgrade to sell
             digital products when you&rsquo;re ready to monetize your expertise.
           </p>
         </div>

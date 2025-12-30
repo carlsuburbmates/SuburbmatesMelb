@@ -3,7 +3,7 @@ export function StructuredData() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "SuburbMates",
-    "description": "Melbourne's digital neighbourhood connecting local businesses with their community",
+    "description": "Melbourne's digital neighbourhood connecting local creators with their community",
     "url": "https://suburbmates.com.au",
     "logo": "https://suburbmates.com.au/logo.png",
     "foundingDate": "2024",
@@ -32,7 +32,7 @@ export function StructuredData() {
     "@type": "WebSite",
     "name": "SuburbMates",
     "url": "https://suburbmates.com.au",
-    "description": "Connect with local businesses and discover digital products in your suburb",
+    "description": "Connect with local creators and discover digital products in your neighbourhood",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
@@ -48,7 +48,7 @@ export function StructuredData() {
     "@type": "LocalBusiness",
     "name": "SuburbMates",
     "image": "https://suburbmates.com.au/logo.png",
-    "description": "Digital marketplace and community platform for Melbourne's local creators",
+    "description": "Digital platform and community for Melbourne's local creators",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Melbourne",
