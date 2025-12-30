@@ -1,4 +1,11 @@
-# 📖 Suburbmates Project Bible (Legacy/Architecture Reference)
+# 📖# 🗄️ PROJECT BIBLE (ARCHIVED / DEPRECATED)
+
+> [!WARNING]
+> **This document is no longer the Single Source of Truth.**
+> Product truth, positioning rules, and non-negotiable logic have moved to [**`docs/README.md`**](../README.md).
+> This file is kept only for legacy system diagrams and historical technical context.
+
+--- (Legacy/Architecture Reference)
 > **⚠️ NON-AUTHORITATIVE**
 > This file is for architectural reference only.
 > **Product truth, positioning, and public claims live ONLY in [`docs/README.md`](./README.md).**
