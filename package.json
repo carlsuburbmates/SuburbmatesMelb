@@ -21,7 +21,7 @@
     "stripe:verify": "node scripts/verify-stripe-access.js",
     "stripe:featured-qa": "tsx scripts/manual-featured-checkout.ts",
     "stripe:create-products": "tsx scripts/create-test-products.ts",
-    "ssot:check": "rg -n \"join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates\" docs src/app src/components --glob \"!docs/README.md\" --glob \"!docs/archive/**\""
+    "ssot:check": "rg -n \"join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates\" docs src/app src/components --glob \"!docs/README.md\""
   },
   "dependencies": {
     "@radix-ui/react-separator": "^1.1.8",

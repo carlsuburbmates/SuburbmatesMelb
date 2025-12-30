@@ -56,7 +56,6 @@ The following phrases are **BANNED** in all copy and docs (except here):
 | `DECISIONS.md` | **Deprecated**. Use git history for rationale. | ⚠️ Deprecated |
 | `ops/` | Runbooks. No public claims allowed. | ✅ Live |
 | `legal/` | Compliance & QA. | ✅ Live |
-| `archive/` | **UNVERIFIED** legacy docs. | ☣️ Ignore |
 
 ## ✅ TO-DO (Prelaunch Checklist)
 
