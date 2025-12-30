@@ -48,7 +48,7 @@ export function StructuredData() {
     "@type": "LocalBusiness",
     "name": "SuburbMates",
     "image": "https://suburbmates.com.au/logo.png",
-    "description": "Digital marketplace and business directory for Melbourne's local businesses",
+    "description": "Digital marketplace and community platform for Melbourne's local creators",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Melbourne",

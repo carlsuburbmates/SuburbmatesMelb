@@ -56,7 +56,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
             Boost Your Local Visibility
           </h3>
           <p className="text-gray-600 text-lg">
-            Get premium placement in your suburb&rsquo;s business directory and attract more customers
+            Get premium placement in your suburb&rsquo;s creator directory and attract more customers
           </p>
         </div>
 
