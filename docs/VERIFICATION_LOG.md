@@ -1,6 +1,43 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
-## 2025-12-31 — PR4: Featured Expiry Reminders Verification (Committed Boundary)
+## 2025-12-31 — PR4: Post-merge Verification (main)
+
+**Branch:** `main`
+**Commit:** `b562e215429e35f7ebab2415222c873128e55bc4`
+**Evidence:**
+- **Cron trigger:** `vercel.json:1-9`
+- **Security:** `src/app/api/ops/featured-reminders/route.ts:39-42`
+- **Idempotency/logging:** `supabase/migrations/020_featured_slot_reminders.sql:4-15` & `route.ts:88-128`
+- **Candidate selection:** `src/app/api/ops/featured-reminders/route.ts:49-75`
+- **Email truthfulness:** `src/lib/email.ts:423-451`
+
+**Command outputs:**
+- `test:unit: featured-reminders`:
+  ```
+  ✓ tests/unit/featured-reminders.test.ts (3 tests) 16ms
+    ✓ Featured Expiry Reminders API (3)           
+      ✓ returns 401 if secret is invalid 2ms
+      ✓ selects candidates for 7 and 2 day windows and sends emails 11ms
+      ✓ skips if reminder already sent for that window (idempotency) 1ms
+  ```
+- `lint`:
+  ```
+  /Users/carlg/Documents/PROJECTS/SuburbmatesMelb/tests/unit/vendor-downgrade.test.ts
+    5:23  warning  'VendorTier' is defined but never used  @typescript-eslint/no-unused-vars
+  ✖ 1 problem (0 errors, 1 warning)
+  ```
+- `build`:
+  ```
+  Creating an optimized production build ...
+  ✓ Compiled successfully
+  ✓ Finished TypeScript
+  ✓ Finalizing page optimization
+  Exit code: 0
+  ```
+
+**Verdict:** ✅ VERIFIED COMPLETE (main)
+
+---
 
 **Branch:** `fix/pr4-featured-expiry-reminders`
 **Commit:** `94b32bf5748a869425e7c0224fc67b6fba58bbfb`
