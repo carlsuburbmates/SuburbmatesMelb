@@ -2,7 +2,7 @@
 
 ## 2025-12-30 — PR5: Post-merge Reconciliation & Hardening (main) — Verified
 
-- **Commit**: `99e2a71608fccebe19f791437b18fd5536201ea4` (Definitive Main)
+- **Commit**: `e2bf5b31d0db17466540c422896da99853925761` (Definitive Main)
 - **Status**: PASSED (Hardened)
 - **Gates**:
     - **SSOT**: Pass (`npm run ssot:check`)
