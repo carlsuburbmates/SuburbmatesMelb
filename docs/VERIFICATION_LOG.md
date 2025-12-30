@@ -1,13 +1,13 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
-## 2025-12-31 — PR4: Featured Expiry Reminders Verification (Post-Implementation)
+## 2025-12-31 — PR4: Featured Expiry Reminders Verification (Committed Boundary)
 
 **Branch:** `fix/pr4-featured-expiry-reminders`
-**Commit:** `a729a29135a644db7732ff6228f376ed5b371549`
+**Commit:** `94b32bf5748a869425e7c0224fc67b6fba58bbfb`
 **Evidence:**
 - **Cron trigger:** `vercel.json:1-9` (Hits `/api/ops/featured-reminders` daily)
 - **Security:** `src/app/api/ops/featured-reminders/route.ts:39-42` (Checks `CRON_SECRET` in `authorization` header)
-- **Idempotency/logging:**
+- **Idempotency/logging:** 
     - Schema: `supabase/migrations/020_featured_slot_reminders.sql:4-15` (UNIQUE constraint on `featured_slot_id, reminder_window`)
     - Lookup: `src/app/api/ops/featured-reminders/route.ts:88-96`
     - Logging: `src/app/api/ops/featured-reminders/route.ts:117-128`
@@ -17,11 +17,11 @@
 **Command outputs:**
 - `test:unit: featured-reminders`:
   ```
-  ✓ tests/unit/featured-reminders.test.ts (3 tests) 13ms
-    ✓ Featured Expiry Reminders API (3)
-      ✓ returns 401 if secret is invalid 3ms
-      ✓ selects candidates for 7 and 2 day windows and sends emails 8ms
-      ✓ skips if reminder already sent for that window (idempotency) 1ms
+  ✓ tests/unit/featured-reminders.test.ts (3 tests) 7ms
+    ✓ Featured Expiry Reminders API (3)           
+      ✓ returns 401 if secret is invalid 2ms
+      ✓ selects candidates for 7 and 2 day windows and sends emails 4ms
+      ✓ skips if reminder already sent for that window (idempotency) 0ms
   ```
 - `lint`:
   ```
@@ -32,13 +32,16 @@
 - `build`:
   ```
   Creating an optimized production build ...
-  ✓ Finalizing page optimization in 4.2s
-  Route (app)
-  ├ ƒ /api/ops/featured-reminders
+  ✓ Compiled successfully in 8.9s
+  ✓ Finished TypeScript in 5.7s    
+  ✓ Collecting page data using 7 workers in 627.6ms    
+  ✓ Generating static pages using 7 workers (45/45) in 1309.3ms
+  ✓ Collecting build traces in 2.7s                            
+  ✓ Finalizing page optimization in 2.7s    
   Exit code: 0
   ```
 
-**Verdict:** ✅ VERIFIED COMPLETE
+**Verdict:** ✅ VERIFIED COMPLETE (Committed Boundary)
 
 ---
 
