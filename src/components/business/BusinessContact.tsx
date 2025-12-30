@@ -112,6 +112,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
                   className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
                 >
                   Visit Website
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </div>
             </div>
@@ -133,6 +134,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
                   className="text-blue-600 hover:text-blue-800 text-sm mt-1 inline-block"
                 >
                   Get Directions →
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </div>
             </div>
