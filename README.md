@@ -22,5 +22,4 @@ npm run test:unit
 npm run test:e2e
 ```
 
-### **Architecture Reference**
-See [`docs/archive/PROJECT_BIBLE.md`](./docs/archive/PROJECT_BIBLE.md) for (non-authoritative) system diagrams and legacy technical context.
+
