@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Star, MapPin, Clock, Globe, Phone, Mail, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Globe, Phone, Mail, Check, Star } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 
 interface Business {

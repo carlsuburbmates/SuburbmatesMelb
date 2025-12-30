@@ -63,7 +63,7 @@ export default async function Marketplace() {
              Digital Marketplace
            </h1>
            <p className="max-w-2xl mx-auto text-xl text-gray-500">
-             Discover high-quality digital resources from Melbourne's best local experts.
+             Discover high-quality digital resources from Melbourne&apos;s best local experts.
            </p>
         </div>
 

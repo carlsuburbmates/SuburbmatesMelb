@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
     const transformedReviews = reviews.map((review) => {
 
 
+      type ReviewUser = { first_name: string | null; last_name: string | null };
       const usersData = review.users;
-      const user = Array.isArray(usersData) ? usersData[0] : usersData;
-      // @ts-ignore - Supabase types can vary between array/object based on join
+      const user = (Array.isArray(usersData) ? usersData[0] : usersData) as ReviewUser | null;
       const customerName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous';
 
       return {

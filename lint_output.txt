@@ -1,0 +1,41 @@
+
+> suburbmatesv1@0.1.0 lint
+> eslint
+
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/api/cron/featured-expiry/route.ts
+   69:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   72:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/api/reviews/route.ts
+  64:7  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/api/vendor/featured-slots/route.ts
+    7:3   warning  'upsertFeaturedQueueEntry' is defined but never used       @typescript-eslint/no-unused-vars
+   13:10  warning  'emitPosthogEvent' is defined but never used               @typescript-eslint/no-unused-vars
+   14:8   warning  'sanitizeForLogging' is defined but never used             @typescript-eslint/no-unused-vars
+   15:3   warning  'minimalEventPayload' is defined but never used            @typescript-eslint/no-unused-vars
+  266:11  warning  'forceQueue' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  354:9   error    'reservedSlotId' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/api/vendor/profile/route.ts
+  60:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/src/app/business/[slug]/page.tsx
+    2:10  warning  'Suspense' is defined but never used          @typescript-eslint/no-unused-vars
+    3:10  warning  'BusinessHeader' is defined but never used    @typescript-eslint/no-unused-vars
+    4:10  warning  'BusinessInfo' is defined but never used      @typescript-eslint/no-unused-vars
+    5:10  warning  'BusinessContact' is defined but never used   @typescript-eslint/no-unused-vars
+    6:10  warning  'BusinessProducts' is defined but never used  @typescript-eslint/no-unused-vars
+    7:10  warning  'BusinessReviews' is defined but never used   @typescript-eslint/no-unused-vars
+    8:10  warning  'StickyActionBar' is defined but never used   @typescript-eslint/no-unused-vars
+    9:10  warning  'ImageGallery' is defined but never used      @typescript-eslint/no-unused-vars
+   10:10  warning  'BusinessShowcase' is defined but never used  @typescript-eslint/no-unused-vars
+   11:10  warning  'Container' is defined but never used         @typescript-eslint/no-unused-vars
+  191:10  warning  'ProductsSkeleton' is defined but never used  @typescript-eslint/no-unused-vars
+  210:10  warning  'ReviewsSkeleton' is defined but never used   @typescript-eslint/no-unused-vars
+
+✖ 23 problems (6 errors, 17 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

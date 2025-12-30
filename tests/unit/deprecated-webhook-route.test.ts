@@ -33,7 +33,7 @@ describe("Deprecated Webhook Route", () => {
   it("should verify signature and delegate to processIncomingEvent", async () => {
     // Setup mocks
     const mockEvent = { id: "evt_123", type: "checkout.session.completed" };
-    vi.mocked(constructWebhookEvent).mockReturnValue(mockEvent as any);
+    vi.mocked(constructWebhookEvent).mockReturnValue(mockEvent as unknown as Record<string, unknown> as never);
     vi.mocked(processIncomingEvent).mockResolvedValue({ skipped: false, summary: {} });
 
     // Create request

@@ -1,4 +1,3 @@
-
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { sendFeaturedSlotExpiryEmail } from "@/lib/email";
@@ -66,18 +65,28 @@ export async function GET(req: Request) {
     }
 
     let sentCount = 0;
-    const errors: any[] = [];
+    const errors: { id: string; error: unknown }[] = [];
 
     // Parallel send (could use batch but logic is custom per user)
-    await Promise.all(slots.map(async (slot: any) => {
+    await Promise.all(slots.map(async (slot) => {
         try {
-            const vendor = slot.vendors;
-            if (!vendor || !vendor.users || !vendor.users.email) {
+            // Access slot.vendors, as any join result can be complex in types
+            const vendors = slot.vendors as unknown; 
+            const vendor = (Array.isArray(vendors) ? vendors[0] : vendors) as { 
+                business_name: string | null;
+                user_id: string;
+                users: { email: string | null }[] | { email: string | null } | null;
+            };
+            
+            const users = vendor?.users;
+            const user = Array.isArray(users) ? users[0] : users;
+            
+            if (!vendor || !user || !user.email) {
                 console.warn(`Skipping slot ${slot.id}: No vendor email found`);
                 return;
             }
 
-            const email = vendor.users.email;
+            const email = user.email;
             const businessName = vendor.business_name || "Vendor";
             const suburb = slot.suburb_label || "Featured Suburb";
             
@@ -105,10 +114,10 @@ export async function GET(req: Request) {
         errors: errors.length > 0 ? errors : undefined 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Cron failed:", error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? error.message : "Internal Error" },
       { status: 500 }
     );
   }

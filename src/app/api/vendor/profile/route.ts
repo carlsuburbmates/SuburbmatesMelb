@@ -57,7 +57,7 @@ async function handler(req: NextRequest) {
       
       // Allowlist of updatable fields
       const { template_key, theme_config } = body;
-      const updates: any = {};
+      const updates: Record<string, string | null | object | boolean> = {};
       
       if (template_key !== undefined) updates.template_key = template_key;
       if (theme_config !== undefined) updates.theme_config = theme_config;

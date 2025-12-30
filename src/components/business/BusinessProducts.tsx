@@ -3,30 +3,23 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, ExternalLink, Search } from 'lucide-react';
+import { Product } from '@/lib/types';
 import { ProductCard, ProductCardSkeleton } from '@/components/marketplace/ProductCard';
 import { Input } from '@/components/ui/input';
 
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  imageUrl?: string;
-  category: string;
-  downloadCount: number;
-  rating: number;
-  slug: string;
-  isFeatured: boolean;
+interface ProductExtended extends Product {
+  download_count?: number;
+  image_url?: string | null;
 }
 
 interface BusinessProductsProps {
-  businessId?: string;
   vendorId?: string;
+  businessId?: string;
   limit?: number;
-  view?: string;
+  view?: 'grid' | 'list';
 }
 
-export function BusinessProducts({ businessId, vendorId, limit }: BusinessProductsProps) {
+export function BusinessProducts({ vendorId, businessId, limit }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,10 +57,11 @@ export function BusinessProducts({ businessId, vendorId, limit }: BusinessProduc
   }, [businessId, vendorId]);
 
   // Filtering
-  const filteredProducts = products.filter(product => 
-     product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+     const titleMatch = product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+     const categoryMatch = product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+     return titleMatch || categoryMatch;
+  });
 
   // Slicing (apply limit after filter if needed, OR before? Usually limit is "latest X", so applied before filter if we only fetched X. But here we fetched all (if limit was undefined in fetch, but our API uses limit...))
   // Wait, if I pass limit to BusinessProducts component (e.g. 6), the API fetch was NOT using it in previous code?
@@ -151,7 +145,18 @@ export function BusinessProducts({ businessId, vendorId, limit }: BusinessProduc
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {displayProducts.map((product) => (
           <div key={product.id} className="h-full">
-               <ProductCard product={product as any} showVendor={false} />
+               <ProductCard 
+                product={{
+                  ...product,
+                  slug: product.slug || '',
+                  downloadCount: (product as ProductExtended).download_count || 0,
+                  rating: 4.5,
+                  category: product.category || 'Digital',
+                  isFeatured: false,
+                  imageUrl: product.thumbnail_url || (product as ProductExtended).image_url || undefined
+                }} 
+                showVendor={false} 
+               />
           </div>
         ))}
       </div>

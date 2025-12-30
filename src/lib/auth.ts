@@ -1,9 +1,10 @@
 import { AuthSession, User, Vendor } from "./types";
+import { Database } from './database.types';
 import {
-  VENDOR_STATUS,
-  type VendorTier,
   TIER_LIMITS,
 } from "./constants";
+
+export type VendorTier = Database['public']['Tables']['vendors']['Row']['tier'];
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";

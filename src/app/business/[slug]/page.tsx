@@ -1,14 +1,4 @@
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
-import { BusinessHeader } from '@/components/business/BusinessHeader';
-import { BusinessInfo } from '@/components/business/BusinessInfo';
-import { BusinessContact } from '@/components/business/BusinessContact';
-import { BusinessProducts } from '@/components/business/BusinessProducts';
-import { BusinessReviews } from '@/components/business/BusinessReviews';
-import { StickyActionBar } from '@/components/business/StickyActionBar';
-import { ImageGallery } from '@/components/business/ImageGallery';
-import { BusinessShowcase } from '@/components/business/BusinessShowcase';
-import { Container } from '@/components/layout/Container';
 import { BusinessProfileRenderer } from '@/components/business/templates/BusinessProfileRenderer';
 
 interface BusinessPageProps {
@@ -157,9 +147,18 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
   return (
     <BusinessProfileRenderer 
-      business={business} 
+      business={{
+        ...business,
+        business_name: business.name,
+        user_id: business.vendorId || "",
+        is_vendor: business.isVendor,
+        product_count: business.productCount,
+        abn_verified: business.verified,
+        profile_image_url: business.profileImageUrl,
+        profile_description: business.description,
+        created_at: business.createdAt
+      }} 
       templateKey={business.templateKey || "standard"} 
-      themeConfig={business.themeConfig} 
     />
   );
 }
@@ -186,47 +185,6 @@ async function getBusinessBySlug(slug: string): Promise<BusinessData | null> {
     console.error('Error fetching business data:', error);
     return null;
   }
-}
-
-function ProductsSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="animate-pulse space-y-4">
-        <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg p-4">
-              <div className="h-32 bg-gray-200 rounded mb-3"></div>
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ReviewsSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="animate-pulse space-y-4">
-        <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="border-b border-gray-200 pb-4 last:border-b-0">
-            <div className="flex space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
-                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export async function generateMetadata({ params }: BusinessPageProps) {

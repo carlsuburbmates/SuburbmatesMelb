@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Download, Star, ExternalLink, Check } from 'lucide-react';
-import { Product, BusinessProfile } from '@/lib/types'; // Assuming types exist or I'll define compatible ones
+import { Download, Check } from 'lucide-react';
+import { Product } from '@/lib/types'; // Assuming types exist or I'll define compatible ones
 
 interface ProductCardProps {
   product: Product & {

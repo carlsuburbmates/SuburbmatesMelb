@@ -4,16 +4,11 @@ import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import type { Database } from "@/lib/database.types";
 import {
   computeFeaturedQueuePosition,
-  upsertFeaturedQueueEntry,
 } from "@/lib/featured-slot";
 import { logger } from "@/lib/logger";
 import { createFeaturedSlotCheckoutSession } from "@/lib/stripe";
 import { resolveSingleLga } from "@/lib/suburb-resolver";
 import { supabaseAdmin } from "@/lib/supabase";
-import { emitPosthogEvent } from "@/lib/telemetry-client";
-import sanitizeForLogging, {
-  minimalEventPayload,
-} from "@/lib/telemetry-sanitizer";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -263,7 +258,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const forceQueue = req.headers.get("x-featured-force-queue") === "true";
+    // req.headers.get("x-featured-force-queue");
 
     const { data: lgaRecord } = await authContext.dbClient
       .from("lgas")
@@ -351,7 +346,7 @@ export async function POST(req: NextRequest) {
       error?: unknown;
     };
     const reservationError = _rpc.error;
-    let reservedSlotId = _rpc.data ?? null;
+    const reservedSlotId = _rpc.data ?? null;
 
     if (reservationError) {
       let message = "Reservation failed";
