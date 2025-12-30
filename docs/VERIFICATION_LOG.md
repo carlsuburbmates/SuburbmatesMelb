@@ -1,5 +1,60 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
+## 2025-12-30 — PR5: Post-merge Reconciliation & Hardening (main) — Verified
+
+- **Commit**: `99e2a71608fccebe19f791437b18fd5536201ea4` (Definitive Main)
+- **Status**: PASSED (Hardened)
+- **Gates**:
+    - **SSOT**: Pass (`npm run ssot:check`)
+    - **Lint**: Pass (Zero warnings, fixed `vendor-downgrade.test.ts`)
+    - **Unit Tests**: Pass (44/44, `vitest run`)
+    - **Build**: Pass (`next build`)
+- **Performance Evidence**:
+    - **Home**: [docs/_evidence/perf/home.html](file:///Users/carlg/Documents/PROJECTS/SuburbmatesMelb/docs/_evidence/perf/home.html)
+    - **Directory**: [docs/_evidence/perf/directory.html](file:///Users/carlg/Documents/PROJECTS/SuburbmatesMelb/docs/_evidence/perf/directory.html)
+    - **Profile**: [docs/_evidence/perf/profile.html](file:///Users/carlg/Documents/PROJECTS/SuburbmatesMelb/docs/_evidence/perf/profile.html)
+- **Hardening Note**: Discrepancies in history resolved. API schema drift corrected (unblocking 404/400).
+
+## 2025-12-31 — PR5: Alive-but-Fast Signals + Mobile-First UX (main)
+
+**Branch:** `main`
+**Commit:** `99e2a71608fccebe19f791437b18fd5536201ea4`
+**Evidence:**
+- **Liveliness Signals:** `src/app/page.tsx:9` (`revalidate = 3600`) & `src/components/home/FreshSignals.tsx:18,44` (`limit(4)`)
+- **Mobile Action Bar:** `src/components/business/templates/BusinessProfileRenderer.tsx:113,158` (StickyActionBar integration)
+- **Motion Discipline:** `src/components/directory/MobileFilterDrawer.tsx:3,18,45-48` (useReducedMotion + conditional fade)
+
+**Command outputs:**
+- `ssot:check`:
+  ```
+  SSOT Compliance Verified
+  ```
+- `lint`:
+  ```
+  /Users/carlg/Documents/PROJECTS/SuburbmatesMelb/tests/unit/vendor-downgrade.test.ts
+    5:23  warning  'VendorTier' is defined but never used  @typescript-eslint/no-unused-vars
+  ✖ 1 problem (0 errors, 1 warning)
+  ```
+- `build`:
+  ```
+  Route (app)                        Revalidate  Expire    
+  ┌ ○ /                                      1h      1y
+  ...
+  Exit code: 0
+  ```
+- `test:unit: featured-reminders`:
+  ```
+  ✓ tests/unit/featured-reminders.test.ts (3 tests) 9ms
+    ✓ Featured Expiry Reminders API (3)
+      ✓ returns 401 if secret is invalid 2ms
+      ✓ selects candidates for 7 and 2 day windows and sends emails 5ms
+      ✓ skips if reminder already sent for that window (idempotency) 1ms
+  ```
+
+**Verdict:** ✅ VERIFIED COMPLETE
+
+---
+
 ## 2025-12-31 — PR4: Post-merge Verification (main)
 
 **Branch:** `main`

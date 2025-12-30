@@ -166,7 +166,8 @@ export const orderUpdateStatusSchema = z.object({
 const searchQueryField = z
   .string()
   .min(2, "Query must be at least 2 characters")
-  .max(100, "Query must be less than 100 characters");
+  .max(100, "Query must be less than 100 characters")
+  .nullable();
 
 const searchFiltersField = z
   .record(z.string(), z.any())
@@ -219,6 +220,7 @@ export const directorySearchSchema = z.object({
   suburb: z
     .string()
     .max(120, "Suburb name too long")
+    .nullable()
     .optional()
     .transform((value) => {
       if (!value) return null;
@@ -228,6 +230,7 @@ export const directorySearchSchema = z.object({
   category: z
     .string()
     .max(120, "Category too long")
+    .nullable()
     .optional()
     .transform((value) => {
       if (!value) return null;

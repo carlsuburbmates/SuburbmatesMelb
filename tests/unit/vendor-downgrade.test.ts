@@ -2,7 +2,7 @@ import {
   enforceTierProductCap,
   getDowngradePreview,
 } from "@/lib/vendor-downgrade";
-import { TIER_LIMITS, VendorTier } from "@/lib/constants";
+import { TIER_LIMITS } from "@/lib/constants";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
 const { loggerMock, logEventMock, mockState } = vi.hoisted(() => ({

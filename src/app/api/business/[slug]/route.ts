@@ -32,7 +32,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { slug } = await params;
-    
+
     if (!slug) {
       return NextResponse.json(
         { error: 'Business slug is required' },
@@ -47,7 +47,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         id,
         business_name,
         profile_description,
-        profile_image_url,
         suburb_id,
         category_id,
         slug,
@@ -57,9 +56,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         is_vendor,
         vendor_tier,
         vendor_status,
-        phone,
-        website,
-        images,
         template_key,
         theme_config
       `)
@@ -90,7 +86,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         .select('email')
         .eq('id', business.user_id)
         .single();
-      
+
       userEmail = userData?.email || null;
     } catch (userError) {
       logger.warn('Could not fetch user email', { error: userError });
@@ -161,7 +157,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           .select('name')
           .eq('id', business.suburb_id)
           .single();
-        
+
         suburbName = suburb?.name || null;
       } catch (suburbError) {
         logger.warn('Could not fetch suburb name', { error: suburbError });
@@ -175,7 +171,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           .select('name')
           .eq('id', business.category_id)
           .single();
-        
+
         categoryName = category?.name || null;
       } catch (categoryError) {
         logger.warn('Could not fetch category name', { error: categoryError });
@@ -196,19 +192,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       verified: business.vendor_status === 'verified',
       tier: business.vendor_tier || 'directory',
       createdAt: business.created_at,
-      profileImageUrl: business.profile_image_url || null,
-      
+      profileImageUrl: null,
+
       // Extended business details for detail page
-      phone: business.phone,
+      phone: null,
       email: userEmail,
-      website: business.website,
+      website: null,
       address: null, // TODO: Add to schema
       businessHours: null, // TODO: Add to schema
       specialties: [], // TODO: Add to schema
       socialMedia: {}, // TODO: Add to schema
       rating, // Calculated from product reviews
       reviewCount, // Count of approved reviews
-      images: Array.isArray(business.images) ? business.images : []
+      images: Array.isArray((business as any).images) ? (business as any).images : []
     };
 
     return NextResponse.json({
@@ -227,7 +223,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { slug } = await params;
-    
+
     if (!slug) {
       return NextResponse.json(
         { error: 'Business slug is required' },
@@ -314,7 +310,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       message: 'Business profile updated successfully',
       business: updatedBusiness
     });
-    
+
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: error.message }, { status: 401 });
