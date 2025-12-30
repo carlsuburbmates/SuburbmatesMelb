@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { TIER_LIMITS } from '@/lib/constants';
 import { getImageBySection, generateImageUrl } from '@/lib/images';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { useFadeIn } from '@/hooks/useScrollAnimation';
@@ -9,11 +10,11 @@ import { useFadeIn } from '@/hooks/useScrollAnimation';
 const faqs = [
   {
     question: 'What\'s the difference between directory and marketplace?',
-    answer: 'Directory profiles are free and showcase your studio information. Marketplace lets you sell digital products for a 6-8% commission. Every vendor starts with a directory profile.'
+    answer: 'Directory profiles are free and showcase your studio information. Marketplace lets you sell digital products for a small commission. Every vendor starts with a directory profile.'
   },
   {
     question: 'How much does it cost?',
-    answer: 'Directory profiles are completely free. Basic vendors pay 8% commission per sale. Pro vendors pay $20/month + 6% commission for unlimited products and priority support.'
+    answer: `Directory profiles are completely free. Basic vendors pay ${TIER_LIMITS.basic.commission_rate * 100}% commission per sale. Pro vendors pay $${TIER_LIMITS.pro.monthly_fee / 100}/month + ${TIER_LIMITS.pro.commission_rate * 100}% commission for priority features and support.`
   },
   {
     question: 'What can I sell on the marketplace?',
@@ -111,19 +112,19 @@ export function FAQSection() {
               {/* Basic Vendor */}
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
                 <h4 className="text-white font-semibold mb-2">Basic Vendor</h4>
-                <div className="text-white/60 text-xs uppercase tracking-wider mb-3">8% Commission</div>
+                <div className="text-white/60 text-xs uppercase tracking-wider mb-3">{TIER_LIMITS.basic.commission_rate * 100}% Commission</div>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• Everything in Creator</li>
                   <li>• Sell digital products</li>
-                  <li>• Up to 10 products</li>
-                  <li>• 5GB storage</li>
+                  <li>• Up to ${TIER_LIMITS.basic.product_quota} products</li>
+                  <li>• {TIER_LIMITS.basic.storage_quota_gb}GB storage</li>
                 </ul>
               </div>
 
               {/* Pro Vendor */}
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-6 border border-white/30">
                 <h4 className="text-white font-semibold mb-2">Pro Vendor</h4>
-                <div className="text-white/60 text-xs uppercase tracking-wider mb-3">$20/month + 6% Commission</div>
+                <div className="text-white/60 text-xs uppercase tracking-wider mb-3">$${TIER_LIMITS.pro.monthly_fee / 100}/month + {TIER_LIMITS.pro.commission_rate * 100}% Commission</div>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• Everything in Basic</li>
                   <li>• Unlimited products</li>

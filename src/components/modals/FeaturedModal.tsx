@@ -3,6 +3,7 @@
 import { Modal } from '@/components/ui/modal';
 import { Star, MapPin, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
+import { FEATURED_SLOT } from '@/lib/constants';
 
 interface FeaturedModalProps {
   isOpen: boolean;
@@ -23,13 +24,13 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
     },
     {
       icon: <Clock className="w-5 h-5 text-green-500" />,
-      title: "30 Days Duration",
-      description: "Full month of featured placement for maximum exposure",
+      title: `${FEATURED_SLOT.DURATION_DAYS} Days Duration`,
+      description: "Full period of featured placement for maximum exposure",
     },
     {
       icon: <DollarSign className="w-5 h-5 text-purple-500" />,
       title: "Affordable Investment",
-      description: "Just A$20 per placement - excellent value for local creators",
+      description: `Just A$${FEATURED_SLOT.PRICE_CENTS / 100} per placement - excellent value for local creators`,
     }
   ];
 
@@ -82,12 +83,12 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
         {/* Pricing Section */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 text-center">
           <div className="mb-4">
-            <span className="text-3xl font-bold text-gray-900">A$20</span>
+            <span className="text-3xl font-bold text-gray-900">A$${FEATURED_SLOT.PRICE_CENTS / 100}</span>
             <span className="text-gray-600 ml-2">per placement</span>
           </div>
           <div className="flex items-center justify-center space-x-2 text-green-600 mb-4">
             <CheckCircle className="w-5 h-5" />
-            <span className="font-medium">30 Days Guaranteed</span>
+            <span className="font-medium">{FEATURED_SLOT.DURATION_DAYS} Days Guaranteed</span>
           </div>
           <p className="text-sm text-gray-600 mb-6">
             One-time payment, no recurring fees. Cancel or extend anytime.
@@ -119,7 +120,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
                 3
               </div>
               <p className="text-sm text-gray-600">
-                Enjoy 30 days of premium visibility and increased customer discovery
+                Enjoy ${FEATURED_SLOT.DURATION_DAYS} days of premium visibility and increased customer discovery
               </p>
             </div>
           </div>

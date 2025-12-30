@@ -1,5 +1,164 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
+## 2025-12-31 — PR2: Numeric Centralization Verification (Hardened)
+
+**Branch:** fix/pr2-coherence-hardening
+**Commit:** bf7cc580325d2b33107062137996504a9e52dfa7
+**Status:** PASS
+
+### A) Repo State
+**git status --porcelain**
+```text
+ M docs/VERIFICATION_LOG.md
+ M src/app/(vendor)/vendor/dashboard/page.tsx
+ M src/app/contact/page.tsx
+ M src/app/dashboard/page.tsx
+ M src/app/help/page.tsx
+ M src/app/pricing/page.tsx
+ M src/components/home/FAQSection.tsx
+ M src/components/home/FeaturedSection.tsx
+ M src/components/modals/FeaturedModal.tsx
+ M src/lib/email.ts
+ M tests/unit/business-api.test.ts
+ M tests/unit/featured-slots-api.test.ts
+ M tests/unit/tier-utils.test.ts
+ M tests/unit/vendor-downgrade.test.ts
+```
+
+### B) Enforcement & Scans (Verbatim)
+
+#### ssot:check
+**Result:** PASS
+```text
+SSOT Compliance Verified
+```
+
+#### Numeric Drift Scans
+**rg -n "10 products|50 products|8%|A$20|30 days|48 hours" src/app src/components src/lib**
+```text
+src/lib/stripe-config.js:132:      2. Create "Suburbmates Featured Business - 30 days" product
+src/components/analytics/BusinessAnalytics.tsx:75:        <span className="text-sm text-gray-500">Last 30 days</span>
+```
+
+**rg -n "\b\$[0-9]+\b" src**
+```text
+src/lib/constants.ts:46:    monthly_fee: 2900, // A$29.00 in cents
+src/lib/constants.ts:56:    monthly_fee: 9900, // A$99.00 in cents
+src/lib/constants.ts:81:  PRICE_CENTS: 2000, // A$20.00
+src/lib/constants.ts:269:  MIN_PRODUCT_PRICE_CENTS: 100, // A$1.00
+src/lib/constants.ts:270:  MAX_PRODUCT_PRICE_CENTS: 1000000, // A$10,000.00
+src/lib/email.ts:205:      <p><strong>Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
+src/lib/email.ts:240:      <p><strong>Sale Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
+src/lib/email.ts:241:      <p><strong>Platform Fee:</strong> A$${(orderDetails.commission / 100).toFixed(2)}</p>
+src/lib/email.ts:242:      <p><strong>Your Earnings:</strong> A$${(orderDetails.netAmount / 100).toFixed(2)}</p>
+src/lib/email.ts:272:      <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
+src/lib/email.ts:302:      <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
+src/lib/email.ts:410:      <p><strong>Amount:</strong> A$${(disputeDetails.amount / 100).toFixed(2)}</p>
+src/app/(vendor)/vendor/dashboard/page.tsx:26:    price: `$${TIER_LIMITS.pro.monthly_fee / 100}/mo`,
+src/components/modals/FeaturedModal.tsx:85:            <span className="text-3xl font-bold text-gray-900">A$${FEATURED_SLOT.PRICE_CENTS / 100}</span>
+```
+
+### C) Build / Test Outputs (Verbatim)
+
+#### Lint
+**npm run lint**
+```text
+/Users/carlg/Documents/PROJECTS/SuburbmatesMelb/tests/unit/vendor-downgrade.test.ts
+  5:23  warning  'VendorTier' is defined but never used  @typescript-eslint/no-unused-vars
+```
+
+#### Unit Tests
+**npm run test:unit**
+```text
+ Test Files  13 passed (13)
+      Tests  40 passed (40)
+```
+
+#### Build
+**npm run build**
+```text
+✓ Compiled successfully in 19.2s
+✓ Finished TypeScript in 12.9s
+```
+
+### D) Exceptions (Allowed)
+- `src/components/analytics/BusinessAnalytics.tsx:75`: "Last 30 days" (Standard reporting window, not platform limit).
+- `src/lib/stripe-config.js:132`: Comment in configuration script.
+
+### E) Evidence Snippets
+
+#### E1) src/lib/constants.ts (Numeric SSOT)
+**Lines 20-41**
+```typescript
+export const TIER_LIMITS = {
+  none: {
+    product_quota: 0,
+    storage_quota_gb: 0,
+    commission_rate: 0,
+    monthly_fee: 0,
+    can_sell: false,
+    marketplace_cap: 0,
+    has_landing_page: false,
+    has_custom_domain: false,
+  },
+  basic: {
+    // SSOT: must match DB quota enforcement (see supabase/migrations/020_basic_tier_cap.sql)
+    product_quota: 3,
+    storage_quota_gb: 5,
+    commission_rate: 0.08, // 8%
+    monthly_fee: 0,
+    can_sell: true,
+    marketplace_cap: 3, // Matches product_quota
+    has_landing_page: true, // Basic profile builder
+    has_custom_domain: false,
+  },
+```
+
+#### E2) src/lib/email.ts (Dynamic Limits)
+**Lines 122-125**
+```typescript
+      <ul>
+        <li>List up to ${TIER_LIMITS.basic.product_quota} products (Basic tier)</li>
+        <li>Receive payments directly to your account</li>
+        <li>Manage orders and refunds</li>
+      </ul>
+```
+
+#### E3) src/app/(vendor)/vendor/dashboard/page.tsx (UI Alignment)
+**Lines 16-29**
+```typescript
+const TIER_DETAILS = [
+  {
+    id: "basic",
+    name: "Basic",
+    price: "Free",
+    description: `Sell up to ${TIER_LIMITS.basic.product_quota} products • ${Math.round(TIER_LIMITS.basic.commission_rate * 100)}% platform fee`,
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: `$${TIER_LIMITS.pro.monthly_fee / 100}/mo`,
+    description: `Sell up to ${TIER_LIMITS.pro.product_quota} products • ${Math.round(TIER_LIMITS.pro.commission_rate * 100)}% platform fee`,
+  },
+];
+```
+
+#### E4) tests/unit/tier-utils.test.ts (Test Realignment)
+**Lines 8-13**
+```typescript
+describe("tier-utils - local limits", () => {
+  it("returns basic limits for basic tier", () => {
+    const limits = getVendorTierLimits("basic");
+    expect(limits.product_quota).toBe(TIER_LIMITS.basic.product_quota);
+    expect(limits.can_sell).toBe(true);
+  });
+```
+
+---
+
+---
+
+
 This file is the rolling, date-stamped record of **what the codebase actually contains** at specific commits/branches.
 It is evidence-only: **no future plans, no tasks, no roadmaps** (those belong in `docs/EXECUTION_PLAN.md`).
 Each entry must include:

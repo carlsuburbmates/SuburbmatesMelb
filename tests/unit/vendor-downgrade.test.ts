@@ -2,6 +2,7 @@ import {
   enforceTierProductCap,
   getDowngradePreview,
 } from "@/lib/vendor-downgrade";
+import { TIER_LIMITS, VendorTier } from "@/lib/constants";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
 const { loggerMock, logEventMock, mockState } = vi.hoisted(() => ({
@@ -75,7 +76,7 @@ describe("vendor downgrade helpers", () => {
   });
 
   it("no-ops when vendor is already within the target tier limit", async () => {
-    mockState.products = makeProducts(3);
+    mockState.products = makeProducts(TIER_LIMITS.basic.product_quota);
     const result = await enforceTierProductCap("vendor-1", "basic");
     expect(result.unpublishedCount).toBe(0);
     expect(result.unpublishedProducts).toHaveLength(0);
@@ -83,31 +84,35 @@ describe("vendor downgrade helpers", () => {
   });
 
   it("unpublishes the oldest products first when exceeding the cap", async () => {
-    mockState.products = makeProducts(7);
+    const productCount = 7;
+    const expectedUnpublished = productCount - TIER_LIMITS.basic.product_quota;
+    mockState.products = makeProducts(productCount);
     const result = await enforceTierProductCap("vendor-1", "basic");
-    expect(result.unpublishedCount).toBe(2);
-    expect(result.unpublishedProducts.map((p) => p.id)).toEqual([
-      "prod-1",
-      "prod-2",
-    ]);
-    expect(mockState.updatedIds).toEqual(["prod-1", "prod-2"]);
+    expect(result.unpublishedCount).toBe(expectedUnpublished);
+    expect(result.unpublishedProducts.map((p) => p.id)).toEqual(
+      Array.from({ length: expectedUnpublished }, (_, i) => `prod-${i + 1}`)
+    );
+    expect(mockState.updatedIds).toEqual(
+      Array.from({ length: expectedUnpublished }, (_, i) => `prod-${i + 1}`)
+    );
     expect(logEventMock).toHaveBeenCalledWith(
       "fifo_unpublish",
       expect.objectContaining({
         vendorId: "vendor-1",
-        count: 2,
-        productIds: ["prod-1", "prod-2"],
+        count: expectedUnpublished,
+        productIds: Array.from({ length: expectedUnpublished }, (_, i) => `prod-${i + 1}`),
       })
     );
   });
 
   it("preview lists the exact products that will be unpublished", async () => {
-    mockState.products = makeProducts(7);
+    const productCount = 7;
+    const expectedUnpublished = productCount - TIER_LIMITS.basic.product_quota;
+    mockState.products = makeProducts(productCount);
     const preview = await getDowngradePreview("vendor-1", "basic");
-    expect(preview.willUnpublish).toBe(2);
-    expect(preview.affectedProducts.map((p) => p.id)).toEqual([
-      "prod-1",
-      "prod-2",
-    ]);
+    expect(preview.willUnpublish).toBe(expectedUnpublished);
+    expect(preview.affectedProducts.map((p) => p.id)).toEqual(
+      Array.from({ length: expectedUnpublished }, (_, i) => `prod-${i + 1}`)
+    );
   });
 });

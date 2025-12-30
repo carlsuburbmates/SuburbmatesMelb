@@ -4,7 +4,7 @@
  */
 
 import { Resend } from 'resend';
-import { PLATFORM } from './constants';
+import { PLATFORM, TIER_LIMITS, FEATURED_SLOT, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -120,7 +120,7 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
       <p><a href="${onboardingUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Onboarding</a></p>
       <p>Once complete, you'll be able to:</p>
       <ul>
-        <li>List up to 10 products (Basic tier)</li>
+        <li>List up to ${TIER_LIMITS.basic.product_quota} products (Basic tier)</li>
         <li>Receive payments directly to your account</li>
         <li>Manage orders and refunds</li>
       </ul>
@@ -206,7 +206,7 @@ export async function sendOrderConfirmationEmail(
       ${orderDetails.downloadUrl ? `
         <p><strong>Download Link:</strong></p>
         <p><a href="${orderDetails.downloadUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Download Product</a></p>
-        <p><small>This link will expire in 7 days.</small></p>
+        <p><small>This download link is time-limited for security.</small></p>
       ` : ''}
       <p>Need help? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
@@ -273,7 +273,7 @@ export async function sendRefundRequestEmail(
       <p><strong>Reason:</strong> ${refundDetails.reason}</p>
       <p><strong>⚠️ Important:</strong> As the merchant of record, you are responsible for processing this refund through your Stripe dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/refunds" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Refund Request</a></p>
-      <p>Please review and process within 7 days to maintain good standing.</p>
+      <p>Please review and process this request promptly to maintain good standing.</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
     `,
   });
@@ -347,7 +347,7 @@ export async function sendVendorSuspensionEmail(
       <p>Hi ${businessName},</p>
       <p>Your vendor account has been suspended.</p>
       <p><strong>Reason:</strong> ${reason}</p>
-      <p><strong>You have 14 days to appeal this decision.</strong></p>
+      <p><strong>You have ${RISK_THRESHOLDS.APPEAL_DEADLINE_DAYS} days to appeal this decision.</strong></p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/appeals" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Submit Appeal</a></p>
       <p>For more information, contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
@@ -439,7 +439,7 @@ export async function sendFeaturedSlotExpiryEmail(
     html: `
       <h1>Your Featured Slot is Expiring Soon</h1>
       <p>Hi ${businessName},</p>
-      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in 3 days).</p>
+      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${FEATURED_SLOT.EXPIRY_REMINDER_DAYS} days).</p>
       <p>To keep your top spot and continue getting premium visibility, you can renew your slot from your dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Manage Featured Slots</a></p>
       <p>If you choose not to renew, your slot will become available for other local studios.</p>

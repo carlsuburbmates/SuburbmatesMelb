@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useVendorProducts } from "@/hooks/useVendorProducts";
 import { AlertTriangle, MapPin, Package, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { TIER_LIMITS, FEATURED_SLOT } from "@/lib/constants";
 
 const currencyFormatter = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -17,13 +18,13 @@ const TIER_DETAILS = [
     id: "basic",
     name: "Basic",
     price: "Free",
-    description: "Sell up to 10 products • 8% platform fee",
+    description: `Sell up to ${TIER_LIMITS.basic.product_quota} products • ${Math.round(TIER_LIMITS.basic.commission_rate * 100)}% platform fee`,
   },
   {
     id: "pro",
     name: "Pro",
-    price: "$29/mo",
-    description: "Sell up to 50 products • 6% platform fee",
+    price: `$${TIER_LIMITS.pro.monthly_fee / 100}/mo`,
+    description: `Sell up to ${TIER_LIMITS.pro.product_quota} products • ${Math.round(TIER_LIMITS.pro.commission_rate * 100)}% platform fee`,
   },
 ];
 
@@ -259,7 +260,7 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
           `Slots are full. You're queued for ${json.data.suburb} (position #${json.data.position}).`
         );
       } else {
-        setSuccessMessage("Featured placement activated for the next 30 days.");
+        setSuccessMessage(`Featured placement activated for the next ${FEATURED_SLOT.DURATION_DAYS} days.`);
       }
       setSuburbInput("");
       await fetchData();
@@ -542,7 +543,7 @@ export default function VendorDashboardPage() {
         <StatCard
           label="Featured placements"
           value={stats.featuredSlots}
-          hint="Feature up to 3 suburbs at a time"
+          hint={`Feature up to ${FEATURED_SLOT.MAX_SLOTS_PER_VENDOR} suburbs at a time`}
           icon={<TrendingUp className="w-5 h-5 text-white" />}
           accent="bg-gray-800"
         />
@@ -652,11 +653,11 @@ export default function VendorDashboardPage() {
                 ranking.
               </li>
               <li>
-                • Add at least two media assets per product (max 3) for best
+                • Add multiple media assets per product for best
                 conversion.
               </li>
               <li>
-                • Premium tier unlocks 3 featured slots + analytics exports.
+                • Premium tier unlocks ${FEATURED_SLOT.MAX_SLOTS_PER_VENDOR} featured slots + analytics exports.
               </li>
             </ul>
             <Link

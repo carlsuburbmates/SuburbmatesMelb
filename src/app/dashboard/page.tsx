@@ -19,6 +19,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { TIER_LIMITS, FEATURED_SLOT } from "@/lib/constants";
 
 // Mock data for demonstration
 const mockBusiness = {
@@ -284,7 +285,7 @@ export default function Dashboard() {
                   Upgrade to Premium
                 </h4>
                 <p className="text-sm text-blue-700 mb-3">
-                  Get 50 products and 3 featured slots
+                  Get ${TIER_LIMITS.premium.product_quota} products and {FEATURED_SLOT.MAX_SLOTS_PER_VENDOR} featured slots
                 </p>
                 <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
                   Upgrade Now
