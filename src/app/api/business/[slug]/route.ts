@@ -204,7 +204,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       socialMedia: {}, // TODO: Add to schema
       rating, // Calculated from product reviews
       reviewCount, // Count of approved reviews
-      images: Array.isArray((business as any).images) ? (business as any).images : []
+      images: (business && 'images' in business && Array.isArray(business.images)) ? business.images : []
     };
 
     return NextResponse.json({
