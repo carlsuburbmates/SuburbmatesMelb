@@ -1,5 +1,50 @@
 # Suburbmates — Verification Log (Rolling Evidence)
 
+## 2025-12-31 — PR4: Featured Expiry Reminders Verification (Committed Boundary)
+
+**Branch:** `fix/pr4-featured-expiry-reminders`
+**Commit:** `94b32bf5748a869425e7c0224fc67b6fba58bbfb`
+**Evidence:**
+- **Cron trigger:** `vercel.json:1-9` (Hits `/api/ops/featured-reminders` daily)
+- **Security:** `src/app/api/ops/featured-reminders/route.ts:39-42` (Checks `CRON_SECRET` in `authorization` header)
+- **Idempotency/logging:** 
+    - Schema: `supabase/migrations/020_featured_slot_reminders.sql:4-15` (UNIQUE constraint on `featured_slot_id, reminder_window`)
+    - Lookup: `src/app/api/ops/featured-reminders/route.ts:88-96`
+    - Logging: `src/app/api/ops/featured-reminders/route.ts:117-128`
+- **Candidate selection:** `src/app/api/ops/featured-reminders/route.ts:49-75` (Computes date windows for 7 and 2 days from `now`)
+- **Email truthfulness:** `src/lib/email.ts:423-451` (Signature with `daysRemaining`, used in template)
+
+**Command outputs:**
+- `test:unit: featured-reminders`:
+  ```
+  ✓ tests/unit/featured-reminders.test.ts (3 tests) 7ms
+    ✓ Featured Expiry Reminders API (3)           
+      ✓ returns 401 if secret is invalid 2ms
+      ✓ selects candidates for 7 and 2 day windows and sends emails 4ms
+      ✓ skips if reminder already sent for that window (idempotency) 0ms
+  ```
+- `lint`:
+  ```
+  /Users/carlg/Documents/PROJECTS/SuburbmatesMelb/tests/unit/vendor-downgrade.test.ts
+    5:23  warning  'VendorTier' is defined but never used  @typescript-eslint/no-unused-vars
+  ✖ 1 problem (0 errors, 1 warning)
+  ```
+- `build`:
+  ```
+  Creating an optimized production build ...
+  ✓ Compiled successfully in 8.9s
+  ✓ Finished TypeScript in 5.7s    
+  ✓ Collecting page data using 7 workers in 627.6ms    
+  ✓ Generating static pages using 7 workers (45/45) in 1309.3ms
+  ✓ Collecting build traces in 2.7s                            
+  ✓ Finalizing page optimization in 2.7s    
+  Exit code: 0
+  ```
+
+**Verdict:** ✅ VERIFIED COMPLETE (Committed Boundary)
+
+---
+
 ## 2025-12-31 — PR3: Post-merge Verification (main)
 Branch: main
 Commit: bc6e7ff940a8547179ec5d8edd9fb3ea0e34f61f

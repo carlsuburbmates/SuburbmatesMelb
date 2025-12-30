@@ -4,7 +4,7 @@
  */
 
 import { Resend } from 'resend';
-import { PLATFORM, TIER_LIMITS, FEATURED_SLOT, RISK_THRESHOLDS } from './constants';
+import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -424,7 +424,8 @@ export async function sendFeaturedSlotExpiryEmail(
   email: string,
   businessName: string,
   suburb: string,
-  expiryDate: string
+  expiryDate: string,
+  daysRemaining: number
 ): Promise<EmailResult> {
   const formattedDate = new Date(expiryDate).toLocaleDateString('en-AU', {
     weekday: 'long',
@@ -439,7 +440,7 @@ export async function sendFeaturedSlotExpiryEmail(
     html: `
       <h1>Your Featured Slot is Expiring Soon</h1>
       <p>Hi ${businessName},</p>
-      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${FEATURED_SLOT.EXPIRY_REMINDER_DAYS} days).</p>
+      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${daysRemaining} days).</p>
       <p>To keep your top spot and continue getting premium visibility, you can renew your slot from your dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Manage Featured Slots</a></p>
       <p>If you choose not to renew, your slot will become available for other local studios.</p>
