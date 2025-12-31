@@ -11,6 +11,7 @@ import { emitPosthogEvent } from "@/lib/telemetry-client";
 import sanitizeForLogging, {
   minimalEventPayload,
 } from "@/lib/telemetry-sanitizer";
+import { logger } from "@/lib/logger";
 import type Stripe from "stripe";
 
 // Build a minimal redacted payload summary for telemetry and storage
@@ -139,9 +140,9 @@ export async function handleStripeEvent(
 
     if (db) {
       if (!paymentIntentId) {
-        console.warn("checkout.session completed without payment_intent", {
+        logger.warn("checkout.session completed without payment_intent", {
           sessionId: session["id"],
-        });
+        } as Record<string, unknown>);
         return redactEventSummary(event);
       }
 
@@ -199,7 +200,7 @@ export async function handleStripeEvent(
             })
             .eq("id", metadata.reserved_slot_id);
         } catch (err: unknown) {
-          console.error("Failed to activate reserved featured slot", err);
+          logger.error("Failed to activate reserved featured slot", err);
         }
       }
 
@@ -220,9 +221,9 @@ export async function handleStripeEvent(
             })
             .eq("id", metadata.vendor_id);
 
-          console.info("Upgraded vendor to Pro tier", { vendorId: metadata.vendor_id });
+          logger.info("Upgraded vendor to Pro tier", { vendorId: metadata.vendor_id } as Record<string, unknown>);
         } catch (err: unknown) {
-          console.error("Failed to upgrade vendor to Pro", err);
+          logger.error("Failed to upgrade vendor to Pro", err);
           // throw error to ensure retry?
           throw err;
         }
@@ -344,10 +345,10 @@ export async function handleStripeEvent(
           }
         }
       } catch (error) {
-        console.warn("Failed to load vendor contact for downgrade email", {
+        logger.warn("Failed to load vendor contact for downgrade email", {
           vendorId,
           error,
-        });
+        } as Record<string, unknown>);
       }
 
       await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
@@ -446,11 +447,11 @@ export async function processIncomingEvent(
         ph as Record<string, unknown>
       );
     } catch (e) {
-      console.warn("Telemetry emit failed", e);
+      logger.warn("Telemetry emit failed", e as Record<string, unknown>);
     }
 
     // Also log sanitized summary for server logs
-    console.info("Processed stripe event", sanitized);
+    logger.info("Processed stripe event", sanitized as Record<string, unknown>);
 
     return { skipped: false, summary };
   } catch (err: unknown) {
@@ -458,7 +459,7 @@ export async function processIncomingEvent(
     try {
       await db.from("webhook_events").delete().eq("stripe_event_id", event.id);
     } catch (delErr) {
-      console.error("Failed to cleanup webhook_events placeholder", delErr);
+      logger.error("Failed to cleanup webhook_events placeholder", delErr);
     }
     throw err;
   }
