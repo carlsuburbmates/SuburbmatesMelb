@@ -35,6 +35,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                   height={128}
                   className="w-full h-full rounded-lg object-cover"
                   sizes="(min-width: 768px) 8rem, 6rem"
+                  priority={true}
                 />
               ) : (
                 <span className="text-2xl md:text-3xl font-bold text-gray-600">

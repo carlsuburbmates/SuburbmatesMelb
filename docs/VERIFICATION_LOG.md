@@ -165,7 +165,7 @@
 
 ### PR8: Marketplace UX & Middleman Truth
 - **Date**: 2025-12-31
-- **Commit**: `85ebfc92da31c8f909ba686d87b98eba8fc0b2cb`
+- **Commit**: `e2645f8156cab638ecfe2eeef272e11567a20efe`
 - **Status**: ✅ VERIFIED COMPLETE
 - **Scope**:
   - `ProductCard.tsx`: Added "Sold by {vendor}" attribution.
