@@ -7,7 +7,11 @@ import { processIncomingEvent } from "./handler";
 export async function POST(req: NextRequest) {
   const body = await req.arrayBuffer();
   const sig = req.headers.get("stripe-signature") || "";
-  const secret = process.env.STRIPE_WEBHOOK_SECRET || "";
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not set");
+    return new NextResponse("Server Configuration Error", { status: 500 });
+  }
 
   let event: Stripe.Event;
   try {

@@ -36,6 +36,11 @@ interface SlotWithVendor {
 
 export async function GET(req: Request) {
   try {
+    if (!process.env.CRON_SECRET) {
+      console.error("[CRITICAL] CRON_SECRET is not set");
+      return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
+    }
+
     const authHeader = req.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -50,7 +55,7 @@ export async function GET(req: Request) {
       // Define the target day window
       const targetDate = new Date();
       targetDate.setDate(now.getDate() + daysBefore);
-      
+
       const startOfTargetDay = new Date(targetDate.setHours(0, 0, 0, 0)).toISOString();
       const endOfTargetDay = new Date(targetDate.setHours(23, 59, 59, 999)).toISOString();
 
@@ -82,7 +87,7 @@ export async function GET(req: Request) {
 
       for (const slot of typedSlots) {
         totalProcessed++;
-        
+
         try {
           // Idempotency check: Have we already sent a reminder for this slot and window?
           const { data: existing, error: checkError } = await supabaseAdmin
@@ -98,7 +103,7 @@ export async function GET(req: Request) {
           // Extract vendor/email info
           const vendor = Array.isArray(slot.vendors) ? slot.vendors[0] : slot.vendors;
           const user = vendor?.users ? (Array.isArray(vendor.users) ? vendor.users[0] : vendor.users) : null;
-          
+
           if (!vendor || !user?.email) {
             console.warn(`[PR4] Skipping slot ${slot.id}: No email found`);
             continue;
@@ -135,10 +140,10 @@ export async function GET(req: Request) {
 
         } catch (itemError) {
           console.error(`[PR4] Failed processing reminder for slot ${slot.id}:`, itemError);
-          errors.push({ 
-            slot_id: slot.id, 
-            window: daysBefore, 
-            error: itemError instanceof Error ? itemError.message : String(itemError) 
+          errors.push({
+            slot_id: slot.id,
+            window: daysBefore,
+            error: itemError instanceof Error ? itemError.message : String(itemError)
           });
         }
       }
@@ -154,7 +159,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("[PR4] Cron failed:", error);
     if (error instanceof Error) {
-        console.error("Stack trace:", error.stack);
+      console.error("Stack trace:", error.stack);
     }
     return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Internal Error" }, { status: 500 });
   }

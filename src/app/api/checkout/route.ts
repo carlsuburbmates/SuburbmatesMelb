@@ -30,13 +30,13 @@ async function checkoutHandler(req: NextRequest) {
   try {
     // Authenticate user
     const authContext = await requireAuth(req);
-    
+
     // Validate request body
     const body = await validateBody(orderCreateSchema, req);
 
-    logger.info('Checkout initiated', { 
-      customerId: authContext.user.id, 
-      productId: body.product_id 
+    logger.info('Checkout initiated', {
+      customerId: authContext.user.id,
+      productId: body.product_id
     });
 
     // Get product with vendor details

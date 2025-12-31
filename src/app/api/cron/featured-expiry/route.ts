@@ -11,6 +11,11 @@ const supabaseAdmin = createClient(
 
 export async function GET(req: Request) {
   try {
+    if (!process.env.CRON_SECRET) {
+      console.error("[CRITICAL] CRON_SECRET is not set");
+      return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
+    }
+
     const authHeader = req.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,14 +29,14 @@ export async function GET(req: Request) {
     // Simpler: > now + 3d AND < now + 3d + 1h? No, cron might run anytime.
     // Best practice: Store last_reminded_at. But we can't change schema easily.
     // Alternative: Check if expiry is between start of day + 3d and end of day + 3d.
-    
+
     // Let's assume this runs once a day at 9am.
     // We notify for slots expiring on the date "Today + 3 days".
-    
+
     const reminderDays = FEATURED_SLOT.EXPIRY_REMINDER_DAYS || 3;
     const targetDate = new Date();
     targetDate.setDate(now.getDate() + reminderDays);
-    
+
     // Start of target day (00:00:00)
     const startOfTargetDay = new Date(targetDate.setHours(0, 0, 0, 0)).toISOString();
     // End of target day (23:59:59)
@@ -69,50 +74,50 @@ export async function GET(req: Request) {
 
     // Parallel send (could use batch but logic is custom per user)
     await Promise.all(slots.map(async (slot) => {
-        try {
-            // Access slot.vendors, as any join result can be complex in types
-            const vendors = slot.vendors as unknown; 
-            const vendor = (Array.isArray(vendors) ? vendors[0] : vendors) as { 
-                business_name: string | null;
-                user_id: string;
-                users: { email: string | null }[] | { email: string | null } | null;
-            };
-            
-            const users = vendor?.users;
-            const user = Array.isArray(users) ? users[0] : users;
-            
-            if (!vendor || !user || !user.email) {
-                console.warn(`Skipping slot ${slot.id}: No vendor email found`);
-                return;
-            }
+      try {
+        // Access slot.vendors, as any join result can be complex in types
+        const vendors = slot.vendors as unknown;
+        const vendor = (Array.isArray(vendors) ? vendors[0] : vendors) as {
+          business_name: string | null;
+          user_id: string;
+          users: { email: string | null }[] | { email: string | null } | null;
+        };
 
-            const email = user.email;
-            const businessName = vendor.business_name || "Vendor";
-            const suburb = slot.suburb_label || "Featured Suburb";
-            
-            const result = await sendFeaturedSlotExpiryEmail(
-                email,
-                businessName,
-                suburb,
-                slot.end_date,
-                reminderDays
-            );
+        const users = vendor?.users;
+        const user = Array.isArray(users) ? users[0] : users;
 
-            if (result.success) {
-                sentCount++;
-            } else {
-                errors.push({ id: slot.id, error: result.error });
-            }
-        } catch (e) {
-            errors.push({ id: slot.id, error: e });
+        if (!vendor || !user || !user.email) {
+          console.warn(`Skipping slot ${slot.id}: No vendor email found`);
+          return;
         }
+
+        const email = user.email;
+        const businessName = vendor.business_name || "Vendor";
+        const suburb = slot.suburb_label || "Featured Suburb";
+
+        const result = await sendFeaturedSlotExpiryEmail(
+          email,
+          businessName,
+          suburb,
+          slot.end_date,
+          reminderDays
+        );
+
+        if (result.success) {
+          sentCount++;
+        } else {
+          errors.push({ id: slot.id, error: result.error });
+        }
+      } catch (e) {
+        errors.push({ id: slot.id, error: e });
+      }
     }));
 
-    return NextResponse.json({ 
-        success: true, 
-        processed: slots.length, 
-        sent: sentCount, 
-        errors: errors.length > 0 ? errors : undefined 
+    return NextResponse.json({
+      success: true,
+      processed: slots.length,
+      sent: sentCount,
+      errors: errors.length > 0 ? errors : undefined
     });
 
   } catch (error) {

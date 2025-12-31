@@ -300,28 +300,32 @@ export async function POST(req: NextRequest) {
     // General formula: Index to follow = (current_count - cap).
     // If count=5, cap=5 -> index 0. Start after slot[0].
     // If count=1, cap=5 -> index -4. (count < cap), so start now.
-    
+
     // However, we also need to respect that we can't start *before* now.
-    
+
     if (sortedSlots.length >= slotCap) {
-        const freeingSlotIndex = sortedSlots.length - slotCap;
-        const freeingSlot = sortedSlots[freeingSlotIndex];
-        // Add a small buffer (e.g. 1 second or 1 minute) to avoid exact-boundary overlap issues with DB constraints
-        const releaseDate = new Date(freeingSlot.end_date);
-        calculatedStartDate = new Date(releaseDate.getTime() + 1000 * 60); // +1 minute
+      const freeingSlotIndex = sortedSlots.length - slotCap;
+      const freeingSlot = sortedSlots[freeingSlotIndex];
+      // Add a small buffer (e.g. 1 second or 1 minute) to avoid exact-boundary overlap issues with DB constraints
+      const releaseDate = new Date(freeingSlot.end_date);
+      calculatedStartDate = new Date(releaseDate.getTime() + 1000 * 60); // +1 minute
     }
 
     const startDateIso = calculatedStartDate.toISOString();
     const endDateIso = new Date(
-        calculatedStartDate.getTime() + FEATURED_SLOT.DURATION_DAYS * 24 * 60 * 60 * 1000
+      calculatedStartDate.getTime() + FEATURED_SLOT.DURATION_DAYS * 24 * 60 * 60 * 1000
     ).toISOString();
 
+    if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
+      console.error("NEXT_PUBLIC_SITE_URL not set in production");
+      throw new Error("Server Configuration Error");
+    }
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const mockCheckout = useMockCheckout
       ? {
-          id: `cs_mock_${Date.now()}`,
-          url: `${siteUrl}/mock-featured-checkout`,
-        }
+        id: `cs_mock_${Date.now()}`,
+        url: `${siteUrl}/mock-featured-checkout`,
+      }
       : null;
 
     if (!supabaseAdmin) {
@@ -342,7 +346,7 @@ export async function POST(req: NextRequest) {
         p_vendor_cap: FEATURED_SLOT.MAX_SLOTS_PER_VENDOR,
       }
     );
-    
+
     const _rpc = rpcResult as unknown as {
       data?: string | null;
       error?: unknown;
@@ -352,104 +356,104 @@ export async function POST(req: NextRequest) {
 
     if (reservationError) {
       let message = "Reservation failed";
-        if (
-          reservationError &&
-          typeof reservationError === "object" &&
-          "message" in reservationError
-        ) {
-          message = String(
-            (reservationError as unknown as { message?: unknown }).message ??
-              message
-          );
-        } else if (typeof reservationError === "string") {
-          message = reservationError;
-        }
-
-        // Map known DB consistency errors to friendly messages
-        if (message.includes("lga_cap_exceeded")) {
-           // This shouldn't happen with our calculation unless race condition
-           return NextResponse.json(
-             {
-               success: false,
-               error: {
-                 code: "LGA_CAP_EXCEEDED",
-                 message: "This slot became unavailable during processing. Please try again.",
-               },
-             },
-             { status: 409 }
-           );
-        }
-
-        if (message.includes("vendor_cap_exceeded")) {
-            return NextResponse.json(
-              {
-                success: false,
-                error: {
-                  code: "VENDOR_CAP_EXCEEDED",
-                  message: "You have reached your featured slots cap",
-                },
-              },
-              { status: 409 }
-            );
-        }
-        
-        logger.error("featured_slot_reservation_error", {
-            error: reservationError,
-        });
-
-        return NextResponse.json(
-            {
-              success: false,
-              error: {
-                code: "RESERVATION_FAILED",
-                message: "Unable to reserve featured slot",
-              },
-            },
-            { status: 500 }
+      if (
+        reservationError &&
+        typeof reservationError === "object" &&
+        "message" in reservationError
+      ) {
+        message = String(
+          (reservationError as unknown as { message?: unknown }).message ??
+          message
         );
-    }
+      } else if (typeof reservationError === "string") {
+        message = reservationError;
+      }
 
-    if (!reservedSlotId) {
+      // Map known DB consistency errors to friendly messages
+      if (message.includes("lga_cap_exceeded")) {
+        // This shouldn't happen with our calculation unless race condition
         return NextResponse.json(
           {
             success: false,
             error: {
-              code: "RESERVATION_FAILED",
-              message: "Unable to reserve featured slot",
+              code: "LGA_CAP_EXCEEDED",
+              message: "This slot became unavailable during processing. Please try again.",
             },
           },
-          { status: 500 }
+          { status: 409 }
         );
+      }
+
+      if (message.includes("vendor_cap_exceeded")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "VENDOR_CAP_EXCEEDED",
+              message: "You have reached your featured slots cap",
+            },
+          },
+          { status: 409 }
+        );
+      }
+
+      logger.error("featured_slot_reservation_error", {
+        error: reservationError,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "RESERVATION_FAILED",
+            message: "Unable to reserve featured slot",
+          },
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!reservedSlotId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "RESERVATION_FAILED",
+            message: "Unable to reserve featured slot",
+          },
+        },
+        { status: 500 }
+      );
     }
 
     let session: {
-        id?: string;
-        url?: string | null;
-        metadata?: Record<string, unknown>;
+      id?: string;
+      url?: string | null;
+      metadata?: Record<string, unknown>;
     } | null = null;
 
     if (mockCheckout) {
-        session = mockCheckout as { id: string; url: string };
+      session = mockCheckout as { id: string; url: string };
     } else {
-        const created = await createFeaturedSlotCheckoutSession({
-          vendorId: vendor.id,
-          businessProfileId: profile.id,
-          lgaId: targetLgaId,
-          suburbLabel: safeSuburbLabel,
-          successUrl: `${siteUrl}/vendor/dashboard?featured=success`,
-          cancelUrl: `${siteUrl}/vendor/dashboard?featured=cancelled`,
-          vendorStripeAccountId: vendor.stripe_account_id ?? undefined,
-          vendorTier: vendor.tier ?? undefined,
-          metadata: {
-            reserved_slot_id: String(reservedSlotId),
-          },
-        });
+      const created = await createFeaturedSlotCheckoutSession({
+        vendorId: vendor.id,
+        businessProfileId: profile.id,
+        lgaId: targetLgaId,
+        suburbLabel: safeSuburbLabel,
+        successUrl: `${siteUrl}/vendor/dashboard?featured=success`,
+        cancelUrl: `${siteUrl}/vendor/dashboard?featured=cancelled`,
+        vendorStripeAccountId: vendor.stripe_account_id ?? undefined,
+        vendorTier: vendor.tier ?? undefined,
+        metadata: {
+          reserved_slot_id: String(reservedSlotId),
+        },
+      });
 
-        session = {
-          id: created.id,
-          url: created.url,
-          metadata: created.metadata ?? undefined,
-        };
+      session = {
+        id: created.id,
+        url: created.url,
+        metadata: created.metadata ?? undefined,
+      };
     }
 
     return NextResponse.json(
