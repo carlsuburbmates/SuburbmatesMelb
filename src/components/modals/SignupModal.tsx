@@ -261,6 +261,25 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   />
                 </div>
               </div>
+              
+              {/* Audience Distribution Checkbox (Soft Filter) */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-900">I already share my work</span>
+                    <p className="text-gray-500 mt-0.5">
+                      On social media, email newsletters, or other communities.
+                    </p>
+                  </div>
+                </label>
+                <p className="text-xs text-gray-400 mt-2 ml-7">
+                  SuburbMates is designed for creators who already share their work.
+                </p>
+              </div>
             </>
           )}
 

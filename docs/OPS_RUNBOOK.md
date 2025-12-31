@@ -149,3 +149,33 @@ For product truth, see `docs/README.md`. For execution sequencing, see `docs/EXE
 * Log verification evidence in `docs/VERIFICATION_LOG.md`.
 
 ---
+
+## 10) Launch Communications (Draft Only)
+
+**Status:** DOCUMENT ONLY (Not implemented)
+
+This section contains approved copy for the V1 launch. It adheres to strict "no ranking/traffic promises" rules.
+
+### 10.1 Announcement Email / Post
+
+> **Subject:** Your official creator profile is live
+>
+> **Body:**
+> SuburbMates V1 is now open. You can now build a professional mini-site to showcase your work and sell digital products directly to neighbours.
+>
+> **What it is:**
+> * A portfolio for your service or studio
+> * A verified home for your digital products (templates, courses, guides)
+> * A simpler alternative to building a full website
+>
+> **What it isn't:**
+> * We don't sell your leads (neighbours contact you directly)
+> * We don't promise algorithmic traffic (you share your page with your audience)
+>
+> [Create your profile]
+
+### 10.2 Social Bio
+
+> "Official creator portfolio on SuburbMates using the Pro template."
+
+---

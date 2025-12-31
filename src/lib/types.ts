@@ -48,3 +48,49 @@ export interface BusinessProfileWithUser extends BusinessProfile {
     user_type: string | null;
   };
 }
+
+export interface BusinessImage {
+  id: string;
+  url: string;
+  alt: string;
+  caption?: string;
+}
+
+export interface BusinessProfileExtended {
+  id: string;
+  business_name: string;
+  profile_description?: string | null;
+  profile_image_url?: string | null;
+  created_at?: string | null;
+  user_id: string;
+  suburb?: string;
+  category?: string;
+  email?: string;
+  address?: string;
+  phone?: string | null;
+  website?: string | null;
+  is_vendor?: boolean | null;
+  product_count?: number;
+  abn_verified?: boolean;
+  images?: BusinessImage[];
+  template_key?: string | null;
+}
+
+export interface MappedBusinessProfile {
+  id: string;
+  name: string;
+  description: string;
+  suburb: string;
+  category: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  profileImageUrl?: string;
+  isVendor: boolean;
+  productCount: number;
+  verified: boolean;
+  rating: number;
+  reviewCount: number;
+  createdAt: string;
+}

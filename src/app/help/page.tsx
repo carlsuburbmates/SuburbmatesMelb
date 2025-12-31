@@ -44,6 +44,11 @@ export default function HelpPage() {
       answer:
         "You can update your profile and studio information at any time by logging into your dashboard and navigating to &lsquo;Settings&rsquo;. Changes are reflected immediately on your public profile.",
     },
+    {
+      question: "What exactly is SuburbMates?",
+      answer:
+        "SuburbMates is a creator portfolio platform and discovery directory. We provide the tools for you to host a professional page and sell products, but we are not a marketing agency. We don&rsquo;t guarantee traffic or sales; we give you the best possible home to send your existing audience to.",
+    },
   ];
 
   const supportOptions = [

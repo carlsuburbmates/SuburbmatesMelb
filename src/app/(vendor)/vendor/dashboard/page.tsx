@@ -13,18 +13,22 @@ const currencyFormatter = new Intl.NumberFormat("en-AU", {
   maximumFractionDigits: 2,
 });
 
+/* TIER DETAILS (Outcome-led framing) */
 const TIER_DETAILS = [
   {
     id: "basic",
     name: "Basic",
     price: "Free",
-    description: `Sell up to ${TIER_LIMITS.basic.product_quota} products • ${Math.round(TIER_LIMITS.basic.commission_rate * 100)}% platform fee`,
+    description: "A simple listing inside the directory.",
+    action: "Stay on Basic",
   },
   {
     id: "pro",
     name: "Pro",
-    price: `$${TIER_LIMITS.pro.monthly_fee / 100}/mo`,
-    description: `Sell up to ${TIER_LIMITS.pro.product_quota} products • ${Math.round(TIER_LIMITS.pro.commission_rate * 100)}% platform fee`,
+    price: "$29/mo",
+    description: "A shareable mini-site that presents your work professionally.",
+    action: "Upgrade to Pro",
+    highlight: true,
   },
 ];
 

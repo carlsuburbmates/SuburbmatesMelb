@@ -156,9 +156,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
         abn_verified: business.verified,
         profile_image_url: business.profileImageUrl,
         profile_description: business.description,
-        created_at: business.createdAt
+        created_at: business.createdAt,
+        template_key: business.templateKey || "standard"
       }} 
-      templateKey={business.templateKey || "standard"} 
     />
   );
 }

@@ -441,5 +441,26 @@ This keeps “what’s true” separate from SSOT.
 ## 4) Open questions (must be resolved in execution PRs, not SSOT)
 
 * Domain support scope and timeline (Phase 2+)
-* Collections governance (editorial vs algorithmic basis and transparency)
 * Any platform fee structure (if introduced later) and how it is disclosed
+
+---
+
+## 5) Post-Launch Optimisation (Deferred)
+
+**Status:** DOCUMENT ONLY (Not for PR7)
+
+These features are explicitly deferred until after V1 stability is proven. They are NOT to be implemented in PR7.
+
+### 5.1 Monetisation Levers (Candidate List)
+
+* **Share Prompts:** Nudge users to share their profile after publishing a new product.
+* **Upgrade Nudges:** Contextual prompts when hitting tier limits (e.g., "Unlock 5 more product slots").
+* **Behavioural Triggers:** "Your profile got X views" emails (requires analytics V2).
+* **Pricing Psychology:** Compare "cost of website" vs "benefit of SuburbMates".
+
+### 5.2 Growth Loops
+
+* **Referral Program:** "Invite a creator friend."
+* **Verified Badge Gamification:** Progressive checklist completion.
+
+---
