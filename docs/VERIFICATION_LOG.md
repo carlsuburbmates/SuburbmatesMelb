@@ -1,6 +1,6 @@
 ## 2025-12-31 — PR6.1: Copy Truth Correction (non-algorithmic)
 
-- **Commit**: `[PENDING]`
+- **Commit**: `bd403f206ff758db94360d83708f332f65f01e20` ([bd403f2](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/bd403f206ff758db94360d83708f332f65f01e20))
 - **Status**: ✅ VERIFIED COMPLETE
 - **Changes**:
     - `src/app/(vendor)/vendor/dashboard/page.tsx:665-667`: Replaced "best conversion" (which previously implied ranking boost in audit context) with explicit framing for "profile quality, buyer trust, and conversion."
