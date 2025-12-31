@@ -11,7 +11,7 @@ interface BusinessProfileRendererProps {
   slug?: string;
 }
 
-export function BusinessProfileRenderer({ business, template_key, slug }: BusinessProfileRendererProps) {
+export function BusinessProfileRenderer({ business, slug }: BusinessProfileRendererProps) {
   const templateKey = business.template_key || "standard";
 
   // Transform to display model

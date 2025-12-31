@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useVendorProducts } from "@/hooks/useVendorProducts";
 import { AlertTriangle, MapPin, Package, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { TIER_LIMITS, FEATURED_SLOT } from "@/lib/constants";
+import { FEATURED_SLOT } from "@/lib/constants";
 
 const currencyFormatter = new Intl.NumberFormat("en-AU", {
   style: "currency",

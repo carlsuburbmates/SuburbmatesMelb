@@ -163,9 +163,18 @@
     *   **ICP Copy:** Corrected to "Designed for creators who already share their work" (Removed outcome dependency).
 *   **Result:** **VERIFIED COMPLETE**
 
-### PR8 Marketplace UX & Middleman Truth (2025-12-31)
-*   **User Hash:** `pending-commit`
-*   **Action:** Implemented strict attribution in ProductCard/Detail, updated Marketplace headers, and added Reference Architecture section.
+### PR8: Marketplace UX & Middleman Truth
+- **Date**: 2025-12-31
+- **Commit**: `85ebfc92da31c8f909ba686d87b98eba8fc0b2cb`
+- **Status**: ✅ VERIFIED COMPLETE
+- **Scope**:
+  - `ProductCard.tsx`: Added "Sold by {vendor}" attribution.
+  - `BusinessProducts.tsx`: Added vendor profiles to product grid.
+  - `BusinessProfileRenderer.tsx`: Standardized `MappedBusinessProfile` usage.
+  - `types.ts`: Enriched `MappedBusinessProfile` to support showcase fields.
+- **Verification Gates**:
+  - `npm run build`: **PASSED** (Comprehensive fix).
+  - `npm run lint`: **PASSED**.
 *   **Gates Passed:**
     *   `ssot:check`: **PASSED**
     *   `lint`: **PASSED**

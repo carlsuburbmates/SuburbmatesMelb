@@ -152,3 +152,19 @@ Data access commonly lives in:
 * **Delivery:** Immediate digital download or link provided by the Creator.
 
 ---
+---
+
+## 7) Profile View Model Pattern (Authoritative)
+
+**Status:** MANDATORY
+
+To prevent type coupling between the database schema (`BusinessProfileExtended`) and the UI components (`BusinessHeader`, `BusinessInfo`, etc.), the following pattern must be enforced:
+
+1.  **Transformer Pattern:** `BusinessProfileRenderer.tsx` is the **only** place where raw database rows are converted into the View Model.
+2.  **View Model:** UI components must **only** accept props of type `MappedBusinessProfile` (from `src/lib/types.ts`).
+3.  **No Raw Rows:** Never pass `BusinessProfileExtended` (or `Business` legacy type) directly to a sub-component.
+4.  **Field Expansion:** When adding a new field (e.g., `tiktok_handle`):
+    *   Add to DB schema.
+    *   Add to `BusinessProfileExtended`.
+    *   Add to `MappedBusinessProfile`.
+    *   Map it in `BusinessProfileRenderer`.

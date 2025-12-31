@@ -1,8 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Award, Briefcase, ThumbsUp, Calendar, TrendingUp, Users } from 'lucide-react';
+import { Award, TrendingUp, Users } from 'lucide-react';
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
 import { MappedBusinessProfile } from "@/lib/types";
 
