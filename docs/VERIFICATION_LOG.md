@@ -1,6 +1,6 @@
 ## 2025-12-31 — PR10: Launch Readiness & Operational Guardrails (main)
 
-- **Commit**: `[COMMIT_HASH]`
+- **Commit**: `0d4606f703330ab6a603acd1a991dfeb70c60da9`
 - **Status**: ✅ VERIFIED COMPLETE
 - **Scope**:
     - **Guardrails**: Launch Freeze blocks added to README/EXECUTION_PLAN.
