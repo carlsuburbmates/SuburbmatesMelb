@@ -103,7 +103,7 @@ export function ProductCard({ product, vendor, showVendor = false }: ProductCard
                         )}
                     </div>
                     <span className="text-xs font-medium text-gray-600 group-hover/vendor:text-gray-900 truncate max-w-[120px]">
-                        {vendor.name}
+                        Sold by {vendor.name}
                     </span>
                     {vendor.isVerified && (
                         <div title="ABN Verified">

@@ -145,20 +145,36 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     notFound();
   }
 
-  return (
+   // Map BusinessData to BusinessProfileExtended
+   const extendedProfile = {
+     id: business.id,
+     business_name: business.name,
+     profile_description: business.description,
+     profile_image_url: business.profileImageUrl,
+     created_at: business.createdAt,
+     user_id: business.vendorId || "",
+     suburb: business.suburb,
+     category: business.category,
+     email: business.email,
+     phone: business.phone,
+     website: business.website,
+     address: business.address,
+     is_vendor: business.isVendor,
+     product_count: business.productCount,
+     abn_verified: business.verified,
+     images: business.images,
+     template_key: business.templateKey,
+     slug: business.slug,
+     business_hours: business.businessHours as Record<string, string>,
+     specialties: business.specialties,
+     social_media: business.socialMedia
+   };
+
+   return (
     <BusinessProfileRenderer 
-      business={{
-        ...business,
-        business_name: business.name,
-        user_id: business.vendorId || "",
-        is_vendor: business.isVendor,
-        product_count: business.productCount,
-        abn_verified: business.verified,
-        profile_image_url: business.profileImageUrl,
-        profile_description: business.description,
-        created_at: business.createdAt,
-        template_key: business.templateKey || "standard"
-      }} 
+      business={extendedProfile} 
+      template_key={business.templateKey || "standard"}
+      slug={slug}
     />
   );
 }

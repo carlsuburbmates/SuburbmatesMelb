@@ -3,18 +3,10 @@
 import { useState } from 'react';
 import { Phone, Mail, Globe, MapPin, MessageCircle, Send, CheckCircle } from 'lucide-react';
 
-interface Business {
-  id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-  address?: string;
-  suburb: string;
-}
+import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessContactProps {
-  business: Business;
+  business: MappedBusinessProfile;
 }
 
 export function BusinessContact({ business }: BusinessContactProps) {
@@ -62,7 +54,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
         
         <div className="space-y-4">
           {/* Phone */}
-          {business.phone && (
+          {business.contact.phone && (
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Phone className="w-5 h-5 text-gray-600" />
@@ -70,17 +62,17 @@ export function BusinessContact({ business }: BusinessContactProps) {
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Phone</p>
                 <a 
-                  href={`tel:${business.phone}`}
+                  href={`tel:${business.contact.phone}`}
                   className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
                 >
-                  {business.phone}
+                  {business.contact.phone}
                 </a>
               </div>
             </div>
           )}
 
           {/* Email */}
-          {business.email && (
+          {business.contact.email && (
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Mail className="w-5 h-5 text-gray-600" />
@@ -88,17 +80,17 @@ export function BusinessContact({ business }: BusinessContactProps) {
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Email</p>
                 <a 
-                  href={`mailto:${business.email}`}
+                  href={`mailto:${business.contact.email}`}
                   className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
                 >
-                  {business.email}
+                  {business.contact.email}
                 </a>
               </div>
             </div>
           )}
 
           {/* Website */}
-          {business.website && (
+          {business.contact.website && (
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Globe className="w-5 h-5 text-gray-600" />
@@ -106,7 +98,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Website</p>
                 <a 
-                  href={business.website}
+                  href={business.contact.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-900 font-medium hover:text-blue-600 transition-colors"

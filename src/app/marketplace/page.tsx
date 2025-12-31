@@ -59,11 +59,12 @@ export default async function Marketplace() {
         
         {/* Header */}
         <div className="text-center mb-16">
+           <h2 className="text-blue-600 font-semibold tracking-wide uppercase text-sm mb-2">Marketplace</h2>
            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
-             Digital Marketplace
+             Digital products by local creators
            </h1>
            <p className="max-w-2xl mx-auto text-xl text-gray-500">
-             Discover high-quality digital resources from Melbourne&apos;s best local experts.
+             Discover high-quality resources from Melbourne&apos;s best local experts.
            </p>
         </div>
 

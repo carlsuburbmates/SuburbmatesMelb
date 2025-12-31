@@ -74,23 +74,49 @@ export interface BusinessProfileExtended {
   abn_verified?: boolean;
   images?: BusinessImage[];
   template_key?: string | null;
+  slug?: string;
+  business_hours?: Record<string, string>;
+  specialties?: string[];
+  social_media?: Record<string, string>;
 }
 
 export interface MappedBusinessProfile {
-  id: string;
   name: string;
+  slug: string;
   description: string;
-  suburb: string;
-  category: string;
-  phone?: string;
-  email?: string;
-  website?: string;
+  location: string;
   address?: string;
-  profileImageUrl?: string;
-  isVendor: boolean;
-  productCount: number;
+  category?: string;
+  heroImage: string;
+  logoUrl: string; // derived from images or placeholder
   verified: boolean;
+  isVendor: boolean;
+  sections: {
+    about: boolean;
+    products: boolean;
+    gallery: boolean;
+    contact: boolean;
+  };
+  contact: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    instagram?: string;
+  };
   rating: number;
   reviewCount: number;
   createdAt: string;
+  businessHours?: Record<string, string>;
+  specialties?: string[];
+  socialMedia?: Record<string, string>;
+  yearsActive?: number;
+  clientsServed?: number;
+  awards?: string[];
+  certifications?: string[];
+  achievements?: {
+    icon: string;
+    title: string;
+    value: string;
+    description: string;
+  }[];
 }

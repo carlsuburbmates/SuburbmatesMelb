@@ -17,12 +17,21 @@ interface BusinessProductsProps {
   businessId?: string;
   limit?: number;
   view?: 'grid' | 'list';
+  vendorProfile?: {
+    name: string;
+    slug: string;
+    imageUrl?: string;
+    isVerified?: boolean;
+  };
 }
 
-export function BusinessProducts({ vendorId, businessId, limit }: BusinessProductsProps) {
+export function BusinessProducts({ vendorId, businessId, limit, vendorProfile }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+// ... (lines 27-147 remain unchanged logic-wise, but we just need to target the return block)
+
+// ...
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -155,7 +164,8 @@ export function BusinessProducts({ vendorId, businessId, limit }: BusinessProduc
                   isFeatured: false,
                   imageUrl: product.thumbnail_url || (product as ProductExtended).image_url || undefined
                 }} 
-                showVendor={false} 
+                showVendor={!!vendorProfile} 
+                vendor={vendorProfile}
                />
           </div>
         ))}

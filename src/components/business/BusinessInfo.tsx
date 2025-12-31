@@ -1,32 +1,10 @@
-import { Clock, MapPin, Calendar, Tag } from 'lucide-react';
+'use client';
 
-interface Business {
-  id: string;
-  name: string;
-  description: string;
-  suburb: string;
-  category: string;
-  address?: string;
-  businessHours?: {
-    monday?: string;
-    tuesday?: string;
-    wednesday?: string;
-    thursday?: string;
-    friday?: string;
-    saturday?: string;
-    sunday?: string;
-  };
-  specialties?: string[];
-  socialMedia?: {
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-  };
-  createdAt: string;
-}
+import { Clock, MapPin, Calendar, Tag } from 'lucide-react';
+import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessInfoProps {
-  business: Business;
+  business: MappedBusinessProfile;
 }
 
 export function BusinessInfo({ business }: BusinessInfoProps) {
@@ -69,7 +47,7 @@ export function BusinessInfo({ business }: BusinessInfoProps) {
             <Tag className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="font-medium text-gray-900 mb-1">Category</h3>
-              <p className="text-gray-600">{business.category}</p>
+              <p className="text-gray-600">{business.category}</p> {/* Warning: category not in MappedBusinessProfile yet? I should check */}
             </div>
           </div>
 

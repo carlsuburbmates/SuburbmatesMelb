@@ -1,26 +1,13 @@
 'use client';
 
-import { Award, Users, TrendingUp } from 'lucide-react';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Award, Briefcase, ThumbsUp, Calendar, TrendingUp, Users } from 'lucide-react';
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessShowcaseProps {
-  business: {
-    name: string;
-    verified: boolean;
-    rating?: number;
-    reviewCount?: number;
-    yearsActive?: number;
-    clientsServed?: number;
-    projectsCompleted?: number;
-    awards?: string[];
-    certifications?: string[];
-    achievements?: {
-      icon: string;
-      title: string;
-      value: string;
-      description: string;
-    }[];
-  };
+  business: MappedBusinessProfile;
 }
 
 export function BusinessShowcase({ business }: BusinessShowcaseProps) {

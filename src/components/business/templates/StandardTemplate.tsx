@@ -56,7 +56,15 @@ export function StandardTemplate({ business, mappedBusiness }: StandardTemplateP
             </section>
             
             <section id="products">
-              <BusinessProducts vendorId={business.user_id} />
+              <BusinessProducts 
+                vendorId={business.user_id} 
+                vendorProfile={{
+                  name: mappedBusiness.name,
+                  slug: mappedBusiness.slug,
+                  imageUrl: mappedBusiness.logoUrl,
+                  isVerified: mappedBusiness.verified // Assuming mappedBusiness has this or we use business.tier
+                }}
+              />
             </section>
             
             <section id="gallery">

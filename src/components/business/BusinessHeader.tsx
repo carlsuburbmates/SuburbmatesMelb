@@ -2,27 +2,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, MapPin, Clock, Globe, Phone, Mail, Check, Star } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
-
-interface Business {
-  id: string;
-  name: string;
-  description: string;
-  suburb: string;
-  category: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-  address?: string;
-  profileImageUrl?: string;
-  isVendor: boolean;
-  productCount: number;
-  verified: boolean;
-  rating?: number;
-  reviewCount?: number;
-}
+import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessHeaderProps {
-  business: Business;
+  business: MappedBusinessProfile;
 }
 
 export function BusinessHeader({ business }: BusinessHeaderProps) {
@@ -44,9 +27,9 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
           {/* Business Avatar */}
           <div className="flex-shrink-0">
             <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-              {business.profileImageUrl ? (
+              {business.logoUrl ? (
                 <Image
-                  src={business.profileImageUrl}
+                  src={business.logoUrl}
                   alt={business.name}
                   width={128}
                   height={128}
@@ -89,16 +72,18 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                 <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-3">
                   <div className="flex items-center space-x-1">
                     <MapPin className="w-4 h-4" />
-                    <span>{business.suburb}, Melbourne</span>
+                    <span>{business.location}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{business.category}</span>
-                  </div>
+                  {business.category && (
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{business.category}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Rating */}
-                {business.rating && business.reviewCount && (
+                {business.rating && business.reviewCount > 0 && (
                   <div className="flex items-center space-x-2 mb-4">
                     <div className="flex items-center space-x-1">
                       <Star className="w-5 h-5 text-amber-400 fill-current" />
@@ -119,9 +104,9 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
               {/* Quick Actions */}
               <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-8">
                 <div className="flex flex-row flex-wrap md:flex-col gap-3">
-                  {business.website && (
+                  {business.contact.website && (
                     <a
-                      href={business.website}
+                      href={business.contact.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
@@ -131,9 +116,9 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                     </a>
                   )}
                   
-                  {business.phone && (
+                  {business.contact.phone && (
                     <a
-                      href={`tel:${business.phone}`}
+                      href={`tel:${business.contact.phone}`}
                       className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                     >
                       <Phone className="w-4 h-4 mr-2" />
@@ -141,9 +126,9 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                     </a>
                   )}
                   
-                  {business.email && (
+                  {business.contact.email && (
                     <a
-                      href={`mailto:${business.email}`}
+                      href={`mailto:${business.contact.email}`}
                       className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                     >
                       <Mail className="w-4 h-4 mr-2" />

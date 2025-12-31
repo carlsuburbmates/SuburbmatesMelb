@@ -139,3 +139,16 @@ Data access commonly lives in:
 * Find Stripe: `rg -n "stripe" src/lib src/app/api`
 * Find auth/session: `rg -n "supabase|auth|getSession|middleware|cookies" src`
 * Find directory/search: `rg -n "directory|search|filters|council" src`
+
+---
+
+## 6) Marketplace Responsibilities (Non-Authoritative)
+
+**Status:** REFERENCE ONLY
+
+* **Discovery Platform:** SuburbMates aggregates listings; it is not the seller.
+* **Merchant of Record:** The Creator (Vendor) is the merchant.
+* **Payment Processing:** Stripe Connect (Direct Charges). SuburbMates takes an application fee.
+* **Delivery:** Immediate digital download or link provided by the Creator.
+
+---

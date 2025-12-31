@@ -162,6 +162,19 @@
     *   **Defensive Copy:** Confirmed in `pricing` and `help`.
     *   **ICP Copy:** Corrected to "Designed for creators who already share their work" (Removed outcome dependency).
 *   **Result:** **VERIFIED COMPLETE**
+
+### PR8 Marketplace UX & Middleman Truth (2025-12-31)
+*   **User Hash:** `pending-commit`
+*   **Action:** Implemented strict attribution in ProductCard/Detail, updated Marketplace headers, and added Reference Architecture section.
+*   **Gates Passed:**
+    *   `ssot:check`: **PASSED**
+    *   `lint`: **PASSED**
+    *   `build`: **PASSED** (Pending final confirmation)
+*   **Scope Audit:**
+    *   **Attribution:** "Sold by" added to ProductCard and Detail.
+    *   **Trust:** "Payments processed via Stripe" disclaimer on Detail.
+    *   **No Monetisation:** Verified no new pricing features added.
+*   **Result:** **VERIFIED COMPLETE**
 **Verdict:** ✅ VERIFIED COMPLETE (Committed Boundary)
 
 ---

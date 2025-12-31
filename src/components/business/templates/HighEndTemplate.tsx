@@ -37,9 +37,18 @@ export function HighEndTemplate({ business, mappedBusiness }: HighEndTemplatePro
       <Container className="py-12">
          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2 space-y-16">
-                <section>
+                <section id="products">
                   <h2 className="text-2xl font-semibold mb-6 text-gray-900">Featured Showcase</h2>
-                  <BusinessProducts vendorId={business.user_id} limit={6} view="grid" />
+                  <BusinessProducts 
+                     vendorId={business.user_id}
+                     vendorProfile={{
+                        name: mappedBusiness.name,
+                        slug: mappedBusiness.slug,
+                        imageUrl: mappedBusiness.logoUrl,
+                        // MappedBusinessProfile usually derives verified from tier/abn
+                        isVerified: mappedBusiness.verified 
+                     }}
+                  />
                 </section>
                 
                 <section>
