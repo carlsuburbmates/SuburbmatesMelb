@@ -1,3 +1,14 @@
+## 2025-12-31 — PR6.1: Copy Truth Correction (non-algorithmic)
+
+- **Commit**: `[PENDING]`
+- **Status**: ✅ VERIFIED COMPLETE
+- **Changes**:
+    - `src/app/(vendor)/vendor/dashboard/page.tsx:665-667`: Replaced "best conversion" (which previously implied ranking boost in audit context) with explicit framing for "profile quality, buyer trust, and conversion."
+- **Gates**:
+    - `ssot:check`: PASS
+    - `lint`: PASS
+- **Verdict**: Copy variance resolved. Ranking claims are now 100% truthful and non-algorithmic for assets.
+
 ## 2025-12-31 — PR6: Reconciled Verification (main)
 
 - **Commit**: `ab45479093ae6c8590408846156de7af4fe9804f` ([ab45479](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/ab45479093ae6c8590408846156de7af4fe9804f))

@@ -662,8 +662,8 @@ export default function VendorDashboardPage() {
                 ranking.
               </li>
               <li>
-                • Add multiple media assets per product for best
-                conversion.
+                • Add multiple media assets per product to improve profile
+                quality, buyer trust, and conversion.
               </li>
               <li>
                 • Premium tier unlocks ${FEATURED_SLOT.MAX_SLOTS_PER_VENDOR} featured slots + analytics exports.
