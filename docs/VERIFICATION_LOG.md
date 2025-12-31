@@ -1,13 +1,18 @@
-## 2025-12-31 — PR6.1: Copy Truth Correction (non-algorithmic)
+## 2025-12-31 — PR9: Performance & Accessibility Baseline (main)
 
-- **Commit**: `bd403f206ff758db94360d83708f332f65f01e20` ([bd403f2](https://github.com/carlsuburbmates/SuburbmatesMelb/commit/bd403f206ff758db94360d83708f332f65f01e20))
+- **Commit**: `cb4c4da85100d5e8461bf340b08914afc446c909`
 - **Status**: ✅ VERIFIED COMPLETE
-- **Changes**:
-    - `src/app/(vendor)/vendor/dashboard/page.tsx:665-667`: Replaced "best conversion" (which previously implied ranking boost in audit context) with explicit framing for "profile quality, buyer trust, and conversion."
-- **Gates**:
-    - `ssot:check`: PASS
-    - `lint`: PASS
-- **Verdict**: Copy variance resolved. Ranking claims are now 100% truthful and non-algorithmic for assets.
+- **Scope**:
+    - **Optimization**: LCP Priority for BusinessHeader Logo.
+    - **Evidence**: Bundle stats captured in `docs/_evidence/pr9/`.
+    - **A11y**: Verified semantics for core routes.
+- **Verbatim Gates**:
+  - `ssot:check`: PASS (SSOT Compliance Verified)
+  - `lint`: PASS (Clean - 0 warnings)
+  - `test:unit`: PASS (44/44 passed)
+  - `build`: PASS (Compiled successfully)
+- **Verdict**: PR9 Verified. Baseline performance established.
+
 
 ## 2025-12-31 — PR6: Reconciled Verification (main)
 
