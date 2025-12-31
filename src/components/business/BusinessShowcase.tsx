@@ -12,32 +12,7 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
   const headerAnimation = useFadeIn<HTMLDivElement>({ delay: 100, duration: 700 });
   const statsAnimation = useStaggeredAnimation<HTMLDivElement>(4, 150);
 
-  const defaultAchievements = [
-    {
-      icon: '⭐',
-      title: 'Customer Rating',
-      value: business.rating ? `${business.rating}/5` : '4.8/5',
-      description: `Based on ${business.reviewCount || 127} reviews`
-    },
-    {
-      icon: '👥', 
-      title: 'Clients Served',
-      value: business.clientsServed ? `${business.clientsServed}+` : '200+',
-      description: 'Happy customers across Melbourne'
-    },
-    {
-      icon: '📅',
-      title: 'Years of Experience',
-      value: business.yearsActive ? `${business.yearsActive}+` : '5+',
-      description: 'Years serving the community'
-    },
-    {
-      icon: '🏆',
-      title: 'Success Rate',
-      value: '95%+',
-      description: 'Customer satisfaction rate'
-    }
-  ];
+  const defaultAchievements: { icon: string; title: string; value: string; description: string; }[] = [];
 
   const achievements = business.achievements || defaultAchievements;
 
@@ -66,26 +41,28 @@ export function BusinessShowcase({ business }: BusinessShowcaseProps) {
       </div>
 
       {/* Key Statistics */}
-      <div 
-        ref={statsAnimation.containerRef}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        {achievements.map((achievement, index) => (
-          <div 
-            key={index}
-            className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow ${statsAnimation.getItemClassName(index)}`}
-          >
-            <div className="flex items-start space-x-4">
-              <div className="text-2xl">{achievement.icon}</div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{achievement.value}</div>
-                <p className="text-sm text-gray-600">{achievement.description}</p>
+      {achievements.length > 0 && (
+        <div 
+          ref={statsAnimation.containerRef}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {achievements.map((achievement, index) => (
+            <div 
+              key={index}
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow ${statsAnimation.getItemClassName(index)}`}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="text-2xl">{achievement.icon}</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{achievement.value}</div>
+                  <p className="text-sm text-gray-600">{achievement.description}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Awards and Certifications */}
       {(business.awards || business.certifications) && (

@@ -1,5 +1,11 @@
 # Suburbmates — Execution Plan (PR0–PR10)
 
+> [!IMPORTANT]
+> **LAUNCH FREEZE IN EFFECT (PR10)**
+> Post-PR10 changes require a new PR number.
+> No copy promises beyond SSOT allowed.
+> Zero scope creep permitted during launch phase.
+
 This document is the **execution checklist** for building and shipping Suburbmates against the immutable **SSOT** in `docs/README.md`.
 It defines **what to do**, **in what order**, **what “done” means**, and **how to validate**.
 It does not define product truth. If anything here conflicts with SSOT, SSOT wins.

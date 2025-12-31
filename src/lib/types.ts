@@ -103,8 +103,8 @@ export interface MappedBusinessProfile {
     website?: string;
     instagram?: string;
   };
-  rating: number;
-  reviewCount: number;
+  rating?: number;
+  reviewCount?: number;
   createdAt: string;
   businessHours?: Record<string, string>;
   specialties?: string[];

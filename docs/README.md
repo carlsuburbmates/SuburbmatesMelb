@@ -1,5 +1,11 @@
 # Suburbmates — Single Source of Truth (Product Constitution)
 
+> [!IMPORTANT]
+> **LAUNCH FREEZE IN EFFECT (PR10)**
+> Post-PR10 changes require a new PR number.
+> No copy promises beyond SSOT allowed.
+> Zero scope creep permitted during launch phase.
+
 This document defines **what Suburbmates is** and the **non-negotiable rules** that govern product scope, positioning, trust, UX, design language, and monetization logic.
 
 **Immutability rule:** This file is treated as a constitution. It is not used for execution checklists, implementation status, or “what’s done.” Those live elsewhere (execution plan + verification logs).

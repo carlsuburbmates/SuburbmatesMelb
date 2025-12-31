@@ -84,7 +84,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                 </div>
 
                 {/* Rating */}
-                {business.rating && business.reviewCount > 0 && (
+                {business.rating && (business.reviewCount || 0) > 0 && (
                   <div className="flex items-center space-x-2 mb-4">
                     <div className="flex items-center space-x-1">
                       <Star className="w-5 h-5 text-amber-400 fill-current" />

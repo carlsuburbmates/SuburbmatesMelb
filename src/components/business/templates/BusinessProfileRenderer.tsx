@@ -37,8 +37,8 @@ export function BusinessProfileRenderer({ business, slug }: BusinessProfileRende
           email: business.email || undefined,
           website: business.website || undefined
       },
-    rating: 4.8, // Fallback for beta
-    reviewCount: 12, // Fallback for beta
+    rating: undefined,
+    reviewCount: 0,
     createdAt: business.created_at || new Date().toISOString(),
     businessHours: business.business_hours,
     specialties: business.specialties,
