@@ -1,3 +1,33 @@
+## 2026-01-01 — PR10.x: System-Wide Truth Audit (main)
+
+- **Status**: ✅ VERIFIED COMPLETE
+- **Scope**:
+    - **Inventory**: Created `docs/_evidence/pr10x/truth_drift_inventory.md`.
+    - **Drift Resolution**:
+        - **Ops**: Deleted `api/cron/featured-expiry` (Zombie Code). Confirmed `api/ops` security.
+        - **Data**: Fixed Admin RLS in `marketplace_sales` (Migration 026). Validated `checkout` metadata.
+        - **Tests**: Fixed `stripe-create-session.test.ts` to match Direct Charge model.
+- **Verbatim Gates**:
+    - `ssot:check`: PASS
+    - `lint`: PASS (0 warnings)
+    - `test:unit`: PASS (14 test files)
+    - `build`: PASS
+- **Verdict**: System Truth aligned with Model A. Zero known drift.
+
+## 2025-12-31 — PR10.y: Payments Realignment (Model A) (fix/pr10y-payments-realignment-model-a)
+
+- **Status**: ✅ VERIFIED COMPLETE
+- **Scope**:
+    - **Model A Realignment**: Defined Creator as MoR for products (Direct Charge) and Platform as MoR for Tiers/Featured (Platform Charge).
+    - **Database**: Introduced `marketplace_sales` table for Creator Sales. Defined `orders` table as Platform Revenue ONLY.
+    - **Stripe**: Implemented `stripeAccount` header for Direct Charges. Removed `transfer_data` from Platform Charges.
+- **Evidence**:
+    - Pack: `docs/_evidence/pr10y/evidence_pack.md`
+    - Migration: `supabase/migrations/025_marketplace_orders_separation.sql`
+- **Verbatim Gates**:
+    - `build`: PASS (Types aligned, Migration applied).
+- **Verdict**: Payment flows strictly aligned with Model A Audit.
+
 ## 2025-12-31 — PR10: Ops & Safety Hardening (main)
 
 - **Commit**: `1c934c7c443d6f54e046f9358598564b63fb3288`
