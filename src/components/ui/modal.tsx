@@ -14,7 +14,7 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, title, children, className = '' }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle ESC key
+  // Handle ESC key and focus management
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -22,11 +22,59 @@ export function Modal({ isOpen, onClose, title, children, className = '' }: Moda
       }
     };
 
+    const previousActiveElement = document.activeElement as HTMLElement;
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
+
+      // Focus management
+      const modalElement = modalRef.current;
+      if (modalElement) {
+        // Find all focusable elements
+        const focusableElements = modalElement.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        // Focus the first element or the modal itself
+        if (firstElement) {
+          firstElement.focus();
+        } else {
+          modalElement.focus();
+        }
+
+        const handleTabKey = (e: KeyboardEvent) => {
+          if (e.key === 'Tab') {
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        };
+
+        modalElement.addEventListener('keydown', handleTabKey);
+
+        // Cleanup function inside the if block for the listener
+        return () => {
+          document.removeEventListener('keydown', handleEscape);
+          document.body.style.overflow = 'unset';
+          modalElement.removeEventListener('keydown', handleTabKey);
+          previousActiveElement?.focus();
+        };
+      }
     }
 
+    // Default cleanup if modal wasn't open or ref was missing (though ref should be there)
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
@@ -57,6 +105,7 @@ export function Modal({ isOpen, onClose, title, children, className = '' }: Moda
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
+        tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
