@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature") || "";
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
-    console.error("STRIPE_WEBHOOK_SECRET is not set");
+    logger.error("STRIPE_WEBHOOK_SECRET is not set");
     return new NextResponse("Server Configuration Error", { status: 500 });
   }
 
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
   } catch (err: unknown) {
-    console.error("Webhook handling error", err);
+    logger.error("Webhook handling error", err);
     return new NextResponse("Internal error", { status: 500 });
   }
 

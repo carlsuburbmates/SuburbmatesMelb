@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing required Supabase environment variables');
+  logger.error('❌ Missing required Supabase environment variables');
 }
 
 // Create admin client for server-side operations
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const vendorId = searchParams.get('vendor_id');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100);
 
     if (!vendorId) {
       return NextResponse.json(
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     if (error) {
-      console.error('Database error fetching products:', error);
+      logger.error('Database error fetching products:', new Error(error.message), { code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch products' },
         { status: 500 }
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Unexpected API error:', error);
+    logger.error('Unexpected API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
