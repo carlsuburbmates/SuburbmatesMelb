@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -17,6 +17,7 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -40,10 +41,39 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   useEffect(() => {
     if (!isModalOpen) return;
 
+    // Focus the close button when modal opens
+    setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 50);
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
       if (e.key === 'ArrowLeft') prevImage();
       if (e.key === 'ArrowRight') nextImage();
+
+      // Basic focus trap - prevent focus from leaving the modal
+      if (e.key === 'Tab') {
+        const modalElement = document.querySelector('[role="dialog"]');
+        if (modalElement) {
+          const focusableElements = modalElement.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          const firstElement = focusableElements[0] as HTMLElement;
+          const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              e.preventDefault();
+              lastElement.focus();
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault();
+              firstElement.focus();
+            }
+          }
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -149,8 +179,12 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
+          onClick={closeModal}
         >
-          <div className="relative w-full h-full max-w-4xl max-h-4xl">
+          <div
+            className="relative w-full h-full max-w-4xl max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <LazyImage
               src={images[currentIndex].url}
               alt={images[currentIndex].alt}
@@ -160,8 +194,9 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
             
             {/* Close button */}
             <button
+              ref={closeButtonRef}
               onClick={closeModal}
-              className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-lg hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+              className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-lg hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white z-10"
               aria-label="Close gallery"
             >
               <X className="w-6 h-6" />
