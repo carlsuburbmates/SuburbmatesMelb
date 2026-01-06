@@ -22,7 +22,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const vendorId = searchParams.get('vendor_id');
-    const limit = parseInt(searchParams.get('limit') || '10');
+
+    // Security enhancement: Cap limit to 100 to prevent DoS
+    const rawLimit = parseInt(searchParams.get('limit') || '10');
+    const limit = Math.min(Math.max(rawLimit, 1), 100);
 
     if (!vendorId) {
       return NextResponse.json(
