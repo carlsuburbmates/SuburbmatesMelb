@@ -30,7 +30,9 @@ async function handler(req: NextRequest) {
       return unauthorizedResponse('Invalid session');
     }
 
-    const dbClient = supabaseAdmin || createSupabaseClient(token);
+    // Security: Use user-scoped client to enforce RLS.
+    // Do NOT use supabaseAdmin here, as it bypasses RLS and could expose all profiles if filters fail.
+    const dbClient = createSupabaseClient(token);
 
     // 2. Handle GET (Fetch Profile)
     if (req.method === 'GET') {
