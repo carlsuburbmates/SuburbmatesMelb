@@ -46,18 +46,20 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Save */}
         <button
           onClick={handleSave}
-          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
+          aria-pressed={isLiked}
+          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem] group"
         >
-          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-          <span className="text-[10px] mt-1 font-medium">Save</span>
+          <Heart className={`w-6 h-6 transition-transform duration-200 ${isLiked ? "fill-red-500 text-red-500 scale-110" : "group-active:scale-95"}`} />
+          <span className="text-[10px] mt-1 font-medium">{isLiked ? "Saved" : "Save"}</span>
         </button>
 
         {/* Share */}
         <button
           onClick={handleShare}
-          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
+          aria-label="Share this business"
+          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem] group"
         >
-          <Share2 className="w-6 h-6" />
+          <Share2 className="w-6 h-6 transition-transform duration-200 group-active:scale-95" />
           <span className="text-[10px] mt-1 font-medium">Share</span>
         </button>
 
@@ -66,7 +68,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
            {business.isVendor && (business.productCount || 0) > 0 ? (
              <button 
                 onClick={scrollToProducts}
-                className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+                className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm active:scale-[0.98] transition-transform"
              >
                <ShoppingBag className="w-4 h-4 mr-2" />
                Shop
@@ -76,15 +78,16 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                href={business.website}
                target="_blank"
                rel="noopener noreferrer"
-               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm active:scale-[0.98] transition-transform"
              >
                <Globe className="w-4 h-4 mr-2" />
                Visit
+               <span className="sr-only">(opens in a new tab)</span>
              </a>
            ) : (business.email || business.phone) ? (
              <a
                href={business.email ? `mailto:${business.email}` : `tel:${business.phone}`}
-               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm active:scale-[0.98] transition-transform"
              >
                {business.email ? <Mail className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
                Contact
