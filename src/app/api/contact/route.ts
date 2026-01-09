@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+import { withApiRateLimit } from "@/middleware";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -11,12 +13,23 @@ const contactSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
 
-export async function POST(request: Request) {
+// Simple HTML escape function to prevent injection in emails
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function handler(request: NextRequest) {
   try {
     const body = await request.json();
     const result = contactSchema.safeParse(body);
 
     if (!result.success) {
+      logger.warn("Invalid contact form submission", { errors: result.error.issues });
       return NextResponse.json(
         { error: "Invalid input", details: result.error.issues },
         { status: 400 }
@@ -39,44 +52,52 @@ export async function POST(request: Request) {
       });
 
       if (dbError) {
-        console.error("Failed to save contact submission:", dbError);
+        logger.error("Failed to save contact submission", dbError);
         return NextResponse.json(
           { error: "Failed to submit request" },
           { status: 500 }
         );
       }
     } else {
-      console.log("Skipping DB insert (DISABLE_DB_INSERT=true)");
+      logger.info("Skipping DB insert (DISABLE_DB_INSERT=true)");
     }
 
     // 2. Send email to support
+    // Sanitize inputs for HTML email to prevent injection
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
       subject: `[Contact Form] ${subject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Subject:</strong> ${safeSubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
 
     if (!emailResult.success) {
-      console.error("Failed to send email:", emailResult.error);
+      logger.error("Failed to send email", new Error(emailResult.error));
       // We still return success because the DB record was created
       // But we log the error for investigation
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Contact form error:", error);
+    logger.error("Contact form error", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+export const POST = withApiRateLimit(handler);
