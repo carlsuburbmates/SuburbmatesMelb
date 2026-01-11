@@ -46,10 +46,12 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Save */}
         <button
           onClick={handleSave}
+          aria-pressed={isLiked}
+          aria-label={isLiked ? "Remove from saved" : "Save to favorites"}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
-          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-          <span className="text-[10px] mt-1 font-medium">Save</span>
+          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
+          <span className="text-[10px] mt-1 font-medium">{isLiked ? "Saved" : "Save"}</span>
         </button>
 
         {/* Share */}
@@ -57,7 +59,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
           onClick={handleShare}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
-          <Share2 className="w-6 h-6" />
+          <Share2 className="w-6 h-6" aria-hidden="true" />
           <span className="text-[10px] mt-1 font-medium">Share</span>
         </button>
 
@@ -68,7 +70,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                 onClick={scrollToProducts}
                 className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               <ShoppingBag className="w-4 h-4 mr-2" />
+               <ShoppingBag className="w-4 h-4 mr-2" aria-hidden="true" />
                Shop
              </button>
            ) : business.website ? (
@@ -78,15 +80,16 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                rel="noopener noreferrer"
                className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               <Globe className="w-4 h-4 mr-2" />
+               <Globe className="w-4 h-4 mr-2" aria-hidden="true" />
                Visit
+               <span className="sr-only">(opens in a new tab)</span>
              </a>
            ) : (business.email || business.phone) ? (
              <a
                href={business.email ? `mailto:${business.email}` : `tel:${business.phone}`}
                className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               {business.email ? <Mail className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
+               {business.email ? <Mail className="w-4 h-4 mr-2" aria-hidden="true" /> : <Phone className="w-4 h-4 mr-2" aria-hidden="true" />}
                Contact
              </a>
            ) : null}

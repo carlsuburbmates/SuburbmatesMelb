@@ -93,7 +93,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
           {business.contact.website && (
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Globe className="w-5 h-5 text-gray-600" />
+                <Globe className="w-5 h-5 text-gray-600" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Website</p>
@@ -104,6 +104,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
                   className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
                 >
                   Visit Website
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </div>
             </div>
@@ -113,7 +114,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
           {business.address && (
             <div className="flex items-start space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <MapPin className="w-5 h-5 text-gray-600" />
+                <MapPin className="w-5 h-5 text-gray-600" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Address</p>
@@ -125,6 +126,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
                   className="text-blue-600 hover:text-blue-800 text-sm mt-1 inline-block"
                 >
                   Get Directions →
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </div>
             </div>
