@@ -38,6 +38,15 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   };
 
   useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isModalOpen]);
+
+  useEffect(() => {
     if (!isModalOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -46,8 +55,8 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       if (e.key === 'ArrowRight') nextImage();
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen, closeModal, prevImage, nextImage]);
 
   if (!images || images.length === 0) {
