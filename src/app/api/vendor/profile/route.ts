@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
+import { createSupabaseClient } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 import {
   successResponse,
@@ -23,14 +23,15 @@ async function handler(req: NextRequest) {
 
     const token = authHeader.split(' ')[1];
 
+    // Create Supabase client with token to enforce RLS
+    const dbClient = createSupabaseClient(token);
+
     // Verify user with Supabase
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await dbClient.auth.getUser();
 
     if (authError || !user) {
       return unauthorizedResponse('Invalid session');
     }
-
-    const dbClient = supabaseAdmin || createSupabaseClient(token);
 
     // 2. Handle GET (Fetch Profile)
     if (req.method === 'GET') {
