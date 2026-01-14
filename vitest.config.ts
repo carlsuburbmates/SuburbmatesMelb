@@ -3,8 +3,8 @@ import path from "path";
 
 export default defineConfig({
   test: {
-    include: ["tests/unit/**/*.test.ts"],
-    environment: "node",
+    include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
+    environment: "jsdom",
     env: {
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-anon-key",
