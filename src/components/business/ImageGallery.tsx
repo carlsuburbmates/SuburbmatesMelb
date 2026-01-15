@@ -46,9 +46,22 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       if (e.key === 'ArrowRight') nextImage();
     };
 
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
   }, [isModalOpen, closeModal, prevImage, nextImage]);
+
+  // Handle backdrop click
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
 
   if (!images || images.length === 0) {
     return null;
@@ -149,6 +162,7 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
+          onClick={handleBackdropClick}
         >
           <div className="relative w-full h-full max-w-4xl max-h-4xl">
             <LazyImage
