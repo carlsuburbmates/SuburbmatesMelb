@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml } from "@/lib/utils";
+import { withApiRateLimit } from "@/middleware/rateLimit";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -11,7 +13,7 @@ const contactSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
 
-export async function POST(request: Request) {
+async function contactHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const result = contactSchema.safeParse(body);
@@ -24,6 +26,12 @@ export async function POST(request: Request) {
     }
 
     const { name, email, subject, message } = result.data;
+
+    // Sanitize inputs for HTML email
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
 
     // 1. Store in Database
     if (process.env.DISABLE_DB_INSERT !== "true") {
@@ -56,11 +64,11 @@ export async function POST(request: Request) {
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Subject:</strong> ${safeSubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage.replace(/\n/g, "<br>")}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
@@ -80,3 +88,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// Apply rate limiting middleware
+export const POST = withApiRateLimit(contactHandler);
