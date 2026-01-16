@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -17,6 +17,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -40,14 +42,56 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   useEffect(() => {
     if (!isModalOpen) return;
 
+    // Store previous focus
+    previousFocusRef.current = document.activeElement as HTMLElement;
+
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Focus modal container
+    const timer = setTimeout(() => {
+      modalRef.current?.focus();
+    }, 50);
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
       if (e.key === 'ArrowLeft') prevImage();
       if (e.key === 'ArrowRight') nextImage();
+
+      // Focus Trap
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || document.activeElement === modalRef.current) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      clearTimeout(timer);
+      // Restore focus
+      previousFocusRef.current?.focus();
+    };
   }, [isModalOpen, closeModal, prevImage, nextImage]);
 
   if (!images || images.length === 0) {
@@ -145,7 +189,9 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          ref={modalRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
