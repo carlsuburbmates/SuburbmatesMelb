@@ -13,23 +13,65 @@ interface ModalProps {
 
 export function Modal({ isOpen, onClose, title, children, className = '' }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  // Handle ESC key
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+
+      // Trap focus within modal
+      if (event.key === 'Tab') {
+        const focusableElements = modalRef.current?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (!focusableElements || focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (event.shiftKey) {
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
+    // Store the element that had focus before modal opened
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    // Move focus to the first focusable element in the modal
+    // Small timeout ensures the modal is rendered and reachable
+    const timer = setTimeout(() => {
+      const focusableElements = modalRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements && focusableElements.length > 0) {
+        (focusableElements[0] as HTMLElement).focus();
+      }
+    }, 10);
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
+      // Restore focus
+      previousActiveElement.current?.focus();
     };
   }, [isOpen, onClose]);
 
