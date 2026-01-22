@@ -4,6 +4,7 @@
  */
 
 import { Resend } from 'resend';
+import { escapeHtml } from './utils';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
@@ -90,7 +91,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
     subject: `Welcome to ${PLATFORM.NAME}!`,
     html: `
       <h1>Welcome to ${PLATFORM.NAME}! 👋</h1>
-      <p>Hi ${name},</p>
+      <p>Hi ${escapeHtml(name)},</p>
       <p>Thanks for joining ${PLATFORM.NAME}, Melbourne's hyper-local marketplace for digital products!</p>
       <p>You can now:</p>
       <ul>
@@ -114,7 +115,7 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
     to: email,
     subject: 'Complete Your Vendor Onboarding',
     html: `
-      <h1>Welcome, ${businessName}! 🎉</h1>
+      <h1>Welcome, ${escapeHtml(businessName)}! 🎉</h1>
       <p>You're almost ready to start selling on ${PLATFORM.NAME}.</p>
       <p>To complete your vendor setup, please finish your Stripe Connect onboarding:</p>
       <p><a href="${onboardingUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Onboarding</a></p>
@@ -138,7 +139,7 @@ export async function sendVendorApprovedEmail(email: string, businessName: strin
     to: email,
     subject: '🎉 Your Vendor Account is Active!',
     html: `
-      <h1>Congratulations, ${businessName}! 🎉</h1>
+      <h1>Congratulations, ${escapeHtml(businessName)}! 🎉</h1>
       <p>Your vendor account is now active on ${PLATFORM.NAME}.</p>
       <p>You can now:</p>
       <ul>
@@ -163,7 +164,7 @@ export async function sendTierDowngradeEmail(params: {
   const previewTitles = params.productTitles.slice(0, 5);
   const remaining = params.productTitles.length - previewTitles.length;
   const listHtml = previewTitles
-    .map((title) => `<li>${title || "Untitled product"}</li>`)
+    .map((title) => `<li>${escapeHtml(title || "Untitled product")}</li>`)
     .join("");
 
   return sendEmail({
@@ -171,7 +172,7 @@ export async function sendTierDowngradeEmail(params: {
     subject: `Tier changed to ${params.newTier.toUpperCase()} — ${params.unpublishedCount} product(s) unpublished`,
     html: `
       <h1>Heads up from ${PLATFORM.NAME}</h1>
-      <p>${params.businessName} was downgraded from <strong>${params.oldTier.toUpperCase()}</strong> to <strong>${params.newTier.toUpperCase()}</strong>.</p>
+      <p>${escapeHtml(params.businessName)} was downgraded from <strong>${params.oldTier.toUpperCase()}</strong> to <strong>${params.newTier.toUpperCase()}</strong>.</p>
       <p>We automatically unpublished <strong>${params.unpublishedCount}</strong> of your oldest products so you stay within the new tier limit.</p>
       ${previewTitles.length ? `<p>Recently unpublished items:</p><ul>${listHtml}</ul>` : ""}
       ${remaining > 0 ? `<p>and ${remaining} more…</p>` : ""}
