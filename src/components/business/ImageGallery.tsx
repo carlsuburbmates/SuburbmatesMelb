@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -18,6 +18,10 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Refs for focus management
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
   const nextImage = useCallback(() => {
     if (!images?.length) return;
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -33,6 +37,8 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   }, []);
 
   const openModal = (index: number) => {
+    // Store the current focus
+    previousFocusRef.current = document.activeElement as HTMLElement;
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
@@ -40,14 +46,60 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   useEffect(() => {
     if (!isModalOpen) return;
 
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Focus management inside modal
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
       if (e.key === 'ArrowLeft') prevImage();
       if (e.key === 'ArrowRight') nextImage();
+
+      // Focus Trap
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (!focusableElements || focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    // Initial focus on the first interactive element (usually Close button or first nav)
+    // We use a small timeout to ensure render is complete, though useEffect usually runs after render.
+    // However, finding elements immediately works.
+    if (modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length > 0) {
+            (focusableElements[0] as HTMLElement).focus();
+        }
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      // Restore focus to the element that opened the modal
+      previousFocusRef.current?.focus();
+    };
   }, [isModalOpen, closeModal, prevImage, nextImage]);
 
   if (!images || images.length === 0) {
@@ -145,6 +197,7 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       {/* Modal */}
       {isModalOpen && (
         <div
+          ref={modalRef}
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
