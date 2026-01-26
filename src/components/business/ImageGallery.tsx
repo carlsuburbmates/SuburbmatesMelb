@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -17,6 +17,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const lastFocusedElement = useRef<HTMLElement | null>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -36,6 +38,24 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      lastFocusedElement.current = document.activeElement as HTMLElement;
+      document.body.style.overflow = 'hidden';
+      // Small timeout ensures the modal is rendered before focusing
+      setTimeout(() => modalRef.current?.focus(), 0);
+    } else {
+      document.body.style.overflow = '';
+      if (lastFocusedElement.current) {
+        lastFocusedElement.current.focus();
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -145,7 +165,9 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          ref={modalRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
