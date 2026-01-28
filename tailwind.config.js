@@ -26,6 +26,8 @@ module.exports = {
         },
         // Accent colors (for CSS overlays only)
         accent: {
+          DEFAULT: '#F5F5F5',
+          foreground: '#171717',
           orange: '#FF6B35',
           teal: '#20B2AA',
           purple: '#8B7DB3',
@@ -38,6 +40,36 @@ module.exports = {
           600: '#1D4ED8',
           700: '#1E40AF',
         },
+        // Shadcn UI tokens
+        primary: {
+          DEFAULT: '#171717',
+          foreground: '#ffffff',
+        },
+        secondary: {
+          DEFAULT: '#F5F5F5',
+          foreground: '#171717',
+        },
+        destructive: {
+          DEFAULT: '#ef4444',
+          foreground: '#ffffff',
+        },
+        muted: {
+          DEFAULT: '#F5F5F5',
+          foreground: '#737373',
+        },
+        popover: {
+          DEFAULT: '#ffffff',
+          foreground: '#171717',
+        },
+        card: {
+          DEFAULT: '#ffffff',
+          foreground: '#171717',
+        },
+        border: '#E5E5E5',
+        input: '#E5E5E5',
+        ring: '#171717',
+        background: '#ffffff',
+        foreground: '#171717',
       },
       spacing: {
         '18': '4.5rem',
