@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { withCors } from '@/middleware/cors';
 import { NextRequest, NextResponse } from 'next/server';
 
