@@ -14,6 +14,21 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if running in a CI environment with placeholder keys
+    if (supabaseUrl.includes('placeholder')) {
+      return NextResponse.json({
+        businesses: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false
+        }
+      });
+    }
+
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
