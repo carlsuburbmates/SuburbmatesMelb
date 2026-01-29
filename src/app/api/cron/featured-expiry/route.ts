@@ -4,9 +4,12 @@ import { sendFeaturedSlotExpiryEmail } from "@/lib/email";
 import { FEATURED_SLOT } from "@/lib/constants";
 
 // Admin client for cron jobs (bypass RLS)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl,
+  supabaseKey
 );
 
 export async function GET(req: Request) {
