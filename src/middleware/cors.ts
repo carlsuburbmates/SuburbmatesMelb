@@ -62,7 +62,9 @@ export function withCors(handler: CorsHandler): CorsHandler {
  * Get CORS headers for origin
  */
 function getCorsHeaders(origin: string): Record<string, string> {
-  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.includes('localhost');
+  // Allow strict list of origins or valid localhost ports (prevent substring attacks)
+  const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin);
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || isLocalhost;
 
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
