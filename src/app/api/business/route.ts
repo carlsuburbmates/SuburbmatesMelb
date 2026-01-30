@@ -4,12 +4,34 @@ import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Check for dummy credentials used in CI/Build
+const isDummyEnv = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'dummy-anon-key' ||
+                   process.env.SUPABASE_SERVICE_ROLE_KEY === 'dummy-service-role-key';
+
+// Initialize Supabase client only if keys are valid, otherwise null
+const supabase = !isDummyEnv
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  : null;
 
 export async function GET(request: NextRequest) {
+  // Return mock response immediately if in CI environment with dummy keys
+  if (isDummyEnv) {
+    return NextResponse.json({
+      businesses: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
+    });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     
@@ -24,7 +46,8 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
     
     // Start building the query
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    let query = supabase!
       .from('business_profiles')
       .select(
         `id,business_name,profile_description,suburb_id,category_id,slug,is_public,created_at,updated_at,user_id,vendor_status,vendor_tier,users:users!inner(email,user_type)`
@@ -49,7 +72,8 @@ export async function GET(request: NextRequest) {
     }
     
     // Get total count for pagination  
-    const countQuery = supabase
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const countQuery = supabase!
       .from('business_profiles')
       .select('*', { count: 'exact', head: true })
       .eq('is_public', true);
@@ -119,6 +143,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (isDummyEnv) {
+    return NextResponse.json({ error: 'Cannot create business in CI/test mode' }, { status: 403 });
+  }
+
   try {
     const authContext = await requireAuth(request);
     const { user, dbClient } = authContext;
