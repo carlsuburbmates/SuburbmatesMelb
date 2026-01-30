@@ -9,6 +9,22 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+      STRIPE_SECRET_KEY: "dummy-stripe-secret"
+      STRIPE_WEBHOOK_SECRET: "dummy-webhook-secret"
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "dummy-publishable-key"
+      STRIPE_CLIENT_ID: "dummy-client-id"
+      STRIPE_PRODUCT_VENDOR_PRO: "dummy-prod-pro"
+      STRIPE_PRICE_VENDOR_PRO_MONTH: "dummy-price-pro"
+      STRIPE_PRODUCT_FEATURED_30D: "dummy-prod-featured"
+      STRIPE_PRICE_FEATURED_30D: "dummy-price-featured"
+      RESEND_API_KEY: "re_dummy_123"
+      NEXTAUTH_SECRET: "dummy-nextauth-secret"
+      NEXTAUTH_URL: "http://localhost:3000"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
