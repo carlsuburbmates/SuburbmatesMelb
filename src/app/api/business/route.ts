@@ -11,6 +11,24 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
+    // Return mock data if running in CI/build environment
+    if (
+      process.env.NEXT_PUBLIC_SUPABASE_URL === 'http://localhost:54321' ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'dummy'
+    ) {
+      return NextResponse.json({
+        businesses: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      });
+    }
+
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
