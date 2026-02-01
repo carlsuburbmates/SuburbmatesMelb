@@ -9,6 +9,12 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+      SUPABASE_SERVICE_ROLE_KEY: dummy
+      STRIPE_SECRET_KEY: dummy
+      RESEND_API_KEY: dummy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,12 +39,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
-          SUPABASE_SERVICE_ROLE_KEY: dummy
-          STRIPE_SECRET_KEY: dummy
-          RESEND_API_KEY: dummy
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
