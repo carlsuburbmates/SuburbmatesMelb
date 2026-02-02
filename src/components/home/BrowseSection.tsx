@@ -63,6 +63,7 @@ export function BrowseSection() {
             <div className="relative">
               <input
                 type="text"
+                aria-label="Search by suburb"
                 placeholder="Try: Fitzroy, Collingwood, Brunswick..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -70,6 +71,8 @@ export function BrowseSection() {
               />
               <button
                 type="submit"
+                aria-label="Search"
+                title="Search"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-900"
               >
                 <Search className="w-5 h-5" />
