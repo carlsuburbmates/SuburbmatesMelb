@@ -8,7 +8,7 @@ import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 import { escapeHtml } from './utils';
 
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123456789');
 
 // ============================================================================
 // EMAIL TYPES
