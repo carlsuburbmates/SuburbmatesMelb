@@ -12,7 +12,9 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     // If running in CI/Build environment with placeholders, return mock data
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder.supabase.co')) {
+    // Use a safer check for environment variable to avoid runtime errors if undefined
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!supabaseUrl || supabaseUrl.includes('placeholder.supabase.co')) {
       return NextResponse.json({
         businesses: [],
         pagination: {
