@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageSquare, Send } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -144,11 +145,11 @@ export default function ContactPage() {
                   support options.
                 </p>
                 <Button
-                  onClick={() => (window.location.href = "/help")}
+                  asChild
                   variant="secondary"
                   className="bg-white text-gray-900 hover:bg-gray-100"
                 >
-                  Visit Help Centre
+                  <Link href="/help">Visit Help Centre</Link>
                 </Button>
               </div>
             </div>
@@ -253,13 +254,10 @@ export default function ContactPage() {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={isSubmitting}
+                      isLoading={isSubmitting}
                     >
                       {isSubmitting ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Sending...</span>
-                        </div>
+                        "Sending..."
                       ) : (
                         <>
                           <Send className="w-4 h-4 mr-2" />
@@ -308,17 +306,17 @@ export default function ContactPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                onClick={() => (window.location.href = "/directory")}
+                asChild
                 className="bg-white text-gray-900 hover:bg-gray-100"
               >
-                Browse Creators
+                <Link href="/directory">Browse Creators</Link>
               </Button>
               <Button
                 variant="outline"
-                onClick={() => (window.location.href = "/marketplace")}
+                asChild
                 className="border-white text-white hover:bg-white hover:text-gray-900"
               >
-                Explore Marketplace
+                <Link href="/marketplace">Explore Marketplace</Link>
               </Button>
             </div>
           </Container>
