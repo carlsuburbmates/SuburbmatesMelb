@@ -1,0 +1,28 @@
+
+> suburbmatesv1@0.1.0 start /app
+> next start -p 3010 -H localhost
+
+▲ Next.js 16.1.1
+- Local:         http://localhost:3010
+- Network:       http://localhost:3010
+
+✓ Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+✓ Ready in 1384ms
+❌ Missing required Supabase environment variables
+{"timestamp":"2026-02-04T11:12:05.449Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:12:05 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+ ELIFECYCLE  Command failed.
+{"timestamp":"2026-02-04T11:12:30.108Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:12:30 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+{"timestamp":"2026-02-04T11:13:10.504Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:13:10 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+{"timestamp":"2026-02-04T11:14:11.296Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:14:11 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+{"timestamp":"2026-02-04T11:15:34.372Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:15:34 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
