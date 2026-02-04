@@ -1,0 +1,14 @@
+
+> suburbmatesv1@0.1.0 start /app
+> next start -p 3010 -H localhost
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use ::1:3010
+    at <unknown> (Error: listen EADDRINUSE: address already in use ::1:3010) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::1',
+  port: 3010
+}
+ ELIFECYCLE  Command failed with exit code 1.

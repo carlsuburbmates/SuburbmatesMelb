@@ -4,15 +4,16 @@ import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  supabaseUrl,
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key'
 );
 
 export async function GET(request: NextRequest) {
   try {
     // Detect CI/Smoke test environment with placeholder credentials
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder.supabase.co')) {
+    if (supabaseUrl.includes('placeholder.supabase.co')) {
       return NextResponse.json({
         businesses: [],
         pagination: {

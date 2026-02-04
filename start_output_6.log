@@ -14,3 +14,9 @@
 [31m[11:16:41 AM][ERROR][SuburbMates][0m Database error { code: '' }
   Error: Error: TypeError: fetch failed
  ELIFECYCLE  Command failed.
+{"timestamp":"2026-02-04T11:27:57.825Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:27:57 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+{"timestamp":"2026-02-04T11:29:05.547Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:29:05 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
