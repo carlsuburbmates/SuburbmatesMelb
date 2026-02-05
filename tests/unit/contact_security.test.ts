@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/contact/route';
-import { NextResponse } from 'next/server';
 
 // Mock dependencies
 const mockSendEmail = vi.hoisted(() => vi.fn());
