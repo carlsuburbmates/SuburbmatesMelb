@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -17,6 +17,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const lastFocusedElement = useRef<HTMLElement | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -40,6 +42,15 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   useEffect(() => {
     if (!isModalOpen) return;
 
+    // Save focus and lock scroll
+    lastFocusedElement.current = document.activeElement as HTMLElement;
+    document.body.style.overflow = 'hidden';
+
+    // Focus modal
+    if (modalRef.current) {
+      modalRef.current.focus();
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
       if (e.key === 'ArrowLeft') prevImage();
@@ -47,7 +58,14 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      // Restore scroll and focus
+      document.body.style.overflow = '';
+      if (lastFocusedElement.current) {
+        lastFocusedElement.current.focus();
+      }
+    };
   }, [isModalOpen, closeModal, prevImage, nextImage]);
 
   if (!images || images.length === 0) {
@@ -145,10 +163,12 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          ref={modalRef}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 focus:outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
+          tabIndex={-1}
         >
           <div className="relative w-full h-full max-w-4xl max-h-4xl">
             <LazyImage
