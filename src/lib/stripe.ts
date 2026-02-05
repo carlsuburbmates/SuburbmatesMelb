@@ -16,6 +16,17 @@ function resolveStripeSecret() {
     // Vitest environment: use a deterministic mock key so the SDK can be constructed
     return "sk_test_mock";
   }
+  // Fallback for build phase (static generation) where env vars might be missing
+  // This allows 'npm run build' to succeed in CI environments without secrets
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return "sk_build_mock";
+  }
+
+  // Also check if we are in a generic build/CI environment where secrets aren't available
+  if (process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true") {
+      return "sk_ci_mock";
+  }
+
   throw new Error("STRIPE_SECRET_KEY is not configured");
 }
 
