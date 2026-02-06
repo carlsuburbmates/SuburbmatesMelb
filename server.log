@@ -1,0 +1,20 @@
+
+> suburbmatesv1@0.1.0 dev
+> next dev --webpack
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+▲ Next.js 16.1.1 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Environments: .env
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+
+✓ Starting...
+○ Compiling /instrumentation ...
+✓ Ready in 9s
+○ Compiling /gallery-test ...
+ GET /gallery-test 200 in 18.5s (compile: 16.7s, render: 1784ms)
+⨯ upstream image response failed for https://images.unsplash.com/photo-1682687221038-404670e01d46 404
+⨯ upstream image response failed for https://images.unsplash.com/photo-1682687221038-404670e01d46 404
