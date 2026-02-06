@@ -18,7 +18,7 @@ vi.mock('@/lib/supabase', () => ({
 // Mock NextResponse
 vi.mock('next/server', () => ({
   NextResponse: {
-    json: (body: any, init?: any) => ({
+    json: (body: unknown, init?: { status?: number }) => ({
       status: init?.status || 200,
       json: async () => body,
     }),
