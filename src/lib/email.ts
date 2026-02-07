@@ -6,8 +6,24 @@
 import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
+function resolveResendKey() {
+  const explicitKey = process.env.RESEND_API_KEY;
+  if (explicitKey && explicitKey.length > 0) {
+    return explicitKey;
+  }
+  // Allow build to pass in CI/test environments where secrets aren't available
+  if (
+    process.env.NODE_ENV === "test" ||
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.CI === "true"
+  ) {
+    return "re_mock_key_for_build";
+  }
+  return undefined;
+}
+
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(resolveResendKey());
 
 // ============================================================================
 // EMAIL TYPES
