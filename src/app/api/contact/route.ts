@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml } from "@/lib/utils";
+import { withRateLimit } from "@/middleware/rateLimit";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -11,7 +13,14 @@ const contactSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
 
-export async function POST(request: Request) {
+// Custom rate limit for contact form: 5 requests per minute
+const CONTACT_RATE_LIMIT = {
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  keyPrefix: 'contact',
+};
+
+async function contactHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const result = contactSchema.safeParse(body);
@@ -24,6 +33,11 @@ export async function POST(request: Request) {
     }
 
     const { name, email, subject, message } = result.data;
+
+    // Sanitize inputs to prevent XSS in email HTML
+    const safeName = escapeHtml(name);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
 
     // 1. Store in Database
     if (process.env.DISABLE_DB_INSERT !== "true") {
@@ -52,15 +66,15 @@ export async function POST(request: Request) {
     // 2. Send email to support
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
+      subject: `[Contact Form] ${safeSubject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Subject:</strong> ${safeSubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage.replace(/\n/g, "<br>")}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
@@ -80,3 +94,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withRateLimit(contactHandler, CONTACT_RATE_LIMIT);
