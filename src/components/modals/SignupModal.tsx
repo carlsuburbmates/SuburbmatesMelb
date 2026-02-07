@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
+import { Button } from '@/components/ui/button';
 import { User, Store, ArrowRight } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 
@@ -15,6 +16,7 @@ type UserRole = 'customer' | 'vendor' | null;
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -52,6 +54,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const endpoint = selectedRole === 'vendor' ? '/api/auth/create-vendor' : '/api/auth/signup';
       const response = await fetch(endpoint, {
@@ -82,15 +86,18 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         window.location.href = '/auth/login';
       } else {
         setError(data.error || 'Registration failed. Please try again.');
+        setIsSubmitting(false);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
   const resetModal = () => {
     setSelectedRole(null);
     setError(null);
+    setIsSubmitting(false);
     setFormData({
       email: '',
       password: '',
@@ -323,12 +330,13 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             >
               Back
             </button>
-            <button
+            <Button
               type="submit"
-              className="flex-1 btn-primary"
+              className="flex-1 btn-primary !inline-flex items-center justify-center gap-2"
+              isLoading={isSubmitting}
             >
               Create Account
-            </button>
+            </Button>
           </div>
         </form>
       )}
