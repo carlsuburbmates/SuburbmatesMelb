@@ -12,7 +12,7 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     // Return mock data if running in CI/Build without real credentials
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL === "https://placeholder.supabase.co") {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === "https://placeholder.supabase.co") {
         return NextResponse.json({
             businesses: [],
             pagination: {
