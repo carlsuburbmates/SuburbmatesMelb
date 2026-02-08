@@ -56,3 +56,13 @@ jobs:
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          # Required because e2e-serve.mjs runs a fresh build
+          NEXT_PHASE: phase-production-build
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          STRIPE_SECRET_KEY: mock_stripe_secret
+          SUPABASE_SERVICE_ROLE_KEY: mock_service_role
+          RESEND_API_KEY: mock_resend_key
+          # Required for E2E tests runtime
+          STRIPE_WEBHOOK_SECRET: mock_webhook_secret
