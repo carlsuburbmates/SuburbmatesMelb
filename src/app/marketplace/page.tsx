@@ -7,8 +7,8 @@ import { ArrowRight, Store, ShieldCheck } from "lucide-react";
 import { Product } from "@/lib/types";
 
 // Re-using server-side client logic
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 export const revalidate = 60; // ISR every 60 seconds

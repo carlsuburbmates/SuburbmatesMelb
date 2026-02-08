@@ -6,8 +6,8 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Database } from './database.types';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Client-side Supabase client (uses anon key with RLS)

@@ -5,12 +5,27 @@ import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-key"
 );
 
 export async function GET(request: NextRequest) {
   try {
+    // Return mock data if running in CI/Build without real credentials
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === "https://placeholder.supabase.co") {
+        return NextResponse.json({
+            businesses: [],
+            pagination: {
+                page: 1,
+                limit: 12,
+                total: 0,
+                totalPages: 0,
+                hasNextPage: false,
+                hasPreviousPage: false
+            }
+        });
+    }
+
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
