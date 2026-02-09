@@ -7,7 +7,8 @@ import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY || 're_placeholder';
+const resend = new Resend(resendApiKey);
 
 // ============================================================================
 // EMAIL TYPES
