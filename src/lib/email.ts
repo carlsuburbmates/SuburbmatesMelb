@@ -6,8 +6,29 @@
 import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
+function resolveResendKey() {
+  const explicitKey = process.env.RESEND_API_KEY;
+  if (explicitKey && explicitKey.length > 0) {
+    return explicitKey;
+  }
+
+  // Use mock key in Test, CI, or Build environments to prevent build crashes
+  if (
+    process.env.NODE_ENV === "test" ||
+    process.env.CI === "true" ||
+    process.env.NEXT_PHASE === "phase-production-build"
+  ) {
+    return "re_placeholder_key";
+  }
+
+  // Return undefined and let Resend throw if not in a safe environment
+  // or return an empty string if we want to catch it later.
+  // Resend constructor throws if key is missing.
+  return undefined;
+}
+
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(resolveResendKey());
 
 // ============================================================================
 // EMAIL TYPES
