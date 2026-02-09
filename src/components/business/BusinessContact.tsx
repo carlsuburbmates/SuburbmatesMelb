@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Phone, Mail, Globe, MapPin, MessageCircle, Send, CheckCircle } from 'lucide-react';
 
+import { Button } from "@/components/ui/button";
 import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessContactProps {
@@ -251,23 +252,18 @@ export function BusinessContact({ business }: BusinessContactProps) {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 type="submit"
-                disabled={isSubmitting}
-                className="flex-1 btn-primary inline-flex items-center justify-center min-w-[140px]"
+                isLoading={isSubmitting}
+                className="flex-1 btn-primary min-w-[140px]"
               >
-                {isSubmitting ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-                    <span>Sending...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
+                {isSubmitting ? "Sending..." : (
+                  <>
                     <Send className="w-4 h-4" aria-hidden="true" />
                     <span>Send Message</span>
-                  </div>
+                  </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
         )}
