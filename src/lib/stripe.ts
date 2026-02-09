@@ -12,10 +12,16 @@ function resolveStripeSecret() {
   if (explicitKey && explicitKey.length > 0) {
     return explicitKey;
   }
-  if (process.env.NODE_ENV === "test") {
-    // Vitest environment: use a deterministic mock key so the SDK can be constructed
-    return "sk_test_mock";
+
+  // Use mock key in Test, CI, or Build environments to prevent build crashes
+  if (
+    process.env.NODE_ENV === "test" ||
+    process.env.CI === "true" ||
+    process.env.NEXT_PHASE === "phase-production-build"
+  ) {
+    return "sk_test_mock_build_key";
   }
+
   throw new Error("STRIPE_SECRET_KEY is not configured");
 }
 
