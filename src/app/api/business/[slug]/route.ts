@@ -7,14 +7,13 @@ import { logger } from '@/lib/logger';
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  logger.error('Missing required Supabase environment variables');
-  throw new Error('Missing required Supabase environment variables');
+  logger.warn('Missing Supabase environment variables, using placeholders');
 }
 
 // Create admin client for server-side operations
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
   {
     auth: {
       persistSession: false,
