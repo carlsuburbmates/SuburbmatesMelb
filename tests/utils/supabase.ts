@@ -4,9 +4,9 @@ import type { Database } from "@/lib/database.types";
 
 let adminClient: SupabaseClient<Database> | null = null;
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || (process.env.CI ? "https://placeholder.supabase.co" : undefined);
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || (process.env.CI ? "placeholder" : undefined);
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || (process.env.CI ? "placeholder" : undefined);
 
 function ensureEnv(value: string | undefined, name: string): string {
   if (!value) {

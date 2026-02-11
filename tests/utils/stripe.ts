@@ -1,14 +1,14 @@
 import "./env";
 import Stripe from "stripe";
 
-const stripeSecret = process.env.STRIPE_SECRET_KEY;
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const stripeSecret = process.env.STRIPE_SECRET_KEY || "sk_test_mock";
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "whsec_mock";
 
-if (!stripeSecret) {
-  throw new Error("STRIPE_SECRET_KEY is required for webhook tests");
+if (!process.env.STRIPE_SECRET_KEY && !process.env.CI && process.env.NODE_ENV !== "test") {
+  throw new Error("STRIPE_SECRET_KEY is required for webhook tests (or use CI/mock mode)");
 }
-if (!webhookSecret) {
-  throw new Error("STRIPE_WEBHOOK_SECRET is required for webhook tests");
+if (!process.env.STRIPE_WEBHOOK_SECRET && !process.env.CI && process.env.NODE_ENV !== "test") {
+  throw new Error("STRIPE_WEBHOOK_SECRET is required for webhook tests (or use CI/mock mode)");
 }
 const resolvedWebhookSecret = webhookSecret as string;
 
