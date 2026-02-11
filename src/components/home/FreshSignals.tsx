@@ -5,8 +5,8 @@ import Image from "next/image";
 import { MapPin, Sparkles, User, Package } from "lucide-react";
 
 export async function FreshSignals() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key';
   const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
   // 1. Get New Studios (Business Profiles)
