@@ -1,0 +1,21 @@
+
+> suburbmatesv1@0.1.0 dev
+> next dev --webpack
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+▲ Next.js 16.1.1 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+
+✓ Starting...
+○ Compiling /instrumentation ...
+✓ Ready in 7.5s
+○ Compiling /sticky-ux-test ...
+ GET /sticky-ux-test 200 in 9.4s (compile: 7.6s, render: 1803ms)
+ GET /sticky-ux-test 200 in 105ms (compile: 42ms, render: 62ms)
+ GET /sticky-ux-test 200 in 1177ms (compile: 199ms, render: 978ms)
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[?25h
