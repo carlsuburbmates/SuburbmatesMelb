@@ -9,6 +9,15 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PHASE: phase-production-build
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      STRIPE_SECRET_KEY: placeholder-stripe-secret
+      STRIPE_WEBHOOK_SECRET: placeholder-webhook-secret
+      STRIPE_CLIENT_ID: placeholder-client-id
+      RESEND_API_KEY: placeholder-resend-key
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +44,8 @@ jobs:
         run: npm run build
 
       - name: Smoke test (serve)
+        env:
+          CI: true
         run: node scripts/smoke-serve.mjs
 
       - name: E2E tests (serve)

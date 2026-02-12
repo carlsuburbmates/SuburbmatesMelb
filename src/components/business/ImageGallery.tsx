@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { LazyImage } from '@/components/ui/LazyImage';
 
@@ -17,6 +17,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -30,15 +32,26 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
+    setTimeout(() => {
+      triggerRef.current?.focus();
+    }, 0);
   }, []);
 
   const openModal = (index: number) => {
+    triggerRef.current = document.activeElement as HTMLElement;
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
 
   useEffect(() => {
     if (!isModalOpen) return;
+
+    document.body.style.overflow = 'hidden';
+
+    // Focus close button on open
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
@@ -47,7 +60,10 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [isModalOpen, closeModal, prevImage, nextImage]);
 
   if (!images || images.length === 0) {
@@ -160,6 +176,7 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
             
             {/* Close button */}
             <button
+              ref={closeButtonRef}
               onClick={closeModal}
               className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-lg hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
               aria-label="Close gallery"
