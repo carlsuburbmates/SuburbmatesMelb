@@ -44,6 +44,8 @@ jobs:
         run: npm run build
 
       - name: Smoke test (serve)
+        env:
+          CI: true
         run: node scripts/smoke-serve.mjs
 
       - name: E2E tests (serve)
