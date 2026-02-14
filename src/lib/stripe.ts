@@ -171,7 +171,8 @@ export async function createFeaturedSlotCheckoutSession(params: {
   if (!priceId) {
     // During build, just return early or log warning as this code path won't run
     if (process.env.NEXT_PHASE === 'phase-production-build') {
-      return null as any;
+      // Cast to unknown first to avoid 'any' lint error
+      return null as unknown as Stripe.Checkout.Session;
     }
     throw new Error("STRIPE_PRICE_FEATURED_30D is not configured");
   }
