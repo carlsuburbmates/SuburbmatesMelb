@@ -3,6 +3,7 @@ import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml } from "@/lib/utils";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -52,15 +53,16 @@ export async function POST(request: Request) {
     // 2. Send email to support
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
+      // Subject header is plain text, so we don't escape it to avoid double encoding like &amp;
       subject: `[Contact Form] ${subject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
