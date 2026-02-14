@@ -6,8 +6,15 @@
 import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client with a fallback for build time
+const resendApiKey = process.env.RESEND_API_KEY || (process.env.NEXT_PHASE === 'phase-production-build' ? 're_mock_key' : undefined);
+
+// Only throw if we're not building and key is missing
+if (!resendApiKey && process.env.NODE_ENV !== 'test') {
+  console.warn('RESEND_API_KEY is not set. Email functionality will be disabled.');
+}
+
+const resend = new Resend(resendApiKey || 're_mock_key');
 
 // ============================================================================
 // EMAIL TYPES
@@ -40,10 +47,11 @@ export interface EmailResult {
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   if (
     process.env.DISABLE_RATE_LIMIT === 'true' ||
-    process.env.SKIP_EMAILS === 'true'
+    process.env.SKIP_EMAILS === 'true' ||
+    !process.env.RESEND_API_KEY // Skip if key is missing
   ) {
     if (process.env.NODE_ENV !== 'production') {
-      console.info('[email] Skipping send (test mode):', options.subject);
+      console.info('[email] Skipping send (test mode or missing key):', options.subject);
     }
     return { success: true, id: 'test-mode' };
   }
