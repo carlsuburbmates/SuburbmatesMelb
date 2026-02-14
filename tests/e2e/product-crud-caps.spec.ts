@@ -25,6 +25,10 @@ const testRunId = Date.now();
 test.describe.configure({ mode: "serial" });
 
 test.describe("Product CRUD - Tier Cap Enforcement", () => {
+  // Skip if we are in a placeholder environment
+  const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder");
+  test.skip(!!isPlaceholder, "Skipping tests in placeholder environment (requires live backend)");
+
   let vendorToken: string;
   let vendorFixture: VendorFixture | null = null;
   const productIds: string[] = [];
