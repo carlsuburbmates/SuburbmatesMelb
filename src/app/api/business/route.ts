@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
+import { stripHtml } from '@/lib/sanitization';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -153,7 +154,11 @@ export async function POST(request: NextRequest) {
       category_id
     } = body;
 
-    if (!business_name) {
+    // Sanitize input to prevent Stored XSS
+    const cleanBusinessName = stripHtml(business_name);
+    const cleanDescription = stripHtml(profile_description);
+
+    if (!cleanBusinessName) {
       return NextResponse.json(
         { error: 'Business name is required' },
         { status: 400 }
@@ -167,15 +172,15 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    const slug = await generateUniqueBusinessSlug(business_name, dbClient);
+    const slug = await generateUniqueBusinessSlug(cleanBusinessName, dbClient);
 
     const { data: newProfile, error: insertError } = await dbClient
       .from('business_profiles')
       .insert({
         user_id: user.id,
-        business_name,
+        business_name: cleanBusinessName,
         slug,
-        profile_description,
+        profile_description: cleanDescription,
         suburb_id,
         category_id,
         is_public: true, // Default to public or make it pending? Assuming public for now.
