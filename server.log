@@ -1,0 +1,11 @@
+
+> suburbmatesv1@0.1.0 start
+> next start -p 3010 -H localhost
+
+▲ Next.js 16.1.1
+- Local:         http://localhost:3010
+- Network:       http://localhost:3010
+
+✓ Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+✓ Ready in 1385ms
