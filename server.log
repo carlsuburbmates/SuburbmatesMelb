@@ -9,3 +9,54 @@
 ✓ Starting...
 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
 ✓ Ready in 1385ms
+{"timestamp":"2026-02-17T11:08:56.811Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:08:56 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+{"timestamp":"2026-02-17T11:09:17.145Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:09:17 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+{"timestamp":"2026-02-17T11:10:01.339Z","level":"error","message":"Database error","context":"SuburbMates","data":{"code":""},"error":{"name":"Error","message":"TypeError: fetch failed"}}
+[31m[11:10:01 AM][ERROR][SuburbMates][0m Database error { code: '' }
+  Error: Error: TypeError: fetch failed
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Error fetching business data: TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: AggregateError:
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
