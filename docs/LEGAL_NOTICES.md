@@ -1,0 +1,9 @@
+# Legal Notices
+
+## Merchant of Record
+
+Vendor is the Merchant of Record for all transactions on the SuburbMates platform.
+
+## Refunds
+
+Suburbmates does not issue refunds directly. All refund requests must be handled by the Vendor.
