@@ -5,6 +5,12 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 test.describe("Search Telemetry", () => {
   test("directory search logs hashed query and filters", async ({ request }) => {
+    // Skip if in CI with placeholder credentials
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+      test.skip(true, "Skipping test requiring real DB connection in CI");
+      return;
+    }
+
     const sessionId = `playwright-search-${Date.now()}`;
 
     const res = await request.post("/api/search", {

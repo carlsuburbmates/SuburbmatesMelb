@@ -30,6 +30,12 @@ test.describe("Product CRUD - Tier Cap Enforcement", () => {
   const productIds: string[] = [];
 
   test.beforeAll(async () => {
+    // Skip if in CI with placeholder credentials
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+      test.skip(true, "Skipping test requiring real DB connection in CI");
+      return;
+    }
+
     vendorFixture = await createVendorFixture({ tier: "basic" });
     vendorToken = vendorFixture.token;
 
