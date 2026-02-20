@@ -4,6 +4,7 @@
  */
 
 import { Resend } from 'resend';
+import { escapeHtml } from '@/lib/sanitization';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
@@ -83,7 +84,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
  * Welcome email for new customers
  */
 export async function sendWelcomeEmail(email: string, firstName?: string): Promise<EmailResult> {
-  const name = firstName || 'there';
+  const name = firstName ? escapeHtml(firstName) : 'there';
   
   return sendEmail({
     to: email,
@@ -110,14 +111,16 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
  * Vendor onboarding started
  */
 export async function sendVendorOnboardingEmail(email: string, businessName: string, onboardingUrl: string): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
+  const safeUrl = escapeHtml(onboardingUrl);
   return sendEmail({
     to: email,
     subject: 'Complete Your Vendor Onboarding',
     html: `
-      <h1>Welcome, ${businessName}! 🎉</h1>
+      <h1>Welcome, ${safeBusinessName}! 🎉</h1>
       <p>You're almost ready to start selling on ${PLATFORM.NAME}.</p>
       <p>To complete your vendor setup, please finish your Stripe Connect onboarding:</p>
-      <p><a href="${onboardingUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Onboarding</a></p>
+      <p><a href="${safeUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Onboarding</a></p>
       <p>Once complete, you'll be able to:</p>
       <ul>
         <li>List up to ${TIER_LIMITS.basic.product_quota} products (Basic tier)</li>
@@ -134,11 +137,12 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
  * Vendor onboarding complete
  */
 export async function sendVendorApprovedEmail(email: string, businessName: string): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
   return sendEmail({
     to: email,
     subject: '🎉 Your Vendor Account is Active!',
     html: `
-      <h1>Congratulations, ${businessName}! 🎉</h1>
+      <h1>Congratulations, ${safeBusinessName}! 🎉</h1>
       <p>Your vendor account is now active on ${PLATFORM.NAME}.</p>
       <p>You can now:</p>
       <ul>
@@ -160,10 +164,13 @@ export async function sendTierDowngradeEmail(params: {
   unpublishedCount: number;
   productTitles: string[];
 }): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(params.businessName);
+  const safeOldTier = escapeHtml(params.oldTier);
+  const safeNewTier = escapeHtml(params.newTier);
   const previewTitles = params.productTitles.slice(0, 5);
   const remaining = params.productTitles.length - previewTitles.length;
   const listHtml = previewTitles
-    .map((title) => `<li>${title || "Untitled product"}</li>`)
+    .map((title) => `<li>${escapeHtml(title) || "Untitled product"}</li>`)
     .join("");
 
   return sendEmail({
@@ -171,7 +178,7 @@ export async function sendTierDowngradeEmail(params: {
     subject: `Tier changed to ${params.newTier.toUpperCase()} — ${params.unpublishedCount} product(s) unpublished`,
     html: `
       <h1>Heads up from ${PLATFORM.NAME}</h1>
-      <p>${params.businessName} was downgraded from <strong>${params.oldTier.toUpperCase()}</strong> to <strong>${params.newTier.toUpperCase()}</strong>.</p>
+      <p>${safeBusinessName} was downgraded from <strong>${safeOldTier.toUpperCase()}</strong> to <strong>${safeNewTier.toUpperCase()}</strong>.</p>
       <p>We automatically unpublished <strong>${params.unpublishedCount}</strong> of your oldest products so you stay within the new tier limit.</p>
       ${previewTitles.length ? `<p>Recently unpublished items:</p><ul>${listHtml}</ul>` : ""}
       ${remaining > 0 ? `<p>and ${remaining} more…</p>` : ""}
@@ -193,19 +200,22 @@ export async function sendOrderConfirmationEmail(
     downloadUrl?: string;
   }
 ): Promise<EmailResult> {
+  const safeProductTitle = escapeHtml(orderDetails.productTitle);
+  const safeDownloadUrl = orderDetails.downloadUrl ? escapeHtml(orderDetails.downloadUrl) : undefined;
+
   return sendEmail({
     to: email,
-    subject: `Order Confirmation - ${orderDetails.productTitle}`,
+    subject: `Order Confirmation - ${safeProductTitle.replace(/[\r\n]+/g, " ")}`,
     html: `
       <h1>Thank you for your purchase! 🎉</h1>
       <p>Your order has been confirmed.</p>
       <h2>Order Details</h2>
       <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
-      <p><strong>Product:</strong> ${orderDetails.productTitle}</p>
+      <p><strong>Product:</strong> ${safeProductTitle}</p>
       <p><strong>Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
-      ${orderDetails.downloadUrl ? `
+      ${safeDownloadUrl ? `
         <p><strong>Download Link:</strong></p>
-        <p><a href="${orderDetails.downloadUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Download Product</a></p>
+        <p><a href="${safeDownloadUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Download Product</a></p>
         <p><small>This download link is time-limited for security.</small></p>
       ` : ''}
       <p>Need help? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -228,15 +238,18 @@ export async function sendNewOrderNotificationEmail(
     netAmount: number;
   }
 ): Promise<EmailResult> {
+  const safeProductTitle = escapeHtml(orderDetails.productTitle);
+  const safeCustomerEmail = escapeHtml(orderDetails.customerEmail);
+
   return sendEmail({
     to: email,
-    subject: `New Order - ${orderDetails.productTitle}`,
+    subject: `New Order - ${safeProductTitle.replace(/[\r\n]+/g, " ")}`,
     html: `
       <h1>You have a new order! 🎉</h1>
       <h2>Order Details</h2>
       <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
-      <p><strong>Product:</strong> ${orderDetails.productTitle}</p>
-      <p><strong>Customer:</strong> ${orderDetails.customerEmail}</p>
+      <p><strong>Product:</strong> ${safeProductTitle}</p>
+      <p><strong>Customer:</strong> ${safeCustomerEmail}</p>
       <p><strong>Sale Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
       <p><strong>Platform Fee:</strong> A$${(orderDetails.commission / 100).toFixed(2)}</p>
       <p><strong>Your Earnings:</strong> A$${(orderDetails.netAmount / 100).toFixed(2)}</p>
@@ -259,18 +272,22 @@ export async function sendRefundRequestEmail(
     amount: number;
   }
 ): Promise<EmailResult> {
+  const safeProductTitle = escapeHtml(refundDetails.productTitle);
+  const safeCustomerEmail = escapeHtml(refundDetails.customerEmail);
+  const safeReason = escapeHtml(refundDetails.reason);
+
   return sendEmail({
     to: email,
-    subject: `Refund Request - ${refundDetails.productTitle}`,
+    subject: `Refund Request - ${safeProductTitle.replace(/[\r\n]+/g, " ")}`,
     html: `
       <h1>Refund Request Received</h1>
       <p>A customer has requested a refund for one of your products.</p>
       <h2>Refund Details</h2>
       <p><strong>Order ID:</strong> ${refundDetails.orderId}</p>
-      <p><strong>Product:</strong> ${refundDetails.productTitle}</p>
-      <p><strong>Customer:</strong> ${refundDetails.customerEmail}</p>
+      <p><strong>Product:</strong> ${safeProductTitle}</p>
+      <p><strong>Customer:</strong> ${safeCustomerEmail}</p>
       <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
-      <p><strong>Reason:</strong> ${refundDetails.reason}</p>
+      <p><strong>Reason:</strong> ${safeReason}</p>
       <p><strong>⚠️ Important:</strong> As the merchant of record, you are responsible for processing this refund through your Stripe dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/refunds" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Refund Request</a></p>
       <p>Please review and process this request promptly to maintain good standing.</p>
@@ -290,15 +307,17 @@ export async function sendRefundConfirmationEmail(
     amount: number;
   }
 ): Promise<EmailResult> {
+  const safeProductTitle = escapeHtml(refundDetails.productTitle);
+
   return sendEmail({
     to: email,
-    subject: `Refund Processed - ${refundDetails.productTitle}`,
+    subject: `Refund Processed - ${safeProductTitle.replace(/[\r\n]+/g, " ")}`,
     html: `
       <h1>Refund Processed</h1>
       <p>Your refund has been processed by the vendor.</p>
       <h2>Refund Details</h2>
       <p><strong>Order ID:</strong> ${refundDetails.orderId}</p>
-      <p><strong>Product:</strong> ${refundDetails.productTitle}</p>
+      <p><strong>Product:</strong> ${safeProductTitle}</p>
       <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
       <p>The refund will appear in your account within 5-10 business days.</p>
       <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -315,14 +334,17 @@ export async function sendVendorWarningEmail(
   businessName: string,
   reason: string
 ): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
+  const safeReason = escapeHtml(reason);
+
   return sendEmail({
     to: email,
     subject: '⚠️ Account Warning - Action Required',
     html: `
       <h1>Account Warning</h1>
-      <p>Hi ${businessName},</p>
+      <p>Hi ${safeBusinessName},</p>
       <p>Your vendor account has received a warning:</p>
-      <p><strong>Reason:</strong> ${reason}</p>
+      <p><strong>Reason:</strong> ${safeReason}</p>
       <p>Please review our policies and take corrective action to avoid account suspension.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Dashboard</a></p>
       <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -339,14 +361,17 @@ export async function sendVendorSuspensionEmail(
   businessName: string,
   reason: string
 ): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
+  const safeReason = escapeHtml(reason);
+
   return sendEmail({
     to: email,
     subject: '🚨 Account Suspended',
     html: `
       <h1>Account Suspended</h1>
-      <p>Hi ${businessName},</p>
+      <p>Hi ${safeBusinessName},</p>
       <p>Your vendor account has been suspended.</p>
-      <p><strong>Reason:</strong> ${reason}</p>
+      <p><strong>Reason:</strong> ${safeReason}</p>
       <p><strong>You have ${RISK_THRESHOLDS.APPEAL_DEADLINE_DAYS} days to appeal this decision.</strong></p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/appeals" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Submit Appeal</a></p>
       <p>For more information, contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -365,16 +390,18 @@ export async function sendAppealDecisionEmail(
   notes: string
 ): Promise<EmailResult> {
   const approved = decision === 'approved';
+  const safeBusinessName = escapeHtml(businessName);
+  const safeNotes = escapeHtml(notes).replace(/\n/g, '<br>');
   
   return sendEmail({
     to: email,
     subject: approved ? '✅ Appeal Approved' : '❌ Appeal Rejected',
     html: `
       <h1>Appeal Decision: ${approved ? 'Approved' : 'Rejected'}</h1>
-      <p>Hi ${businessName},</p>
+      <p>Hi ${safeBusinessName},</p>
       <p>Your appeal has been ${decision}.</p>
       <p><strong>Decision Notes:</strong></p>
-      <p>${notes}</p>
+      <p>${safeNotes}</p>
       ${approved ? `
         <p>Your account has been reinstated. You can now resume selling on ${PLATFORM.NAME}.</p>
         <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
@@ -398,17 +425,20 @@ export async function sendDisputeNotificationEmail(
     orderId: string;
   }
 ): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
+  const safeReason = escapeHtml(disputeDetails.reason);
+
   return sendEmail({
     to: email,
     subject: `⚠️ Action Required: Dispute Received`,
     html: `
       <h1>Dispute Received</h1>
-      <p>Hi ${businessName},</p>
+      <p>Hi ${safeBusinessName},</p>
       <p>We have received a dispute for one of your transactions.</p>
       <h2>Dispute Details</h2>
       <p><strong>Order ID:</strong> ${disputeDetails.orderId}</p>
       <p><strong>Amount:</strong> A$${(disputeDetails.amount / 100).toFixed(2)}</p>
-      <p><strong>Reason:</strong> ${disputeDetails.reason}</p>
+      <p><strong>Reason:</strong> ${safeReason}</p>
       <p><strong>⚠️ Important:</strong> As the Merchant of Record, you are responsible for handling this dispute.</p>
       <p>Please log in to your <a href="https://dashboard.stripe.com/disputes" target="_blank">Stripe Dashboard</a> immediately to review and respond to this dispute. Failure to respond may result in lost revenue and increased dispute fees.</p>
       <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -427,6 +457,8 @@ export async function sendFeaturedSlotExpiryEmail(
   expiryDate: string,
   daysRemaining: number
 ): Promise<EmailResult> {
+  const safeBusinessName = escapeHtml(businessName);
+  const safeSuburb = escapeHtml(suburb);
   const formattedDate = new Date(expiryDate).toLocaleDateString('en-AU', {
     weekday: 'long',
     year: 'numeric',
@@ -436,11 +468,11 @@ export async function sendFeaturedSlotExpiryEmail(
 
   return sendEmail({
     to: email,
-    subject: `Featured Slot Expiring Soon - ${suburb}`,
+    subject: `Featured Slot Expiring Soon - ${safeSuburb.replace(/[\r\n]+/g, " ")}`,
     html: `
       <h1>Your Featured Slot is Expiring Soon</h1>
-      <p>Hi ${businessName},</p>
-      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${daysRemaining} days).</p>
+      <p>Hi ${safeBusinessName},</p>
+      <p>Your featured slot for <strong>${safeSuburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${daysRemaining} days).</p>
       <p>To keep your top spot and continue getting premium visibility, you can renew your slot from your dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Manage Featured Slots</a></p>
       <p>If you choose not to renew, your slot will become available for other local studios.</p>
