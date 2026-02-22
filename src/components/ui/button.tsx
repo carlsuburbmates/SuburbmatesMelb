@@ -60,7 +60,7 @@ function Button({
       aria-busy={isLoading}
       {...props}
     >
-      {isLoading && !asChild && <Loader2 className="animate-spin" />}
+      {isLoading && !asChild && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}
     </Comp>
   )
