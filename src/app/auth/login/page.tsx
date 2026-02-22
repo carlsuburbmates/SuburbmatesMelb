@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -150,20 +151,14 @@ export default function LoginPage() {
             )}
 
             <div>
-              <button
+              <Button
                 type="submit"
+                className="w-full btn-primary"
                 disabled={isLoading}
-                className="w-full btn-primary flex justify-center"
+                isLoading={isLoading}
               >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span className="ml-2">Signing in...</span>
-                  </div>
-                ) : (
-                  "Sign in"
-                )}
-              </button>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
             </div>
           </form>
 
