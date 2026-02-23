@@ -6,15 +6,20 @@ import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
 // Validate environment variables
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+// Skip validation during build phase to prevent build errors
+if ((!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) && process.env.NEXT_PHASE !== 'phase-production-build') {
   logger.error('Missing required Supabase environment variables');
   throw new Error('Missing required Supabase environment variables');
 }
 
 // Create admin client for server-side operations
+// Use placeholders during build if needed
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  supabaseUrl,
+  supabaseKey,
   {
     auth: {
       persistSession: false,

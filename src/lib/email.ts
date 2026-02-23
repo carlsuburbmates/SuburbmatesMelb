@@ -7,7 +7,9 @@ import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// During build phase, we might not have the API key, so we use a placeholder to prevent build failure
+const resendApiKey = process.env.RESEND_API_KEY || (process.env.NEXT_PHASE === 'phase-production-build' ? 're_mock_key' : undefined);
+const resend = new Resend(resendApiKey);
 
 // ============================================================================
 // EMAIL TYPES
