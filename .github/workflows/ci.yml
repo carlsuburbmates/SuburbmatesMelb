@@ -33,6 +33,15 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://mock.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: mock-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: mock-service-role-key
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          RESEND_API_KEY: re_mock_123456789
+          STRIPE_SECRET_KEY: sk_test_mock
+          STRIPE_WEBHOOK_SECRET: whsec_mock
+          NEXT_PHASE: phase-production-build
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs

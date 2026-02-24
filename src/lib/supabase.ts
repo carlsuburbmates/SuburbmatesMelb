@@ -11,7 +11,11 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Client-side Supabase client (uses anon key with RLS)
-export const supabase = createClient<Database>(url, anon, {
+// Ensure valid URL for CI environment where env vars might be mocked/empty
+const validUrl = url && url.startsWith('http') ? url : 'https://placeholder.supabase.co';
+const validAnon = anon || 'placeholder-anon-key';
+
+export const supabase = createClient<Database>(validUrl, validAnon, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -21,7 +25,7 @@ export const supabase = createClient<Database>(url, anon, {
 // Server-side Supabase client (uses service role key, bypasses RLS)
 // Only use this in API routes where admin access is needed
 export const supabaseAdmin = serviceRoleKey 
-  ? createClient<Database>(url, serviceRoleKey, {
+  ? createClient<Database>(validUrl, serviceRoleKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -34,7 +38,7 @@ export const supabaseAdmin = serviceRoleKey
  * Use this in API routes to enforce RLS for authenticated users
  */
 export function createSupabaseClient(accessToken: string): SupabaseClient<Database> {
-  return createClient<Database>(url, anon, {
+  return createClient<Database>(validUrl, validAnon, {
     global: {
       headers: {
         Authorization: `Bearer ${accessToken}`,
