@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
+import { escapeHtml, stripNewlines } from "@/lib/sanitization";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -24,6 +25,15 @@ export async function POST(request: Request) {
     }
 
     const { name, email, subject, message } = result.data;
+
+    // Sanitize inputs for email
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    // Strip newlines from subject to prevent header injection
+    const safeSubject = stripNewlines(subject);
+    const safeSubjectHtml = escapeHtml(safeSubject);
+    // Sanitize message then convert newlines to <br>
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
 
     // 1. Store in Database
     if (process.env.DISABLE_DB_INSERT !== "true") {
@@ -52,17 +62,17 @@ export async function POST(request: Request) {
     // 2. Send email to support
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
+      subject: `[Contact Form] ${safeSubject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Subject:</strong> ${safeSubjectHtml}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage}</p>
       `,
-      text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
+      text: `Name: ${name}\nEmail: ${email}\nSubject: ${safeSubject}\nMessage:\n${message}`,
     });
 
     if (!emailResult.success) {
