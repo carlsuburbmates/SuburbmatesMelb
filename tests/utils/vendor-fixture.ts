@@ -35,6 +35,43 @@ export async function createVendorFixture(
   const email = `playwright-${Date.now()}-${Math.round(Math.random() * 1e6)}@example.com`;
   const password = `Pw-${Math.random().toString(36).slice(2, 10)}!Aa1`;
 
+  // If in CI/Smoke test environment with placeholder Supabase URL, mock the user
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+    const mockUserId = randomUUID();
+    return {
+        userId: mockUserId,
+        vendorId: randomUUID(),
+        businessId: randomUUID(),
+        email,
+        password,
+        token: "mock-token",
+        userRecord: {
+            id: mockUserId,
+            email,
+            user_type: "vendor",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        },
+        vendorRecord: {
+            id: randomUUID(),
+            user_id: mockUserId,
+            business_name: "Mock Vendor",
+            tier: "pro",
+            vendor_status: "active",
+            stripe_account_status: "active",
+            stripe_onboarding_complete: true,
+            can_sell_products: true,
+            product_quota: 50,
+            commission_rate: 0.05,
+            primary_lga_id: lgaId,
+            product_count: 0,
+            stripe_account_id: TEST_STRIPE_ACCOUNT_ID,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        } as Vendor
+    };
+  }
+
   const { data: createdUser, error: createUserError } =
     await admin.auth.admin.createUser({
       email,
