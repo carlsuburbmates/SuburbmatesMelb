@@ -19,6 +19,7 @@ jobs:
       NEXTAUTH_SECRET: "placeholder-secret"
       NEXTAUTH_URL: "http://localhost:3000"
       RESEND_API_KEY: "re_placeholder"
+      CI: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
