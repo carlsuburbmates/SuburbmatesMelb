@@ -7,7 +7,9 @@ import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Use a fallback key for build/test environments where the key might be missing
+const resendApiKey = process.env.RESEND_API_KEY || (process.env.NODE_ENV === 'test' || process.env.NEXT_PHASE === 'phase-production-build' ? 're_test_mock_key' : undefined);
+const resend = new Resend(resendApiKey);
 
 // ============================================================================
 // EMAIL TYPES
