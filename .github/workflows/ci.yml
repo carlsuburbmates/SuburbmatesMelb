@@ -9,6 +9,13 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
+      SUPABASE_SERVICE_ROLE_KEY: "dummy"
+      STRIPE_SECRET_KEY: "dummy"
+      STRIPE_WEBHOOK_SECRET: "dummy"
+      RESEND_API_KEY: "dummy"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
