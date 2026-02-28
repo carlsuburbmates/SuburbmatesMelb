@@ -34,11 +34,12 @@ export function FilterInputs({ selectedCategory, selectedSuburb, onFilterChange 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Category Filter */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-3">
           Studio Category
         </label>
         <div className="relative">
           <select
+            id="category"
             value={selectedCategory}
             onChange={(e) => onFilterChange('category', e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 px-3 text-sm appearance-none bg-white border"
@@ -58,11 +59,12 @@ export function FilterInputs({ selectedCategory, selectedSuburb, onFilterChange 
 
       {/* Suburb Filter */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label htmlFor="suburb" className="block text-sm font-medium text-gray-700 mb-3">
           Location
         </label>
         <div className="relative">
           <select
+            id="suburb"
             value={selectedSuburb}
             onChange={(e) => onFilterChange('suburb', e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 px-3 text-sm appearance-none bg-white border"
