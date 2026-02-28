@@ -42,7 +42,22 @@ jobs:
         run: npm run build
 
       - name: Smoke test (serve)
+        env:
+          CI: true
+          NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          RESEND_API_KEY: "dummy"
         run: node scripts/smoke-serve.mjs
 
       - name: E2E tests (serve)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          RESEND_API_KEY: "dummy"
         run: node scripts/e2e-serve.mjs
