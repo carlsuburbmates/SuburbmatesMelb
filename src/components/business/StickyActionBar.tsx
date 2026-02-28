@@ -46,6 +46,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Save */}
         <button
           onClick={handleSave}
+          aria-label={isLiked ? "Unsave business" : "Save business"}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
           <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
@@ -55,6 +56,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Share */}
         <button
           onClick={handleShare}
+          aria-label="Share business"
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
           <Share2 className="w-6 h-6" />

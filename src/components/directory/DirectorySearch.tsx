@@ -47,6 +47,7 @@ export function DirectorySearch({ initialSearch = '', initialSuburb = '' }: Dire
             <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <input
               type="text"
+              aria-label="Search directory"
               placeholder="Search businesses, services, or products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -59,6 +60,7 @@ export function DirectorySearch({ initialSearch = '', initialSuburb = '' }: Dire
             <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <input
               type="text"
+              aria-label="Filter by suburb"
               placeholder="Enter Melbourne suburb..."
               value={suburb}
               onChange={(e) => setSuburb(e.target.value)}
