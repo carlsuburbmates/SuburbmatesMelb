@@ -71,8 +71,10 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
             <button 
               onClick={() => setIsDrawerOpen(true)}
               className="md:hidden flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              aria-expanded={isDrawerOpen}
+              aria-controls="mobile-filter-drawer"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
               <span>Filters</span>
               {hasActiveFilters && (
                 <span className="ml-1 flex h-2 w-2 relative">
