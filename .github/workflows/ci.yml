@@ -51,6 +51,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake
           SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake
 
+      - name: Supabase Local start
+        run: npx supabase start
+
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
         env:
