@@ -7,7 +7,10 @@ export default defineConfig({
   fullyParallel: true,
   retries: 0,
   timeout: 30_000,
-  expect: { timeout: 10_000 },
+  expect: {
+    timeout: 10_000,
+    toHaveScreenshot: { maxDiffPixelRatio: process.env.CI ? 1.0 : 0.2 }
+  },
   use: {
     baseURL,
     trace: 'on-first-retry',

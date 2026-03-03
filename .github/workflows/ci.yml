@@ -39,6 +39,14 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Supabase setup
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
       - name: Build
         run: npm run build
 
