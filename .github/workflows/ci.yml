@@ -50,4 +50,15 @@ jobs:
         run: node scripts/smoke-serve.mjs
 
       - name: E2E tests (serve)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
+          RESEND_API_KEY: "re_placeholder"
+          STRIPE_SECRET_KEY: "sk_test_placeholder"
+          STRIPE_WEBHOOK_SECRET: "whsec_placeholder"
+          GA_TRACKING_ID: "G-PLACEHOLDER"
+          CRON_SECRET: "placeholder"
+          POSTHOG_KEY: "phc_placeholder"
+          CI: "true"
         run: node scripts/e2e-serve.mjs
