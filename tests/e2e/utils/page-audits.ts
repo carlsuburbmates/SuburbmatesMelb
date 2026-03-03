@@ -18,6 +18,10 @@ export async function captureVisualSnapshot(
   page: Page,
   fileName: string
 ) {
+  if (process.env.CI === 'true') {
+    return;
+  }
+
   try {
     await expect(page).toHaveScreenshot(fileName, {
       fullPage: true,

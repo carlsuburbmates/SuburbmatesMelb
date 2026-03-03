@@ -9,6 +9,14 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "http://localhost:8000"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "service-key"
+      RESEND_API_KEY: "re_test"
+      STRIPE_SECRET_KEY: "sk_test"
+      STRIPE_WEBHOOK_SECRET: "whsec_test"
+      CI: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,6 +38,14 @@ jobs:
 
       - name: Lint (optional)
         run: npm run lint --if-present
+
+      - name: Supabase setup
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
 
       - name: Build
         run: npm run build
