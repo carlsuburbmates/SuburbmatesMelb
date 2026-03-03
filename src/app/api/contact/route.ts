@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         <h1>New Contact Form Submission</h1>
         <p><strong>Name:</strong> ${safeName}</p>
         <p><strong>Email:</strong> ${safeEmail}</p>
-        <p><strong>Subject:</strong> ${safeSubject}</p>
+        <p><strong>Subject:</strong> ${escapeHtml(safeSubject)}</p>
         <p><strong>Message:</strong></p>
         <p>${safeMessage.replace(/\n/g, "<br>")}</p>
       `,
