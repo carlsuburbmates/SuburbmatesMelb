@@ -47,6 +47,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         <button
           onClick={handleSave}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
+          aria-pressed={isLiked}
         >
           <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
           <span className="text-[10px] mt-1 font-medium">Save</span>
