@@ -3,6 +3,7 @@ import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml, stripNewlines } from "@/lib/html-sanitizer";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,17 +51,28 @@ export async function POST(request: Request) {
     }
 
     // 2. Send email to support
+    // Sanitize subject for headers (no HTML encoding, just strip newlines)
+    const sanitizedHeaderSubject = stripNewlines(subject);
+
+    // Sanitize user inputs for HTML body to prevent injection
+    const sanitizedName = escapeHtml(name);
+    const sanitizedEmail = escapeHtml(email);
+    const sanitizedBodySubject = escapeHtml(subject);
+
+    // Sanitize message and then convert newlines to <br>
+    const sanitizedMessageHtml = escapeHtml(message).replace(/\n/g, "<br>");
+
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
+      subject: `[Contact Form] ${sanitizedHeaderSubject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${sanitizedName}</p>
+        <p><strong>Email:</strong> ${sanitizedEmail}</p>
+        <p><strong>Subject:</strong> ${sanitizedBodySubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${sanitizedMessageHtml}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
