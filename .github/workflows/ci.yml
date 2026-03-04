@@ -33,9 +33,50 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-service-key"
+          RESEND_API_KEY: "mock-resend-key"
+          STRIPE_SECRET_KEY: "mock-stripe-key"
+          STRIPE_WEBHOOK_SECRET: "mock-webhook-secret"
+          GA_TRACKING_ID: "mock-ga-id"
+          CRON_SECRET: "mock-cron-secret"
+          POSTHOG_KEY: "mock-posthog-key"
+          CI: "true"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-service-key"
+          RESEND_API_KEY: "mock-resend-key"
+          STRIPE_SECRET_KEY: "mock-stripe-key"
+          STRIPE_WEBHOOK_SECRET: "mock-webhook-secret"
+          GA_TRACKING_ID: "mock-ga-id"
+          CRON_SECRET: "mock-cron-secret"
+          POSTHOG_KEY: "mock-posthog-key"
+          CI: "true"
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase Emulator
+        run: supabase start
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-service-key"
+          RESEND_API_KEY: "mock-resend-key"
+          STRIPE_SECRET_KEY: "mock-stripe-key"
+          STRIPE_WEBHOOK_SECRET: "mock-webhook-secret"
+          GA_TRACKING_ID: "mock-ga-id"
+          CRON_SECRET: "mock-cron-secret"
+          POSTHOG_KEY: "mock-posthog-key"
+          CI: "true"
