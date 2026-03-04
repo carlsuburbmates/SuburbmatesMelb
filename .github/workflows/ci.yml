@@ -31,6 +31,14 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
       - name: Build
         run: npm run build
         env:
@@ -38,7 +46,7 @@ jobs:
           RESEND_API_KEY: "dummy"
           STRIPE_SECRET_KEY: "dummy"
           STRIPE_WEBHOOK_SECRET: "dummy"
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
           SUPABASE_SERVICE_ROLE_KEY: "dummy"
           GA_TRACKING_ID: "dummy"
@@ -52,7 +60,7 @@ jobs:
           RESEND_API_KEY: "dummy"
           STRIPE_SECRET_KEY: "dummy"
           STRIPE_WEBHOOK_SECRET: "dummy"
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
           SUPABASE_SERVICE_ROLE_KEY: "dummy"
           GA_TRACKING_ID: "dummy"
@@ -66,7 +74,7 @@ jobs:
           RESEND_API_KEY: "dummy"
           STRIPE_SECRET_KEY: "dummy"
           STRIPE_WEBHOOK_SECRET: "dummy"
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
           SUPABASE_SERVICE_ROLE_KEY: "dummy"
           GA_TRACKING_ID: "dummy"
