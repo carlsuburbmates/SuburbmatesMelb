@@ -197,7 +197,10 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
 
                 {/* Review Actions */}
                 <div className="flex items-center space-x-4 text-sm">
-                  <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
+                  <button
+                    className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-sm"
+                    aria-label={`Mark review by ${review.customerName} as helpful`}
+                  >
                     <ThumbsUp className="w-4 h-4" />
                     <span>Helpful ({review.helpful})</span>
                   </button>
