@@ -33,9 +33,39 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "test"
+          SUPABASE_SERVICE_ROLE_KEY: "test"
+          RESEND_API_KEY: "test"
+          STRIPE_SECRET_KEY: "test"
+          STRIPE_WEBHOOK_SECRET: "test"
+          GA_TRACKING_ID: "test"
+          CRON_SECRET: "test"
+          POSTHOG_KEY: "test"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "test"
+          SUPABASE_SERVICE_ROLE_KEY: "test"
+          RESEND_API_KEY: "test"
+          STRIPE_SECRET_KEY: "test"
+          STRIPE_WEBHOOK_SECRET: "test"
+          GA_TRACKING_ID: "test"
+          CRON_SECRET: "test"
+          POSTHOG_KEY: "test"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "test"
+          SUPABASE_SERVICE_ROLE_KEY: "test"
+          RESEND_API_KEY: "test"
+          STRIPE_SECRET_KEY: "test"
+          STRIPE_WEBHOOK_SECRET: "test"
+          GA_TRACKING_ID: "test"
+          CRON_SECRET: "test"
+          POSTHOG_KEY: "test"
