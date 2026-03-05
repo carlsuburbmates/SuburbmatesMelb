@@ -56,6 +56,7 @@ jobs:
           GA_TRACKING_ID: "test"
           CRON_SECRET: "test"
           POSTHOG_KEY: "test"
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
