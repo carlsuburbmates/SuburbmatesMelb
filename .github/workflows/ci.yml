@@ -33,9 +33,42 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          CI: "true"
+          RESEND_API_KEY: "re_12345"
+          STRIPE_SECRET_KEY: "sk_test_123"
+          STRIPE_WEBHOOK_SECRET: "whsec_123"
+          NEXT_PUBLIC_SUPABASE_URL: "https://foo.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "ey..."
+          SUPABASE_SERVICE_ROLE_KEY: "ey..."
+          GA_TRACKING_ID: "G-12345"
+          CRON_SECRET: "secret"
+          POSTHOG_KEY: "phc_12345"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
+          RESEND_API_KEY: "re_12345"
+          STRIPE_SECRET_KEY: "sk_test_123"
+          STRIPE_WEBHOOK_SECRET: "whsec_123"
+          NEXT_PUBLIC_SUPABASE_URL: "https://foo.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "ey..."
+          SUPABASE_SERVICE_ROLE_KEY: "ey..."
+          GA_TRACKING_ID: "G-12345"
+          CRON_SECRET: "secret"
+          POSTHOG_KEY: "phc_12345"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
+          RESEND_API_KEY: "re_12345"
+          STRIPE_SECRET_KEY: "sk_test_123"
+          STRIPE_WEBHOOK_SECRET: "whsec_123"
+          NEXT_PUBLIC_SUPABASE_URL: "https://foo.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "ey..."
+          SUPABASE_SERVICE_ROLE_KEY: "ey..."
+          GA_TRACKING_ID: "G-12345"
+          CRON_SECRET: "secret"
+          POSTHOG_KEY: "phc_12345"
