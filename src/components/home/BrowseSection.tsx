@@ -64,12 +64,14 @@ export function BrowseSection() {
               <input
                 type="text"
                 placeholder="Try: Fitzroy, Collingwood, Brunswick..."
+                aria-label="Search suburb"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 md:px-6 md:py-4 pr-12 rounded-lg bg-white/90 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-900 placeholder-gray-600 text-sm md:text-base"
               />
               <button
                 type="submit"
+                aria-label="Submit search"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-900"
               >
                 <Search className="w-5 h-5" />
