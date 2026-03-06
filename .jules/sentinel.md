@@ -1,0 +1,4 @@
+## 2024-03-06 - [HTML Email Injection and XSS Prevention]
+**Vulnerability:** Contact form API route (`src/app/api/contact/route.ts`) was taking unsanitized user inputs (`name`, `email`, `subject`, `message`) and directly interpolating them into the HTML body of an email. Also, the `subject` header was taken verbatim from user input. This allowed attackers to submit malicious payloads resulting in HTML/XSS injection when viewed in webmail clients, or potentially SMTP Header Injection.
+**Learning:** Even internal support tooling like contact form emails must be sanitized because the consumer (email clients) renders HTML. Standard library `sendEmail` does not auto-sanitize inputs.
+**Prevention:** Sanitize all variables placed within HTML email strings by utilizing `escapeHtml` (to encode `<, >, &, ", '`) and specifically sanitize headers by stripping out newlines using `stripNewlines` to avoid header injection.
