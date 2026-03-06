@@ -33,7 +33,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Lint (optional)
-        run: pnpm run lint --if-present
+        run: pnpm run lint
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
