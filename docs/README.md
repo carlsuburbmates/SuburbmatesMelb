@@ -75,6 +75,8 @@ Preferred language:
 * **Products are sold by creators.**
 * **Payments are processed by Stripe** (creator-controlled Stripe onboarding).
 * Suburbmates is a discovery layer and optional platform logic layer (e.g., featured placement, subscription access), but **does not take custody of funds**.
+* Vendor is the Merchant of Record.
+* Suburbmates does not issue refunds.
 
 ### 3.2 Copy rules for payments
 
