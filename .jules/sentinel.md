@@ -1,0 +1,4 @@
+## 2024-05-18 - HTML Injection (XSS) in Email Templates
+**Vulnerability:** User input values (name, email, subject, message) were interpolated directly into the HTML string of email bodies in `src/app/api/contact/route.ts` without sanitization. An attacker could submit malicious HTML tags (e.g., `<script>`) within the contact form payload, which would then be rendered by the email client.
+**Learning:** The base `sendEmail` utility does not auto-sanitize inputs. When manually constructing HTML string templates, any user-supplied input must be properly escaped to avoid XSS within email clients.
+**Prevention:** Always use `escapeHtml` (now available in `src/lib/html-sanitizer.ts`) to sanitize user inputs *before* performing text formatting operations (like replacing newlines) and *before* inserting them into HTML templates.
