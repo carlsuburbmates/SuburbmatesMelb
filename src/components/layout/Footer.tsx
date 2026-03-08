@@ -28,17 +28,23 @@ export function Footer() {
             
             {/* Newsletter Signup */}
             <div className="mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2">Stay updated</h4>
-              <div className="flex max-w-md">
+              <h4 className="font-semibold text-gray-900 mb-2" id="newsletter-heading">Stay updated</h4>
+              <form className="flex max-w-md" aria-labelledby="newsletter-heading">
+                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
                 <input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Enter your email"
+                  required
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                 />
-                <button className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900"
+                >
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Social Links */}
