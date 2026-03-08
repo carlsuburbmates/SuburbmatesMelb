@@ -168,3 +168,10 @@ To prevent type coupling between the database schema (`BusinessProfileExtended`)
     *   Add to `BusinessProfileExtended`.
     *   Add to `MappedBusinessProfile`.
     *   Map it in `BusinessProfileRenderer`.
+
+### Core Schema Fields
+Key fields expected in the database schema:
+- `is_vendor`: Boolean flag indicating if the profile is an active vendor.
+- `vendor_status`: Current status of the vendor onboarding.
+- `vendor_tier`: The pricing tier of the vendor (e.g., Free, Pro, Premium).
+- `published`: Boolean flag indicating if the product or profile is publicly visible.
