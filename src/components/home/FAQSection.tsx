@@ -69,8 +69,6 @@ export function FAQSection() {
                   <button
                     onClick={() => toggleFAQ(index)}
                     className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors"
-                    aria-expanded={openIndex === index}
-                    aria-controls={`faq-answer-${index}`}
                   >
                     <span className="text-white font-medium text-sm">
                       {faq.question}
@@ -82,7 +80,7 @@ export function FAQSection() {
                     )}
                   </button>
                   {openIndex === index && (
-                    <div id={`faq-answer-${index}`} className="px-6 pb-4">
+                    <div className="px-6 pb-4">
                       <p className="text-white/80 text-sm leading-relaxed">
                         {faq.answer}
                       </p>
