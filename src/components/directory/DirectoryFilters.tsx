@@ -47,7 +47,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
         {/* Header Bar */}
         <div className="p-4 md:p-6 flex items-center justify-between bg-gray-50 md:bg-white border-b md:border-b-0 border-gray-100">
           <div className="flex items-center space-x-2">
-            <Filter className="h-5 w-5 text-gray-600 hidden md:block" />
+            <Filter className="h-5 w-5 text-gray-600 hidden md:block" aria-hidden="true" />
             <h3 className="font-semibold text-gray-900 hidden md:block">Filter Results</h3>
             
             {/* Mobile Title */}
@@ -61,8 +61,9 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
               <button
                 onClick={clearAllFilters}
                 className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 transition-colors hidden md:flex"
+                aria-label="Clear all filters"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
                 <span>Clear All</span>
               </button>
             )}
@@ -71,8 +72,9 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
             <button 
               onClick={() => setIsDrawerOpen(true)}
               className="md:hidden flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              aria-label="Open filters"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
               <span>Filters</span>
               {hasActiveFilters && (
                 <span className="ml-1 flex h-2 w-2 relative">

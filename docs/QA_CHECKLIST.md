@@ -126,3 +126,7 @@ For product truth, see `docs/README.md`. For implementation sequence, see `docs/
 * [ ] ABN verification is presented as a badge/trust signal only.
 
 ---
+
+## 9) Legal and Schema CI Check References
+* Check that legal messaging includes: "Vendor is the Merchant of Record" and "Suburbmates does not issue refunds".
+* Check that schema includes fields: `is_vendor`, `vendor_status`, `vendor_tier`, `published`.
