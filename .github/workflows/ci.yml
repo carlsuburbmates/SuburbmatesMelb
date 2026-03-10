@@ -51,10 +51,18 @@ jobs:
         uses: supabase/setup-cli@v1
 
       - name: Start Supabase
-        run: supabase start
+        run: supabase start --ignore-health-check
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
         env:
+          RESEND_API_KEY: "dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
           SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          GA_TRACKING_ID: "dummy"
+          CRON_SECRET: "dummy"
+          POSTHOG_KEY: "dummy"
+          CI: "true"
