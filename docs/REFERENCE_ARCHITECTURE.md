@@ -147,7 +147,8 @@ Data access commonly lives in:
 **Status:** REFERENCE ONLY
 
 * **Discovery Platform:** SuburbMates aggregates listings; it is not the seller.
-* **Merchant of Record:** The Creator (Vendor) is the merchant.
+* **Merchant of Record:** Vendor is the Merchant of Record.
+* **Refund Policy:** Suburbmates does not issue refunds.
 * **Payment Processing:** Stripe Connect (Direct Charges). SuburbMates takes an application fee.
 * **Delivery:** Immediate digital download or link provided by the Creator.
 
