@@ -1,0 +1,4 @@
+## 2024-05-18 - Prevent XSS in Email Templates
+**Vulnerability:** Email templates in `src/lib/email.ts` concatenated unsanitized dynamic user inputs (e.g. `businessName`, `productTitle`, `name`, `reason`, `suburb`, `customerEmail`) directly into the HTML payload and subject lines. This creates a vulnerability where attackers could inject malicious HTML, scripts, or modify email headers via inputs.
+**Learning:** Raw string interpolation for user-provided values in HTML templates without a templating engine (like Handlebars or JSX rendering) naturally leads to Cross-Site Scripting (XSS).
+**Prevention:** A reusable utility `src/lib/html-sanitizer.ts` with an `escapeHtml` function and `stripNewlines` function was created. All dynamic parameters passed to the `sendEmail` interface must first be sanitized by `escapeHtml` (for HTML interpolations) and `stripNewlines` (for email subject headers).
