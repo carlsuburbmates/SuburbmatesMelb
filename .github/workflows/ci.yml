@@ -32,6 +32,8 @@ jobs:
 
       - name: Start Supabase Local Emulator
         uses: supabase/setup-cli@v1
+        with:
+          version: latest
       - run: supabase start
 
       - name: Build
