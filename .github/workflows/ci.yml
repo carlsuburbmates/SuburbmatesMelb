@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -31,11 +30,49 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Start Supabase Local Emulator
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start
+
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzNjQ2MDQ0NiwiZXhwIjoxOTUyMjIwNDQ2fQ.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjM2NDYwNDQ2LCJleHAiOjE5NTIyMjA0NDZ9.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          RESEND_API_KEY: re_123456789
+          STRIPE_SECRET_KEY: sk_test_123
+          STRIPE_WEBHOOK_SECRET: whsec_123
+          GA_TRACKING_ID: G-123456789
+          CRON_SECRET: secret
+          POSTHOG_KEY: phc_123
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzNjQ2MDQ0NiwiZXhwIjoxOTUyMjIwNDQ2fQ.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjM2NDYwNDQ2LCJleHAiOjE5NTIyMjA0NDZ9.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          RESEND_API_KEY: re_123456789
+          STRIPE_SECRET_KEY: sk_test_123
+          STRIPE_WEBHOOK_SECRET: whsec_123
+          GA_TRACKING_ID: G-123456789
+          CRON_SECRET: secret
+          POSTHOG_KEY: phc_123
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzNjQ2MDQ0NiwiZXhwIjoxOTUyMjIwNDQ2fQ.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImF1ZCI6ImF1dGgiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjM2NDYwNDQ2LCJleHAiOjE5NTIyMjA0NDZ9.yM-7p-x-m-w-m-w-m-w-m-w-m-w-m-w-m-w-m-w
+          RESEND_API_KEY: re_123456789
+          STRIPE_SECRET_KEY: sk_test_123
+          STRIPE_WEBHOOK_SECRET: whsec_123
+          GA_TRACKING_ID: G-123456789
+          CRON_SECRET: secret
+          POSTHOG_KEY: phc_123
