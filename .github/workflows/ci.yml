@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -33,9 +32,48 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          CI: "true"
+          RESEND_API_KEY: "placeholder"
+          STRIPE_SECRET_KEY: "placeholder"
+          STRIPE_WEBHOOK_SECRET: "placeholder"
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          GA_TRACKING_ID: "placeholder"
+          CRON_SECRET: "placeholder"
+          POSTHOG_KEY: "placeholder"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
+          RESEND_API_KEY: "placeholder"
+          STRIPE_SECRET_KEY: "placeholder"
+          STRIPE_WEBHOOK_SECRET: "placeholder"
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          GA_TRACKING_ID: "placeholder"
+          CRON_SECRET: "placeholder"
+          POSTHOG_KEY: "placeholder"
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Start Supabase local emulator
+        run: supabase start
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
+          RESEND_API_KEY: "placeholder"
+          STRIPE_SECRET_KEY: "placeholder"
+          STRIPE_WEBHOOK_SECRET: "placeholder"
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          GA_TRACKING_ID: "placeholder"
+          CRON_SECRET: "placeholder"
+          POSTHOG_KEY: "placeholder"
