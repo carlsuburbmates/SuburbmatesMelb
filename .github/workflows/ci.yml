@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -29,13 +28,37 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Lint (optional)
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Build
         run: npm run build
+        env:
+          CI: "true"
+          RESEND_API_KEY: "re_123"
+          STRIPE_SECRET_KEY: "sk_test_123"
+          STRIPE_WEBHOOK_SECRET: "whsec_123"
+          NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          GA_TRACKING_ID: "G-123"
+          CRON_SECRET: "cron_123"
+          POSTHOG_KEY: "phc_123"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
+          RESEND_API_KEY: "re_123"
+          STRIPE_SECRET_KEY: "sk_test_123"
+          STRIPE_WEBHOOK_SECRET: "whsec_123"
+          NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
+          GA_TRACKING_ID: "G-123"
+          CRON_SECRET: "cron_123"
+          POSTHOG_KEY: "phc_123"
