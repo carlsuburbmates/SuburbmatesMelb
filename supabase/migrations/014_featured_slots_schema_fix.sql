@@ -33,25 +33,25 @@ ALTER TABLE IF EXISTS featured_slots
 -- Add foreign key constraints if referencing tables exist and fk not present
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'vendors') THEN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'vendors') AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'featured_slots_vendor_id_fkey') THEN
     BEGIN
       ALTER TABLE featured_slots
-        ADD CONSTRAINT IF NOT EXISTS featured_slots_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+        ADD CONSTRAINT featured_slots_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
     EXCEPTION WHEN duplicate_table THEN
       -- ignore
     END;
   END IF;
-  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'business_profiles') THEN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'business_profiles') AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'featured_slots_business_profile_id_fkey') THEN
     BEGIN
       ALTER TABLE featured_slots
-        ADD CONSTRAINT IF NOT EXISTS featured_slots_business_profile_id_fkey FOREIGN KEY (business_profile_id) REFERENCES business_profiles(id) ON DELETE CASCADE;
+        ADD CONSTRAINT featured_slots_business_profile_id_fkey FOREIGN KEY (business_profile_id) REFERENCES business_profiles(id) ON DELETE CASCADE;
     EXCEPTION WHEN duplicate_table THEN
     END;
   END IF;
-  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'lgas') THEN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'lgas') AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'featured_slots_lga_id_fkey') THEN
     BEGIN
       ALTER TABLE featured_slots
-        ADD CONSTRAINT IF NOT EXISTS featured_slots_lga_id_fkey FOREIGN KEY (lga_id) REFERENCES lgas(id) ON DELETE SET NULL;
+        ADD CONSTRAINT featured_slots_lga_id_fkey FOREIGN KEY (lga_id) REFERENCES lgas(id) ON DELETE SET NULL;
     EXCEPTION WHEN duplicate_table THEN
     END;
   END IF;
