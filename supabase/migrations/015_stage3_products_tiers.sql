@@ -12,24 +12,38 @@ ALTER TABLE IF EXISTS vendors
   ADD COLUMN IF NOT EXISTS delist_until timestamptz DEFAULT NULL;
 
 -- 2) Create featured_slots table
-CREATE TABLE IF NOT EXISTS featured_slots (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  vendor_id uuid NOT NULL,
-  lga text NOT NULL,
-  suburb_label text,
-  start_at timestamptz NOT NULL,
-  end_at timestamptz NOT NULL,
-  status text DEFAULT 'active',
-  purchased_at timestamptz NOT NULL DEFAULT now(),
-  metadata jsonb DEFAULT '{}'::jsonb
-);
+-- 2) Create featured_slots table if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'featured_slots') THEN
+    CREATE TABLE featured_slots (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      vendor_id uuid NOT NULL,
+      lga_id integer NOT NULL,
+      suburb_label text,
+      start_date timestamptz NOT NULL,
+      end_date timestamptz NOT NULL,
+      status text DEFAULT 'active',
+      created_at timestamptz NOT NULL DEFAULT now(),
+      metadata jsonb DEFAULT '{}'::jsonb
+    );
 
-ALTER TABLE IF EXISTS featured_slots
-  ADD CONSTRAINT fk_featured_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+    ALTER TABLE featured_slots
+      ADD CONSTRAINT fk_featured_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+  END IF;
+END $$;
 
 -- 3) Add indexes
 CREATE INDEX IF NOT EXISTS idx_products_vendor_published ON products (vendor_id, published);
-CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='featured_slots' AND column_name='lga') THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status)';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='featured_slots' AND column_name='lga_id') THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga_id, status)';
+  END IF;
+END $$;
 
 -- 4) RLS policies - products
 -- Public can select published products
