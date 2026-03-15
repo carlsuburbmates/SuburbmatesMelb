@@ -1,0 +1,4 @@
+## 2025-03-15 - HTML Injection Vulnerability in Contact Form Email Support
+**Vulnerability:** User inputs (name, email, subject, message) from the contact form API route (`src/app/api/contact/route.ts`) were directly interpolated into HTML email templates without sanitization, leading to an XSS / HTML injection risk for support staff reading the emails.
+**Learning:** This codebase lacked a centralized utility for sanitizing user strings intended for HTML display, especially in backend contexts like email generation.
+**Prevention:** Created `src/lib/html-sanitizer.ts` with `escapeHtml` and `stripNewlines` functions. Ensure these functions are used consistently wherever user input is injected into an HTML context. Specifically, `stripNewlines` should be used for email subjects to prevent header injection, and `escapeHtml` for the body.
