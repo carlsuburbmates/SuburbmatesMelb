@@ -82,6 +82,8 @@ Allowed:
 
 * “Sold by [Creator]. Payments processed by Stripe.”
 * “Creators handle sales via Stripe.”
+* "Vendor is the Merchant of Record"
+* "Suburbmates does not issue refunds"
 
 Not allowed:
 
