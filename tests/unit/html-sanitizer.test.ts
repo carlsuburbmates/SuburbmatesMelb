@@ -21,7 +21,7 @@ describe('html-sanitizer', () => {
     });
 
     it('handles non-string inputs by converting to string', () => {
-      expect(escapeHtml(123 as any)).toBe('123');
+      expect(escapeHtml(123 as unknown as string)).toBe('123');
     });
   });
 

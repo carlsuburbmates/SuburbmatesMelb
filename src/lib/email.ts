@@ -1,4 +1,3 @@
-import { escapeHtml } from "./html-sanitizer";
 /**
  * SuburbMates V1.1 - Email Service
  * Transactional emails via Resend
