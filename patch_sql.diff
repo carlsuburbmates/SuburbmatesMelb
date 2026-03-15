@@ -1,0 +1,29 @@
+--- supabase/migrations/014_featured_slots_schema_fix.sql
++++ supabase/migrations/014_featured_slots_schema_fix.sql
+@@ -38,18 +38,20 @@
+     BEGIN
+       ALTER TABLE featured_slots
+         ADD CONSTRAINT featured_slots_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+-    EXCEPTION WHEN duplicate_table THEN
++    EXCEPTION WHEN duplicate_object THEN
+       -- ignore
+     END;
+   END IF;
+   IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'business_profiles') THEN
+     BEGIN
+       ALTER TABLE featured_slots
+         ADD CONSTRAINT featured_slots_business_profile_id_fkey FOREIGN KEY (business_profile_id) REFERENCES business_profiles(id) ON DELETE CASCADE;
+-    EXCEPTION WHEN duplicate_table THEN
++    EXCEPTION WHEN duplicate_object THEN
++      -- ignore
+     END;
+   END IF;
+   IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'lgas') THEN
+     BEGIN
+       ALTER TABLE featured_slots
+         ADD CONSTRAINT featured_slots_lga_id_fkey FOREIGN KEY (lga_id) REFERENCES lgas(id) ON DELETE SET NULL;
+-    EXCEPTION WHEN duplicate_table THEN
++    EXCEPTION WHEN duplicate_object THEN
++      -- ignore
+     END;
+   END IF;
