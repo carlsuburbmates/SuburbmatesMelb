@@ -29,13 +29,54 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Lint (optional)
-        run: npm run lint --if-present
+        run: npm run lint
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          STRIPE_SECRET_KEY: test
+          STRIPE_WEBHOOK_SECRET: test
+          RESEND_API_KEY: test
+          GA_TRACKING_ID: test
+          CRON_SECRET: test
+          POSTHOG_KEY: test
+          CI: "true"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          STRIPE_SECRET_KEY: test
+          STRIPE_WEBHOOK_SECRET: test
+          RESEND_API_KEY: test
+          GA_TRACKING_ID: test
+          CRON_SECRET: test
+          POSTHOG_KEY: test
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2x6IiwiX3BpZCI6InEyMzR3cWVydHl1aW9wIiwiZXhwIjoyMDk2MDIyMzI3LCJpYXQiOjE3MjUyODcwMzZ9.mS8nOWeO6eQx6n8O37_y9kR669R3A_1k_O8uKzP5oU
+          STRIPE_SECRET_KEY: test
+          STRIPE_WEBHOOK_SECRET: test
+          RESEND_API_KEY: test
+          GA_TRACKING_ID: test
+          CRON_SECRET: test
+          POSTHOG_KEY: test
+          CI: "true"
