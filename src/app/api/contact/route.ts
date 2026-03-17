@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
+import { escapeHtml, stripNewlines } from "@/lib/html-sanitizer";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -50,17 +51,26 @@ export async function POST(request: Request) {
     }
 
     // 2. Send email to support
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubjectHtml = escapeHtml(subject);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
+    // Header subject must not have HTML entities to avoid double-encoding
+    // but should be stripped of newlines
+    const safeSubjectHeader = stripNewlines(subject);
+
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
-      replyTo: email,
+      subject: `[Contact Form] ${safeSubjectHeader}`,
+      replyTo: email, // Reply-to should use original email; Resend handles this safely
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Subject:</strong> ${safeSubjectHtml}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
