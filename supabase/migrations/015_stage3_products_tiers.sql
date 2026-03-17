@@ -29,7 +29,7 @@ ALTER TABLE IF EXISTS featured_slots
 
 -- 3) Add indexes
 CREATE INDEX IF NOT EXISTS idx_products_vendor_published ON products (vendor_id, published);
-CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status);
+-- CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status);
 
 -- 4) RLS policies - products
 -- Public can select published products
