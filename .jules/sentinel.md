@@ -1,0 +1,4 @@
+## 2026-03-18 - [Fix HTML Injection in Contact Form Email]
+**Vulnerability:** User inputs (name, email, subject, message) from the contact form were being interpolated directly into an HTML email template sent via Resend (`sendEmail`) without escaping. This allowed HTML/script injection in the resulting emails, posing a phishing and XSS risk to platform administrators reading the support emails.
+**Learning:** The Resend client or the base `sendEmail` utility does not automatically sanitize HTML body strings. Developers must manually escape variables interpolated into HTML strings and strip newlines from email subjects to prevent header injection.
+**Prevention:** Created a reusable `escapeHtml` and `stripNewlines` utility in `src/lib/html-sanitizer.ts`. All user input rendered into HTML emails must be explicitly passed through `escapeHtml()` and subjects through `stripNewlines()` prior to interpolation.
