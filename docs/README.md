@@ -17,6 +17,11 @@ This document defines **what Suburbmates is** and the **non-negotiable rules** t
 
 ### 1.1 Definition
 
+**Legal and Merchant Policies**
+- Vendor is the Merchant of Record
+- Suburbmates does not issue refunds
+
+
 **Suburbmates is a mobile-first Melbourne directory for digital creators and their digital products.**
 Creators use it to:
 
