@@ -72,8 +72,8 @@ Preferred language:
 
 ### 3.1 Payment truth
 
-* **Products are sold by creators.**
-* **Payments are processed by Stripe** (creator-controlled Stripe onboarding).
+* **Products are sold by creators.** Vendor is the Merchant of Record.
+* **Payments are processed by Stripe** (creator-controlled Stripe onboarding). Suburbmates does not issue refunds.
 * Suburbmates is a discovery layer and optional platform logic layer (e.g., featured placement, subscription access), but **does not take custody of funds**.
 
 ### 3.2 Copy rules for payments
