@@ -15,7 +15,7 @@ ALTER TABLE IF EXISTS vendors
 CREATE TABLE IF NOT EXISTS featured_slots (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   vendor_id uuid NOT NULL,
-  lga text NOT NULL,
+  lga_id integer,
   suburb_label text,
   start_at timestamptz NOT NULL,
   end_at timestamptz NOT NULL,
@@ -24,12 +24,17 @@ CREATE TABLE IF NOT EXISTS featured_slots (
   metadata jsonb DEFAULT '{}'::jsonb
 );
 
-ALTER TABLE IF EXISTS featured_slots
-  ADD CONSTRAINT fk_featured_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_featured_vendor') THEN
+    ALTER TABLE featured_slots ADD CONSTRAINT fk_featured_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE;
+  END IF;
+END
+$$;
 
 -- 3) Add indexes
 CREATE INDEX IF NOT EXISTS idx_products_vendor_published ON products (vendor_id, published);
-CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status);
+CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga_id, status);
 
 -- 4) RLS policies - products
 -- Public can select published products
