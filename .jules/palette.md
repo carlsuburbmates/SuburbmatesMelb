@@ -1,0 +1,3 @@
+## 2024-03-21 - Semantic Form Wrapping for Newsletter Signups
+**Learning:** Purely client-side UI elements like newsletter signup inputs often lack semantic `<form>` wrappers and properly associated labels in React/Next.js components. This creates accessibility barriers for screen reader users and inconsistent submission behaviors (e.g., hitting Enter might reload the page).
+**Action:** When creating or refactoring inline inputs (like footers or CTA sections), always use a `<form>` element with an `onSubmit={(e) => e.preventDefault()}` handler, include a visually hidden label (e.g., `sr-only`), and add explicit focus states (`focus-visible`) for keyboard navigation.
