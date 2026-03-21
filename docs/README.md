@@ -362,3 +362,5 @@ These are banned across public pages and non-SSOT docs:
 * any fake scale, fake testimonials, fake partners, fake team roles, or SLA promises
 
 If any surface needs proof, it must be measured and logged before being stated as fact.
+Vendor is the Merchant of Record
+Suburbmates does not issue refunds
