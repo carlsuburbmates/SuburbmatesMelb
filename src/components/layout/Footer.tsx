@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Twitter, Linkedin, Mail } from 'lucide-react';
@@ -29,47 +31,58 @@ export function Footer() {
             {/* Newsletter Signup */}
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 mb-2">Stay updated</h4>
-              <div className="flex max-w-md">
+              <form
+                className="flex max-w-md"
+                onSubmit={(e) => e.preventDefault()}
+              >
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
                 <input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Enter your email"
+                  required
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                 />
-                <button className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+                >
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Social Links */}
             <div className="flex space-x-4">
               <a 
                 href="#" 
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Instagram"
               >
-                <Instagram className="w-5 h-5" />
+                <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="#" 
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Twitter"
               >
-                <Twitter className="w-5 h-5" />
+                <Twitter className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="#" 
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 rounded-sm"
                 aria-label="LinkedIn"
               >
-                <Linkedin className="w-5 h-5" />
+                <Linkedin className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="mailto:hello@suburbmates.com.au" 
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Email"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-5 h-5" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -79,22 +92,22 @@ export function Footer() {
             <h4 className="font-semibold text-gray-900 mb-4">Platform</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/directory" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/directory" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Creator Directory
                 </Link>
               </li>
               <li>
-                <Link href="/marketplace" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/marketplace" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Digital Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Vendor Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Pricing
                 </Link>
               </li>
@@ -106,22 +119,22 @@ export function Footer() {
             <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/help" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/help" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Help Centre
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
                   Blog
                 </Link>
               </li>
@@ -135,13 +148,13 @@ export function Footer() {
             © 2024 SuburbMates. All rights reserved.
           </div>
           <div className="flex space-x-6 text-sm">
-            <Link href="/privacy" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/privacy" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/terms" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
               Terms of Service
             </Link>
-            <Link href="/cookies" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/cookies" className="text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-sm">
               Cookie Policy
             </Link>
           </div>

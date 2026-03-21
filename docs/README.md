@@ -33,7 +33,8 @@ Visitors use it to:
 ### 1.2 What Suburbmates is NOT
 
 * Not a generic “business directory.”
-* Not a marketplace where Suburbmates holds funds or acts as merchant of record.
+* Not a marketplace where Suburbmates holds funds or acts as merchant of record. Vendor is the Merchant of Record.
+* Suburbmates does not issue refunds.
 * Not a social network or messaging platform (prelaunch).
 * Not a scraping engine (no ABN scraping; no auto-importing of creator data).
 * Not a “fake scale” brand (no fake team, fake testimonials, fake counts).

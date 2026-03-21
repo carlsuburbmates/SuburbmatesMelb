@@ -31,11 +31,41 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Start Supabase
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Run Supabase
+        run: supabase start
+
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODczOTUyNDMsImV4cCI6MjAwMjk3MTI0M30.A
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzM5NTI0MywiZXhwIjoyMDAyOTcxMjQzfQ.A
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          RESEND_API_KEY: re_placeholder
+          GA_TRACKING_ID: G-placeholder
+          CRON_SECRET: cron_secret_placeholder
+          POSTHOG_KEY: phc_placeholder
+          CI: "true"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODczOTUyNDMsImV4cCI6MjAwMjk3MTI0M30.A
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzM5NTI0MywiZXhwIjoyMDAyOTcxMjQzfQ.A
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODczOTUyNDMsImV4cCI6MjAwMjk3MTI0M30.A
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla2J5cmpsZ25ocmlycG96cGx3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzM5NTI0MywiZXhwIjoyMDAyOTcxMjQzfQ.A
+          CI: "true"
