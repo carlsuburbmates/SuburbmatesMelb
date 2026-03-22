@@ -28,14 +28,55 @@ jobs:
       - name: Install Playwright (Chromium + deps)
         run: npx playwright install --with-deps chromium
 
-      - name: Lint (optional)
-        run: npm run lint --if-present
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local emulator
+        run: supabase start
+
+      - name: Lint
+        run: npm run lint
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjIyMjIyMiwiZXhwIjoxOTMyMDIyMjIyfQ.dummy_anon_key_for_ci"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNzE2MjIyMjIyLCJleHAiOjE5MzIwMjIyMjJ9.dummy_service_role_key_for_ci"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "ph_dummy"
+          CI: "true"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjIyMjIyMiwiZXhwIjoxOTMyMDIyMjIyfQ.dummy_anon_key_for_ci"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNzE2MjIyMjIyLCJleHAiOjE5MzIwMjIyMjJ9.dummy_service_role_key_for_ci"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "ph_dummy"
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxNjIyMjIyMiwiZXhwIjoxOTMyMDIyMjIyfQ.dummy_anon_key_for_ci"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNzE2MjIyMjIyLCJleHAiOjE5MzIwMjIyMjJ9.dummy_service_role_key_for_ci"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "ph_dummy"
+          CI: "true"
