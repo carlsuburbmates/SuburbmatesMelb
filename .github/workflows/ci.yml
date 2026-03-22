@@ -28,14 +28,29 @@ jobs:
       - name: Install Playwright (Chromium + deps)
         run: npx playwright install --with-deps chromium
 
+      - name: Create fallback environment variables
+        run: |
+          cp .env.example .env
+          sed -i 's|https://your-project.supabase.co|http://127.0.0.1:54321|g' .env
+
       - name: Lint (optional)
         run: npm run lint --if-present
 
       - name: Build
         run: npm run build
+        env:
+          CI: "true"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZha2UyMDI2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYzNjMwOTAsImV4cCI6MTk5NzAyMzg5MH0.fake_signature_here"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZha2UyMDI2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NjM2MzA5MCwiZXhwIjoxOTk3MDIzODkwfQ.fake_signature_here"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZha2UyMDI2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYzNjMwOTAsImV4cCI6MTk5NzAyMzg5MH0.fake_signature_here"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZha2UyMDI2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NjM2MzA5MCwiZXhwIjoxOTk3MDIzODkwfQ.fake_signature_here"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
