@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation';
 
 const NAV_LINKS = [
   { label: 'Directory', href: '/directory' },
-  { label: 'Marketplace', href: '/marketplace' },
   { label: 'About', href: '/about' },
   { label: 'Help', href: '/help' },
 ];

@@ -29,26 +29,29 @@ ALTER TABLE IF EXISTS featured_slots
 
 -- 3) Add indexes
 CREATE INDEX IF NOT EXISTS idx_products_vendor_published ON products (vendor_id, published);
-CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga, status);
+CREATE INDEX IF NOT EXISTS idx_featured_lga_status ON featured_slots (lga_id, status);
 
 -- 4) RLS policies - products
 -- Public can select published products
 ALTER TABLE IF EXISTS products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "public_select_published" ON products
+DROP POLICY IF EXISTS "public_select_published" ON products;
+CREATE POLICY "public_select_published" ON products
   FOR SELECT USING (published = true);
 
 -- Authenticated vendors can manage their own products
-CREATE POLICY IF NOT EXISTS "vendor_manage_own" ON products
+DROP POLICY IF EXISTS "vendor_manage_own" ON products;
+CREATE POLICY "vendor_manage_own" ON products
   FOR ALL USING (auth.uid() IS NOT NULL AND auth.uid() = vendor_id)
   WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = vendor_id);
 
--- 5) RLS policies - featured_slots
-ALTER TABLE IF NOT EXISTS featured_slots ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "vendor_manage_featured" ON featured_slots
+ALTER TABLE featured_slots ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "vendor_manage_featured" ON featured_slots;
+CREATE POLICY "vendor_manage_featured" ON featured_slots
   FOR ALL USING (auth.uid() IS NOT NULL AND auth.uid() = vendor_id)
   WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = vendor_id);
 
-CREATE POLICY IF NOT EXISTS "public_select_active_featured" ON featured_slots
+DROP POLICY IF EXISTS "public_select_active_featured" ON featured_slots;
+CREATE POLICY "public_select_active_featured" ON featured_slots
   FOR SELECT USING (status = 'active');
 
 -- 6) FIFO unpublish function: unpublish oldest published products for a vendor

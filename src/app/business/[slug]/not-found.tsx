@@ -48,7 +48,6 @@ export default function BusinessNotFound() {
             <div className="space-y-2 text-sm text-gray-600">
               <p>• Try searching in our <Link href="/directory" className="text-blue-600 hover:text-blue-800">creator directory</Link></p>
               <p>• Browse by <Link href="/directory?category=" className="text-blue-600 hover:text-blue-800">category</Link> or <Link href="/directory?suburb=" className="text-blue-600 hover:text-blue-800">suburb</Link></p>
-              <p>• Check out our <Link href="/marketplace" className="text-blue-600 hover:text-blue-800">digital marketplace</Link></p>
             </div>
           </div>
         </div>

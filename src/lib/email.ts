@@ -94,11 +94,11 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
       <p>Thanks for joining ${PLATFORM.NAME}, Melbourne's hyper-local marketplace for digital products!</p>
       <p>You can now:</p>
       <ul>
-        <li>Browse local digital products from Melbourne businesses</li>
+        <li>Browse local creators in the Melbourne directory</li>
         <li>Create a free business directory profile</li>
         <li>Upgrade to become a vendor and sell your own digital products</li>
       </ul>
-      <p>Get started by exploring our <a href="${process.env.NEXT_PUBLIC_SITE_URL}/marketplace">marketplace</a> or <a href="${process.env.NEXT_PUBLIC_SITE_URL}/directory">directory</a>.</p>
+      <p>Get started by exploring our <a href="${process.env.NEXT_PUBLIC_SITE_URL}/directory">creator directory</a>.</p>
       <p>Need help? Reply to this email or contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
     `,
@@ -181,131 +181,11 @@ export async function sendTierDowngradeEmail(params: {
   });
 }
 
-/**
- * Order confirmation for customer
- */
-export async function sendOrderConfirmationEmail(
-  email: string,
-  orderDetails: {
-    orderId: string;
-    productTitle: string;
-    amount: number;
-    downloadUrl?: string;
-  }
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: `Order Confirmation - ${orderDetails.productTitle}`,
-    html: `
-      <h1>Thank you for your purchase! 🎉</h1>
-      <p>Your order has been confirmed.</p>
-      <h2>Order Details</h2>
-      <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
-      <p><strong>Product:</strong> ${orderDetails.productTitle}</p>
-      <p><strong>Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
-      ${orderDetails.downloadUrl ? `
-        <p><strong>Download Link:</strong></p>
-        <p><a href="${orderDetails.downloadUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Download Product</a></p>
-        <p><small>This download link is time-limited for security.</small></p>
-      ` : ''}
-      <p>Need help? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
-      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
-
-/**
- * New order notification for vendor
- */
-export async function sendNewOrderNotificationEmail(
-  email: string,
-  orderDetails: {
-    orderId: string;
-    productTitle: string;
-    customerEmail: string;
-    amount: number;
-    commission: number;
-    netAmount: number;
-  }
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: `New Order - ${orderDetails.productTitle}`,
-    html: `
-      <h1>You have a new order! 🎉</h1>
-      <h2>Order Details</h2>
-      <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
-      <p><strong>Product:</strong> ${orderDetails.productTitle}</p>
-      <p><strong>Customer:</strong> ${orderDetails.customerEmail}</p>
-      <p><strong>Sale Amount:</strong> A$${(orderDetails.amount / 100).toFixed(2)}</p>
-      <p><strong>Platform Fee:</strong> A$${(orderDetails.commission / 100).toFixed(2)}</p>
-      <p><strong>Your Earnings:</strong> A$${(orderDetails.netAmount / 100).toFixed(2)}</p>
-      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/orders" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Order</a></p>
-      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
-
-/**
- * Refund request notification for vendor
- */
-export async function sendRefundRequestEmail(
-  email: string,
-  refundDetails: {
-    orderId: string;
-    productTitle: string;
-    customerEmail: string;
-    reason: string;
-    amount: number;
-  }
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: `Refund Request - ${refundDetails.productTitle}`,
-    html: `
-      <h1>Refund Request Received</h1>
-      <p>A customer has requested a refund for one of your products.</p>
-      <h2>Refund Details</h2>
-      <p><strong>Order ID:</strong> ${refundDetails.orderId}</p>
-      <p><strong>Product:</strong> ${refundDetails.productTitle}</p>
-      <p><strong>Customer:</strong> ${refundDetails.customerEmail}</p>
-      <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
-      <p><strong>Reason:</strong> ${refundDetails.reason}</p>
-      <p><strong>⚠️ Important:</strong> As the merchant of record, you are responsible for processing this refund through your Stripe dashboard.</p>
-      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/refunds" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Refund Request</a></p>
-      <p>Please review and process this request promptly to maintain good standing.</p>
-      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
-
-/**
- * Refund processed confirmation for customer
- */
-export async function sendRefundConfirmationEmail(
-  email: string,
-  refundDetails: {
-    orderId: string;
-    productTitle: string;
-    amount: number;
-  }
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: `Refund Processed - ${refundDetails.productTitle}`,
-    html: `
-      <h1>Refund Processed</h1>
-      <p>Your refund has been processed by the vendor.</p>
-      <h2>Refund Details</h2>
-      <p><strong>Order ID:</strong> ${refundDetails.orderId}</p>
-      <p><strong>Product:</strong> ${refundDetails.productTitle}</p>
-      <p><strong>Refund Amount:</strong> A$${(refundDetails.amount / 100).toFixed(2)}</p>
-      <p>The refund will appear in your account within 5-10 business days.</p>
-      <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
-      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
+// MoR email templates removed in SSOT v2 Phase 2:
+// - sendOrderConfirmationEmail
+// - sendNewOrderNotificationEmail
+// - sendRefundRequestEmail
+// - sendRefundConfirmationEmail
 
 /**
  * Vendor suspension warning

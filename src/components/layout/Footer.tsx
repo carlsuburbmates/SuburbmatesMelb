@@ -84,11 +84,6 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/marketplace" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  Digital Marketplace
-                </Link>
-              </li>
-              <li>
                 <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
                   Vendor Dashboard
                 </Link>

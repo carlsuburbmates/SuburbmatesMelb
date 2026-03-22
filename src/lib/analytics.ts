@@ -124,22 +124,6 @@ export const analytics = {
       label: `${businessId}_${method}`,
     }),
 
-  // Marketplace
-  productView: (productId: string) =>
-    trackEvent({
-      action: 'product_view',
-      category: 'marketplace',
-      label: productId,
-    }),
-
-  productPurchase: (productId: string, value: number) =>
-    trackEvent({
-      action: 'purchase',
-      category: 'ecommerce',
-      label: productId,
-      value: value,
-    }),
-
   // Error tracking
   errorOccurred: (errorType: string, errorMessage: string) =>
     trackEvent({

@@ -17,7 +17,6 @@ const PUBLIC_PAGES = [
   "/contact",
   "/help",
   "/directory",
-  "/marketplace",
   "/blog",
 ];
 

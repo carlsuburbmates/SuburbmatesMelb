@@ -304,7 +304,7 @@ export default function ContactPage() {
             </h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
               Join SuburbMates today and discover Melbourne&rsquo;s best local
-              creators and digital products.
+              creators.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -315,10 +315,10 @@ export default function ContactPage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => (window.location.href = "/marketplace")}
+                onClick={() => (window.location.href = "/contact")}
                 className="border-white text-white hover:bg-white hover:text-gray-900"
               >
-                Explore Marketplace
+                Contact Us
               </Button>
             </div>
           </Container>

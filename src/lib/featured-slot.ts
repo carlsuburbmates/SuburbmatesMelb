@@ -8,28 +8,27 @@ type FeaturedQueueRow =
 
 export async function getFeaturedSlotAvailability(
   client: SupabaseClient<Database>,
-  lgaId: number,
+  regionId: number,
   referenceIso: string
 ) {
-  const { data: lgaRecord } = await client
-    .from("lgas")
-    .select("featured_slot_cap")
-    .eq("id", lgaId)
+  const { data: regionRecord } = await client
+    .from("regions")
+    .select("active")
+    .eq("id", regionId)
     .maybeSingle();
 
-  const slotCap =
-    lgaRecord?.featured_slot_cap ?? FEATURED_SLOT.MAX_SLOTS_PER_LGA;
+  const slotCap = FEATURED_SLOT.MAX_SLOTS_PER_LGA;
 
   const { count, error } = await client
     .from("featured_slots")
     .select("id", { count: "exact", head: true })
-    .eq("lga_id", lgaId)
+    .eq("region_id", regionId)
     .eq("status", "active")
     .lte("start_date", referenceIso)
     .gte("end_date", referenceIso);
 
   if (error) {
-    logger.error("featured_capacity_lookup_failed", error, { lgaId });
+    logger.error("featured_capacity_lookup_failed", error, { regionId });
     throw error;
   }
 
@@ -46,14 +45,14 @@ export async function upsertFeaturedQueueEntry(
   client: SupabaseClient<Database>,
   vendorId: string,
   businessProfileId: string,
-  lgaId: number,
+  regionId: number,
   suburbLabel: string
 ) {
   const { data: existing, error } = await client
     .from("featured_queue")
     .select("id, joined_at, status")
     .eq("vendor_id", vendorId)
-    .eq("lga_id", lgaId)
+    .eq("region_id", regionId)
     .maybeSingle();
 
   if (error) {
@@ -69,7 +68,7 @@ export async function upsertFeaturedQueueEntry(
     .insert({
       vendor_id: vendorId,
       business_profile_id: businessProfileId,
-      lga_id: lgaId,
+      region_id: regionId,
       suburb_label: suburbLabel,
       status: "waiting",
     })
@@ -85,14 +84,14 @@ export async function upsertFeaturedQueueEntry(
 
 export async function computeFeaturedQueuePosition(
   client: SupabaseClient<Database>,
-  lgaId: number,
+  regionId: number,
   entry: Pick<FeaturedQueueRow, "joined_at" | "id">
 ) {
   if (!entry.joined_at) return 1;
   const { count, error } = await client
     .from("featured_queue")
     .select("id", { count: "exact", head: true })
-    .eq("lga_id", lgaId)
+    .eq("region_id", regionId)
     .eq("status", "waiting")
     .lt("joined_at", entry.joined_at);
 

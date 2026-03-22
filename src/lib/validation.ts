@@ -72,7 +72,7 @@ export const vendorCreateSchema = z.object({
     )
     .regex(/^\d+$/, "ABN must contain only digits"),
   bio: z.string().max(1000, "Bio must be less than 1000 characters").optional(),
-  primary_lga_id: z.number().int().positive().optional(),
+  primary_region_id: z.number().int().positive().optional(),
 });
 
 export const vendorUpdateSchema = z.object({
@@ -82,8 +82,8 @@ export const vendorUpdateSchema = z.object({
     .max(VALIDATION.MAX_BUSINESS_NAME_LENGTH)
     .optional(),
   bio: z.string().max(1000).optional(),
-  primary_lga_id: z.number().int().positive().optional(),
-  secondary_lgas: z.array(z.number().int().positive()).optional(),
+  primary_region_id: z.number().int().positive().optional(),
+  secondary_regions: z.array(z.number().int().positive()).optional(),
   logo_url: z.string().url().optional(),
   profile_color_hex: z
     .string()
@@ -105,7 +105,7 @@ export const businessProfileCreateSchema = z.object({
     .min(VALIDATION.MIN_BUSINESS_NAME_LENGTH)
     .max(VALIDATION.MAX_BUSINESS_NAME_LENGTH),
   description: z.string().max(1000).optional(),
-  lga_id: z.number().int().positive(),
+  region_id: z.number().int().positive(),
   category_id: z.number().int().positive().optional(),
   contact_email: z.string().email().optional(),
   contact_phone: z.string().max(20).optional(),
@@ -137,6 +137,7 @@ export const productCreateSchema = z.object({
   category: z.string().optional(),
   images: z.array(z.string().url()).max(3, "Maximum 3 images").default([]),
   published: z.boolean().default(false),
+  external_url: z.string().url("Invalid external URL").default(""),
 });
 
 export const productUpdateSchema = productCreateSchema.partial();
@@ -333,7 +334,7 @@ export const appealReviewSchema = z.object({
 // ============================================================================
 
 export const featuredSlotPurchaseSchema = z.object({
-  lga_id: z.number().int().positive(),
+  region_id: z.number().int().positive(),
   vendor_id: z.string().uuid(),
   payment_method_id: z.string().optional(),
 });

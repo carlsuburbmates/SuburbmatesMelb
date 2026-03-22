@@ -152,15 +152,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     if (business.suburb_id) {
       try {
-        const { data: suburb } = await supabase
-          .from('lgas')
+        const { data: region } = await supabase
+          .from('regions')
           .select('name')
           .eq('id', business.suburb_id)
           .single();
 
-        suburbName = suburb?.name || null;
+        suburbName = region?.name || null;
       } catch (suburbError) {
-        logger.warn('Could not fetch suburb name', { error: suburbError });
+        logger.warn('Could not fetch region name', { error: suburbError });
       }
     }
 
@@ -249,7 +249,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const {
       business_name,
       description,
-      lga_id,
+      region_id,
       category_id,
       // The following fields are in the schema but not in the database table business_profiles yet
       // contact_email,
@@ -287,7 +287,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
-    if (lga_id) updateData.suburb_id = lga_id;
+    if (region_id) updateData.suburb_id = region_id;
     if (category_id) updateData.category_id = category_id;
 
     // 6. Perform update

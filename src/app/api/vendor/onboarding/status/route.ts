@@ -1,221 +1,13 @@
-import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
-import { supabase } from '@/lib/supabase';
-import { Vendor } from '@/lib/types';
+import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 
 /**
  * API Route: GET /api/vendor/onboarding/status
  * 
- * Checks the current onboarding status of a vendor
- * Returns Stripe account status and next steps
+ * Checks the current onboarding status of a vendor.
+ * Following SSOT v2 Phase 1, Stripe Connect is non-mandatory/deprecated for discovery.
  */
-
 export async function GET(request: Request) {
-  try {
-    // Get current user from Supabase auth
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Authorization header required' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid authentication' },
-        { status: 401 }
-      );
-    }
-
-    // Get vendor record
-    const { data: vendor, error: vendorError } = await supabase
-      .from('vendors')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (vendorError || !vendor) {
-      return NextResponse.json(
-        { 
-          status: 'not_started',
-          message: 'No vendor account found',
-          next_step: 'create_vendor'
-        },
-        { status: 404 }
-      );
-    }
-
-    const vendorRecord = vendor as Vendor;
-
-    // If no Stripe account ID, onboarding hasn't started
-    if (!vendorRecord.stripe_account_id) {
-      return NextResponse.json({
-        status: 'pending',
-        message: 'Vendor account created, Stripe Connect not started',
-        next_step: 'start_stripe_connect'
-      });
-    }
-
-    // Check Stripe account status
-    try {
-      const stripeAccountId = vendorRecord.stripe_account_id;
-      const stripeAccount = await stripe.accounts.retrieve(stripeAccountId);
-
-      const dashboardUrl = stripeAccount.charges_enabled
-        ? (await stripe.accounts.createLoginLink(stripeAccountId)).url
-        : null;
-
-      const status = {
-        status: stripeAccount.charges_enabled ? 'completed' : 'pending',
-        message: stripeAccount.charges_enabled 
-          ? 'Stripe Connect setup completed' 
-          : 'Stripe Connect setup in progress',
-        next_step: stripeAccount.charges_enabled ? 'start_selling' : 'complete_stripe_onboarding',
-        stripe_account_id: stripeAccountId,
-        charges_enabled: stripeAccount.charges_enabled,
-        payouts_enabled: stripeAccount.payouts_enabled,
-        requirements: stripeAccount.requirements,
-        dashboard_url: dashboardUrl,
-      };
-
-      return NextResponse.json(status);
-
-    } catch (stripeError) {
-      console.error('Error checking Stripe account:', stripeError);
-      return NextResponse.json({
-        status: 'error',
-        message: 'Failed to check Stripe account status',
-        next_step: 'retry_stripe_check'
-      });
-    }
-
-  } catch (error) {
-    console.error('Error checking vendor onboarding status:', error);
-    return NextResponse.json(
-      { error: 'Failed to check onboarding status' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * API Route: POST /api/vendor/onboarding/start
- * 
- * Initiates Stripe Connect onboarding flow
- */
-export async function POST(request: Request) {
-  try {
-    // Get current user from Supabase auth
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Authorization header required' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid authentication' },
-        { status: 401 }
-      );
-    }
-
-    // Get vendor record
-    const { data: vendor, error: vendorError } = await supabase
-      .from('vendors')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (vendorError || !vendor) {
-      return NextResponse.json(
-        { error: 'No vendor account found' },
-        { status: 404 }
-      );
-    }
-
-    const vendorRecord = vendor as Vendor;
-
-    // If already has Stripe account, return existing onboarding URL
-    if (vendorRecord.stripe_account_id) {
-      try {
-        const accountLink = await stripe.accountLinks.create({
-          account: vendorRecord.stripe_account_id,
-          refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?refresh=true`,
-          return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?success=true`,
-          type: 'account_onboarding',
-        });
-
-        return NextResponse.json({
-          onboarding_url: accountLink.url,
-          message: 'Stripe Connect onboarding link generated'
-        });
-      } catch (error) {
-        console.error('Error creating account link:', error);
-        return NextResponse.json(
-          { error: 'Failed to create onboarding link' },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Create new Stripe account and onboarding link
-    const stripeAccount = await stripe.accounts.create({
-      type: 'standard',
-      country: 'AU',
-      email: user.email,
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true },
-      },
-    });
-
-    // Update vendor with Stripe account ID
-    await supabase
-      .from('vendors')
-      .update({
-        stripe_account_id: stripeAccount.id,
-        stripe_account_status: 'pending',
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    // Create onboarding link
-    const accountLink = await stripe.accountLinks.create({
-      account: stripeAccount.id,
-      refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?refresh=true`,
-      return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/onboarding?success=true`,
-      type: 'account_onboarding',
-    });
-
-    return NextResponse.json({
-      onboarding_url: accountLink.url,
-      message: 'Stripe Connect onboarding started'
-    });
-
-  } catch (error) {
-    console.error('Error starting Stripe Connect onboarding:', error);
-    return NextResponse.json(
-      { error: 'Failed to start onboarding' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * API Route: PUT /api/vendor/onboarding/status
- *
- * Generates a Stripe dashboard login link for vendors with completed onboarding.
- */
-export async function PUT(request: Request) {
   try {
     const authHeader = request.headers.get("Authorization");
     if (!authHeader) {
@@ -224,33 +16,67 @@ export async function PUT(request: Request) {
         { status: 401 }
       );
     }
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
     if (authError || !user) {
       return NextResponse.json({ error: "Invalid authentication" }, { status: 401 });
     }
+
     const { data: vendor, error: vendorError } = await supabase
       .from("vendors")
-      .select("stripe_account_id")
+      .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
-    if (vendorError || !vendor || !vendor.stripe_account_id) {
-      return NextResponse.json(
-        { error: "Stripe Connect account not found" },
-        { status: 404 }
-      );
+
+    if (vendorError || !vendor) {
+      return NextResponse.json({
+        status: "not_started",
+        message: "No vendor account found",
+        next_step: "create_vendor",
+      });
     }
-    const loginLink = await stripe.accounts.createLoginLink(
-      vendor.stripe_account_id
-    );
+
+    // SSOT v2: All vendors with a record are considered onboarded for discovery
     return NextResponse.json({
-      dashboard_url: loginLink.url,
+      status: "completed",
+      message: "Vendor onboarding completed (Discovery Mode)",
+      next_step: "start_listing",
+      charges_enabled: true, // Mocked for legacy frontend consistency
     });
   } catch (error) {
-    console.error("Error creating Stripe dashboard link:", error);
+    console.error("Error checking vendor onboarding status:", error);
     return NextResponse.json(
-      { error: "Failed to create dashboard link" },
+      { error: "Failed to check onboarding status" },
       { status: 500 }
     );
   }
+}
+
+/**
+ * API Route: POST /api/vendor/onboarding/start
+ * 
+ * Disabled in SSOT v2 Discovery Mode.
+ */
+export async function POST() {
+  return NextResponse.json({
+    status: "completed",
+    message: "Stripe Connect onboarding is no longer required for this marketplace tier.",
+  });
+}
+
+/**
+ * API Route: PUT /api/vendor/onboarding/status
+ * 
+ * Disabled in SSOT v2 Discovery Mode.
+ */
+export async function PUT() {
+  return NextResponse.json(
+    { error: "Stripe features are disabled in Discovery Mode." },
+    { status: 403 }
+  );
 }

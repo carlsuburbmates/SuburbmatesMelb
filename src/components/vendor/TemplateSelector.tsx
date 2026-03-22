@@ -32,17 +32,13 @@ const TEMPLATES: TemplateOption[] = [
 ];
 
 export function TemplateSelector({ currentTemplate }: { currentTemplate: string }) {
-  const { vendor, token } = useAuth();
+  const { token } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
-  const isEligible = (minTier: string) => {
-    if (minTier === "basic") return true;
-    if (vendor?.tier === "premium") return true;
-    if (vendor?.tier === "pro" && minTier === "pro") return true;
-    return false;
-  };
+  // All templates are available in Discovery Mode parity
+  const isEligible = () => true;
 
   const handleSave = async (key: string) => {
     if (!token) return;
@@ -76,7 +72,7 @@ export function TemplateSelector({ currentTemplate }: { currentTemplate: string 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {TEMPLATES.map((template) => {
-        const locked = !isEligible(template.minTier);
+        const locked = !isEligible();
         const isActive = selectedTemplate === template.key;
 
         return (

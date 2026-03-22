@@ -2,7 +2,7 @@
 
 ## Definition of Done
 - Do not mark significant work complete without verification or a clearly documented blocker.
-- For truth-sensitive changes, verify both behavior and copy against `docs/README.md`.
+- For truth-sensitive changes, verify behavior and copy align with the read-heavy outbound directory model in `docs/README.md`.
 
 ## Core Validation Commands
 - Lint: `npm run lint`
@@ -16,28 +16,25 @@
 
 ## When Frontend Verification Is Required
 - Require frontend/browser verification for changes affecting:
-  - `/`
-  - `/directory`
-  - `/marketplace`
-  - `/products/[slug]`
-  - vendor profile/product display flows
-  - CTA, redirect, or navigation behavior
-- For these changes, verify render, interactions, and visible runtime issues.
+  - High-density category/region tiles and `/directory`
+  - Creator profile pages and product display cards
+  - The Open Graph scrape form and onboarding flows
+  - Outbound link behaviour and CTAs
+- For legacy transitions, verify that removed `/marketplace` UI elements degrade gracefully or redirect properly without promising in-app checkout.
 
 ## When Backend/Logic Verification Is Required
 - Require logic verification for changes affecting:
-  - checkout/session creation
-  - Stripe webhook handling
-  - product tier limits
-  - vendor product CRUD flows
-  - Supabase queries or migrations
-- Inspect related unit/e2e coverage and run the most relevant checks.
+  - Outbound click tracking (`/api/redirect`)
+  - URL Open Graph scraping (`/api/scrape`)
+  - Database row-level security (RLS) moderation logic
+  - Daily randomized seed queries for directory layout
+- If changing legacy checkout/webhook logic, verify it only impacts retained founder monetization or safely deprecates product commerce.
 
 ## Truth-Sensitive Verification
-- If marketplace, product, pricing, featured, tier, vendor, or payment semantics change:
-  - compare UI/doc wording against `docs/README.md`
-  - check for drift in `docs/`, `src/app/`, and `src/components/`
-  - flag contradictions explicitly rather than silently normalizing them
+- If regional grouping, featured placement, outbound routing, or discovery semantics change:
+  - Compare UI/doc wording against `docs/README.md`.
+  - Check for drift in `docs/`, `src/app/`, and `src/components/`.
+  - Flag contradictions explicitly instead of silently normalizing them.
 
 ## Evidence
-- Prefer explicit evidence such as command output, diffs, screenshots, and failing/passing test results.
+- Prefer explicit evidence such as command output, diffs, screenshots, and test results.

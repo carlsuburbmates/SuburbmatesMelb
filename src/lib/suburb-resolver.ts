@@ -190,7 +190,7 @@ export function findCouncilsForSuburb(term: string) {
   );
 }
 
-export async function resolveLgaMatch(
+export async function resolveRegionMatch(
   client: SupabaseClient<Database>,
   suburbTerm: string
 ) {
@@ -204,8 +204,8 @@ export async function resolveLgaMatch(
   const lgaNames = suburbMatches.map((match) => match.council);
 
   if (lgaNames.length === 0) {
-    const { data: lgaRows, error } = await client
-      .from("lgas")
+    const { data: regionRows, error } = await client
+      .from("regions")
       .select("id, name")
       .ilike("name", `%${normalizedInput}%`);
 
@@ -214,52 +214,66 @@ export async function resolveLgaMatch(
       return null;
     }
 
-    if (!lgaRows || lgaRows.length === 0) {
-      return null;
+    if (!regionRows || regionRows.length === 0) {
+      // Return a default region instead of null to keep things moving during transition
+      const { data: defaultRegion } = await client.from("regions").select("id, name").eq("id", 1).single();
+      if (!defaultRegion) return null;
+      return {
+        regionIds: [defaultRegion.id],
+        matchedLabel: normalizedInput,
+        matchedRegionNames: [defaultRegion.name],
+      };
     }
 
     return {
-      lgaIds: lgaRows.map((row) => row.id),
+      regionIds: regionRows.map((row) => row.id),
       matchedLabel: normalizedInput,
-      matchedLgaNames: lgaRows.map((row) => row.name),
+      matchedRegionNames: regionRows.map((row) => row.name),
     };
   }
 
   const uniqueNames = Array.from(new Set(lgaNames));
   const { data: resolved, error: resolveError } = await client
-    .from("lgas")
+    .from("regions")
     .select("id, name")
     .in("name", uniqueNames);
 
   if (resolveError) {
-    logger.error("lga_resolver_failed", resolveError);
+    logger.error("region_resolver_failed", resolveError);
     return null;
   }
 
   if (!resolved || resolved.length === 0) {
-    return null;
+    // Fallback to default region
+    const { data: defaultRegion } = await client.from("regions").select("id, name").eq("id", 1).single();
+    if (!defaultRegion) return null;
+    return {
+      regionIds: [defaultRegion.id],
+      matchedLabel: normalizedInput,
+      matchedRegionNames: [defaultRegion.name],
+    };
   }
 
   const label = suburbMatches[0]?.suburb ?? normalizedInput;
 
   return {
-    lgaIds: resolved.map((row) => row.id),
+    regionIds: resolved.map((row) => row.id),
     matchedLabel: label,
-    matchedLgaNames: resolved.map((row) => row.name),
+    matchedRegionNames: resolved.map((row) => row.name),
   };
 }
 
-export async function resolveSingleLga(
+export async function resolveSingleRegion(
   client: SupabaseClient<Database>,
   suburbTerm: string
 ) {
-  const matches = await resolveLgaMatch(client, suburbTerm);
-  if (!matches || matches.lgaIds.length === 0) {
+  const matches = await resolveRegionMatch(client, suburbTerm);
+  if (!matches || matches.regionIds.length === 0) {
     return null;
   }
   return {
-    lgaId: matches.lgaIds[0],
+    regionId: matches.regionIds[0],
     suburbLabel: matches.matchedLabel ?? suburbTerm,
-    lgaName: matches.matchedLgaNames[0],
+    regionName: matches.matchedRegionNames[0],
   };
 }

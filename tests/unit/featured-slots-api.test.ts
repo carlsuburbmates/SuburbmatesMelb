@@ -20,7 +20,7 @@ const profileRow = {
   business_name: "Test Vendor",
 };
 
-const lgaRow = {
+const regionRow = {
   id: 77,
   featured_slot_cap: 5,
   name: "City of Melbourne",
@@ -56,8 +56,8 @@ const mockDbClient = {
         return createQueryBuilder(vendorRow);
       case "business_profiles":
         return createQueryBuilder(profileRow);
-      case "lgas":
-        return createQueryBuilder(lgaRow);
+      case "regions":
+        return createQueryBuilder(regionRow);
       case "featured_slots":
         return createQueryBuilder([] as unknown[]);
       case "featured_queue":
@@ -90,9 +90,9 @@ vi.mock("@/app/api/_utils/auth", () => ({
 }));
 
 vi.mock("@/lib/suburb-resolver", () => ({
-  resolveSingleLga: vi.fn(async () => ({
-    lgaId: lgaRow.id,
-    lgaName: lgaRow.name,
+  resolveSingleRegion: vi.fn(async () => ({
+    regionId: regionRow.id,
+    regionName: regionRow.name,
     suburbLabel: "Richmond",
   })),
 }));
@@ -167,7 +167,7 @@ describe("featured-slots API - reservation behavior", () => {
     const rpcMock = admin.rpc as Mock;
     rpcMock.mockImplementationOnce(async () => ({
       data: null,
-      error: { message: "lga_cap_exceeded" },
+      error: { message: "region_cap_exceeded" },
     }));
 
     const req = makeReq({ suburb: "Richmond" });
@@ -175,7 +175,7 @@ describe("featured-slots API - reservation behavior", () => {
     const body = await res.json();
     expect(res.status).toBe(409);
     expect(body.success).toBe(false);
-    expect(body.error.code).toBe("LGA_CAP_EXCEEDED");
+    expect(body.error.code).toBe("REGION_CAP_EXCEEDED");
   });
 
   it("calculates a future start_date when LGA is at capacity (FIFO)", async () => {
@@ -184,18 +184,18 @@ describe("featured-slots API - reservation behavior", () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const lgaCap = 5;
-    const lgaWithCap = { ...lgaRow, featured_slot_cap: lgaCap };
+    const regionCap = 5;
+    const regionWithCap = { ...regionRow, featured_slot_cap: regionCap };
 
     // 5 slots already active, ending at different times
-    const existingSlots = Array.from({ length: lgaCap }).map((_, i) => ({
+    const existingSlots = Array.from({ length: regionCap }).map((_, i) => ({
       end_date: new Date(now.getTime() + (i + 1) * 3600000).toISOString(), // +1h, +2h... +5h
     }));
 
     // Mock DB to return cap and existing slots
     const customMockDb = {
       from: (table: string) => {
-        if (table === "lgas") return createQueryBuilder(lgaWithCap);
+        if (table === "regions") return createQueryBuilder(regionWithCap);
         if (table === "featured_slots") return createQueryBuilder(existingSlots);
         return mockDbClient.from(table);
       },

@@ -214,12 +214,6 @@ export default function Dashboard() {
                 >
                   Directory
                 </Link>
-                <Link
-                  href="/marketplace"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Marketplace
-                </Link>
               </nav>
             </div>
             <div className="flex items-center space-x-4">

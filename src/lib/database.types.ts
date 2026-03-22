@@ -7,71 +7,33 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
-      marketplace_sales: {
-        Row: {
-          id: string;
-          created_at: string;
-          vendor_id: string;
-          product_id: string;
-          customer_id: string | null;
-          stripe_session_id: string;
-          stripe_payment_intent_id: string | null;
-          amount_cents: number;
-          platform_fee_cents: number;
-          currency: string;
-          status: string;
-          metadata: Json | null;
-        };
-        Insert: {
-          id?: string;
-          created_at?: string;
-          vendor_id: string;
-          product_id: string;
-          customer_id?: string | null;
-          stripe_session_id: string;
-          stripe_payment_intent_id?: string | null;
-          amount_cents: number;
-          platform_fee_cents: number;
-          currency?: string;
-          status?: string;
-          metadata?: Json | null;
-        };
-        Update: {
-          id?: string;
-          created_at?: string;
-          vendor_id?: string;
-          product_id?: string;
-          customer_id?: string | null;
-          stripe_session_id?: string;
-          stripe_payment_intent_id?: string | null;
-          amount_cents?: number;
-          platform_fee_cents?: number;
-          currency?: string;
-          status?: string;
-          metadata?: Json | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "marketplace_sales_vendor_id_fkey";
-            columns: ["vendor_id"];
-            referencedRelation: "vendors";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "marketplace_sales_product_id_fkey";
-            columns: ["product_id"];
-            referencedRelation: "products";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
       appeals: {
         Row: {
           appeal_deadline: string
@@ -163,6 +125,7 @@ export type Database = {
           category_id: number | null
           created_at: string | null
           id: string
+          images: Json | null
           is_public: boolean | null
           is_vendor: boolean | null
           phone: string | null
@@ -170,8 +133,6 @@ export type Database = {
           profile_image_url: string | null
           slug: string
           suburb_id: number | null
-          template_key: string | null
-          theme_config: Json | null
           updated_at: string | null
           user_id: string
           vendor_status: string | null
@@ -183,6 +144,7 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           id?: string
+          images?: Json | null
           is_public?: boolean | null
           is_vendor?: boolean | null
           phone?: string | null
@@ -190,8 +152,6 @@ export type Database = {
           profile_image_url?: string | null
           slug: string
           suburb_id?: number | null
-          template_key?: string | null
-          theme_config?: Json | null
           updated_at?: string | null
           user_id: string
           vendor_status?: string | null
@@ -203,6 +163,7 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           id?: string
+          images?: Json | null
           is_public?: boolean | null
           is_vendor?: boolean | null
           phone?: string | null
@@ -210,8 +171,6 @@ export type Database = {
           profile_image_url?: string | null
           slug?: string
           suburb_id?: number | null
-          template_key?: string | null
-          theme_config?: Json | null
           updated_at?: string | null
           user_id?: string
           vendor_status?: string | null
@@ -224,13 +183,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "business_profiles_suburb_id_fkey"
-            columns: ["suburb_id"]
-            isOneToOne: false
-            referencedRelation: "lgas"
             referencedColumns: ["id"]
           },
           {
@@ -274,34 +226,34 @@ export type Database = {
       }
       contact_submissions: {
         Row: {
-          created_at: string | null
+          created_at: string
           email: string
           id: string
           message: string
+          metadata: Json | null
           name: string
-          status: string | null
+          status: string
           subject: string
-          updated_at: string | null
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           email: string
           id?: string
           message: string
+          metadata?: Json | null
           name: string
-          status?: string | null
+          status?: string
           subject: string
-          updated_at?: string | null
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           email?: string
           id?: string
           message?: string
+          metadata?: Json | null
           name?: string
-          status?: string | null
+          status?: string
           subject?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -411,10 +363,10 @@ export type Database = {
           created_at: string | null
           id: string
           joined_at: string | null
-          lga_id: number | null
           notified_at: string | null
           payment_deadline: string | null
           position: number | null
+          region_id: number | null
           status: string | null
           suburb_label: string | null
           vendor_id: string | null
@@ -424,10 +376,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           joined_at?: string | null
-          lga_id?: number | null
           notified_at?: string | null
           payment_deadline?: string | null
           position?: number | null
+          region_id?: number | null
           status?: string | null
           suburb_label?: string | null
           vendor_id?: string | null
@@ -437,10 +389,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           joined_at?: string | null
-          lga_id?: number | null
           notified_at?: string | null
           payment_deadline?: string | null
           position?: number | null
+          region_id?: number | null
           status?: string | null
           suburb_label?: string | null
           vendor_id?: string | null
@@ -454,14 +406,59 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "featured_queue_lga_id_fkey"
-            columns: ["lga_id"]
+            foreignKeyName: "featured_queue_region_id_fkey"
+            columns: ["region_id"]
             isOneToOne: false
-            referencedRelation: "lgas"
+            referencedRelation: "regions"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "featured_queue_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      featured_slot_reminders: {
+        Row: {
+          error: string | null
+          featured_slot_id: string
+          id: string
+          reminder_window: number
+          sent_at: string
+          status: string
+          vendor_id: string
+        }
+        Insert: {
+          error?: string | null
+          featured_slot_id: string
+          id?: string
+          reminder_window: number
+          sent_at?: string
+          status?: string
+          vendor_id: string
+        }
+        Update: {
+          error?: string | null
+          featured_slot_id?: string
+          id?: string
+          reminder_window?: number
+          sent_at?: string
+          status?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_slot_reminders_featured_slot_id_fkey"
+            columns: ["featured_slot_id"]
+            isOneToOne: false
+            referencedRelation: "featured_slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_slot_reminders_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
@@ -476,7 +473,7 @@ export type Database = {
           created_at: string | null
           end_date: string
           id: string
-          lga_id: number | null
+          region_id: number | null
           start_date: string
           status: string | null
           stripe_payment_intent_id: string | null
@@ -485,11 +482,11 @@ export type Database = {
         }
         Insert: {
           business_profile_id: string
-          charged_amount_cents: number
+          charged_amount_cents?: number
           created_at?: string | null
           end_date: string
           id?: string
-          lga_id?: number | null
+          region_id?: number | null
           start_date: string
           status?: string | null
           stripe_payment_intent_id?: string | null
@@ -502,7 +499,7 @@ export type Database = {
           created_at?: string | null
           end_date?: string
           id?: string
-          lga_id?: number | null
+          region_id?: number | null
           start_date?: string
           status?: string | null
           stripe_payment_intent_id?: string | null
@@ -518,10 +515,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "featured_slots_lga_id_fkey"
-            columns: ["lga_id"]
+            foreignKeyName: "featured_slots_region_id_fkey"
+            columns: ["region_id"]
             isOneToOne: false
-            referencedRelation: "lgas"
+            referencedRelation: "regions"
             referencedColumns: ["id"]
           },
           {
@@ -531,34 +528,74 @@ export type Database = {
             referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_featured_vendor"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      lgas: {
+      marketplace_sales: {
         Row: {
-          active: boolean | null
-          council_abbreviation: string | null
-          created_at: string | null
-          featured_slot_cap: number | null
-          id: number
-          name: string
+          amount_cents: number
+          created_at: string
+          currency: string
+          customer_id: string | null
+          id: string
+          metadata: Json | null
+          platform_fee_cents: number
+          product_id: string
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string
+          vendor_id: string
         }
         Insert: {
-          active?: boolean | null
-          council_abbreviation?: string | null
-          created_at?: string | null
-          featured_slot_cap?: number | null
-          id?: number
-          name: string
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          metadata?: Json | null
+          platform_fee_cents: number
+          product_id: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id: string
+          vendor_id: string
         }
         Update: {
-          active?: boolean | null
-          council_abbreviation?: string | null
-          created_at?: string | null
-          featured_slot_cap?: number | null
-          id?: number
-          name?: string
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          metadata?: Json | null
+          platform_fee_cents?: number
+          product_id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string
+          vendor_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_sales_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -630,23 +667,62 @@ export type Database = {
           },
         ]
       }
+      outbound_clicks: {
+        Row: {
+          clicked_at: string | null
+          id: string
+          ip_address: string | null
+          product_id: string | null
+          user_agent: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          id?: string
+          ip_address?: string | null
+          product_id?: string | null
+          user_agent?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          id?: string
+          ip_address?: string | null
+          product_id?: string | null
+          user_agent?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbound_clicks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outbound_clicks_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
           category_id: number | null
           created_at: string | null
           deleted_at: string | null
-          delivery_type: string | null
           description: string | null
           digital_file_url: string | null
+          external_url: string
           file_size_bytes: number | null
-          file_size_mb: number | null
-          file_type: string | null
-          file_url: string | null
           id: string
           images: Json | null
           lga_id: number | null
-          price: number
+          price: number | null
           published: boolean | null
           slug: string | null
           thumbnail_url: string | null
@@ -659,17 +735,14 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
-          delivery_type?: string | null
           description?: string | null
           digital_file_url?: string | null
+          external_url: string
           file_size_bytes?: number | null
-          file_size_mb?: number | null
-          file_type?: string | null
-          file_url?: string | null
           id?: string
           images?: Json | null
           lga_id?: number | null
-          price: number
+          price?: number | null
           published?: boolean | null
           slug?: string | null
           thumbnail_url?: string | null
@@ -682,17 +755,14 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
-          delivery_type?: string | null
           description?: string | null
           digital_file_url?: string | null
+          external_url?: string
           file_size_bytes?: number | null
-          file_size_mb?: number | null
-          file_type?: string | null
-          file_url?: string | null
           id?: string
           images?: Json | null
           lga_id?: number | null
-          price?: number
+          price?: number | null
           published?: boolean | null
           slug?: string | null
           thumbnail_url?: string | null
@@ -706,13 +776,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "products_lga_id_fkey"
-            columns: ["lga_id"]
-            isOneToOne: false
-            referencedRelation: "lgas"
             referencedColumns: ["id"]
           },
           {
@@ -800,6 +863,78 @@ export type Database = {
           },
         ]
       }
+      regions: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          business_id: string | null
+          comment: string | null
+          created_at: string | null
+          customer_id: string | null
+          helpful_count: number | null
+          id: string
+          rating: number
+          updated_at: string | null
+          verified_purchase: boolean | null
+        }
+        Insert: {
+          business_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          helpful_count?: number | null
+          id?: string
+          rating: number
+          updated_at?: string | null
+          verified_purchase?: boolean | null
+        }
+        Update: {
+          business_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          helpful_count?: number | null
+          id?: string
+          rating?: number
+          updated_at?: string | null
+          verified_purchase?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       search_logs: {
         Row: {
           created_at: string | null
@@ -831,38 +966,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "search_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      search_telemetry: {
-        Row: {
-          created_at: string | null
-          filters: Json | null
-          hashed_query: string
-          id: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          filters?: Json | null
-          hashed_query: string
-          id?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          filters?: Json | null
-          hashed_query?: string
-          id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "search_telemetry_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -907,36 +1010,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      webhook_events: {
-        Row: {
-          id: string
-          stripe_event_id: string
-          event_type: string
-          payload: Json | null
-          payload_summary: Json | null
-          processed_at: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          stripe_event_id: string
-          event_type: string
-          payload?: Json | null
-          payload_summary?: Json | null
-          processed_at?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          stripe_event_id?: string
-          event_type?: string
-          payload?: Json | null
-          payload_summary?: Json | null
-          processed_at?: string | null
-          created_at?: string | null
-        }
-        Relationships: []
       }
       users: {
         Row: {
@@ -986,6 +1059,7 @@ export type Database = {
           can_sell_products: boolean | null
           commission_rate: number | null
           created_at: string | null
+          delist_until: string | null
           dispute_count: number
           id: string
           inactivity_flagged_at: string | null
@@ -995,23 +1069,18 @@ export type Database = {
           logo_url: string | null
           payment_reversal_count: number | null
           payment_reversal_window_start: string | null
-          primary_lga_id: number | null
-          pro_cancelled_at: string | null
-          pro_subscribed_at: string | null
-          pro_subscription_id: string | null
+          primary_region_id: number | null
           product_count: number | null
           product_quota: number | null
           profile_color_hex: string | null
           profile_url: string | null
-          secondary_lgas: number[] | null
+          secondary_regions: number[] | null
           storage_quota_gb: number | null
           storage_used_mb: number | null
-          stripe_account_id: string | null
           stripe_account_status: string | null
           stripe_onboarding_complete: boolean | null
           suspended_at: string | null
           suspension_reason: string | null
-          tier: string | null
           updated_at: string | null
           user_id: string | null
           vendor_status: string | null
@@ -1027,6 +1096,7 @@ export type Database = {
           can_sell_products?: boolean | null
           commission_rate?: number | null
           created_at?: string | null
+          delist_until?: string | null
           dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
@@ -1036,23 +1106,18 @@ export type Database = {
           logo_url?: string | null
           payment_reversal_count?: number | null
           payment_reversal_window_start?: string | null
-          primary_lga_id?: number | null
-          pro_cancelled_at?: string | null
-          pro_subscribed_at?: string | null
-          pro_subscription_id?: string | null
+          primary_region_id?: number | null
           product_count?: number | null
           product_quota?: number | null
           profile_color_hex?: string | null
           profile_url?: string | null
-          secondary_lgas?: number[] | null
+          secondary_regions?: number[] | null
           storage_quota_gb?: number | null
           storage_used_mb?: number | null
-          stripe_account_id?: string | null
           stripe_account_status?: string | null
           stripe_onboarding_complete?: boolean | null
           suspended_at?: string | null
           suspension_reason?: string | null
-          tier?: string | null
           updated_at?: string | null
           user_id?: string | null
           vendor_status?: string | null
@@ -1068,6 +1133,7 @@ export type Database = {
           can_sell_products?: boolean | null
           commission_rate?: number | null
           created_at?: string | null
+          delist_until?: string | null
           dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
@@ -1077,33 +1143,28 @@ export type Database = {
           logo_url?: string | null
           payment_reversal_count?: number | null
           payment_reversal_window_start?: string | null
-          primary_lga_id?: number | null
-          pro_cancelled_at?: string | null
-          pro_subscribed_at?: string | null
-          pro_subscription_id?: string | null
+          primary_region_id?: number | null
           product_count?: number | null
           product_quota?: number | null
           profile_color_hex?: string | null
           profile_url?: string | null
-          secondary_lgas?: number[] | null
+          secondary_regions?: number[] | null
           storage_quota_gb?: number | null
           storage_used_mb?: number | null
-          stripe_account_id?: string | null
           stripe_account_status?: string | null
           stripe_onboarding_complete?: boolean | null
           suspended_at?: string | null
           suspension_reason?: string | null
-          tier?: string | null
           updated_at?: string | null
           user_id?: string | null
           vendor_status?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "vendors_primary_lga_id_fkey"
-            columns: ["primary_lga_id"]
+            foreignKeyName: "vendors_primary_region_id_fkey"
+            columns: ["primary_region_id"]
             isOneToOne: false
-            referencedRelation: "lgas"
+            referencedRelation: "regions"
             referencedColumns: ["id"]
           },
           {
@@ -1115,26 +1176,66 @@ export type Database = {
           },
         ]
       }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          processed_at: string | null
+          stripe_event_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string | null
+          stripe_event_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string | null
+          stripe_event_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       auto_reject_expired_appeals: { Args: never; Returns: number }
-      fn_try_reserve_featured_slot: {
-        Args: {
-          p_vendor_id: string
-          p_business_profile_id: string
-          p_lga_id: number
-          p_suburb_label: string
-          p_start_date: string
-          p_end_date: string
-        }
-        Returns: string
-      }
+      fn_try_reserve_featured_slot:
+        | {
+            Args: {
+              p_business_profile_id: string
+              p_end_date: string
+              p_lga_cap: number
+              p_lga_id: number
+              p_start_date: string
+              p_suburb_label: string
+              p_vendor_cap: number
+              p_vendor_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_end_date: string
+              p_lga_id: number
+              p_start_date: string
+              p_suburb_label: string
+              p_vendor_id: string
+            }
+            Returns: string
+          }
       fn_unpublish_oldest_products: {
-        Args: { p_vendor_id: string; p_to_unpublish: number }
-        Returns: number
+        Args: { p_to_unpublish: number; p_vendor_id: string }
+        Returns: undefined
       }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
       get_vendor_tier: { Args: { vendor_uuid: string }; Returns: string }
@@ -1158,119 +1259,123 @@ type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-  ? R
-  : never
+    ? R
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : never
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
+      Insert: infer I
+    }
+    ? I
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
-  ? U
-  : never
+      Update: infer U
+    }
+    ? U
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
+

@@ -389,14 +389,17 @@ describe("webhook handler helpers", () => {
       mockDb as unknown as SupabaseClient<Database>
     );
 
-    expect(vendorUpdates).toHaveLength(1);
-    expect(vendorUpdates[0]).toMatchObject({ tier: "basic" });
+    // SSOT v2: Tier DB writes are deprecated (commented out in handler).
+    // The handler no longer calls db.from("vendors").update({ tier }).
+    // But enforceTierProductCap + sendTierDowngradeEmail are still called.
+    expect(vendorUpdates).toHaveLength(0);
+    expect(enforceTierProductCapMock).toHaveBeenCalledWith("vendor-7", "basic");
     expect(sendTierDowngradeEmailMock).toHaveBeenCalledTimes(1);
     expect(sendTierDowngradeEmailMock).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "owner@example.com",
         businessName: "Downgrade Bakery",
-        oldTier: "pro",
+        oldTier: "basic", // previousTier is always "basic" since tier field removed
         newTier: "basic",
         unpublishedCount: 2,
       })
@@ -464,25 +467,8 @@ describe("webhook handler helpers", () => {
     );
 
     expect(summary.type).toBe("checkout.session.completed");
-    expect(vendorUpdates).toHaveLength(1);
-    expect(vendorUpdates[0]).toMatchObject({
-      tier: "pro",
-      pro_subscription_id: "sub_new_123",
-    });
-    // Should NOT create an order for subscription upgrade (unless needed, but current logic separates them)
-    // Wait, the order creation logic runs first in handleStripeEvent.
-    // If metadata doesn't have customer_id/product_id, order creation might insert with nulls if we are not careful?
-    // Let's check handleStripeEvent logic.
-    // Order creation logic runs if `paymentIntentId` exists.
-    // It checks if `existingOrder` exists.
-    // If not, it inserts into `orders`.
-    // My test event has `payment_intent`.
-    // So it WILL try to create an order.
-    // Is this desired?
-    // Subscriptions usually don't create "orders" records in this system? Or do they?
-    // The `orders` table has `product_id` FK.
-    // If subscription doesn't have `product_id`, it will insert null.
-    // This might be unintended side effect.
-    // But for now let's verify the vendor update.
+    // SSOT v2: Tier upgrades via checkout are deprecated.
+    // The handler logs a message but does NOT write tier to vendors table.
+    expect(vendorUpdates).toHaveLength(0);
   });
 });

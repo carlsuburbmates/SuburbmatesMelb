@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
   keywords:
-    "Melbourne creators, local directory, digital marketplace, suburb creators, local services, digital products",
+    "Melbourne creators, local directory, suburb creators, local services, digital products",
   authors: [{ name: "SuburbMates" }],
   creator: "SuburbMates",
   publisher: "SuburbMates",

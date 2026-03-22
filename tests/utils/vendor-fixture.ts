@@ -7,7 +7,7 @@ import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 interface CreateVendorOptions {
   tier?: VendorTier;
   productCount?: number;
-  lgaId?: number;
+  regionId?: number;
 }
 
 export interface VendorFixture {
@@ -29,7 +29,7 @@ export async function createVendorFixture(
 ): Promise<VendorFixture> {
   const tier: VendorTier = options.tier ?? "pro";
   const productCount = options.productCount ?? 0;
-  const lgaId = options.lgaId ?? 17;
+  const regionId = options.regionId ?? 17;
 
   const admin = getSupabaseAdminClient();
   const email = `playwright-${Date.now()}-${Math.round(Math.random() * 1e6)}@example.com`;
@@ -66,7 +66,7 @@ export async function createVendorFixture(
       vendor_status: "active",
       vendor_tier: tier,
       is_vendor: true,
-      suburb_id: lgaId,
+      suburb_id: regionId,
     });
   if (insertProfileError) {
     throw insertProfileError;
@@ -81,13 +81,12 @@ export async function createVendorFixture(
     vendor_status: "active",
     can_sell_products: true,
     is_vendor: true,
-    tier,
     stripe_account_id: TEST_STRIPE_ACCOUNT_ID,
     stripe_account_status: "active",
     stripe_onboarding_complete: true,
     product_quota: tierLimits.product_quota,
     commission_rate: tierLimits.commission_rate,
-    primary_lga_id: lgaId,
+    primary_region_id: regionId,
     product_count: 0,
   });
   if (insertVendorError) {
@@ -115,6 +114,7 @@ export async function createVendorFixture(
       thumbnail_url: null,
       images: [],
       published: true,
+      external_url: '',
       created_at: new Date(now + index * 1000).toISOString(),
       updated_at: new Date(now + index * 1000).toISOString(),
     }));

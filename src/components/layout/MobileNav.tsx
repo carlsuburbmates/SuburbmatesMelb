@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Store, User, Home } from "lucide-react";
+import { Compass, User, Home } from "lucide-react";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -24,12 +24,6 @@ export function MobileNav() {
       label: "Discover",
       icon: Compass,
       isActive: (path: string) => path.startsWith("/directory") || path.startsWith("/business"),
-    },
-    {
-      href: "/marketplace",
-      label: "Shop",
-      icon: Store,
-      isActive: (path: string) => path.startsWith("/marketplace"),
     },
     {
       href: "/dashboard",

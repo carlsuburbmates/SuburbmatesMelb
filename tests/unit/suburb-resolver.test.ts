@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
-import { resolveLgaMatch, resolveSingleLga } from "@/lib/suburb-resolver";
+import { resolveRegionMatch, resolveSingleRegion } from "@/lib/suburb-resolver";
 
 type StubResponse = {
   table: string;
@@ -13,6 +13,7 @@ type ClientStub = {
     select: () => {
       ilike: () => Promise<StubResponse["result"]>;
       in: () => Promise<StubResponse["result"]>;
+      eq: () => { single: () => Promise<StubResponse["result"]> };
     };
   };
 };
@@ -34,6 +35,13 @@ function createClientStub(responses: StubResponse[]): ClientStub {
             in() {
               return Promise.resolve(next.result);
             },
+            eq() {
+              return {
+                single() {
+                  return Promise.resolve(next.result);
+                },
+              };
+            },
           };
         },
       };
@@ -45,7 +53,7 @@ describe("suburb-resolver", () => {
   it("maps known suburbs via static lookup + Supabase id fetch", async () => {
     const stubClient = createClientStub([
       {
-        table: "lgas",
+        table: "regions",
         result: {
           data: [{ id: 7, name: "City of Melbourne" }],
           error: null,
@@ -53,19 +61,19 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveLgaMatch(
+    const match = await resolveRegionMatch(
       stubClient as unknown as SupabaseClient<Database>,
       "Carlton"
     );
     expect(match).not.toBeNull();
-    expect(match?.lgaIds).toEqual([7]);
+    expect(match?.regionIds).toEqual([7]);
     expect(match?.matchedLabel).toBe("Carlton");
   });
 
   it("falls back to Supabase substring search when suburb missing from mapping", async () => {
     const stubClient = createClientStub([
       {
-        table: "lgas",
+        table: "regions",
         result: {
           data: [{ id: 11, name: "City of Testville" }],
           error: null,
@@ -73,19 +81,19 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveLgaMatch(
+    const match = await resolveRegionMatch(
       stubClient as unknown as SupabaseClient<Database>,
       "Testville"
     );
     expect(match).not.toBeNull();
-    expect(match?.lgaIds).toEqual([11]);
+    expect(match?.regionIds).toEqual([11]);
     expect(match?.matchedLabel).toBe("Testville");
   });
 
   it("returns null when Supabase returns an error", async () => {
     const stubClient = createClientStub([
       {
-        table: "lgas",
+        table: "regions",
         result: {
           data: null,
           error: new Error("db failure"),
@@ -93,7 +101,7 @@ describe("suburb-resolver", () => {
       },
     ]);
 
-    const match = await resolveSingleLga(
+    const match = await resolveSingleRegion(
       stubClient as unknown as SupabaseClient<Database>,
       "Unknown"
     );

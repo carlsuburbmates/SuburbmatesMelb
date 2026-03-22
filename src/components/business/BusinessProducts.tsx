@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ShoppingBag, ExternalLink, Search } from 'lucide-react';
+import { ShoppingBag, Search } from 'lucide-react';
 import { Product } from '@/lib/types';
-import { ProductCard, ProductCardSkeleton } from '@/components/marketplace/ProductCard';
 import { Input } from '@/components/ui/input';
 
-interface ProductExtended extends Product {
-  download_count?: number;
-  image_url?: string | null;
-}
+
 
 interface BusinessProductsProps {
   vendorId?: string;
@@ -25,7 +20,7 @@ interface BusinessProductsProps {
   };
 }
 
-export function BusinessProducts({ vendorId, businessId, limit, vendorProfile }: BusinessProductsProps) {
+export function BusinessProducts({ vendorId, businessId, limit }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -95,7 +90,7 @@ export function BusinessProducts({ vendorId, businessId, limit, vendorProfile }:
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                {[...Array(limit || 3)].map((_, i) => (
-                  <div key={i} className="h-64"><ProductCardSkeleton /></div>
+                  <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
                ))}
             </div>
         </div>
@@ -133,16 +128,7 @@ export function BusinessProducts({ vendorId, businessId, limit, vendorProfile }:
             </div>
         )}
 
-        {/* View All Link (only if preview) */}
-        {isPreview && (
-            <Link 
-            href={`/marketplace?vendor=${businessId}`}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1 whitespace-nowrap"
-            >
-            <span>View All</span>
-            <ExternalLink className="w-3 h-3" />
-            </Link>
-        )}
+        {/* View All Link removed — marketplace route deleted in SSOT v2 Phase 2 */}
       </div>
 
       {displayProducts.length === 0 && searchQuery && (
@@ -153,20 +139,12 @@ export function BusinessProducts({ vendorId, businessId, limit, vendorProfile }:
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {displayProducts.map((product) => (
-          <div key={product.id} className="h-full">
-               <ProductCard 
-                product={{
-                  ...product,
-                  slug: product.slug || '',
-                  downloadCount: (product as ProductExtended).download_count || 0,
-                  rating: 4.5,
-                  category: product.category || 'Digital',
-                  isFeatured: false,
-                  imageUrl: product.thumbnail_url || (product as ProductExtended).image_url || undefined
-                }} 
-                showVendor={!!vendorProfile} 
-                vendor={vendorProfile}
-               />
+          <div key={product.id} className="h-full bg-white border border-gray-200 rounded-lg p-4">
+               <h3 className="font-medium text-gray-900 text-sm mb-1">{product.title}</h3>
+               <p className="text-sm text-gray-500">{product.category || 'Digital'}</p>
+               {product.price != null && (
+                 <p className="text-sm font-semibold text-gray-900 mt-2">A${(product.price / 100).toFixed(2)}</p>
+               )}
           </div>
         ))}
       </div>

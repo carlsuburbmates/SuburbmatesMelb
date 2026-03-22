@@ -31,14 +31,14 @@ async function createProductHandler(req: NextRequest) {
   if (body.published) {
     const canCreate = await canCreateProduct(
       vendor.id,
-      vendor.tier as VendorTier,
+      "basic" as VendorTier,
       dbClient,
       vendor.product_quota ?? null
     );
 
     if (!canCreate) {
       return forbiddenResponse(
-        `Product cap reached for ${vendor.tier} tier. Upgrade to pro tier to create more products.`
+        `Product cap reached. Please contact support to increase your listing limit.`
       );
     }
   }
@@ -65,6 +65,7 @@ async function createProductHandler(req: NextRequest) {
       thumbnail_url: thumbnailUrl,
       images: body.images || [],
       published: body.published,
+      external_url: body.external_url || "",
     })
     .select()
     .maybeSingle();
@@ -123,7 +124,7 @@ async function listProductsHandler(req: NextRequest) {
 
   const tierLimit =
     vendor.product_quota ??
-    TIER_LIMITS[(vendor.tier as VendorTier) ?? "basic"]?.product_quota ??
+    TIER_LIMITS["basic"]?.product_quota ??
     null;
 
   return successResponse({
@@ -133,7 +134,7 @@ async function listProductsHandler(req: NextRequest) {
       publishedProducts,
       draftProducts,
       featuredSlots: activeFeaturedSlots,
-      tier: vendor.tier,
+      tier: "basic",
       productQuota: tierLimit,
       remainingQuota:
         typeof tierLimit === "number" ? tierLimit - totalProducts : null,

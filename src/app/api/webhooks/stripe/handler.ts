@@ -153,38 +153,10 @@ export async function handleStripeEvent(
         .limit(1)
         .maybeSingle();
 
-      // PR10.y: Check metadata type to determine destination table
-      // If type == 'marketplace_sale', insert into marketplace_sales (Creator MoR audit)
-      // If type == 'featured_slot' or 'tier' or null, insert into orders (Platform MoR revenue)
+      // Platform Revenue only (Featured Slots, tier purchases).
+      // marketplace_sale branch removed in SSOT v2 Phase 2 (MoR teardown).
 
-      if (metadata?.type === 'marketplace_sale') {
-        // This is a Creator Product Sale (Direct Charge).
-        // Verify idempotency in marketplace_sales
-        const { data: existingSale } = await db
-          .from("marketplace_sales")
-          .select("id")
-          .eq("stripe_session_id", session.id as string) // Use session ID as primary reference for Direct Charges
-          .limit(1)
-          .maybeSingle();
-
-        if (!existingSale) {
-          const commission = parseInt(metadata.commission || "0", 10); // Passed from checkout metadata
-          await db.from("marketplace_sales").insert({
-            vendor_id: metadata.vendor_id,
-            product_id: metadata.product_id,
-            customer_id: metadata.customer_id || null,
-            stripe_session_id: session.id as string,
-            stripe_payment_intent_id: paymentIntentId, // May be null if not expanded/available
-            amount_cents: amountCents,
-            platform_fee_cents: commission,
-            status: 'succeeded',
-            metadata: metadata
-          });
-
-          // Log for audit
-          console.info("Recorded marketplace sale", { sessionId: session.id, vendorId: metadata.vendor_id });
-        }
-      } else if (!existingOrder) {
+      if (!existingOrder) {
         // Platform Revenue (Featured Slots, etc)
         let commissionRate = 0.05;
         if (metadata?.vendor_id) {
@@ -207,11 +179,7 @@ export async function handleStripeEvent(
           vendor_id: metadata?.vendor_id || null,
           product_id: metadata?.product_id || null,
           amount_cents: amountCents || 0,
-          commission_cents: commission, // This is Platform Revenue now, or still calculated for internal split tracking?
-          // Ideally 'orders' for platform items shouldn't have 'commission' separation if it's 100% platform revenue.
-          // keeping as is for backward compat with Featured Slots '5% fee' logic if it persists?
-          // Wait, Featured Slots are 100% platform revenue.
-          // But `orders` schema enforces these columns. We will just fill them.
+          commission_cents: commission,
           vendor_net_cents: vendorNet,
           stripe_payment_intent_id: paymentIntentId,
           status: "succeeded",
@@ -240,29 +208,9 @@ export async function handleStripeEvent(
         }
       }
 
-      // Check for Vendor Pro subscription purchase
+      // Pro tier upgrades are deprecated in SSOT v2.
       if (metadata?.subscription_type === "vendor_pro" && metadata?.vendor_id) {
-        try {
-          const subscriptionId =
-            (session["subscription"] as string) ||
-            (session["id"] as string); // fallback if subscription ID missing?
-
-          await db
-            .from("vendors")
-            .update({
-              tier: "pro",
-              pro_subscription_id: subscriptionId,
-              pro_subscribed_at: new Date().toISOString(),
-              pro_cancelled_at: null,
-            })
-            .eq("id", metadata.vendor_id);
-
-          console.info("Upgraded vendor to Pro tier", { vendorId: metadata.vendor_id });
-        } catch (err: unknown) {
-          console.error("Failed to upgrade vendor to Pro", err);
-          // throw error to ensure retry?
-          throw err;
-        }
+        console.info("Vendor Pro subscription detected but tier management is legacy.", { vendorId: metadata.vendor_id });
       }
     }
 
@@ -298,7 +246,6 @@ export async function handleStripeEvent(
             .from("vendors")
             .update({
               vendor_status: "suspended",
-              tier: "suspended",
               auto_delisted_until: until,
               suspension_reason: `Auto-suspended: ${newCount} Stripe disputes`,
             })
@@ -362,12 +309,12 @@ export async function handleStripeEvent(
       try {
         const { data: vendorProfile } = await db
           .from("vendors")
-          .select("business_name,user_id,tier")
+          .select("business_name,user_id")
           .eq("id", vendorId)
           .maybeSingle();
 
         if (vendorProfile) {
-          previousTier = vendorProfile.tier || previousTier;
+          previousTier = "basic"; // tier field removed
           businessName = vendorProfile.business_name || businessName;
           if (vendorProfile.user_id) {
             const { data: vendorUser } = await db
@@ -387,7 +334,8 @@ export async function handleStripeEvent(
         });
       }
 
-      await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
+      // Tier updates are deprecated in SSOT v2.
+      // await db.from("vendors").update({ tier: normalizedTier }).eq("id", vendorId);
       if (normalizedTier === "basic" || normalizedTier === "none") {
         const { unpublishedCount, unpublishedProducts } =
           await enforceTierProductCap(vendorId, normalizedTier);

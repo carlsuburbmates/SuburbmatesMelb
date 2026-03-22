@@ -97,74 +97,16 @@ export async function isAccountComplete(accountId: string): Promise<boolean> {
   }
 }
 
-// ============================================================================
-// CHECKOUT HELPERS
-// ============================================================================
+// createCheckoutSession removed in SSOT v2 Phase 2 (MoR teardown).
+// Creator product checkout via Direct Charge is no longer supported.
+// Platform-owned checkout (Featured Slots) uses createFeaturedSlotCheckoutSession below.
 
-/**
- * Create checkout session with application fee (commission)
- */
-export async function createCheckoutSession(params: {
-  productName: string;
-  productDescription?: string;
-  amount: number; // in cents
-  currency?: string;
-  vendorStripeAccountId: string; // The Connected Account ID
-  applicationFeeAmount: number; // commission in cents
-  successUrl: string;
-  cancelUrl: string;
-  metadata?: Record<string, string>;
-}) {
-  try {
-    // PR10.y: Direct Charge Model (Creator is MoR)
-    // We pass stripeAccount: vendorId in requests options,
-    // and use calculation for application_fee in payment_intent_data.
-    const session = await stripe.checkout.sessions.create(
-      {
-        mode: "payment",
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: params.currency || STRIPE_CONFIG.CURRENCY,
-              product_data: {
-                name: params.productName,
-                description: params.productDescription,
-              },
-              unit_amount: params.amount,
-            },
-            quantity: 1,
-          },
-        ],
-        payment_intent_data: {
-          application_fee_amount: params.applicationFeeAmount,
-          // No transfer_data here because we are creating the session ON the connected account
-        },
-        success_url: params.successUrl,
-        cancel_url: params.cancelUrl,
-        metadata: params.metadata,
-      },
-      {
-        stripeAccount: params.vendorStripeAccountId, // Critical: Direct Charge
-      }
-    );
 
-    logger.info("Direct Checkout session created", {
-      sessionId: session.id,
-      amount: params.amount,
-      vendorAccount: params.vendorStripeAccountId,
-    });
-    return session;
-  } catch (error) {
-    logger.error("Failed to create direct checkout session", error);
-    throw error;
-  }
-}
 
 export async function createFeaturedSlotCheckoutSession(params: {
   vendorId: string;
   businessProfileId: string;
-  lgaId: number;
+  regionId: number;
   suburbLabel: string;
   successUrl: string;
   cancelUrl: string;
@@ -186,7 +128,7 @@ export async function createFeaturedSlotCheckoutSession(params: {
       type: "featured_slot",
       vendor_id: params.vendorId,
       business_profile_id: params.businessProfileId,
-      lga_id: params.lgaId.toString(),
+      region_id: params.regionId.toString(),
       suburb_label: params.suburbLabel,
     };
 
@@ -216,7 +158,7 @@ export async function createFeaturedSlotCheckoutSession(params: {
     logger.info("Featured slot checkout created (Platform Charge)", {
       sessionId: session.id,
       vendorId: params.vendorId,
-      lgaId: params.lgaId,
+      regionId: params.regionId,
     });
 
     return session;

@@ -7,7 +7,7 @@ import {
 } from "@/lib/featured-slot";
 import { logger } from "@/lib/logger";
 import { createFeaturedSlotCheckoutSession } from "@/lib/stripe";
-import { resolveSingleLga } from "@/lib/suburb-resolver";
+import { resolveSingleRegion } from "@/lib/suburb-resolver";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,11 +17,11 @@ type FeaturedQueueRow = Database["public"]["Tables"]["featured_queue"]["Row"];
 
 type FeaturedSlotSummary = Pick<
   FeaturedSlotRow,
-  "id" | "suburb_label" | "lga_id" | "start_date" | "end_date" | "status"
+  "id" | "suburb_label" | "region_id" | "start_date" | "end_date" | "status"
 >;
 type FeaturedQueueSummary = Pick<
   FeaturedQueueRow,
-  "id" | "lga_id" | "suburb_label" | "joined_at" | "status"
+  "id" | "region_id" | "suburb_label" | "joined_at" | "status"
 >;
 
 async function fetchVendorAndProfile(
@@ -61,7 +61,7 @@ function formatSlotResponse(slot: FeaturedSlotSummary) {
   return {
     id: slot.id,
     suburbLabel: slot.suburb_label,
-    lgaId: slot.lga_id,
+    regionId: slot.region_id,
     startDate: slot.start_date,
     endDate: slot.end_date,
     status: slot.status,
@@ -75,7 +75,7 @@ async function loadActiveSlots(
   const now = new Date().toISOString();
   const { data, error } = await dbClient
     .from("featured_slots")
-    .select("id, suburb_label, lga_id, start_date, end_date, status")
+    .select("id, suburb_label, region_id, start_date, end_date, status")
     .eq("vendor_id", vendorId)
     .eq("status", "active")
     .lte("start_date", now)
@@ -95,7 +95,7 @@ async function loadQueueEntries(
 ): Promise<FeaturedQueueSummary[]> {
   const { data, error } = await dbClient
     .from("featured_queue")
-    .select("id, lga_id, suburb_label, joined_at, status")
+    .select("id, region_id, suburb_label, joined_at, status")
     .eq("vendor_id", vendorId)
     .neq("status", "expired")
     .order("joined_at", { ascending: true });
@@ -124,12 +124,12 @@ export async function GET(req: NextRequest) {
     const queueWithPositions = await Promise.all(
       queueEntries.map(async (entry) => ({
         id: entry.id,
-        lgaId: entry.lga_id,
+        regionId: entry.region_id,
         suburbLabel: entry.suburb_label,
         status: entry.status,
         position: await computeFeaturedQueuePosition(
           authContext.dbClient,
-          entry.lga_id as number,
+          entry.region_id as number,
           entry
         ),
       }))
@@ -201,9 +201,9 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const suburbInput = (body?.suburb || "").trim();
-    const lgaId = body?.lga_id as number | undefined;
+    const regionId = body?.region_id as number | undefined;
 
-    if (!suburbInput && !lgaId) {
+    if (!suburbInput && !regionId) {
       return NextResponse.json(
         {
           success: false,
@@ -216,12 +216,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let targetLgaId = lgaId ?? null;
+    let targetRegionId = regionId ?? null;
     let resolvedSuburbLabel = suburbInput || null;
-    let resolvedLgaName: string | null = null;
+    let resolvedRegionName: string | null = null;
 
-    if (!targetLgaId && suburbInput) {
-      const resolved = await resolveSingleLga(
+    if (!targetRegionId && suburbInput) {
+      const resolved = await resolveSingleRegion(
         authContext.dbClient,
         suburbInput
       );
@@ -232,26 +232,26 @@ export async function POST(req: NextRequest) {
             error: {
               code: "SUBURB_NOT_FOUND",
               message:
-                "We couldn't match that suburb to a Melbourne council. Please try another suburb.",
+                "We couldn't match that suburb to a Melbourne region. Please try another suburb.",
             },
           },
           { status: 404 }
         );
       }
-      targetLgaId = resolved.lgaId;
-      resolvedLgaName = resolved.lgaName;
+      targetRegionId = resolved.regionId;
+      resolvedRegionName = resolved.regionName;
       if (!resolvedSuburbLabel) {
-        resolvedSuburbLabel = resolved.suburbLabel || resolved.lgaName;
+        resolvedSuburbLabel = resolved.suburbLabel || resolved.regionName;
       }
     }
 
-    if (!targetLgaId) {
+    if (!targetRegionId) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "LGA_REQUIRED",
-            message: "Valid council ID required",
+            code: "REGION_REQUIRED",
+            message: "Valid region ID required",
           },
         },
         { status: 400 }
@@ -260,21 +260,20 @@ export async function POST(req: NextRequest) {
 
     // req.headers.get("x-featured-force-queue");
 
-    const { data: lgaRecord } = await authContext.dbClient
-      .from("lgas")
-      .select("featured_slot_cap, name")
-      .eq("id", targetLgaId)
+    const { data: regionRecord } = await authContext.dbClient
+      .from("regions")
+      .select("name")
+      .eq("id", targetRegionId)
       .maybeSingle();
 
     if (!resolvedSuburbLabel) {
       resolvedSuburbLabel =
-        suburbInput || resolvedLgaName || lgaRecord?.name || "Featured";
+        suburbInput || resolvedRegionName || regionRecord?.name || "Featured";
     }
 
-    const slotCap =
-      lgaRecord?.featured_slot_cap ?? FEATURED_SLOT.MAX_SLOTS_PER_LGA;
+    const slotCap = FEATURED_SLOT.MAX_SLOTS_PER_LGA;
     const safeSuburbLabel =
-      resolvedSuburbLabel || resolvedLgaName || lgaRecord?.name || "Featured";
+      resolvedSuburbLabel || resolvedRegionName || regionRecord?.name || "Featured";
 
     const now = new Date().toISOString();
 
@@ -283,7 +282,7 @@ export async function POST(req: NextRequest) {
     const { data: futureSlots } = await authContext.dbClient
       .from("featured_slots")
       .select("end_date")
-      .eq("lga_id", targetLgaId)
+      .eq("region_id", targetRegionId)
       .in("status", ["active", "scheduled"])
       .gt("end_date", now)
       .order("end_date", { ascending: true });
@@ -338,7 +337,7 @@ export async function POST(req: NextRequest) {
       {
         p_vendor_id: vendor.id,
         p_business_profile_id: profile.id,
-        p_lga_id: targetLgaId,
+        p_lga_id: targetRegionId, // Renamed column in DB but maybe RPC still uses p_lga_id param
         p_suburb_label: safeSuburbLabel,
         p_start_date: startDateIso,
         p_end_date: endDateIso,
@@ -370,13 +369,13 @@ export async function POST(req: NextRequest) {
       }
 
       // Map known DB consistency errors to friendly messages
-      if (message.includes("lga_cap_exceeded")) {
+      if (message.includes("region_cap_exceeded")) {
         // This shouldn't happen with our calculation unless race condition
         return NextResponse.json(
           {
             success: false,
             error: {
-              code: "LGA_CAP_EXCEEDED",
+              code: "REGION_CAP_EXCEEDED",
               message: "This slot became unavailable during processing. Please try again.",
             },
           },
@@ -438,7 +437,7 @@ export async function POST(req: NextRequest) {
       const created = await createFeaturedSlotCheckoutSession({
         vendorId: vendor.id,
         businessProfileId: profile.id,
-        lgaId: targetLgaId,
+        regionId: targetRegionId,
         suburbLabel: safeSuburbLabel,
         successUrl: `${siteUrl}/vendor/dashboard?featured=success`,
         cancelUrl: `${siteUrl}/vendor/dashboard?featured=cancelled`,

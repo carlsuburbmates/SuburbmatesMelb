@@ -68,7 +68,6 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const tierLabel = vendor?.tier ?? "basic";
   const productCount = vendor?.product_count ?? 0;
 
   return (
@@ -84,10 +83,6 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
                 {vendor?.business_name || "Your Business"}
               </h1>
               <div className="flex items-center space-x-2 mt-2">
-                <span className="text-sm text-gray-600">
-                  Tier:{" "}
-                  <span className="font-semibold uppercase">{tierLabel}</span>
-                </span>
                 <span className="text-sm text-gray-500">
                   • {productCount} products live
                 </span>
@@ -96,11 +91,11 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center space-x-3">
               <Link
-                href="/marketplace"
+                href="/directory"
                 className="btn-secondary inline-flex items-center space-x-2"
               >
                 <EyeIcon className="w-4 h-4" />
-                <span>View marketplace</span>
+                <span>View directory</span>
               </Link>
               <button
                 type="button"

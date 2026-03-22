@@ -3,7 +3,7 @@ import { DirectorySearchPayload } from "./validation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 import { logger } from "./logger";
-import { resolveLgaMatch } from "./suburb-resolver";
+import { resolveRegionMatch } from "./suburb-resolver";
 
 export type DirectorySearchResult = {
   id: string;
@@ -52,14 +52,14 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let suburbFilter: { lgaIds: number[]; label: string | null } | null = null;
+  let regionFilter: { regionIds: number[]; label: string | null } | null = null;
   if (payload.suburb) {
-    const resolved = await resolveLgaMatch(client, payload.suburb);
-    if (!resolved || !resolved.lgaIds.length) {
+    const resolved = await resolveRegionMatch(client, payload.suburb);
+    if (!resolved || !resolved.regionIds.length) {
       return buildEmptyResult(page, limit);
     }
-    suburbFilter = {
-      lgaIds: resolved.lgaIds,
+    regionFilter = {
+      regionIds: resolved.regionIds,
       label: resolved.matchedLabel ?? payload.suburb,
     };
   }
@@ -97,15 +97,15 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         suburb_id,
         category_id,
         created_at,
-        lgas:lgas!business_profiles_suburb_id_fkey ( id, name ),
+        regions:regions!business_profiles_suburb_id_fkey ( id, name ),
         categories:categories!business_profiles_category_id_fkey ( id, name )
       `,
       { count: "exact" }
     )
     .eq("is_public", true);
 
-  if (suburbFilter) {
-    queryBuilder = queryBuilder.in("suburb_id", suburbFilter.lgaIds);
+  if (regionFilter) {
+    queryBuilder = queryBuilder.in("suburb_id", regionFilter.regionIds);
   }
 
   if (categoryIds) {
@@ -132,7 +132,7 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
   }
 
   const featuredMeta = await resolveFeaturedProfileMetadata(client, {
-    lgaIds: suburbFilter?.lgaIds ?? null,
+    regionIds: regionFilter?.regionIds ?? null,
     suburbTerm: payload.suburb ?? null,
   });
 
@@ -146,12 +146,12 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         slug: row.slug,
         tier: row.vendor_tier,
         suburb: {
-          id: row.lgas?.id ?? null,
-          name: row.lgas?.name ?? null,
+          id: (row.regions as any)?.id ?? null,
+          name: (row.regions as any)?.name ?? null,
         },
         category: {
-          id: row.categories?.id ?? null,
-          name: row.categories?.name ?? null,
+          id: (row.categories as any)?.id ?? null,
+          name: (row.categories as any)?.name ?? null,
         },
         isFeatured: Boolean(meta),
         featuredSuburbLabel: meta?.suburbLabel ?? null,
@@ -206,30 +206,30 @@ function buildEmptyResult(page: number, limit: number) {
 
 type FeaturedMeta = {
   suburbLabel: string | null;
-  lgaId: number | null;
+  regionId: number | null;
   matchesSelection: boolean;
 };
 
 async function resolveFeaturedProfileMetadata(
   client: SupabaseClient<Database>,
   {
-    lgaIds,
+    regionIds,
     suburbTerm,
   }: {
-    lgaIds: number[] | null;
+    regionIds: number[] | null;
     suburbTerm: string | null;
   }
 ) {
   const now = new Date().toISOString();
   let query = client
     .from("featured_slots")
-    .select("business_profile_id, suburb_label, lga_id")
+    .select("business_profile_id, suburb_label, region_id")
     .eq("status", "active")
     .lte("start_date", now)
     .gte("end_date", now);
 
-  if (lgaIds && lgaIds.length > 0) {
-    query = query.in("lga_id", lgaIds);
+  if (regionIds && regionIds.length > 0) {
+    query = query.in("region_id", regionIds);
   }
 
   const { data, error } = await query;
@@ -246,16 +246,16 @@ async function resolveFeaturedProfileMetadata(
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
       : false;
-    const matchesLga = lgaIds?.length
-      ? slot.lga_id
-        ? lgaIds.includes(slot.lga_id)
+    const matchesRegion = regionIds?.length
+      ? slot.region_id
+        ? regionIds.includes(slot.region_id)
         : false
       : false;
 
     featureMap.set(slot.business_profile_id, {
       suburbLabel: slot.suburb_label ?? null,
-      lgaId: slot.lga_id ?? null,
-      matchesSelection: normalizedSuburb ? matchesSuburb : matchesLga,
+      regionId: slot.region_id ?? null,
+      matchesSelection: normalizedSuburb ? matchesSuburb : matchesRegion,
     });
   });
 

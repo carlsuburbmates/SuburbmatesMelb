@@ -1,10 +1,10 @@
 import { AuthSession, User, Vendor } from "./types";
-import { Database } from './database.types';
+
 import {
   TIER_LIMITS,
 } from "./constants";
 
-export type VendorTier = Database['public']['Tables']['vendors']['Row']['tier'];
+export type VendorTier = "basic" | "pro" | "premium" | "none" | "suspended";
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
@@ -179,7 +179,7 @@ class AuthManager {
   async createVendorProfile(vendorData: {
     business_name: string;
     bio?: string;
-    primary_lga_id?: number;
+    primary_region_id?: number;
     profile_url?: string;
   }): Promise<Vendor> {
     const session = await this.getCurrentSession();
@@ -189,14 +189,13 @@ class AuthManager {
 
     const { data, error } = await supabase.from("vendors").insert({
       user_id: session.user.id,
-      tier: "none",
       is_vendor: false,
       vendor_status: "inactive",
       can_sell_products: false,
       stripe_onboarding_complete: false,
       business_name: vendorData.business_name,
       bio: vendorData.bio,
-      primary_lga_id: vendorData.primary_lga_id,
+      primary_region_id: vendorData.primary_region_id,
       abn_verified: false,
       product_count: 0,
       storage_used_mb: 0,

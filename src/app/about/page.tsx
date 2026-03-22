@@ -3,20 +3,20 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About SuburbMates - Melbourne's Digital Neighbourhood",
   description:
-    "Learn about SuburbMates - connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
+    "Learn about SuburbMates - connecting Melbourne's local creators with their community through a creator directory.",
   keywords:
     "about, Melbourne creators, local marketplace, digital directory, community platform",
   openGraph: {
     title: "About SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
+      "Connecting Melbourne's local creators with their community through a creator directory.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "About SuburbMates - Melbourne's Digital Neighbourhood",
     description:
-      "Connecting Melbourne's local creators with their community through a digital marketplace and creator directory.",
+      "Connecting Melbourne's local creators with their community through a creator directory.",
   },
 };
 
@@ -151,8 +151,8 @@ export default function AboutPage() {
               <a href="/directory" className="btn-primary">
                 Browse Local Creators
               </a>
-              <a href="/marketplace" className="btn-secondary">
-                Explore Marketplace
+              <a href="/contact" className="btn-secondary">
+                Get in Touch
               </a>
             </div>
           </div>

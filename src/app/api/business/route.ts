@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     // Get vendor details if they exist
     const { data: vendor } = await dbClient
       .from('vendors')
-      .select('tier, vendor_status')
+      .select('id')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -180,8 +180,8 @@ export async function POST(request: NextRequest) {
         category_id,
         is_public: true, // Default to public or make it pending? Assuming public for now.
         is_vendor: !!vendor,
-        vendor_status: vendor?.vendor_status || null,
-        vendor_tier: vendor?.tier || null,
+        vendor_status: null,
+        vendor_tier: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

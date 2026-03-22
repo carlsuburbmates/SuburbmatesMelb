@@ -20,19 +20,19 @@ export async function FreshSignals() {
   // Helper to fetch keys
   const suburbIds = studiosRaw?.map(s => s.suburb_id).filter((id): id is number => id !== null) || [];
   
-  // Fetch Suburbs
-  const suburbsMap: Record<number, string> = {};
+  // Fetch Regions
+  const regionsMap: Record<number, string> = {};
   if (suburbIds.length > 0) {
-    const { data: suburbs } = await supabase
-      .from('lgas')
+    const { data: regions } = await supabase
+      .from('regions')
       .select('id, name')
       .in('id', suburbIds);
-    suburbs?.forEach(s => { suburbsMap[s.id] = s.name; });
+    regions?.forEach(s => { regionsMap[s.id] = s.name; });
   }
 
   const studios = studiosRaw?.map(s => ({
     ...s,
-    suburb_name: s.suburb_id ? suburbsMap[s.suburb_id] : null
+    suburb_name: s.suburb_id ? regionsMap[s.suburb_id] : null
   })) || [];
 
   // 2. Get Fresh Drops (Products)
@@ -194,10 +194,10 @@ export async function FreshSignals() {
               </div>
             )}
             <Link 
-              href="/marketplace" 
+              href="/directory" 
               className="inline-block text-sm font-medium text-amber-700 hover:text-amber-800 hover:underline"
             >
-              Browse marketplace &rarr;
+              Browse directory &rarr;
             </Link>
           </div>
 

@@ -46,7 +46,7 @@ async function updateProductHandler(
   if (body.published && existingProductData.published !== true) {
     const canPublish = await canPublishProduct(
       vendor.id,
-      vendor.tier as VendorTier,
+      "basic" as VendorTier,
       existingProductData.published || false,
       dbClient,
       vendor.product_quota ?? null
@@ -54,7 +54,7 @@ async function updateProductHandler(
 
     if (!canPublish) {
       return forbiddenResponse(
-        `Product cap reached for ${vendor.tier} tier. Upgrade to pro tier to publish more products.`
+        `Product cap reached. Please contact support to increase your listing limit.`
       );
     }
   }
@@ -88,6 +88,9 @@ async function updateProductHandler(
   }
   if (body.category !== undefined) {
     updatePayload.category = body.category;
+  }
+  if (body.external_url !== undefined) {
+    updatePayload.external_url = body.external_url;
   }
   if (Array.isArray(body.images)) {
     updatePayload.images = body.images;
