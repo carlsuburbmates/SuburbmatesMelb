@@ -21,8 +21,8 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    // The query param can be named url, id, or productId
-    const productId = searchParams.get('url') || searchParams.get('productId') || searchParams.get('id');
+    // Accept productId or id (slug or UUID)
+    const productId = searchParams.get('productId') || searchParams.get('id');
 
     if (!productId) {
       return NextResponse.redirect(new URL('/', request.url));

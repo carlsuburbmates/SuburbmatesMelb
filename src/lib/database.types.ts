@@ -721,7 +721,6 @@ export type Database = {
           file_size_bytes: number | null
           id: string
           images: Json | null
-          lga_id: number | null
           price: number | null
           published: boolean | null
           slug: string | null
@@ -741,7 +740,6 @@ export type Database = {
           file_size_bytes?: number | null
           id?: string
           images?: Json | null
-          lga_id?: number | null
           price?: number | null
           published?: boolean | null
           slug?: string | null
@@ -761,7 +759,6 @@ export type Database = {
           file_size_bytes?: number | null
           id?: string
           images?: Json | null
-          lga_id?: number | null
           price?: number | null
           published?: boolean | null
           slug?: string | null
@@ -1214,8 +1211,8 @@ export type Database = {
             Args: {
               p_business_profile_id: string
               p_end_date: string
-              p_lga_cap: number
-              p_lga_id: number
+              p_region_cap: number
+              p_region_id: number
               p_start_date: string
               p_suburb_label: string
               p_vendor_cap: number

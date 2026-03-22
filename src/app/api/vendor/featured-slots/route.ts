@@ -337,11 +337,11 @@ export async function POST(req: NextRequest) {
       {
         p_vendor_id: vendor.id,
         p_business_profile_id: profile.id,
-        p_lga_id: targetRegionId, // Renamed column in DB but maybe RPC still uses p_lga_id param
+        p_region_id: targetRegionId,
         p_suburb_label: safeSuburbLabel,
         p_start_date: startDateIso,
         p_end_date: endDateIso,
-        p_lga_cap: slotCap,
+        p_region_cap: slotCap,
         p_vendor_cap: FEATURED_SLOT.MAX_SLOTS_PER_VENDOR,
       }
     );
