@@ -109,47 +109,54 @@ export async function createCheckoutSession(params: {
   productDescription?: string;
   amount: number; // in cents
   currency?: string;
-  vendorStripeAccountId: string;
+  vendorStripeAccountId: string; // The Connected Account ID
   applicationFeeAmount: number; // commission in cents
   successUrl: string;
   cancelUrl: string;
   metadata?: Record<string, string>;
 }) {
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: params.currency || STRIPE_CONFIG.CURRENCY,
-            product_data: {
-              name: params.productName,
-              description: params.productDescription,
+    // PR10.y: Direct Charge Model (Creator is MoR)
+    // We pass stripeAccount: vendorId in requests options,
+    // and use calculation for application_fee in payment_intent_data.
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: params.currency || STRIPE_CONFIG.CURRENCY,
+              product_data: {
+                name: params.productName,
+                description: params.productDescription,
+              },
+              unit_amount: params.amount,
             },
-            unit_amount: params.amount,
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        payment_intent_data: {
+          application_fee_amount: params.applicationFeeAmount,
+          // No transfer_data here because we are creating the session ON the connected account
         },
-      ],
-      payment_intent_data: {
-        application_fee_amount: params.applicationFeeAmount,
-        transfer_data: {
-          destination: params.vendorStripeAccountId,
-        },
+        success_url: params.successUrl,
+        cancel_url: params.cancelUrl,
+        metadata: params.metadata,
       },
-      success_url: params.successUrl,
-      cancel_url: params.cancelUrl,
-      metadata: params.metadata,
-    });
+      {
+        stripeAccount: params.vendorStripeAccountId, // Critical: Direct Charge
+      }
+    );
 
-    logger.info("Checkout session created", {
+    logger.info("Direct Checkout session created", {
       sessionId: session.id,
       amount: params.amount,
+      vendorAccount: params.vendorStripeAccountId,
     });
     return session;
   } catch (error) {
-    logger.error("Failed to create checkout session", error);
+    logger.error("Failed to create direct checkout session", error);
     throw error;
   }
 }
@@ -161,8 +168,8 @@ export async function createFeaturedSlotCheckoutSession(params: {
   suburbLabel: string;
   successUrl: string;
   cancelUrl: string;
-  vendorStripeAccountId?: string;
-  vendorTier?: string;
+  // REMOVED: vendorStripeAccountId (Platform is MoR)
+  // REMOVED: vendorTier (Platform charges flat rate or configured logic)
   metadata?: Record<string, string | number | null | undefined>;
 }) {
   const priceId = process.env.STRIPE_PRICE_FEATURED_30D;
@@ -171,18 +178,9 @@ export async function createFeaturedSlotCheckoutSession(params: {
   }
 
   try {
-    // Retrieve price to compute application fee if needed
-    const price = await stripe.prices.retrieve(priceId as string, {
-      expand: [],
-    });
-    const unitAmount = (price.unit_amount ?? 0) as number;
-
-    // Compute application fee using a provided vendorTier or default 5%
-    const applicationFeeAmount = Math.round(unitAmount * 0.05);
-    if (params.vendorTier) {
-      // opt-in: use commission rate from TIER_LIMITS if caller prefers
-      // Avoid importing TIER_LIMITS here to keep stripe helper focused; callers may compute and pass fee
-    }
+    // Note: Featured Slots are Platform Revenue (Platform MoR).
+    // No application_fee logic, no transfer_data logic.
+    // The Platform fully owns this charge.
 
     const metadata: Stripe.Metadata = {
       type: "featured_slot",
@@ -208,18 +206,14 @@ export async function createFeaturedSlotCheckoutSession(params: {
           quantity: 1,
         },
       ],
-      payment_intent_data: params.vendorStripeAccountId
-        ? {
-            application_fee_amount: applicationFeeAmount,
-            transfer_data: { destination: params.vendorStripeAccountId },
-          }
-        : undefined,
+      // Explicitly removed: payment_intent_data with transfer_data
+      // This fix ensures Vendor pays Platform, not Vendor pays Vendor.
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
       metadata,
     });
 
-    logger.info("Featured slot checkout created", {
+    logger.info("Featured slot checkout created (Platform Charge)", {
       sessionId: session.id,
       vendorId: params.vendorId,
       lgaId: params.lgaId,
@@ -349,8 +343,8 @@ export async function cancelSubscription(
     const subscription = immediately
       ? await stripe.subscriptions.cancel(subscriptionId)
       : await stripe.subscriptions.update(subscriptionId, {
-          cancel_at_period_end: true,
-        });
+        cancel_at_period_end: true,
+      });
 
     logger.info("Subscription cancelled", { subscriptionId, immediately });
     return subscription;

@@ -1,364 +1,136 @@
-# Suburbmates — Single Source of Truth (Product Constitution)
+# Suburbmates — Single Source of Truth (Product Constitution v2.0)
 
 > [!IMPORTANT]
-> **LAUNCH FREEZE IN EFFECT (PR10)**
-> Post-PR10 changes require a new PR number.
-> No copy promises beyond SSOT allowed.
-> Zero scope creep permitted during launch phase.
+> **MVP LAUNCH FREEZE IN EFFECT**
+> This document defines the lean MVP architecture.
+> Zero scope creep permitted. No custom admin UIs. No automated billing engines.
 
-This document defines **what Suburbmates is** and the **non-negotiable rules** that govern product scope, positioning, trust, UX, design language, and monetization logic.
+This document defines **what Suburbmates is** and the **non-negotiable rules** that govern product scope, positioning, trust, UX, and the minimal-overhead operational model.
 
-**Immutability rule:** This file is treated as a constitution. It is not used for execution checklists, implementation status, or “what’s done.” Those live elsewhere (execution plan + verification logs).
-**No other documentation file may define product truth** (tiers, pricing vocabulary, featured rules, verification rules, marketplace model, positioning). If another file contradicts this, it is wrong.
+**Immutability rule:** This file is treated as a constitution. It is not used for execution checklists or implementation status.
+**No other documentation file may define product truth.** If another file contradicts this, it is wrong.
 
 ---
 
 ## 1) What Suburbmates is (and is not)
 
 ### 1.1 Definition
-
-**Suburbmates is a mobile-first Melbourne directory for digital creators and their digital products.**
+**Suburbmates is a mobile-first directory designed to bridge local Melbourne pride with borderless digital goods.**
 Creators use it to:
-
-* be discovered locally (Melbourne-first, council-aware)
-* showcase their work in a profile that feels like a mini-site
-* share a single link that converts (profile → products → upgrade)
+* Be discovered regionally (Grouped by 6 Metro Regions for MVP)
+* Showcase their digital drops via automatically generated, editable product cards
+* Drive trackable outbound traffic to their external storefronts
 
 Visitors use it to:
-
-* discover creators by council/category/search
-* browse digital products
-* click through to purchase from creators via Stripe
+* Browse local digital talent via high-density Category and Region tiles
+* Support the "Melbourne underground" digital economy
+* Click through to purchase on the creator's preferred platform
 
 ### 1.2 What Suburbmates is NOT
-
-* Not a generic “business directory.”
-* Not a marketplace where Suburbmates holds funds or acts as merchant of record.
-* Not a social network or messaging platform (prelaunch).
-* Not a scraping engine (no ABN scraping; no auto-importing of creator data).
-* Not a “fake scale” brand (no fake team, fake testimonials, fake counts).
+* Not a transaction processor (No MoR, no PCI, no checkout).
+* Not a "Search-Only" blank canvas (Browse-first architecture is mandatory).
+* Not an automated scraping engine (Profiles are manually claimed or seeded).
+* Not a heavy React dashboard (Admin is handled 100% via Supabase GUI).
 
 ---
 
-## 2) Positioning rules (no exceptions)
+## 2) Positioning & The "Local Digital" Narrative
 
 ### 2.1 Framing language
-
-Every public-facing page and UI surface must reinforce:
-
-* **Melbourne digital creators**
-* **digital products / drops**
-* **profiles as mini-sites**
-* **local discovery without corporate directory vibes**
+Every UI surface must reinforce the intersection of local talent and digital products:
+* **"Melbourne's top digital creators"**
+* **"Support local digital talent"**
+* **Drops, Products, Collections, Mini-sites**
 
 ### 2.2 Banned positioning signals
-
-Avoid words/phrases that imply “generic directory”:
-
-* “local business directory”
-* “hyperlocal business directory”
-* “find businesses near you”
-* “business listings platform”
-
-Preferred language:
-
-* creator directory, studios, makers, digital creators
-* drops, products, collections
-* profile, mini-site, landing page
+* "Hyperlocal business directory" (Implies brick-and-mortar)
+* "Find businesses near you" (Digital goods are borderless; regions are for identity, not proximity)
 
 ---
 
-## 3) Trust model (middleman truth)
+## 3) Trust Model & Payments
 
 ### 3.1 Payment truth
+* **Creators sell through their own platforms** (Gumroad, Stripe).
+* Suburbmates is strictly a discovery and routing layer.
 
-* **Products are sold by creators.**
-* **Payments are processed by Stripe** (creator-controlled Stripe onboarding).
-* Suburbmates is a discovery layer and optional platform logic layer (e.g., featured placement, subscription access), but **does not take custody of funds**.
-
-### 3.2 Copy rules for payments
-
-Allowed:
-
-* “Sold by [Creator]. Payments processed by Stripe.”
-* “Creators handle sales via Stripe.”
-
-Not allowed:
-
-* “Secure transaction via Suburbmates”
-* “We process payments”
-* “Guaranteed by Suburbmates”
-* anything implying merchant-of-record
+### 3.2 ABN Verification (Trust Signal)
+* ABN input is **optional** and acts purely as a creator-supplied trust badge.
+* **No API Verification:** The MVP will use a strict 11-digit regex frontend validation. Suburbmates does not guarantee the legal business status of a creator.
 
 ---
 
-## 4) Core loop (the only loop that matters prelaunch)
+## 4) Core Loops & The Launch Gate
 
-### 4.1 Visitor loop
+### 4.1 The Launch Gate (Pre-Launch Constraint)
+* **Rule:** The platform must not be publicly marketed until **15 to 20 active, claimed profiles** are manually seeded via Concierge Onboarding. Zero "ghost town" UI permitted.
 
-Home → Discover → Creator Profile → Share/Save → Browse Products → (Purchase via Stripe) → Return to creator discovery
+### 4.2 Creator Onboarding Loop (Frictionless)
+1. Creator pastes a product URL (Gumroad/Stripe).
+2. Backend automatically scrapes Open Graph data (`og:title`, `og:image`, `og:description`).
+3. Frontend populates an editable form.
+4. Creator tweaks text, assigns an "Umbrella Category," and publishes.
 
-### 4.2 Creator loop
-
-Create profile → Publish products → Share profile link → Upgrade for better presence → Buy featured placement (optional)
-
----
-
-## 5) Roles and surfaces
-
-### 5.1 Roles
-
-* Visitor (public, no login required)
-* Creator (vendor) — manages profile/products and Stripe onboarding
-* Admin — moderates, resolves claims/disputes, audits featured placements
-
-### 5.2 Surfaces
-
-* Public site (fast, credible, shareable)
-* Creator app (profile + products + payouts/onboarding + featured)
-* Admin tools (minimal but real)
+### 4.3 Visitor Loop (Dual-Intent)
+* **Low-Intent:** Homepage hero provides Category/Region tiles for immediate browsing.
+* **High-Intent:** Global top-navigation sticky search bar allows instant querying.
 
 ---
 
-## 6) Pricing vocabulary and tier model
+## 5) Admin & Infrastructure (Zero-UI Mandate)
 
-### 6.1 Tier vocabulary (canonical)
-
-Marketing names must be consistent everywhere:
-
-* **Free**
-* **Pro**
-* **Premium**
-
-Internal tier keys may exist for implementation, but external vocabulary must not drift.
-
-### 6.2 What tiers control
-
-Tiers govern:
-
-* product listing quotas
-* template access (profile mini-site templates)
-* marketplace visibility perks (e.g., eligibility for certain modules)
-* domain features (Phase 2+)
-
-### 6.3 Numeric rules (single numeric policy source)
-
-**No document may restate numeric limits, prices, caps, or durations.**
-All numeric policy values live in: **`src/lib/constants.ts`**
-Examples of numeric policy domains:
-
-* product quotas per tier
-* featured slot capacity per council
-* featured placement price and duration
-* any platform fee configuration rules
+* **No custom Admin frontend will be built.**
+* **Waitlist/Billing:** Managed via Supabase Table Editor and manual Stripe Payment Links.
+* **Moderation:** Managed via Supabase Row Level Security (RLS) toggling `draft` to `published`.
+* **To-Do Lists:** Managed via Supabase Custom SQL Reports on the dashboard.
 
 ---
 
-## 7) Featured placement (council-based sponsorship)
+## 6) Monetization (Regional MVP Model)
 
-### 7.1 What featured is
+### 6.1 Featured Placement
+* **Grouped Inventory:** Capped at 6 Metropolitan Regions (Inner Metro, Western, etc.) to manufacture scarcity.
+* **Duration:** 30-day timeboxed slots.
+* **Waitlist:** Standard FIFO billing engines are banned. The UI must utilize an Email Waitlist when a region's slots are full.
 
-Featured placement is a timeboxed, council-scoped promotional slot that increases visibility within council views and relevant collections.
-
-### 7.2 Fairness rules
-
-* **Council-scoped capacity** (cap defined in numeric policy source).
-* **FIFO scheduling** (no silent favoritism, no hidden overrides).
-* Timeboxed windows (duration defined in numeric policy source).
-* Renewals are explicit, with reminder notifications (mechanism lives in implementation; policy is required here).
-
-### 7.3 Featured truth in copy
-
-Featured must be described as:
-
-* a paid promotional placement
-* timeboxed
-* limited per council
-* scheduled fairly
-
-No copy may imply “guaranteed sales,” “exclusive monopoly,” or “permanent top rank.”
+### 6.2 Numeric rules
+* All caps, regions, and pricing are defined strictly in `src/lib/constants.ts`.
 
 ---
 
-## 8) Verification (ABN badge)
+## 7) Taxonomy (Umbrella + Escape Hatch)
 
-### 8.1 ABN verification
-
-* ABN verification is **optional** during signup/onboarding.
-* Verification grants a **trust badge** only.
-
-### 8.2 What ABN verification does NOT do
-
-* It does not scrape ABN data into listings.
-* It does not auto-create listings.
-* It does not change quotas by default (badge = trust signal, not power-up).
+* Discovery is driven by ~6 broad Umbrella Categories (e.g., Design & Art, Dev Tools).
+* An **"Other" text input** must exist for niche products, allowing the database to capture emerging trends without upfront market research.
 
 ---
 
-## 9) “Alive-but-fast” rule (fresh signals, not gimmicks)
+## 8) "Alive-but-fast" Rule (Daily Shuffle)
 
-### 9.1 Alive comes from real signals
-
-Allowed “alive” signals:
-
-* newly added creators
-* new drops/products
-* recently updated profiles
-* recently verified badge additions
-* curated collections (editorial)
-
-Not allowed:
-
-* heavy carousels as a substitute for real freshness
-* fake “trending” without transparent basis
-* motion gimmicks to simulate activity
-
-### 9.2 Curation policy (collections)
-
-Collections are allowed and encouraged as the “taste layer,” especially prelaunch:
-
-* council collections
-* category collections
-* “new this week” (timeboxed)
-* editorial spotlights
+* Manual editorial curation is banned for the MVP to reduce overhead.
+* **The Daily Shuffle:** The default directory query for non-featured profiles must use a daily randomized database seed so the UI looks fresh every 24 hours.
 
 ---
 
-## 10) Mobile-first interaction rules (thumb-first)
+## 9) Signature UI & High-Density Constraints
 
-### 10.1 Navigation
+### 9.1 High-Density UI (Anti-Scroll Fatigue)
+* Cards must prioritize information density over "airy" padding.
+* Strict 2-line clamping for all descriptions.
+* Horizontal scrolling must be used for tags and categories to protect vertical viewport space on mobile.
 
-* Thumb-first IA is mandatory.
-* Filters behave as a bottom sheet with Apply/Reset.
-* Primary actions on profiles should be reachable one-handed (Save/Share/View Products).
-
-### 10.2 Search-first structure
-
-* Search is a first-class entry point.
-* Filters are secondary and progressively disclosed.
+### 9.2 Headless Architecture
+* Use unstyled component libraries (e.g., shadcn/ui) to enforce accessibility without writing primitive CSS.
+* React Server Components (RSC) must be heavily utilized for read-heavy public profile pages to guarantee mobile Lighthouse performance.
 
 ---
 
-## 11) Signature design system (trendsetter mandate)
+## 10) Credibility & Data Automation
 
-### 11.1 Visual language principles
+### 10.1 Zero-Touch Metrics
+* Banned claims: "Thousands of users", "Trusted by".
+* **Rule:** All social proof (e.g., "145 active digital drops", "Updated Today") must be powered by automated Supabase Views/RPCs. No hardcoded or manually updated stats.
 
-Suburbmates must look like it belongs to creators:
-
-* restrained color system (no “AI neon” clichés)
-* deliberate typography hierarchy
-* strong spacing rhythm
-* premium card archetypes and consistent imagery rules
-* “quiet authority” but alive through content, not glow
-
-### 11.2 Card archetypes (canonical)
-
-* Creator card
-* Product card
-* Collection card
-
-Each archetype has:
-
-* consistent information hierarchy
-* clear tap targets
-* consistent imagery/cropping rules
-
-### 11.3 Avoid “default AI website”
-
-Banned vibes:
-
-* glowing gradients
-* generic hero carousels
-* stocky “AI SaaS” patterns
-* meaningless abstract blobs
-* overly animated landing pages
-
----
-
-## 12) Motion discipline (performance + taste)
-
-Motion is allowed only when it:
-
-* responds to user intent (tap, open sheet, confirm action)
-* uses cheap primitives (opacity/transform)
-* respects reduced motion preferences
-* never blocks content access or readability
-
-Auto-advancing motion (carousels/sliders) is not a default pattern.
-
----
-
-## 13) Performance and accessibility (benchmark standard)
-
-### 13.1 Performance
-
-* Mobile performance is the benchmark, not desktop.
-* Avoid heavy above-the-fold payloads.
-* Progressive disclosure for long lists.
-
-### 13.2 Accessibility
-
-* Semantic structure: header/nav/main/footer
-* Keyboard navigable flows
-* Visible focus states
-* Alt text for meaningful images
-
----
-
-## 14) Data and analytics (ethical, minimal, useful)
-
-### 14.1 What data is used for
-
-* improve discovery quality
-* measure conversions (share → profile → product click)
-* detect broken flows
-
-### 14.2 What is not done
-
-* no sale of personal data
-* no dark patterns
-* no “tracking for tracking’s sake”
-
----
-
-## 15) Governance and document boundaries
-
-### 15.1 This file controls (SSOT)
-
-* product definition and positioning
-* trust model and copy rules
-* tier vocabulary and what tiers control
-* featured placement policy rules
-* verification (ABN badge policy)
-* alive-but-fast rules
-* signature design system principles
-* mobile-first rules, motion discipline, perf/a11y principles
-
-### 15.2 This file does NOT contain
-
-* task lists, PR checklists, “phase complete” claims
-* implementation status
-* operational schedules and scripts
-* test completion claims
-
-Those belong in:
-
-* **Execution Plan** (separate file)
-* **Verification Logs** (separate file)
-* **Numeric Policy**: `src/lib/constants.ts` (single numeric truth source)
-
----
-
-## 16) Credibility gate (banned claims list)
-
-These are banned across public pages and non-SSOT docs:
-
-* “already using”
-* “trusted by”
-* “join hundreds”
-* “dozens of automations”
-* “annual subscription”
-* “secure transaction via Suburbmates”
-* any fake scale, fake testimonials, fake partners, fake team roles, or SLA promises
-
-If any surface needs proof, it must be measured and logged before being stated as fact.
+### 10.2 Outbound Click Tracking
+* **Rule:** To measure MVP success, direct `href` links to external stores are banned.
+* All product outbound links must route through an internal API endpoint (e.g., `/api/redirect?url=...`) to log the CTR event before redirecting the visitor.

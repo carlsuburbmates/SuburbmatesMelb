@@ -442,8 +442,6 @@ export async function POST(req: NextRequest) {
         suburbLabel: safeSuburbLabel,
         successUrl: `${siteUrl}/vendor/dashboard?featured=success`,
         cancelUrl: `${siteUrl}/vendor/dashboard?featured=cancelled`,
-        vendorStripeAccountId: vendor.stripe_account_id ?? undefined,
-        vendorTier: vendor.tier ?? undefined,
         metadata: {
           reserved_slot_id: String(reservedSlotId),
         },

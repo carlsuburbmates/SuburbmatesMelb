@@ -25,6 +25,7 @@ import { withLogging } from "@/middleware/logging";
 import { withErrorHandler } from "@/middleware/errorHandler";
 import { ValidationError, NotFoundError, VendorNotActiveError } from "@/lib/errors";
 import { Vendor } from "@/lib/types";
+// PR10.y: Model A realignment (Creator MoR for products)
 
 async function checkoutHandler(req: NextRequest) {
   try {
@@ -67,11 +68,12 @@ async function checkoutHandler(req: NextRequest) {
     // Calculate commission
     const commission = calculateCommission(product.price, vendorTier);
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session (Direct Charge on Connected Account)
     const session = await createCheckoutSession({
       productName: product.title,
       productDescription: product.description || undefined,
       amount: product.price,
+      // Pass connected account ID for Direct Charge target:
       vendorStripeAccountId: vendor.stripe_account_id,
       applicationFeeAmount: commission,
       successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -81,6 +83,7 @@ async function checkoutHandler(req: NextRequest) {
         vendor_id: vendorId,
         customer_id: authContext.user.id,
         commission: commission.toString(),
+        type: 'marketplace_sale', // Explicit type for webhook discrimination
       },
     });
 
