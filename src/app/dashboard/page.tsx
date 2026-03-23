@@ -217,10 +217,10 @@ export default function Dashboard() {
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-gray-900">
+              <button className="text-gray-600 hover:text-gray-900" aria-label="Settings">
                 <Settings className="h-5 w-5" />
               </button>
-              <button className="text-gray-600 hover:text-gray-900">
+              <button className="text-gray-600 hover:text-gray-900" aria-label="Log out">
                 <LogOut className="h-5 w-5" />
               </button>
             </div>
@@ -500,6 +500,11 @@ export default function Dashboard() {
                                       ? "Remove from featured"
                                       : "Add to featured"
                                   }
+                                  aria-label={
+                                    product.featured
+                                      ? "Remove from featured"
+                                      : "Add to featured"
+                                  }
                                 >
                                   <Star
                                     className={`h-4 w-4 ${
@@ -507,10 +512,10 @@ export default function Dashboard() {
                                     }`}
                                   />
                                 </button>
-                                <button className="text-gray-400 hover:text-gray-600">
+                                <button className="text-gray-400 hover:text-gray-600" aria-label="Edit product">
                                   <Edit className="h-4 w-4" />
                                 </button>
-                                <button className="text-gray-400 hover:text-red-600">
+                                <button className="text-gray-400 hover:text-red-600" aria-label="Delete product">
                                   <Trash2 className="h-4 w-4" />
                                 </button>
                               </div>

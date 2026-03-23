@@ -68,7 +68,7 @@ export default function VendorSettingsPage() {
           </p>
         </div>
         
-        <TemplateSelector currentTemplate={(profile as any).template_key || "standard"} />
+        <TemplateSelector currentTemplate={(profile as unknown as Record<string, string>).template_key || "standard"} />
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
