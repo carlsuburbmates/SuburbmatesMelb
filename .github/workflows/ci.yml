@@ -28,14 +28,50 @@ jobs:
       - name: Install Playwright (Chromium + deps)
         run: npx playwright install --with-deps chromium
 
+      - name: Start Supabase local emulator
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start
+
       - name: Lint (optional)
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          RESEND_API_KEY: "dummy"
+          GA_TRACKING_ID: "dummy"
+          CRON_SECRET: "dummy"
+          POSTHOG_KEY: "dummy"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          RESEND_API_KEY: "dummy"
+          GA_TRACKING_ID: "dummy"
+          CRON_SECRET: "dummy"
+          POSTHOG_KEY: "dummy"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy"
+          STRIPE_SECRET_KEY: "dummy"
+          STRIPE_WEBHOOK_SECRET: "dummy"
+          RESEND_API_KEY: "dummy"
+          GA_TRACKING_ID: "dummy"
+          CRON_SECRET: "dummy"
+          POSTHOG_KEY: "dummy"
