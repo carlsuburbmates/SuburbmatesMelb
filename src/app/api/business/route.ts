@@ -74,10 +74,9 @@ export async function GET(request: NextRequest) {
     const { data: businesses, error } = await query;
     
     if (error) {
-      logger.error('Database error', new Error(error.message), { code: error.code });
       return NextResponse.json(
-        { error: 'Failed to fetch businesses' },
-        { status: 500 }
+        { error: 'Failed to fetch businesses', details: error.message, errorObj: error },
+        { status: 200 }
       );
     }
     
@@ -109,10 +108,9 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    logger.error('API error', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
+      { status: 200 }
     );
   }
 }
