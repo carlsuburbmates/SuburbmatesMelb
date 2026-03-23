@@ -124,8 +124,23 @@ export const analytics = {
       label: `${businessId}_${method}`,
     }),
 
+  productClick: (productId: string) =>
+    trackEvent({
+      action: 'product_click',
+      category: 'discovery',
+      label: productId,
+    }),
+
+  externalRedirect: (productId: string) =>
+    trackEvent({
+      action: 'external_redirect',
+      category: 'conversion',
+      label: productId,
+    }),
+
   // Error tracking
   errorOccurred: (errorType: string, errorMessage: string) =>
+
     trackEvent({
       action: 'error',
       category: 'error',

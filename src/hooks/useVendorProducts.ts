@@ -7,8 +7,9 @@ export interface VendorProduct {
   id: string;
   title: string;
   description?: string | null;
-  price: number;
+  price?: number | null;
   category?: string | null;
+  external_url: string;
   slug?: string | null;
   thumbnail_url?: string | null;
   published: boolean | null;
@@ -16,6 +17,7 @@ export interface VendorProduct {
   created_at?: string | null;
   updated_at?: string | null;
 }
+
 
 export interface VendorProductStats {
   totalProducts: number;
@@ -31,11 +33,13 @@ export interface VendorProductStats {
 interface ProductPayload {
   title: string;
   description: string;
-  price: number;
+  external_url: string;
+  price?: number | null;
   category?: string;
   images?: string[];
   published?: boolean;
 }
+
 
 interface VendorProductsResponse {
   products: VendorProduct[];

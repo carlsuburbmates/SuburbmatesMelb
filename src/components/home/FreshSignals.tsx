@@ -1,206 +1,151 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/database.types";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Sparkles, User, Package } from "lucide-react";
+import { Sparkles, ExternalLink, Package } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
-export async function FreshSignals() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+type ShuffledProduct = {
+  id: string;
+  title: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  external_url: string;
+  vendor_id: string;
+  business_name: string;
+  business_slug: string;
+  created_at: string;
+};
 
-  // 1. Get New Studios (Business Profiles)
-  const { data: studiosRaw } = await supabase
-    .from("business_profiles")
-    .select("id, business_name, slug, profile_image_url, suburb_id")
-    .eq('is_public', true)
-    .order("created_at", { ascending: false })
-    .limit(4);
+export function FreshSignals() {
+  const [products, setProducts] = useState<ShuffledProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Helper to fetch keys
-  const suburbIds = studiosRaw?.map(s => s.suburb_id).filter((id): id is number => id !== null) || [];
-  
-  // Fetch Regions
-  const regionsMap: Record<number, string> = {};
-  if (suburbIds.length > 0) {
-    const { data: regions } = await supabase
-      .from('regions')
-      .select('id, name')
-      .in('id', suburbIds);
-    regions?.forEach(s => { regionsMap[s.id] = s.name; });
+  useEffect(() => {
+    async function fetchShuffle() {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+
+      try {
+        const { data, error } = await supabase.rpc('get_daily_shuffle_products', { p_limit: 8 });
+
+        if (error) {
+          console.error("Shuffle Error:", error);
+        } else {
+          setProducts((data as ShuffledProduct[]) || []);
+        }
+      } catch (error: unknown) {
+        console.error('Fetch shuffle products error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchShuffle();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-gray-50/50">
+        <div className="container-custom">
+          <div className="flex items-center space-x-3 mb-12">
+            <div className="w-6 h-6 bg-gray-200 animate-pulse rounded" />
+            <div className="h-8 bg-gray-200 animate-pulse rounded w-48" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="aspect-[4/5] bg-gray-200 animate-pulse rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
-  const studios = studiosRaw?.map(s => ({
-    ...s,
-    suburb_name: s.suburb_id ? regionsMap[s.suburb_id] : null
-  })) || [];
-
-  // 2. Get Fresh Drops (Products)
-  const { data: productsRaw } = await supabase
-    .from("products")
-    .select("id, title, price, thumbnail_url, vendor_id")
-    .eq("published", true)
-    .order("created_at", { ascending: false })
-    .limit(4);
-
-  const vendorIds = productsRaw?.map(p => p.vendor_id).filter((id): id is string => !!id) || [];
-  
-  // Fetch Vendors and User IDs
-  const vendorMap: Record<string, { business_name: string, user_id: string }> = {};
-  const userIds: string[] = [];
-  
-  if (vendorIds.length > 0) {
-     const { data: vendors } = await supabase
-       .from('vendors')
-       .select('id, business_name, user_id')
-       .in('id', vendorIds);
-     
-     vendors?.forEach(v => {
-       if (v.user_id) userIds.push(v.user_id);
-       vendorMap[v.id] = { business_name: v.business_name || '', user_id: v.user_id || '' };
-     });
-  }
-
-  // Fetch Slugs from Business Profiles via User ID
-  const slugMap: Record<string, string> = {};
-  if (userIds.length > 0) {
-    const { data: profiles } = await supabase
-      .from('business_profiles')
-      .select('user_id, slug')
-      .in('user_id', userIds);
-    
-    profiles?.forEach(p => {
-       if (p.user_id) slugMap[p.user_id] = p.slug || '';
-    });
-  }
-
-  const products = productsRaw?.map(p => {
-    const v = p.vendor_id ? vendorMap[p.vendor_id] : null;
-    const slug = v?.user_id ? slugMap[v.user_id] : null;
-    return {
-      ...p,
-      business_name: v?.business_name,
-      slug: slug
-    };
-  }) || [];
-
-  if (studios.length === 0 && products.length === 0) return null;
+  if (products.length === 0) return null;
 
   return (
-    <section className="py-12 bg-gray-50 border-y border-gray-100">
+    <section className="py-20 bg-gray-50/50 border-y border-gray-100">
       <div className="container-custom">
-        <div className="grid gap-12 lg:grid-cols-2">
-          
-          {/* Recent Studios */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-gray-900" />
-              <h2 className="text-xl font-bold text-gray-900">New Studios</h2>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-amber-100 rounded-lg">
+              <Sparkles className="w-5 h-5 text-amber-600" />
             </div>
-            {studios.length === 0 ? (
-              <p className="text-gray-500 text-sm">No new studios yet.</p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {studios.map((studio) => (
-                  <Link
-                    key={studio.id}
-                    href={studio.slug ? `/business/${studio.slug}` : '#'}
-                    className="group bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-start space-x-3"
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Daily Discoveries</h2>
+              <p className="text-sm text-gray-500">Fresh finds from Melbourne creators, updated daily.</p>
+            </div>
+          </div>
+          <Link
+            href="/directory"
+            className="text-sm font-bold text-gray-900 hover:underline inline-flex items-center"
+          >
+            Browse Everything <ExternalLink className="w-4 h-4 ml-2" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="group flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-900 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-gray-200/40"
+            >
+              <div className="aspect-square relative bg-gray-100 overflow-hidden">
+                {product.thumbnail_url ? (
+                  <Image
+                    src={product.thumbnail_url}
+                    alt={product.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="w-8 h-8 text-gray-300" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+              </div>
+              
+              <div className="p-4 flex flex-col flex-grow">
+                <Link 
+                  href={`/api/redirect?productId=${product.id}`}
+                  target="_blank"
+                  className="group/link"
+                  onClick={() => analytics.productClick(product.id)}
+                >
+                  <h3 className="text-sm font-bold text-gray-900 group-hover/link:text-blue-600 transition-colors line-clamp-2 min-h-[40px] mb-2 leading-snug">
+                    {product.title}
+                  </h3>
+                </Link>
+                
+                <div className="mt-auto pt-3 border-t border-gray-50">
+                  <Link 
+                    href={`/business/${product.business_slug}`}
+                    className="flex items-center text-xs text-gray-500 hover:text-gray-900 transition-colors"
                   >
-                    <div className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
-                      {studio.profile_image_url ? (
-                        <Image
-                          src={studio.profile_image_url}
-                          alt={studio.business_name || 'Studio'}
-                          fill
-                          className="object-cover"
-                          sizes="40px"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold text-xs">
-                          {(studio.business_name || 'S').charAt(0)}
-                        </div>
-                      )}
+                    <div className="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center mr-2 text-[8px] font-bold overflow-hidden">
+                      {product.business_name.charAt(0)}
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-1">
-                        {studio.business_name || 'Unnamed Studio'}
-                      </h3>
-                      <div className="flex items-center text-xs text-gray-500 mt-1">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        <span className="line-clamp-1">{studio.suburb_name || "Melbourne"}</span>
-                      </div>
-                    </div>
+                    <span className="truncate flex-grow">{product.business_name}</span>
                   </Link>
-                ))}
+                </div>
               </div>
-            )}
-            <Link 
-              href="/directory" 
-              className="inline-block text-sm font-medium text-amber-700 hover:text-amber-800 hover:underline"
-            >
-              Browse all studios &rarr;
-            </Link>
-          </div>
 
-          {/* Fresh Drops */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-gray-900" />
-              <h2 className="text-xl font-bold text-gray-900">Fresh Drops</h2>
+              <Link
+                href={`/api/redirect?productId=${product.id}`}
+                target="_blank"
+                className="block w-full py-3 bg-gray-50 text-gray-900 text-center text-xs font-bold border-t border-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-300"
+                onClick={() => analytics.productClick(product.id)}
+              >
+                Visit Website
+              </Link>
             </div>
-            {products.length === 0 ? (
-              <p className="text-gray-500 text-sm">No new products yet.</p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {products.map((product) => {
-                  return (
-                    <Link
-                      key={product.id}
-                      href={product.slug ? `/business/${product.slug}` : '#'}
-                      className="group bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-start space-x-3"
-                    >
-                      <div className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
-                        {product.thumbnail_url ? (
-                          <Image
-                            src={product.thumbnail_url}
-                            alt={product.title}
-                            fill
-                            className="object-cover"
-                            sizes="40px"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-5 h-5 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-1">
-                          {product.title}
-                        </h3>
-                        <p className="text-xs text-emerald-600 font-medium mt-1">
-                          {product.price ? `$${product.price}` : 'Free'}
-                        </p>
-                        {product.business_name && (
-                          <p className="text-xs text-gray-400 mt-1 line-clamp-1">
-                            by {product.business_name}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-            <Link 
-              href="/directory" 
-              className="inline-block text-sm font-medium text-amber-700 hover:text-amber-800 hover:underline"
-            >
-              Browse directory &rarr;
-            </Link>
-          </div>
-
+          ))}
         </div>
       </div>
     </section>

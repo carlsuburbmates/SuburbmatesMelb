@@ -99,6 +99,7 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         created_at,
         regions:regions!business_profiles_suburb_id_fkey ( id, name ),
         categories:categories!business_profiles_category_id_fkey ( id, name )
+
       `,
       { count: "exact" }
     )
@@ -146,12 +147,12 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         slug: row.slug,
         tier: row.vendor_tier,
         suburb: {
-          id: (row.regions as any)?.id ?? null,
-          name: (row.regions as any)?.name ?? null,
+          id: (row.regions as unknown as { id: number; name: string })?.id ?? null,
+          name: (row.regions as unknown as { id: number; name: string })?.name ?? null,
         },
         category: {
-          id: (row.categories as any)?.id ?? null,
-          name: (row.categories as any)?.name ?? null,
+          id: (row.categories as unknown as { id: number; name: string })?.id ?? null,
+          name: (row.categories as unknown as { id: number; name: string })?.name ?? null,
         },
         isFeatured: Boolean(meta),
         featuredSuburbLabel: meta?.suburbLabel ?? null,

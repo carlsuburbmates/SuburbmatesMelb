@@ -8,7 +8,7 @@ import { useVendorProducts, VendorProduct } from "@/hooks/useVendorProducts";
 interface ProductFormState {
   title: string;
   description: string;
-  price: string;
+  external_url: string;
   category: string;
   images: string;
   published: boolean;
@@ -17,11 +17,12 @@ interface ProductFormState {
 const initialFormState: ProductFormState = {
   title: "",
   description: "",
-  price: "",
+  external_url: "",
   category: "",
   images: "",
   published: false,
 };
+
 
 function parseImagesInput(value: string): string[] {
   return value
@@ -43,8 +44,9 @@ export default function VendorProductsPage() {
   } = useVendorProducts();
   const [formState, setFormState] = useState<ProductFormState>(initialFormState);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
-  const [formStatus, setFormStatus] = useState<"idle" | "saving">("idle");
+  const [formStatus, setFormStatus] = useState<"idle" | "saving" | "fetching">("idle");
   const [formError, setFormError] = useState<string | null>(null);
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -68,12 +70,47 @@ export default function VendorProductsPage() {
     setFormState({
       title: product.title ?? "",
       description: product.description ?? "",
-      price: String(product.price ?? ""),
+      external_url: product.external_url ?? "",
       category: product.category ?? "",
       images: (product.images ?? []).join("\n"),
       published: Boolean(product.published),
     });
   };
+
+  const handleUrlPaste = async (e: React.ClipboardEvent | React.FocusEvent<HTMLInputElement>) => {
+    let url = "";
+    if ("clipboardData" in e) {
+       url = e.clipboardData.getData("text");
+    } else {
+       url = e.target.value;
+    }
+
+    if (!url || !url.startsWith("http")) return;
+
+    // Use a small delay for blur event to ensure state is updated
+    setTimeout(async () => {
+      if (formState.title && formState.description) return;
+
+      setFormStatus("fetching");
+      try {
+        const res = await fetch(`/api/scrape?url=${encodeURIComponent(url)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setFormState((prev) => ({
+            ...prev,
+            title: prev.title || data.title || "",
+            description: prev.description || data.description || "",
+            images: prev.images || data.image || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Scraping error:", err);
+      } finally {
+        setFormStatus("idle");
+      }
+    }, 100);
+  };
+
 
 const handleDelete = async (productId: string) => {
   if (!confirm("Delete this product? This action cannot be undone.")) {
@@ -112,17 +149,18 @@ const handleTogglePublish = async (product: VendorProduct) => {
     const payload = {
       title: formState.title.trim(),
       description: formState.description.trim(),
-      price: parseFloat(formState.price),
+      external_url: formState.external_url.trim(),
       category: formState.category.trim() || undefined,
       images: parseImagesInput(formState.images),
       published: formState.published,
     };
 
-    if (Number.isNaN(payload.price)) {
-      setFormError("Price must be a valid number.");
+    if (!payload.external_url) {
+      setFormError("External URL is required.");
       setFormStatus("idle");
       return;
     }
+
 
     try {
       if (editingProductId) {
@@ -149,10 +187,10 @@ const handleTogglePublish = async (product: VendorProduct) => {
           Product management
         </h1>
         <p className="text-gray-600">
-          Create, edit, and publish digital products sold through SuburbMates.
-          Product caps and featured slot limits are enforced automatically per
-          the SSOT.
+          Add products sold through your own external website. SuburbMates
+          tracks clicks and surfaces your listings to local buyers.
         </p>
+
       </div>
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr,1fr]">
@@ -181,8 +219,36 @@ const handleTogglePublish = async (product: VendorProduct) => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
+              <label htmlFor="product-url" className="block text-sm font-medium text-gray-700 mb-1">
+                External URL
+              </label>
+              <div className="relative">
+                <input
+                  required
+                  id="product-url"
+                  name="external_url"
+                  type="url"
+                  value={formState.external_url}
+                  onChange={handleInputChange}
+                  onPaste={handleUrlPaste}
+                  onBlur={handleUrlPaste}
+                  placeholder="https://your-site.com/product"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+                {formStatus === "fetching" && (
+                  <div className="absolute right-3 top-3">
+                    <Save className="w-4 h-4 animate-spin text-gray-400" />
+                  </div>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Paste a URL to automatically fetch title, description, and images.
+              </p>
+            </div>
+
+            <div>
               <label htmlFor="product-title" className="block text-sm font-medium text-gray-700 mb-1">
-                Title
+                Title {formStatus === "fetching" && "(autofilling...)"}
               </label>
               <input
                 required
@@ -211,23 +277,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="product-price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Price (AUD)
-                </label>
-                <input
-                  required
-                  id="product-price"
-                  name="price"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={formState.price}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label htmlFor="product-category" className="block text-sm font-medium text-gray-700 mb-1">
                   Category
@@ -242,6 +292,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 />
               </div>
             </div>
+
 
             <div>
               <label htmlFor="product-images" className="block text-sm font-medium text-gray-700 mb-1">
@@ -328,7 +379,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
           </div>
           <ul className="text-sm text-gray-600 space-y-2">
             <li>• No customer service promises (non-negotiable #2).</li>
-            <li>• Prices must be final; platform fees are non-refundable.</li>
+            <li>• External links must be direct to product pages.</li>
             <li>
               • FIFO downgrade unpublishes the oldest published products first.
             </li>
@@ -336,6 +387,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
               • Premium tier unlocks 3 featured slots and analytics exports.
             </li>
           </ul>
+
           <div className="bg-gray-50 rounded-xl p-4 space-y-2">
             <p className="text-sm font-semibold text-gray-900">
               Tier utilisation
@@ -393,9 +445,9 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   <th className="px-6 py-4">Title</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Price</th>
                   <th className="px-6 py-4">Updated</th>
                   <th className="px-6 py-4">Actions</th>
+
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
@@ -420,12 +472,10 @@ const handleTogglePublish = async (product: VendorProduct) => {
                         {product.published ? "Published" : "Draft"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      ${Number(product.price ?? 0).toFixed(2)}
-                    </td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatDate(product.updated_at ?? undefined)}
                     </td>
+
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
                         <button

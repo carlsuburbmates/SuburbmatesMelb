@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { ShoppingBag, Search } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { Input } from '@/components/ui/input';
+import { analytics } from '@/lib/analytics';
 
 
 
@@ -139,13 +142,38 @@ export function BusinessProducts({ vendorId, businessId, limit }: BusinessProduc
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {displayProducts.map((product) => (
-          <div key={product.id} className="h-full bg-white border border-gray-200 rounded-lg p-4">
-               <h3 className="font-medium text-gray-900 text-sm mb-1">{product.title}</h3>
-               <p className="text-sm text-gray-500">{product.category || 'Digital'}</p>
-               {product.price != null && (
-                 <p className="text-sm font-semibold text-gray-900 mt-2">A${(product.price / 100).toFixed(2)}</p>
-               )}
-          </div>
+                  <div key={product.id} className="group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-gray-900 transition-all duration-300">
+                    <div className="aspect-[4/3] relative bg-gray-50 overflow-hidden">
+                      {Array.isArray(product.images) && product.images[0] ? (
+                        <Image
+                          src={product.images[0] as string}
+                          alt={product.title || "Product"}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-2 min-h-[40px]">
+                        {product.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-4 line-clamp-1">
+                        {product.description || "No description provided."}
+                      </p>
+                      <Link
+                        href={`/api/redirect?productId=${product.id}`}
+                        target="_blank"
+                        className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold text-center block hover:bg-gray-800 transition-colors"
+                        onClick={() => analytics.productClick(product.id as string)}
+                      >
+                        Visit Website
+                      </Link>
+                    </div>
+                  </div>
         ))}
       </div>
     </div>

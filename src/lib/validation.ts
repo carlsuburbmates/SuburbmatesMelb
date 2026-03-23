@@ -133,12 +133,15 @@ export const productCreateSchema = z.object({
   price: z
     .number()
     .min(0.01, "Price must be at least $0.01")
-    .max(999999.99, "Price exceeds maximum"),
+    .max(999999.99, "Price exceeds maximum")
+    .optional()
+    .nullable(),
   category: z.string().optional(),
   images: z.array(z.string().url()).max(3, "Maximum 3 images").default([]),
   published: z.boolean().default(false),
-  external_url: z.string().url("Invalid external URL").default(""),
+  external_url: z.string().url("Invalid external URL"),
 });
+
 
 export const productUpdateSchema = productCreateSchema.partial();
 

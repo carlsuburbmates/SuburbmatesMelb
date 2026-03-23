@@ -1234,6 +1234,20 @@ export type Database = {
         Args: { p_to_unpublish: number; p_vendor_id: string }
         Returns: undefined
       }
+      get_daily_shuffle_products: {
+        Args: { p_limit?: number }
+        Returns: {
+          business_name: string
+          business_slug: string
+          created_at: string
+          description: string
+          external_url: string
+          id: string
+          thumbnail_url: string
+          title: string
+          vendor_id: string
+        }[]
+      }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
       get_vendor_tier: { Args: { vendor_uuid: string }; Returns: string }
       is_appeal_within_deadline: {
