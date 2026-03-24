@@ -31,11 +31,50 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
+      - name: Set local Supabase env vars
+        run: |
+          # Use local Supabase credentials specifically to pass integration and e2e tests
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+
       - name: Build
         run: npm run build
+        env:
+          CI: "true"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "phc_dummy"
+          GA_TRACKING_ID: "G-DUMMY"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "phc_dummy"
+          GA_TRACKING_ID: "G-DUMMY"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          CI: "true"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
+          CRON_SECRET: "dummy_cron_secret"
+          POSTHOG_KEY: "phc_dummy"
+          GA_TRACKING_ID: "G-DUMMY"
