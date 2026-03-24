@@ -39,13 +39,17 @@ jobs:
       - name: Start Supabase
         run: supabase start
 
+      - name: Set local Supabase env vars
+        run: |
+          # Use local Supabase credentials specifically to pass integration and e2e tests
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+
       - name: Build
         run: npm run build
         env:
           CI: "true"
-          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
-          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
           STRIPE_SECRET_KEY: "sk_test_dummy"
           STRIPE_WEBHOOK_SECRET: "whsec_dummy"
           RESEND_API_KEY: "re_dummy"
@@ -57,9 +61,6 @@ jobs:
         run: node scripts/smoke-serve.mjs
         env:
           CI: "true"
-          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
-          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
           STRIPE_SECRET_KEY: "sk_test_dummy"
           STRIPE_WEBHOOK_SECRET: "whsec_dummy"
           RESEND_API_KEY: "re_dummy"
@@ -71,9 +72,6 @@ jobs:
         run: node scripts/e2e-serve.mjs
         env:
           CI: "true"
-          NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
-          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy"
           STRIPE_SECRET_KEY: "sk_test_dummy"
           STRIPE_WEBHOOK_SECRET: "whsec_dummy"
           RESEND_API_KEY: "re_dummy"
