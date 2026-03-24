@@ -1,6 +1,8 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Instagram, Twitter, Linkedin, Mail } from 'lucide-react';
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { Instagram, Twitter, Linkedin, Mail } from "lucide-react";
 
 export function Footer() {
   return (
@@ -23,49 +25,61 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-gray-600 max-w-md mb-6">
-              Melbourne&rsquo;s digital neighbourhood where local creators build their brand and sell digital products.
+              Melbourne&rsquo;s digital neighbourhood where local creators build
+              their brand and sell digital products.
             </p>
-            
+
             {/* Newsletter Signup */}
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 mb-2">Stay updated</h4>
-              <div className="flex max-w-md">
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="flex max-w-md"
+              >
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
                 <input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Enter your email"
+                  required
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                 />
-                <button className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors"
+                >
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Social Links */}
             <div className="flex space-x-4">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Twitter"
               >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a 
-                href="mailto:hello@suburbmates.com.au" 
+              <a
+                href="mailto:hello@suburbmates.com.au"
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Email"
               >
@@ -79,17 +93,26 @@ export function Footer() {
             <h4 className="font-semibold text-gray-900 mb-4">Platform</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/directory" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/directory"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Creator Directory
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/dashboard"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Vendor Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/pricing"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Pricing
                 </Link>
               </li>
@@ -101,22 +124,34 @@ export function Footer() {
             <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/help" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/help"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Help Centre
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/contact"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/about"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link
+                  href="/blog"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
                   Blog
                 </Link>
               </li>
@@ -130,13 +165,22 @@ export function Footer() {
             © 2024 SuburbMates. All rights reserved.
           </div>
           <div className="flex space-x-6 text-sm">
-            <Link href="/privacy" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/privacy"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/terms"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Terms of Service
             </Link>
-            <Link href="/cookies" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link
+              href="/cookies"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Cookie Policy
             </Link>
           </div>
