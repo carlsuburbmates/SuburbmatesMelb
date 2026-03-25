@@ -23,6 +23,14 @@ const eslintConfig = defineConfig([
       // Disable react-hooks/refs rule for our animation hooks
       // since they properly handle refs without accessing .current during render
       "react-hooks/refs": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ]
     },
   },
 ]);
