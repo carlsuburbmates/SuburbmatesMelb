@@ -50,17 +50,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // Log the click
-    const ipAddress = request.headers.get('x-forwarded-for') || 'unknown';
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-
-    // Use await to ensure logging succeeds before redirect in serverless environments
-    await supabase.from('outbound_clicks').insert({
-      product_id: product.id,
-      vendor_id: product.vendor_id,
-      ip_address: ipAddress,
-      user_agent: userAgent
-    });
+    // Log the click (Zero-PII Mandate)
+    try {
+      await supabase.from('outbound_clicks').insert({
+        product_id: product.id,
+        vendor_id: product.vendor_id,
+      });
+    } catch (logError) {
+      console.error('Failed to log outbound click (analytics failure, proceeding with redirect):', logError);
+    }
 
     return NextResponse.redirect(product.external_url, 302);
   } catch (error) {

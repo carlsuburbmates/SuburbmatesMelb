@@ -1,10 +1,10 @@
 # Suburbmates — Execution Plan (PR0–PR10)
 
-> [!IMPORTANT]
-> **LAUNCH FREEZE IN EFFECT (PR10)**
-> Post-PR10 changes require a new PR number.
-> No copy promises beyond SSOT allowed.
-> Zero scope creep permitted during launch phase.
+> [!CAUTION]
+> **LEGACY EXECUTION PLAN (SUPERSEDED)**
+> The PR Roadmap below (PR0–PR10) depicts the legacy "Marketplace" model.
+> It is retained for historical context ONLY.
+> Implementation truth for the **Directory Model (SSOT v2.0)** is recorded in `docs/VERIFICATION_LOG.md`.
 
 This document is the **execution checklist** for building and shipping Suburbmates against the immutable **SSOT** in `docs/README.md`.
 It defines **what to do**, **in what order**, **what “done” means**, and **how to validate**.

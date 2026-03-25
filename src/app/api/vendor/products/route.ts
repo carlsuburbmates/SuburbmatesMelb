@@ -12,9 +12,9 @@ import {
   successResponse,
 } from "@/app/api/_utils/response";
 import { parseProductCreateRequest } from "./payload";
-import { TIER_LIMITS, VendorTier } from "@/lib/constants";
+import { UNIVERSAL_PRODUCT_LIMIT } from "@/lib/tier-utils";
 import { generateUniqueSlug } from "@/lib/slug-utils";
-import { canCreateProduct } from "@/lib/tier-utils";
+import { canPublishProduct } from "@/lib/tier-utils";
 import { withCors } from "@/middleware/cors";
 import { withErrorHandler } from "@/middleware/errorHandler";
 import { withLogging } from "@/middleware/logging";
@@ -27,18 +27,17 @@ async function createProductHandler(req: NextRequest) {
   // 2. Validate request body
   const body = await parseProductCreateRequest(req);
 
-  // Pre-check tier cap (if trying to publish)
+  // Pre-check cap (if trying to publish)
   if (body.published) {
-    const canCreate = await canCreateProduct(
+    const canPublish = await canPublishProduct(
       vendor.id,
-      "basic" as VendorTier,
-      dbClient,
-      vendor.product_quota ?? null
+      false, // new product, not yet published
+      dbClient
     );
 
-    if (!canCreate) {
+    if (!canPublish) {
       return forbiddenResponse(
-        `Product cap reached. Please contact support to increase your listing limit.`
+        `Product cap reached (${vendor.product_quota || UNIVERSAL_PRODUCT_LIMIT}). Please contact support to increase your listing limit.`
       );
     }
   }
@@ -59,7 +58,6 @@ async function createProductHandler(req: NextRequest) {
       title: body.title,
       slug,
       description: body.description,
-      price: body.price,
       category_id: null,
       category: body.category || null,
       thumbnail_url: thumbnailUrl,
@@ -90,7 +88,7 @@ async function listProductsHandler(req: NextRequest) {
   const { data: productData, error: fetchError } = await dbClient
     .from("products")
     .select(
-      "id,title,description,price,category,slug,thumbnail_url,published,images,created_at,updated_at"
+      "id,title,description,category,slug,thumbnail_url,published,images,created_at,updated_at"
     )
     .eq("vendor_id", vendor.id)
     .is("deleted_at", null)
@@ -124,8 +122,7 @@ async function listProductsHandler(req: NextRequest) {
 
   const tierLimit =
     vendor.product_quota ??
-    TIER_LIMITS["basic"]?.product_quota ??
-    null;
+    UNIVERSAL_PRODUCT_LIMIT;
 
   return successResponse({
     products: productData ?? [],
@@ -137,7 +134,7 @@ async function listProductsHandler(req: NextRequest) {
       tier: "basic",
       productQuota: tierLimit,
       remainingQuota:
-        typeof tierLimit === "number" ? tierLimit - totalProducts : null,
+        typeof tierLimit === "number" ? tierLimit - publishedProducts : null,
       lastUpdated:
         productData && productData.length > 0
           ? productData[0]?.updated_at ?? productData[0]?.created_at

@@ -326,7 +326,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 </label>
               </div>
               <p className="text-xs text-gray-500">
-                Publishing respects your tier cap and FIFO downgrade rules.
+                Publishing respects the 10-product limit and FIFO auto-unpublishing.
               </p>
             </div>
 
@@ -381,27 +381,25 @@ const handleTogglePublish = async (product: VendorProduct) => {
             <li>• No customer service promises (non-negotiable #2).</li>
             <li>• External links must be direct to product pages.</li>
             <li>
-              • FIFO downgrade unpublishes the oldest published products first.
+              • FIFO logic auto-unpublishes the oldest products if over the 10-slot limit.
             </li>
             <li>
-              • Premium tier unlocks 3 featured slots and analytics exports.
+              • Contact support to purchase Featured Slots for your region.
             </li>
           </ul>
 
           <div className="bg-gray-50 rounded-xl p-4 space-y-2">
             <p className="text-sm font-semibold text-gray-900">
-              Tier utilisation
+              Product limit utilisation
             </p>
             <p className="text-sm text-gray-600">
-              {stats?.productQuota
-                ? `${stats.totalProducts} of ${stats.productQuota} slots used`
-                : "Configure vendor.product_quota to enable per-tier caps."}
+              {stats?.totalProducts ?? 0} of 10 slots used
             </p>
             <div className="flex justify-between text-xs text-gray-500">
-              <span>Need more slots?</span>
-              <Link href="/pricing" className="font-medium text-gray-900">
-                View tiers →
-              </Link>
+              <span>Need more exposure?</span>
+              <span className="font-medium text-gray-900">
+                Contact Support
+              </span>
             </div>
           </div>
 

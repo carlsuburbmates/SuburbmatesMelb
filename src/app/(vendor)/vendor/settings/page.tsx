@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { BusinessProfile } from "@/lib/types";
 
 export default function VendorSettingsPage() {
-  const { vendor, token, isLoading } = useAuth();
+  const { vendor, isLoading } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -20,13 +20,11 @@ export default function VendorSettingsPage() {
   }, [isLoading, vendor, router]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!vendor) return;
 
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/vendor/profile', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch('/api/vendor/profile');
         const data = await res.json();
         if (data.success && data.data?.profile) {
             setProfile(data.data.profile);
@@ -39,7 +37,7 @@ export default function VendorSettingsPage() {
     }
     
     fetchProfile();
-  }, [token]);
+  }, [vendor]);
 
   if (isLoading || loadingProfile) {
     return (

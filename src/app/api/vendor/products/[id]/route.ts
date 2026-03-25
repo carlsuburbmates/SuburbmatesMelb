@@ -13,10 +13,11 @@ import {
   successResponse,
 } from "@/app/api/_utils/response";
 import { parseProductUpdateRequest } from "../payload";
-import { VendorTier } from "@/lib/constants";
+import { Database } from "@/lib/database.types";
 import { generateUniqueSlug, shouldRegenerateSlug } from "@/lib/slug-utils";
 import { canPublishProduct } from "@/lib/tier-utils";
 import { NextRequest } from "next/server";
+import { withCors } from "@/middleware/cors";
 
 async function updateProductHandler(
   req: NextRequest,
@@ -46,10 +47,8 @@ async function updateProductHandler(
   if (body.published && existingProductData.published !== true) {
     const canPublish = await canPublishProduct(
       vendor.id,
-      "basic" as VendorTier,
       existingProductData.published || false,
-      dbClient,
-      vendor.product_quota ?? null
+      dbClient
     );
 
     if (!canPublish) {
@@ -79,9 +78,6 @@ async function updateProductHandler(
   }
   if (body.description) {
     updatePayload.description = body.description;
-  }
-  if (body.price !== undefined) {
-    updatePayload.price = body.price;
   }
   if (body.published !== undefined) {
     updatePayload.published = body.published;

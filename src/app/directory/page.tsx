@@ -7,7 +7,7 @@ import { Container } from '@/components/layout/Container';
 
 interface DirectoryPageProps {
   searchParams: Promise<{
-    suburb?: string;
+    region?: string;
     category?: string;
     search?: string;
     page?: string;
@@ -25,7 +25,7 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
         <div className="mb-8">
           <DirectorySearch 
             initialSearch={params.search || ''} 
-            initialSuburb={params.suburb || ''}
+            initialRegion={params.region || ''}
           />
         </div>
 
@@ -33,14 +33,14 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
         <div className="mb-8">
           <DirectoryFilters 
             selectedCategory={params.category || ''}
-            selectedSuburb={params.suburb || ''}
+            selectedRegion={params.region || ''}
           />
         </div>
 
         {/* Results Section */}
         <Suspense fallback={<DirectoryListingSkeleton />}>
           <DirectoryListing 
-            suburb={params.suburb}
+            region={params.region}
             category={params.category}
             search={params.search}
             page={parseInt(params.page || '1')}
@@ -74,5 +74,5 @@ function DirectoryListingSkeleton() {
 
 export const metadata = {
   title: 'Creator Directory - SuburbMates',
-  description: 'Discover local studios and creators in your Melbourne suburb. Connect with neighborhood services and digital marketplace vendors.',
+  description: 'Discover local studios and digital creators in your Melbourne neighbourhood. Connect with professional services and discovery-first digital creators.',
 };

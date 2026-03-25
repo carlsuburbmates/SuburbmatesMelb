@@ -152,33 +152,9 @@ export class VendorSuspendedError extends AppError {
   }
 }
 
-export class StripeNotConnectedError extends AppError {
-  constructor(message: string = 'Stripe account not connected', details?: Record<string, unknown>) {
-    super(message, ERROR_CODES.STRIPE_NOT_CONNECTED, 422, true, details);
-  }
-}
+// Removed StripeNotConnectedError for SSOT v2.0 parity
 
-// ============================================================================
-// PAYMENT ERRORS (402)
-// ============================================================================
-
-export class PaymentFailedError extends AppError {
-  constructor(message: string = 'Payment processing failed', details?: Record<string, unknown>) {
-    super(message, ERROR_CODES.PAYMENT_FAILED, 402, true, details);
-  }
-}
-
-export class RefundFailedError extends AppError {
-  constructor(message: string = 'Refund processing failed', details?: Record<string, unknown>) {
-    super(message, ERROR_CODES.REFUND_FAILED, 402, true, details);
-  }
-}
-
-export class InvalidAmountError extends AppError {
-  constructor(message: string = 'Invalid payment amount', details?: Record<string, unknown>) {
-    super(message, ERROR_CODES.INVALID_AMOUNT, 400, true, details);
-  }
-}
+// Removed legacy payment errors for SSOT v2.0 parity
 
 // ============================================================================
 // SYSTEM ERRORS (500)
@@ -402,8 +378,6 @@ export function createError(
       );
     case ERROR_CODES.VENDOR_SUSPENDED:
       return new VendorSuspendedError(details?.reason as string, details);
-    case ERROR_CODES.PAYMENT_FAILED:
-      return new PaymentFailedError(message, details);
     default:
       return new AppError(message || 'An error occurred', code, 500, true, details);
   }

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
-import { User, Store, ArrowRight } from 'lucide-react';
+import { User, Store, ArrowRight, Mail } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -14,97 +16,45 @@ type UserRole = 'customer' | 'vendor' | null;
 
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    businessName: '',
-    abn: '',
-    phone: ''
-  });
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { signInWithOtp, signInWithGoogle } = useAuth();
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
     analytics.signupRoleSelect(role ?? 'customer');
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) throw error;
+    } catch (err) {
+      toast.error('Google login failed. Please try again.');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setIsLoading(true);
     
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-
     try {
-      const endpoint = selectedRole === 'vendor' ? '/api/auth/create-vendor' : '/api/auth/signup';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          user_type: selectedRole === 'vendor' ? 'business_owner' : 'customer',
-          ...(selectedRole === 'vendor' && {
-            business_name: formData.businessName,
-            abn: formData.abn,
-            phone: formData.phone
-          })
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        onClose();
-        analytics.signupComplete(selectedRole === 'vendor' ? 'vendor' : 'customer');
-        // Redirect to login page after successful signup
-        window.location.href = '/auth/login';
-      } else {
-        setError(data.error || 'Registration failed. Please try again.');
-      }
+      const { error } = await signInWithOtp(email);
+      if (error) throw error;
+      
+      toast.success('Magic link sent! Check your inbox.');
+      analytics.signupComplete(selectedRole === 'vendor' ? 'vendor' : 'customer');
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Network error. Please try again.');
+      toast.error(err instanceof Error ? err.message : 'Failed to send magic link.');
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const resetModal = () => {
-    setSelectedRole(null);
-    setError(null);
-    setFormData({
-      email: '',
-      password: '',
-      confirmPassword: '',
-      firstName: '',
-      lastName: '',
-      businessName: '',
-      abn: '',
-      phone: ''
-    });
   };
 
   const handleClose = () => {
-    resetModal();
+    setSelectedRole(null);
+    setEmail('');
     onClose();
   };
 
@@ -116,221 +66,93 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       className="max-w-lg"
     >
       {!selectedRole ? (
-        // Role Selection
         <div className="space-y-4">
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-slate-500 text-center mb-6 text-sm">
             Choose how you&rsquo;d like to use SuburbMates
           </p>
           
           <div className="grid gap-4">
             <button
               onClick={() => handleRoleSelect('customer')}
-              className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors text-left group"
+              className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-gray-200 transition-colors">
-                <User className="w-6 h-6 text-gray-600" />
+              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
+                <User className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">I&rsquo;m a Customer</h3>
-                <p className="text-sm text-gray-600">Browse and purchase from local creators</p>
+                <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Customer</h3>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase">Browse and discover local creators</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
             </button>
 
             <button
               onClick={() => handleRoleSelect('vendor')}
-              className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors text-left group"
+              className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-gray-200 transition-colors">
-                <Store className="w-6 h-6 text-gray-600" />
+              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
+                <Store className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">I&rsquo;m a Creator</h3>
-                <p className="text-sm text-gray-600">Build your local profile and sell digital products</p>
+                <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Creator</h3>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase">Build your profile and share your work</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-            </button>
-          </div>
-          
-          <div className="text-center pt-4">
-            <button
-              onClick={handleClose}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Already have an account? <span className="font-medium">Sign in</span>
+              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
             </button>
           </div>
         </div>
       ) : (
-        // Signup Form
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              {error}
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              />
+        <div className="space-y-6">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full h-12 border border-slate-200 flex items-center justify-center gap-3 hover:bg-slate-50 transition-colors uppercase font-black text-[10px] tracking-[0.2em]"
+          >
+            Continue with Google
+          </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
+            <div className="relative flex justify-center text-[8px] uppercase font-black tracking-widest text-slate-400">
+              <span className="bg-white px-4">Or use magic link</span>
             </div>
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            />
-          </div>
-
-          {selectedRole === 'vendor' && (
-            <>
-              <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Creator / Studio Name
-                </label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-[10px] font-black uppercase tracking-widest text-black mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
-                  type="text"
-                  id="businessName"
-                  name="businessName"
-                  value={formData.businessName}
-                  onChange={handleInputChange}
+                  type="email"
+                  id="email"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full h-12 pl-10 pr-4 border border-slate-200 rounded-none focus:outline-none focus:ring-1 focus:ring-black placeholder:text-slate-300"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="abn" className="block text-sm font-medium text-gray-700 mb-1">
-                    ABN
-                  </label>
-                  <input
-                    type="text"
-                    id="abn"
-                    name="abn"
-                    value={formData.abn}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              
-              {/* Audience Distribution Checkbox (Soft Filter) */}
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
-                  />
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-900">I already share my work</span>
-                    <p className="text-gray-500 mt-0.5">
-                      On social media, email newsletters, or other communities.
-                    </p>
-                  </div>
-                </label>
-                <p className="text-xs text-gray-400 mt-2 ml-7">
-                  SuburbMates is designed for creators who already share their work.
-                </p>
-              </div>
-            </>
-          )}
+            </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              minLength={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            />
-          </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-14 bg-black text-white uppercase font-black tracking-[0.3em] text-[10px] hover:bg-slate-900 transition-colors disabled:opacity-50"
+            >
+              {isLoading ? 'Sending...' : 'Send Magic Link'}
+            </button>
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-              minLength={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={() => setSelectedRole(null)}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="w-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-black transition-colors"
             >
-              Back
+              Back to selection
             </button>
-            <button
-              type="submit"
-              className="flex-1 btn-primary"
-            >
-              Create Account
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
     </Modal>
   );

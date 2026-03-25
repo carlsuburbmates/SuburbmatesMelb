@@ -3,18 +3,14 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, Search } from 'lucide-react';
+import { ArrowUpRight, Search, Zap } from 'lucide-react';
 import { Product } from '@/lib/types';
-import { Input } from '@/components/ui/input';
 import { analytics } from '@/lib/analytics';
-
-
 
 interface BusinessProductsProps {
   vendorId?: string;
   businessId?: string;
   limit?: number;
-  view?: 'grid' | 'list';
   vendorProfile?: {
     name: string;
     slug: string;
@@ -23,35 +19,24 @@ interface BusinessProductsProps {
   };
 }
 
-export function BusinessProducts({ vendorId, businessId, limit }: BusinessProductsProps) {
+export function BusinessProducts({ vendorId, limit }: BusinessProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-// ... (lines 27-147 remain unchanged logic-wise, but we just need to target the return block)
-
-// ...
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const idToUse = vendorId;
-      
-      if (!idToUse) {
+      if (!vendorId) {
         setProducts([]);
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`/api/products?vendor_id=${idToUse}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-
+        const response = await fetch(`/api/products?vendor_id=${vendorId}`);
+        if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-        // Ensure data exists and is array
-        const allProducts = data.products || [];
-        setProducts(allProducts);
+        setProducts(data.products || []);
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
@@ -59,121 +44,126 @@ export function BusinessProducts({ vendorId, businessId, limit }: BusinessProduc
         setLoading(false);
       }
     };
-
     fetchProducts();
-  }, [businessId, vendorId]);
+  }, [vendorId]);
 
-  // Filtering
   const filteredProducts = products.filter(product => {
-     const titleMatch = product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
-     const categoryMatch = product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
-     return titleMatch || categoryMatch;
+     const text = searchQuery.toLowerCase();
+     return (product.title?.toLowerCase().includes(text) || 
+             product.category?.toLowerCase().includes(text));
   });
-
-  // Slicing (apply limit after filter if needed, OR before? Usually limit is "latest X", so applied before filter if we only fetched X. But here we fetched all (if limit was undefined in fetch, but our API uses limit...))
-  // Wait, if I pass limit to BusinessProducts component (e.g. 6), the API fetch was NOT using it in previous code?
-  // Previous code: `const allProducts = data.products || []; setProducts(limit ? allProducts.slice(0, limit) : allProducts);`
-  // But wait, the API call should probably limit it IF we don't want to filter all of them? 
-  // But if we want to Search, we need ALL products.
-  // PR8 says: "Search/Filter within the vendor's own products"
-  // If I only fetch 6, I can't search effectively.
-  // So if `limit` is present (Dashboard/Profile preview), maybe Search is disabled?
-  // Or I fetch all and slice for display?
-  // Let's assume if limit is present, we are in "Preview Mode" (no search).
-  // If no limit (Shop Tab), we enable Search.
 
   const isPreview = !!limit;
   const displayProducts = isPreview ? products.slice(0, limit) : filteredProducts;
 
-  if (loading) {
-     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-               <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               {[...Array(limit || 3)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
-               ))}
-            </div>
-        </div>
-     );
-  }
-
-  if (products.length === 0) {
-     // Only hide if NOT searching (no products at all)
-     // If searching and no results, show "No results".
-     // But here products.length 0 means vendor has no products.
-    return null; 
-  }
+  if (loading) return <SkeletonGrid limit={limit} />;
+  if (products.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center space-x-2">
-          <ShoppingBag className="w-5 h-5 text-gray-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Digital Products</h2>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {products.length}
-          </span>
+    <div className="bg-white">
+      {/* Header & Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-6 border-b border-slate-100 pb-8">
+        <div>
+          <h3 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
+            <Zap className="w-3 h-3 fill-black text-black" />
+            Studio Collection
+          </h3>
+          <p className="text-sm text-slate-400 font-medium">Selected digital works and professional offerings.</p>
         </div>
         
-        {/* Only show Search filter if NOT in preview mode and we have enough products to warrant search (e.g. > 4) */}
-        {!isPreview && products.length > 4 && (
-            <div className="relative w-full sm:w-64">
-               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-               <Input 
-                  placeholder="Search products..." 
-                  className="pl-9 h-9 text-sm" 
+        {!isPreview && products.length > 3 && (
+            <div className="relative w-full sm:w-72">
+               <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-black w-4 h-4" />
+               <input 
+                  type="text"
+                  placeholder="SEARCH CATALOGUE..." 
+                  className="w-full pl-8 py-2 bg-transparent border-b border-black text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-slate-400 transition-colors placeholder:text-slate-300" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                />
             </div>
         )}
+      </div>
 
-        {/* View All Link removed — marketplace route deleted in SSOT v2 Phase 2 */}
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200 border border-slate-200">
+        {displayProducts.map((product) => (
+          <div key={product.id} className="group bg-white p-5 hover:bg-slate-50 transition-colors flex flex-col">
+            <Link 
+              href={`/api/redirect?productId=${product.id}`}
+              target="_blank"
+              onClick={() => analytics.productClick(product.id as string)}
+              className="aspect-[4/3] relative bg-slate-50 overflow-hidden mb-6 block"
+            >
+              {Array.isArray(product.images) && product.images[0] ? (
+                <Image
+                  src={product.images[0] as string}
+                  alt={product.title || "Product"}
+                  fill
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center border-b border-slate-50">
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Preview</span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            </Link>
+
+            <div className="flex flex-col flex-grow">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                {product.category || "GENERAL"}
+              </span>
+              <Link 
+                href={`/api/redirect?productId=${product.id}`}
+                target="_blank"
+                onClick={() => analytics.productClick(product.id as string)}
+                className="group/title block mb-4"
+              >
+                <h4 className="text-sm font-black text-black uppercase tracking-tight leading-snug line-clamp-2 min-h-[40px] group-hover/title:underline decoration-1 underline-offset-4">
+                  {product.title}
+                </h4>
+              </Link>
+              
+              <div className="mt-auto pt-4 border-t border-slate-50">
+                <Link
+                  href={`/api/redirect?productId=${product.id}`}
+                  target="_blank"
+                  className="inline-flex items-center text-[10px] font-black text-black uppercase tracking-widest group/btn py-1"
+                  onClick={() => analytics.productClick(product.id as string)}
+                >
+                  View Details
+                  <ArrowUpRight className="w-3 h-3 ml-1 translate-y-px transition-transform group-hover/btn:-translate-y-px group-hover/btn:translate-x-px" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {displayProducts.length === 0 && searchQuery && (
-          <div className="text-center py-12 text-gray-500">
-              No products match &quot;{searchQuery}&quot;
+          <div className="text-center py-20 border border-slate-100">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                No matching results in catalogue
+              </span>
           </div>
       )}
+    </div>
+  );
+}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayProducts.map((product) => (
-                  <div key={product.id} className="group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-gray-900 transition-all duration-300">
-                    <div className="aspect-[4/3] relative bg-gray-50 overflow-hidden">
-                      {Array.isArray(product.images) && product.images[0] ? (
-                        <Image
-                          src={product.images[0] as string}
-                          alt={product.title || "Product"}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-2 min-h-[40px]">
-                        {product.title}
-                      </h3>
-                      <p className="text-xs text-gray-500 mb-4 line-clamp-1">
-                        {product.description || "No description provided."}
-                      </p>
-                      <Link
-                        href={`/api/redirect?productId=${product.id}`}
-                        target="_blank"
-                        className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold text-center block hover:bg-gray-800 transition-colors"
-                        onClick={() => analytics.productClick(product.id as string)}
-                      >
-                        Visit Website
-                      </Link>
-                    </div>
-                  </div>
+function SkeletonGrid({ limit }: { limit?: number }) {
+  return (
+    <div className="space-y-8">
+      <div className="h-4 w-32 bg-slate-50 animate-pulse mb-8" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-100 border border-slate-100">
+        {[...Array(limit || 3)].map((_, i) => (
+           <div key={i} className="bg-white p-6 h-[320px] space-y-6">
+              <div className="w-full h-40 bg-slate-50 animate-pulse" />
+              <div className="w-2/3 h-4 bg-slate-50 animate-pulse" />
+              <div className="w-1/2 h-3 bg-slate-50 animate-pulse" />
+           </div>
         ))}
       </div>
     </div>

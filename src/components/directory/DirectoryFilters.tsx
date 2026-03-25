@@ -8,10 +8,10 @@ import { MobileFilterDrawer } from './MobileFilterDrawer';
 
 interface DirectoryFiltersProps {
   selectedCategory?: string;
-  selectedSuburb?: string;
+  selectedRegion?: string;
 }
 
-export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }: DirectoryFiltersProps) {
+export function DirectoryFilters({ selectedCategory = '', selectedRegion = '' }: DirectoryFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -34,12 +34,12 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
   const clearAllFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('category');
-    params.delete('suburb');
+    params.delete('region');
     params.delete('page');
     router.push(`/directory?${params.toString()}`);
   };
 
-  const hasActiveFilters = selectedCategory || selectedSuburb;
+  const hasActiveFilters = selectedCategory || selectedRegion;
 
   return (
     <>
@@ -60,7 +60,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 transition-colors hidden md:flex"
+                className="items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 transition-colors hidden md:inline-flex"
               >
                 <X className="h-4 w-4" />
                 <span>Clear All</span>
@@ -88,7 +88,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
         <div className="hidden md:block p-4 md:p-6 md:pt-0">
           <FilterInputs 
             selectedCategory={selectedCategory} 
-            selectedSuburb={selectedSuburb} 
+            selectedRegion={selectedRegion} 
             onFilterChange={handleFilterChange} 
           />
         </div>
@@ -99,7 +99,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedSuburb = '' }:
         isOpen={isDrawerOpen} 
         onClose={() => setIsDrawerOpen(false)}
         selectedCategory={selectedCategory}
-        selectedSuburb={selectedSuburb}
+        selectedRegion={selectedRegion}
         onFilterChange={handleFilterChange}
         onClear={clearAllFilters}
       />

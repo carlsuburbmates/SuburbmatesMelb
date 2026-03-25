@@ -4,7 +4,8 @@
  */
 
 import { Resend } from 'resend';
-import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
+import { PLATFORM } from './constants';
+import { UNIVERSAL_PRODUCT_LIMIT } from './tier-utils';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -107,22 +108,22 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
 }
 
 /**
- * Vendor onboarding started
+ * Vendor profile claimed/created
  */
-export async function sendVendorOnboardingEmail(email: string, businessName: string, onboardingUrl: string): Promise<EmailResult> {
+export async function sendVendorOnboardingEmail(email: string, businessName: string, dashboardUrl: string): Promise<EmailResult> {
   return sendEmail({
     to: email,
-    subject: 'Complete Your Vendor Onboarding',
+    subject: `Welcome to the ${PLATFORM.NAME} Creator Community`,
     html: `
       <h1>Welcome, ${businessName}! 🎉</h1>
-      <p>You're almost ready to start selling on ${PLATFORM.NAME}.</p>
-      <p>To complete your vendor setup, please finish your Stripe Connect onboarding:</p>
-      <p><a href="${onboardingUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Onboarding</a></p>
-      <p>Once complete, you'll be able to:</p>
+      <p>Your directory profile is now ready on ${PLATFORM.NAME}.</p>
+      <p>Log in to your dashboard to start adding your digital products:</p>
+      <p><a href="${dashboardUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
+      <p>Benefits of your free profile:</p>
       <ul>
-        <li>List up to ${TIER_LIMITS.basic.product_quota} products (Basic tier)</li>
-        <li>Receive payments directly to your account</li>
-        <li>Manage orders and refunds</li>
+        <li>List up to ${UNIVERSAL_PRODUCT_LIMIT} products with external links</li>
+        <li>Automatic metadata scraping for fast listing</li>
+        <li>Direct traffic to your Gumroad, Stripe, or personal store</li>
       </ul>
       <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
@@ -152,34 +153,7 @@ export async function sendVendorApprovedEmail(email: string, businessName: strin
   });
 }
 
-export async function sendTierDowngradeEmail(params: {
-  to: string;
-  businessName: string;
-  oldTier: string;
-  newTier: string;
-  unpublishedCount: number;
-  productTitles: string[];
-}): Promise<EmailResult> {
-  const previewTitles = params.productTitles.slice(0, 5);
-  const remaining = params.productTitles.length - previewTitles.length;
-  const listHtml = previewTitles
-    .map((title) => `<li>${title || "Untitled product"}</li>`)
-    .join("");
-
-  return sendEmail({
-    to: params.to,
-    subject: `Tier changed to ${params.newTier.toUpperCase()} — ${params.unpublishedCount} product(s) unpublished`,
-    html: `
-      <h1>Heads up from ${PLATFORM.NAME}</h1>
-      <p>${params.businessName} was downgraded from <strong>${params.oldTier.toUpperCase()}</strong> to <strong>${params.newTier.toUpperCase()}</strong>.</p>
-      <p>We automatically unpublished <strong>${params.unpublishedCount}</strong> of your oldest products so you stay within the new tier limit.</p>
-      ${previewTitles.length ? `<p>Recently unpublished items:</p><ul>${listHtml}</ul>` : ""}
-      ${remaining > 0 ? `<p>and ${remaining} more…</p>` : ""}
-      <p>You can review and republish products from your <a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/products">dashboard</a> whenever you're ready.</p>
-      <p>Questions? Reply to this email or contact ${PLATFORM.SUPPORT_EMAIL}.</p>
-    `,
-  });
-}
+// Tier downgrade emails removed in SSOT v2.0 (Single Tier Model)
 
 // MoR email templates removed in SSOT v2 Phase 2:
 // - sendOrderConfirmationEmail
@@ -225,11 +199,9 @@ export async function sendVendorSuspensionEmail(
     html: `
       <h1>Account Suspended</h1>
       <p>Hi ${businessName},</p>
-      <p>Your vendor account has been suspended.</p>
+      <p>Your directory profile has been suspended.</p>
       <p><strong>Reason:</strong> ${reason}</p>
-      <p><strong>You have ${RISK_THRESHOLDS.APPEAL_DEADLINE_DAYS} days to appeal this decision.</strong></p>
-      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/appeals" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Submit Appeal</a></p>
-      <p>For more information, contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
+      <p>If you believe this is an error, please contact us at ${PLATFORM.SUPPORT_EMAIL}.</p>
       <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
     `,
   });
@@ -266,36 +238,6 @@ export async function sendAppealDecisionEmail(
   });
 }
 
-/**
- * Dispute notification for vendor
- */
-export async function sendDisputeNotificationEmail(
-  email: string,
-  businessName: string,
-  disputeDetails: {
-    amount: number;
-    reason: string;
-    orderId: string;
-  }
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: `⚠️ Action Required: Dispute Received`,
-    html: `
-      <h1>Dispute Received</h1>
-      <p>Hi ${businessName},</p>
-      <p>We have received a dispute for one of your transactions.</p>
-      <h2>Dispute Details</h2>
-      <p><strong>Order ID:</strong> ${disputeDetails.orderId}</p>
-      <p><strong>Amount:</strong> A$${(disputeDetails.amount / 100).toFixed(2)}</p>
-      <p><strong>Reason:</strong> ${disputeDetails.reason}</p>
-      <p><strong>⚠️ Important:</strong> As the Merchant of Record, you are responsible for handling this dispute.</p>
-      <p>Please log in to your <a href="https://dashboard.stripe.com/disputes" target="_blank">Stripe Dashboard</a> immediately to review and respond to this dispute. Failure to respond may result in lost revenue and increased dispute fees.</p>
-      <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
-      <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
 
 /**
  * Featured slot expiry reminder

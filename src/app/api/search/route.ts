@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.error("Search endpoint error:", error);
+    console.error("SEARCH_ROUTE_ERROR:", error);
     return NextResponse.json(
       {
         success: false,

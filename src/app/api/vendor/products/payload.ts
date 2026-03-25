@@ -29,12 +29,6 @@ function normalizeProductPayload(raw: JsonRecord): JsonRecord {
     }
   }
 
-  if (typeof normalized.price === "string") {
-    const parsed = parseFloat(normalized.price);
-    if (!Number.isNaN(parsed)) {
-      normalized.price = parsed;
-    }
-  }
 
   if (
     normalized.images === undefined &&

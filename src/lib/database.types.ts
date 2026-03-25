@@ -97,13 +97,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "appeals_related_dispute_id_fkey"
-            columns: ["related_dispute_id"]
-            isOneToOne: false
-            referencedRelation: "disputes"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "appeals_reviewed_by_fkey"
             columns: ["reviewed_by"]
             isOneToOne: false
@@ -257,106 +250,6 @@ export type Database = {
         }
         Relationships: []
       }
-      disputes: {
-        Row: {
-          admin_id: string | null
-          created_at: string | null
-          customer_id: string | null
-          decision_at: string | null
-          decision_by_admin: string | null
-          decision_notes: string | null
-          evidence_customer: Json | null
-          evidence_vendor: Json | null
-          id: string
-          order_id: string | null
-          refund_request_id: string | null
-          resolution_notes: string | null
-          resolution_type: string | null
-          status: string | null
-          updated_at: string | null
-          vendor_id: string | null
-        }
-        Insert: {
-          admin_id?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          decision_at?: string | null
-          decision_by_admin?: string | null
-          decision_notes?: string | null
-          evidence_customer?: Json | null
-          evidence_vendor?: Json | null
-          id?: string
-          order_id?: string | null
-          refund_request_id?: string | null
-          resolution_notes?: string | null
-          resolution_type?: string | null
-          status?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-        }
-        Update: {
-          admin_id?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          decision_at?: string | null
-          decision_by_admin?: string | null
-          decision_notes?: string | null
-          evidence_customer?: Json | null
-          evidence_vendor?: Json | null
-          id?: string
-          order_id?: string | null
-          refund_request_id?: string | null
-          resolution_notes?: string | null
-          resolution_type?: string | null
-          status?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "disputes_admin_id_fkey"
-            columns: ["admin_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_decision_by_admin_fkey"
-            columns: ["decision_by_admin"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_refund_request_id_fkey"
-            columns: ["refund_request_id"]
-            isOneToOne: false
-            referencedRelation: "refund_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       featured_queue: {
         Row: {
           business_profile_id: string
@@ -476,7 +369,6 @@ export type Database = {
           region_id: number | null
           start_date: string
           status: string | null
-          stripe_payment_intent_id: string | null
           suburb_label: string | null
           vendor_id: string | null
         }
@@ -489,7 +381,6 @@ export type Database = {
           region_id?: number | null
           start_date: string
           status?: string | null
-          stripe_payment_intent_id?: string | null
           suburb_label?: string | null
           vendor_id?: string | null
         }
@@ -502,7 +393,6 @@ export type Database = {
           region_id?: number | null
           start_date?: string
           status?: string | null
-          stripe_payment_intent_id?: string | null
           suburb_label?: string | null
           vendor_id?: string | null
         }
@@ -530,136 +420,6 @@ export type Database = {
           },
           {
             foreignKeyName: "fk_featured_vendor"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      marketplace_sales: {
-        Row: {
-          amount_cents: number
-          created_at: string
-          currency: string
-          customer_id: string | null
-          id: string
-          metadata: Json | null
-          platform_fee_cents: number
-          product_id: string
-          status: string
-          stripe_payment_intent_id: string | null
-          stripe_session_id: string
-          vendor_id: string
-        }
-        Insert: {
-          amount_cents: number
-          created_at?: string
-          currency?: string
-          customer_id?: string | null
-          id?: string
-          metadata?: Json | null
-          platform_fee_cents: number
-          product_id: string
-          status?: string
-          stripe_payment_intent_id?: string | null
-          stripe_session_id: string
-          vendor_id: string
-        }
-        Update: {
-          amount_cents?: number
-          created_at?: string
-          currency?: string
-          customer_id?: string | null
-          id?: string
-          metadata?: Json | null
-          platform_fee_cents?: number
-          product_id?: string
-          status?: string
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string
-          vendor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "marketplace_sales_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "marketplace_sales_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          amount_cents: number
-          commission_cents: number | null
-          created_at: string | null
-          customer_id: string | null
-          download_url: string | null
-          id: string
-          product_id: string | null
-          status: string | null
-          stripe_charge_id: string | null
-          stripe_payment_intent_id: string | null
-          updated_at: string | null
-          vendor_id: string | null
-          vendor_net_cents: number
-        }
-        Insert: {
-          amount_cents: number
-          commission_cents?: number | null
-          created_at?: string | null
-          customer_id?: string | null
-          download_url?: string | null
-          id?: string
-          product_id?: string | null
-          status?: string | null
-          stripe_charge_id?: string | null
-          stripe_payment_intent_id?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-          vendor_net_cents: number
-        }
-        Update: {
-          amount_cents?: number
-          commission_cents?: number | null
-          created_at?: string | null
-          customer_id?: string | null
-          download_url?: string | null
-          id?: string
-          product_id?: string | null
-          status?: string | null
-          stripe_charge_id?: string | null
-          stripe_payment_intent_id?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-          vendor_net_cents?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
@@ -777,82 +537,6 @@ export type Database = {
           },
           {
             foreignKeyName: "products_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      refund_requests: {
-        Row: {
-          amount_cents: number
-          approved_at: string | null
-          created_at: string | null
-          customer_id: string | null
-          description: string | null
-          id: string
-          order_id: string | null
-          processed_at: string | null
-          reason: string
-          rejected_at: string | null
-          rejected_reason: string | null
-          status: string | null
-          stripe_refund_id: string | null
-          updated_at: string | null
-          vendor_id: string | null
-        }
-        Insert: {
-          amount_cents: number
-          approved_at?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          description?: string | null
-          id?: string
-          order_id?: string | null
-          processed_at?: string | null
-          reason: string
-          rejected_at?: string | null
-          rejected_reason?: string | null
-          status?: string | null
-          stripe_refund_id?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-        }
-        Update: {
-          amount_cents?: number
-          approved_at?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          description?: string | null
-          id?: string
-          order_id?: string | null
-          processed_at?: string | null
-          reason?: string
-          rejected_at?: string | null
-          rejected_reason?: string | null
-          status?: string | null
-          stripe_refund_id?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "refund_requests_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "refund_requests_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "refund_requests_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"

@@ -16,16 +16,7 @@ const nextConfig: NextConfig = {
     ],
     localPatterns: [
       {
-        pathname: '/api/placeholder/**',
-      },
-      {
-        pathname: '/images/**',
-      },
-      {
-        pathname: '/logo1.jpg',
-      },
-      {
-        pathname: '/logo2.jpg',
+        pathname: '/**',
       },
     ],
   },

@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/database.types";
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles, ExternalLink, Package } from "lucide-react";
+import { ArrowUpRight, Signal } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 
 type ShuffledProduct = {
@@ -32,13 +32,9 @@ export function FreshSignals() {
 
       try {
         const { data, error } = await supabase.rpc('get_daily_shuffle_products', { p_limit: 8 });
-
-        if (error) {
-          console.error("Shuffle Error:", error);
-        } else {
-          setProducts((data as ShuffledProduct[]) || []);
-        }
-      } catch (error: unknown) {
+        if (error) console.error("Shuffle Error:", error);
+        else setProducts((data as ShuffledProduct[]) || []);
+      } catch (error) {
         console.error('Fetch shuffle products error:', error);
       } finally {
         setLoading(false);
@@ -47,107 +43,117 @@ export function FreshSignals() {
     fetchShuffle();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="py-20 bg-gray-50/50">
-        <div className="container-custom">
-          <div className="flex items-center space-x-3 mb-12">
-            <div className="w-6 h-6 bg-gray-200 animate-pulse rounded" />
-            <div className="h-8 bg-gray-200 animate-pulse rounded w-48" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="aspect-[4/5] bg-gray-200 animate-pulse rounded-2xl" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
+  if (loading) return <SkeletonSection />;
   if (products.length === 0) return null;
 
   return (
-    <section className="py-20 bg-gray-50/50 border-y border-gray-100">
+    <section className="py-24 bg-white border-y border-slate-100">
       <div className="container-custom">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <Sparkles className="w-5 h-5 text-amber-600" />
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+          <div className="max-w-xl">
+            <div className="flex items-center space-x-2 mb-4">
+              <Signal className="w-4 h-4 text-black animate-pulse" />
+              <span className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Live Feed</span>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Daily Discoveries</h2>
-              <p className="text-sm text-gray-500">Fresh finds from Melbourne creators, updated daily.</p>
-            </div>
+            <h2 className="text-4xl font-extrabold text-black tracking-tighter uppercase mb-4 leading-none">
+              Daily Discoveries
+            </h2>
+            <p className="text-slate-600 font-medium leading-relaxed">
+              Fresh discoveries from Melbourne&apos;s digital creators. 
+              Automatically curated from the local neighbourhood network.
+            </p>
           </div>
           <Link
             href="/directory"
-            className="text-sm font-bold text-gray-900 hover:underline inline-flex items-center"
+            className="text-[10px] font-black text-black uppercase tracking-widest hover:underline inline-flex items-center"
           >
-            Browse Everything <ExternalLink className="w-4 h-4 ml-2" />
+            Explore All 
+            <ArrowUpRight className="w-4 h-4 ml-1" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-200 border border-slate-200">
           {products.map((product) => (
             <div
               key={product.id}
-              className="group flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-900 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-gray-200/40"
+              className="group flex flex-col bg-white overflow-hidden hover:bg-slate-50 transition-colors"
             >
-              <div className="aspect-square relative bg-gray-100 overflow-hidden">
+              <Link 
+                href={`/api/redirect?productId=${product.id}`}
+                target="_blank"
+                className="aspect-square relative bg-slate-50 overflow-hidden block"
+                onClick={() => analytics.productClick(product.id)}
+              >
                 {product.thumbnail_url ? (
                   <Image
                     src={product.thumbnail_url}
                     alt={product.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-8 h-8 text-gray-300" />
+                  <div className="w-full h-full flex items-center justify-center border-b border-slate-100">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Image</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
-              </div>
+                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              </Link>
               
-              <div className="p-4 flex flex-col flex-grow">
-                <Link 
-                  href={`/api/redirect?productId=${product.id}`}
-                  target="_blank"
-                  className="group/link"
-                  onClick={() => analytics.productClick(product.id)}
-                >
-                  <h3 className="text-sm font-bold text-gray-900 group-hover/link:text-blue-600 transition-colors line-clamp-2 min-h-[40px] mb-2 leading-snug">
-                    {product.title}
-                  </h3>
-                </Link>
-                
-                <div className="mt-auto pt-3 border-t border-gray-50">
+              <div className="p-5 flex flex-col flex-grow min-h-[160px]">
+                <div className="mb-4">
                   <Link 
                     href={`/business/${product.business_slug}`}
-                    className="flex items-center text-xs text-gray-500 hover:text-gray-900 transition-colors"
+                    className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-black transition-colors block mb-2"
                   >
-                    <div className="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center mr-2 text-[8px] font-bold overflow-hidden">
-                      {product.business_name.charAt(0)}
-                    </div>
-                    <span className="truncate flex-grow">{product.business_name}</span>
+                    {product.business_name}
+                  </Link>
+                  <Link 
+                    href={`/api/redirect?productId=${product.id}`}
+                    target="_blank"
+                    onClick={() => analytics.productClick(product.id)}
+                    className="block group/title"
+                  >
+                    <h3 className="text-sm font-black text-black uppercase tracking-tight leading-snug line-clamp-2 min-h-[40px] group-hover/title:underline decoration-1 underline-offset-4">
+                      {product.title}
+                    </h3>
+                  </Link>
+                </div>
+                
+                <div className="mt-auto">
+                  <Link
+                    href={`/api/redirect?productId=${product.id}`}
+                    target="_blank"
+                    className="inline-flex items-center text-[10px] font-black text-black uppercase tracking-widest group/btn py-2"
+                    onClick={() => analytics.productClick(product.id)}
+                  >
+                    Visit Website
+                    <ArrowUpRight className="w-3 h-3 ml-1 translate-y-px transition-transform group-hover/btn:-translate-y-px group-hover/btn:translate-x-px" />
                   </Link>
                 </div>
               </div>
-
-              <Link
-                href={`/api/redirect?productId=${product.id}`}
-                target="_blank"
-                className="block w-full py-3 bg-gray-50 text-gray-900 text-center text-xs font-bold border-t border-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-300"
-                onClick={() => analytics.productClick(product.id)}
-              >
-                Visit Website
-              </Link>
             </div>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function SkeletonSection() {
+  return (
+    <div className="py-24 container-custom">
+      <div className="h-4 w-24 bg-slate-50 animate-pulse mb-4" />
+      <div className="h-10 w-64 bg-slate-50 animate-pulse mb-16" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 border border-slate-100">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white p-6 h-[240px] space-y-4">
+             <div className="w-full h-32 bg-slate-50 animate-pulse" />
+             <div className="w-2/3 h-4 bg-slate-50 animate-pulse" />
+             <div className="w-1/2 h-3 bg-slate-50 animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

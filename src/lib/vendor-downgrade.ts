@@ -1,27 +1,25 @@
 /**
- * Vendor Downgrade & FIFO Product Unpublish Logic
+ * Vendor Product Management Logic
  *
- * Non-negotiable: Tier downgrades auto-unpublish oldest products first (FIFO)
- * to meet new tier caps.
+ * SSOT v2.0: All creators have a standard 10-product limit.
+ * Old tier-based FIFO logic is preserved but simplified for the universal limit.
  */
 
-import { TIER_LIMITS } from "@/lib/constants";
 import { BusinessEvent, logEvent, logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase";
+import { UNIVERSAL_PRODUCT_LIMIT } from "./tier-utils";
 
 /**
- * Enforce product cap for a vendor after tier change.
- * Unpublishes oldest published products (FIFO) if current count exceeds new limit.
+ * Enforce product cap for a vendor.
+ * Unpublishes oldest published products (FIFO) if current count exceeds the universal limit.
  */
 type UnpublishedProduct = { id: string; title: string | null };
 
-export async function enforceTierProductCap(
-  vendorId: string,
-  newTier: keyof typeof TIER_LIMITS
+export async function enforceProductCap(
+  vendorId: string
 ): Promise<{ unpublishedCount: number; unpublishedProducts: UnpublishedProduct[]; error?: string }> {
-  const limit = TIER_LIMITS[newTier].product_quota;
+  const limit = UNIVERSAL_PRODUCT_LIMIT;
 
-  // Fetch all published products ordered by creation date (oldest first)
   if (!supabaseAdmin) {
     logger.error("supabaseAdmin not initialized");
     return { unpublishedCount: 0, unpublishedProducts: [], error: "Database client not available" };
@@ -35,21 +33,14 @@ export async function enforceTierProductCap(
     .order("created_at", { ascending: true });
 
   if (error) {
-    logger.error("Failed to fetch products for tier downgrade", {
+    logger.error("Failed to fetch products for cap enforcement", {
       vendorId,
-      newTier,
       error,
     });
     return { unpublishedCount: 0, unpublishedProducts: [], error: error.message };
   }
 
   if (!products || products.length <= limit) {
-    logger.info("No unpublish needed; within tier cap", {
-      vendorId,
-      newTier,
-      count: products?.length || 0,
-      limit,
-    });
     return { unpublishedCount: 0, unpublishedProducts: [] };
   }
 
@@ -57,19 +48,14 @@ export async function enforceTierProductCap(
   const excessCount = products.length - limit;
   const toUnpublish = products.slice(0, excessCount).map((p) => p.id);
 
-  if (toUnpublish.length === 0) {
-    return { unpublishedCount: 0, unpublishedProducts: [] };
-  }
-
   const { error: updateError } = await supabaseAdmin
     .from("products")
     .update({ published: false, updated_at: new Date().toISOString() })
     .in("id", toUnpublish);
 
   if (updateError) {
-    logger.error("Failed FIFO unpublish during tier downgrade", {
+    logger.error("Failed FIFO unpublish during cap enforcement", {
       vendorId,
-      newTier,
       toUnpublishCount: toUnpublish.length,
       error: updateError,
     });
@@ -79,15 +65,7 @@ export async function enforceTierProductCap(
   logEvent(BusinessEvent.VENDOR_PRODUCTS_AUTO_UNPUBLISHED, {
     vendorId,
     count: toUnpublish.length,
-    newTier,
     productIds: toUnpublish,
-  });
-
-  logger.info("FIFO unpublish complete", {
-    vendorId,
-    newTier,
-    unpublishedCount: toUnpublish.length,
-    newPublishedCount: limit,
   });
 
   const unpublishedProducts: UnpublishedProduct[] = products
@@ -95,44 +73,4 @@ export async function enforceTierProductCap(
     .map((p) => ({ id: p.id, title: p.title ?? null }));
 
   return { unpublishedCount: toUnpublish.length, unpublishedProducts };
-}
-
-/**
- * Get list of products that would be unpublished on tier downgrade (preview)
- */
-export async function getDowngradePreview(
-  vendorId: string,
-  newTier: keyof typeof TIER_LIMITS
-): Promise<{
-  affectedProducts: Array<{
-    id: string;
-    title: string;
-    created_at: string | null;
-  }>;
-  willUnpublish: number;
-}> {
-  const limit = TIER_LIMITS[newTier].product_quota;
-
-  if (!supabaseAdmin) {
-    return { affectedProducts: [], willUnpublish: 0 };
-  }
-
-  const { data: products } = await supabaseAdmin
-    .from("products")
-    .select("id, title, created_at")
-    .eq("vendor_id", vendorId)
-    .eq("published", true)
-    .order("created_at", { ascending: true });
-
-  if (!products || products.length <= limit) {
-    return { affectedProducts: [], willUnpublish: 0 };
-  }
-
-  const excessCount = products.length - limit;
-  const affected = products.slice(0, excessCount);
-
-  return {
-    affectedProducts: affected,
-    willUnpublish: excessCount,
-  };
 }

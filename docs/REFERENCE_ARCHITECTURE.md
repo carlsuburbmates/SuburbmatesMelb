@@ -1,125 +1,54 @@
 # Suburbmates — Reference Architecture (Non-Authoritative)
 
-This document is a **short architecture reference**.
-It does **not** define product truth, tiers, pricing, or completion status.
-For product constitution, see `docs/README.md`. For execution sequencing, see `docs/EXECUTION_PLAN.md`.
+This document is a **short architecture reference** for the SSOT v2.0 (Aggressively Minimal Directory).
+It does **not** define product truth. For product constitution, see `docs/README.md`.
 
 ---
 
 ## 1) Pointers
 
 * **SSOT (Product Constitution):** `docs/README.md`
-* **Execution Checklist:** `docs/EXECUTION_PLAN.md`
-* **Verification Evidence:** `docs/VERIFICATION_LOG.md`
 * **Numeric policy source:** `src/lib/constants.ts`
+* **Verification Evidence:** `docs/VERIFICATION_LOG.md`
 
 ---
 
 ## 2) Repository structure (high-level)
 
-> This is a structural map; paths may vary slightly. Use the “Locate via search” commands if needed.
-
 * `src/app/`
-  Next.js App Router pages and layouts (public pages, app surfaces, API routes under `src/app/api/`).
+  Next.js App Router pages and layouts.
 * `src/components/`
-  Reusable UI components and feature components.
+  Reusable UI components.
 * `src/lib/`
-  Shared utilities, constants, configuration, integrations, and business logic.
-* `src/styles/` (if present)
-  Global styles / Tailwind configuration references.
+  Shared utilities, constants, and Supabase client helpers.
 * `docs/`
-  Governance + execution + verification docs (SSOT, execution plan, verification log, this file).
+  Governance + execution + verification docs.
 
 ---
 
 ## 3) Where key code lives
 
-### 3.1 Routing (pages + API)
+### 3.1 Routing (Directory Focus)
 
-* **Pages:** `src/app/**/page.tsx`
-* **Layouts:** `src/app/**/layout.tsx`
-* **Route handlers (API):** `src/app/api/**/route.ts`
-
-**Locate via search:**
-
-* `find src/app -type f -name "page.tsx" | head`
-* `find src/app/api -type f -name "route.ts" | head`
-
----
+* **Public Directory:** `src/app/page.tsx` (Home) and `src/app/directory/page.tsx`.
+* **Creator Profiles:** `src/app/[slug]/page.tsx` (or similar profile routes).
+* **Outbound Redirect Gate:** `src/app/api/redirect/route.ts` (Mandatory tracking layer).
 
 ### 3.2 Authentication / Session
 
-Auth may be implemented via Supabase Auth, middleware, server actions, or API routes depending on repo design.
+* **Supabase Auth Helpers:** `src/lib/supabase/` and `src/contexts/AuthContext.tsx`.
+* **Route Protection:** `src/middleware.ts`.
 
-**Common locations to inspect:**
+### 3.3 Onboarding & Scraping
 
-* `src/middleware.ts` (route protection / redirects)
-* `src/lib/supabase*.ts` (client/server helpers, session access)
-* `src/app/api/auth/**` (if auth endpoints exist)
-* `src/app/(app)/**` layouts for protected sections
+* **Frictionless Scraper:** `src/app/api/scrape/route.ts` (Uses Cheerio for metadata extraction).
+* **Vendor Dashboard:** `src/app/(vendor)/vendor/dashboard/page.tsx`.
+* **Product Management:** `src/app/(vendor)/vendor/products/page.tsx`.
 
-**Locate via search:**
+### 3.4 Data & RPCs
 
-* `rg -n "createClient|supabase|auth|getSession|cookies|middleware" src`
-* `find src -maxdepth 3 -type f | rg -n "middleware|supabase|auth"`
-
----
-
-### 3.3 Stripe (payments + onboarding + webhooks)
-
-Stripe code usually spans:
-
-* **Stripe client/config helpers:** `src/lib/stripe*.ts`
-* **Stripe Connect onboarding:** API route(s) under `src/app/api/**`
-* **Webhooks:** typically `src/app/api/webhooks/**/route.ts`
-
-**Locate via search:**
-
-* `rg -n "stripe|Stripe\(" src/lib src/app/api`
-* `find src/app/api -type f | rg -n "webhook|stripe|connect"`
-
----
-
-### 3.4 Marketplace / Products
-
-Marketplace-related code usually spans:
-
-* **Public product pages:** `src/app/products/**`
-* **Marketplace index:** `src/app/marketplace/**`
-* **Creator profile “shop” section:** components under `src/components/**` and profile route under `src/app/**`
-
-**Locate via search:**
-
-* `find src/app -type f | rg -n "products|product|marketplace"`
-* `rg -n "ProductCard|BusinessProducts|Shop" src`
-
----
-
-### 3.5 Search / Directory pipeline
-
-Directory and search typically include:
-
-* Query builders / filters in `src/lib/` (e.g., search helpers)
-* Directory page and filter components under `src/app/directory/**` and `src/components/**`
-
-**Locate via search:**
-
-* `rg -n "search|filters|council|directory" src/lib src/app src/components`
-
----
-
-### 3.6 Database / Data access
-
-Data access commonly lives in:
-
-* `src/lib/db*.ts` or `src/lib/supabase*.ts` (DB client)
-* `src/lib/database.types.ts` (generated types)
-* server actions or API routes for mutations/queries
-
-**Locate via search:**
-
-* `rg -n "database\.types|from\(|select\(|insert\(|update\(|rpc\(" src`
-* `find src/lib -type f | rg -n "db|database|supabase"`
+* **Daily Shuffle RPC:** `get_daily_shuffle_products` (SQL function for randomized discovery).
+* **Supabase Types:** `src/lib/database.types.ts`.
 
 ---
 
@@ -127,8 +56,8 @@ Data access commonly lives in:
 
 * Product truth belongs only in `docs/README.md` (SSOT).
 * Numeric values (limits/prices/caps/durations) belong only in `src/lib/constants.ts`.
-* Execution status belongs only in `docs/VERIFICATION_LOG.md`.
-* Implementation sequencing belongs only in `docs/EXECUTION_PLAN.md`.
+* All outbound product links **MUST** use the `/api/redirect?productId=...` pattern.
+* Manual billing only; no automated Stripe billing logic in the codebase.
 
 ---
 
@@ -136,35 +65,14 @@ Data access commonly lives in:
 
 * Find all routes: `find src/app -type f -name "page.tsx"`
 * Find all API handlers: `find src/app/api -type f -name "route.ts"`
-* Find Stripe: `rg -n "stripe" src/lib src/app/api`
-* Find auth/session: `rg -n "supabase|auth|getSession|middleware|cookies" src`
-* Find directory/search: `rg -n "directory|search|filters|council" src`
+* Check SSOT compliance: `npm run ssot:check`
+* Run build/lint: `npm run build && npm run lint`
 
 ---
 
-## 6) Marketplace Responsibilities (Non-Authoritative)
-
-**Status:** REFERENCE ONLY
+## 6) Directory Responsibilities
 
 * **Discovery Platform:** SuburbMates aggregates listings; it is not the seller.
-* **Merchant of Record:** The Creator (Vendor) is the merchant.
-* **Payment Processing:** Stripe Connect (Direct Charges). SuburbMates takes an application fee.
-* **Delivery:** Immediate digital download or link provided by the Creator.
-
----
----
-
-## 7) Profile View Model Pattern (Authoritative)
-
-**Status:** MANDATORY
-
-To prevent type coupling between the database schema (`BusinessProfileExtended`) and the UI components (`BusinessHeader`, `BusinessInfo`, etc.), the following pattern must be enforced:
-
-1.  **Transformer Pattern:** `BusinessProfileRenderer.tsx` is the **only** place where raw database rows are converted into the View Model.
-2.  **View Model:** UI components must **only** accept props of type `MappedBusinessProfile` (from `src/lib/types.ts`).
-3.  **No Raw Rows:** Never pass `BusinessProfileExtended` (or `Business` legacy type) directly to a sub-component.
-4.  **Field Expansion:** When adding a new field (e.g., `tiktok_handle`):
-    *   Add to DB schema.
-    *   Add to `BusinessProfileExtended`.
-    *   Add to `MappedBusinessProfile`.
-    *   Map it in `BusinessProfileRenderer`.
+* **Outbound Routing:** We bridge visitors to the creator's own platform (Gumroad, Stripe, etc.).
+* **Zero-Touch Metrics:** Clicks are tracked anonymously via the redirect gate.
+* **Manual Moderation:** Admin toggles visibility via Supabase GUI (`status = 'published'`).

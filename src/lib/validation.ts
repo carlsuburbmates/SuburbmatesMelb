@@ -5,14 +5,8 @@
 
 import { z } from "zod";
 import {
-  APPEAL_STATUS,
-  APPEAL_TYPES,
-  DISPUTE_STATUS,
-  ORDER_STATUS,
-  REFUND_STATUS,
   USER_TYPES,
   VALIDATION,
-  VENDOR_TIERS,
 } from "./constants";
 
 // ============================================================================
@@ -91,9 +85,7 @@ export const vendorUpdateSchema = z.object({
     .optional(),
 });
 
-export const vendorTierUpgradeSchema = z.object({
-  tier: z.enum([VENDOR_TIERS.BASIC, VENDOR_TIERS.PRO]),
-});
+
 
 // ============================================================================
 // BUSINESS PROFILE VALIDATION (Directory)
@@ -130,12 +122,6 @@ export const productCreateSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  price: z
-    .number()
-    .min(0.01, "Price must be at least $0.01")
-    .max(999999.99, "Price exceeds maximum")
-    .optional()
-    .nullable(),
   category: z.string().optional(),
   images: z.array(z.string().url()).max(3, "Maximum 3 images").default([]),
   published: z.boolean().default(false),
@@ -145,23 +131,7 @@ export const productCreateSchema = z.object({
 
 export const productUpdateSchema = productCreateSchema.partial();
 
-// ============================================================================
-// ORDER VALIDATION
-// ============================================================================
 
-export const orderCreateSchema = z.object({
-  product_id: z.string().uuid("Invalid product ID"),
-  payment_method_id: z.string().optional(),
-});
-
-export const orderUpdateStatusSchema = z.object({
-  status: z.enum([
-    ORDER_STATUS.PENDING,
-    ORDER_STATUS.SUCCEEDED,
-    ORDER_STATUS.FAILED,
-    ORDER_STATUS.REVERSED,
-  ]),
-});
 
 // ============================================================================
 // SEARCH VALIDATION
@@ -241,106 +211,13 @@ export const directorySearchSchema = z.object({
       const trimmed = value.trim();
       return trimmed.length > 0 ? trimmed : null;
     }),
-  tier: z
-    .enum(["premium", "pro", "basic", "directory", "none"])
-    .optional(),
+  tier: z.enum(["basic", "none"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(48).default(12),
   session_id: searchSessionIdField.optional(),
 });
 
-// ============================================================================
-// REFUND REQUEST VALIDATION
-// ============================================================================
 
-export const refundRequestCreateSchema = z.object({
-  order_id: z.string().uuid("Invalid order ID"),
-  reason: z
-    .string()
-    .min(
-      VALIDATION.MIN_REFUND_REASON_LENGTH,
-      `Reason must be at least ${VALIDATION.MIN_REFUND_REASON_LENGTH} characters`
-    )
-    .max(
-      VALIDATION.MAX_REFUND_REASON_LENGTH,
-      `Reason must be less than ${VALIDATION.MAX_REFUND_REASON_LENGTH} characters`
-    ),
-  description: z.string().max(2000).optional(),
-});
-
-export const refundRequestUpdateSchema = z.object({
-  status: z.enum([
-    REFUND_STATUS.APPROVED,
-    REFUND_STATUS.REJECTED,
-    REFUND_STATUS.CANCELLED,
-  ]),
-  rejected_reason: z.string().max(1000).optional(),
-});
-
-// ============================================================================
-// DISPUTE VALIDATION
-// ============================================================================
-
-export const disputeCreateSchema = z.object({
-  order_id: z.string().uuid("Invalid order ID"),
-  refund_request_id: z.string().uuid().optional(),
-  reason: z.string().min(10).max(2000),
-  customer_evidence: z.string().max(5000).optional(),
-});
-
-export const disputeUpdateSchema = z.object({
-  status: z.enum([
-    DISPUTE_STATUS.OPEN,
-    DISPUTE_STATUS.UNDER_REVIEW,
-    DISPUTE_STATUS.RESOLVED,
-    DISPUTE_STATUS.CLOSED,
-    DISPUTE_STATUS.ESCALATED,
-  ]),
-  admin_notes: z.string().max(5000).optional(),
-  resolution: z.string().max(2000).optional(),
-});
-
-// ============================================================================
-// APPEAL VALIDATION
-// ============================================================================
-
-export const appealCreateSchema = z.object({
-  appeal_type: z.enum([
-    APPEAL_TYPES.SUSPENSION,
-    APPEAL_TYPES.DISPUTE_RESOLUTION,
-    APPEAL_TYPES.POLICY_VIOLATION,
-    APPEAL_TYPES.ACCOUNT_RESTRICTION,
-  ]),
-  related_dispute_id: z.string().uuid().optional(),
-  appeal_reason: z
-    .string()
-    .min(50, "Appeal reason must be at least 50 characters")
-    .max(2000),
-  vendor_statement: z.string().max(5000).optional(),
-  evidence_urls: z.array(z.string().url()).max(10).optional(),
-});
-
-export const appealReviewSchema = z.object({
-  status: z.enum([APPEAL_STATUS.APPROVED, APPEAL_STATUS.REJECTED]),
-  review_notes: z.string().min(10).max(5000),
-  review_decision: z.string().min(10).max(2000),
-  outcome: z.enum([
-    "suspension_overturned",
-    "suspension_upheld",
-    "partial_relief",
-    "no_action",
-  ]),
-});
-
-// ============================================================================
-// FEATURED SLOT VALIDATION
-// ============================================================================
-
-export const featuredSlotPurchaseSchema = z.object({
-  region_id: z.number().int().positive(),
-  vendor_id: z.string().uuid(),
-  payment_method_id: z.string().optional(),
-});
 
 // ============================================================================
 // PAGINATION VALIDATION
@@ -361,8 +238,6 @@ export const productSearchSchema = paginationSchema.extend({
   query: z.string().min(1).max(200).optional(),
   category_id: z.coerce.number().int().positive().optional(),
   lga_id: z.coerce.number().int().positive().optional(),
-  min_price: z.coerce.number().int().nonnegative().optional(),
-  max_price: z.coerce.number().int().positive().optional(),
   vendor_id: z.string().uuid().optional(),
 });
 
@@ -416,16 +291,7 @@ export const fileUploadSchema = z.object({
   file_url: z.string().url().optional(),
 });
 
-// ============================================================================
-// STRIPE WEBHOOK VALIDATION
-// ============================================================================
 
-export const stripeWebhookSchema = z.object({
-  type: z.string(),
-  data: z.object({
-    object: z.any(),
-  }),
-});
 
 // ============================================================================
 // HELPER TYPE EXPORTS
@@ -437,29 +303,14 @@ export type UserUpdate = z.infer<typeof userUpdateSchema>;
 
 export type VendorCreate = z.infer<typeof vendorCreateSchema>;
 export type VendorUpdate = z.infer<typeof vendorUpdateSchema>;
-export type VendorTierUpgrade = z.infer<typeof vendorTierUpgradeSchema>;
-
 export type BusinessProfileCreate = z.infer<typeof businessProfileCreateSchema>;
 export type BusinessProfileUpdate = z.infer<typeof businessProfileUpdateSchema>;
 
 export type ProductCreate = z.infer<typeof productCreateSchema>;
 export type ProductUpdate = z.infer<typeof productUpdateSchema>;
 
-export type OrderCreate = z.infer<typeof orderCreateSchema>;
-export type OrderUpdateStatus = z.infer<typeof orderUpdateStatusSchema>;
 export type SearchRequestPayload = z.infer<typeof searchRequestSchema>;
 export type SearchTelemetryPayload = z.infer<typeof searchTelemetrySchema>;
-
-export type RefundRequestCreate = z.infer<typeof refundRequestCreateSchema>;
-export type RefundRequestUpdate = z.infer<typeof refundRequestUpdateSchema>;
-
-export type DisputeCreate = z.infer<typeof disputeCreateSchema>;
-export type DisputeUpdate = z.infer<typeof disputeUpdateSchema>;
-
-export type AppealCreate = z.infer<typeof appealCreateSchema>;
-export type AppealReview = z.infer<typeof appealReviewSchema>;
-
-export type FeaturedSlotPurchase = z.infer<typeof featuredSlotPurchaseSchema>;
 
 export type Pagination = z.infer<typeof paginationSchema>;
 export type ProductSearch = z.infer<typeof productSearchSchema>;

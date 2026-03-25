@@ -7,71 +7,13 @@
 // VENDOR TIERS & QUOTAS
 // ============================================================================
 
+// Vendor tiers are deprecated in SSOT v2.0 - All vendors are standard.
 export const VENDOR_TIERS = {
   NONE: "none",
   BASIC: "basic",
-  PRO: "pro",
-  PREMIUM: "premium",
-  SUSPENDED: "suspended",
 } as const;
 
 export type VendorTier = (typeof VENDOR_TIERS)[keyof typeof VENDOR_TIERS];
-
-export const TIER_LIMITS = {
-  none: {
-    product_quota: 0,
-    storage_quota_gb: 0,
-    commission_rate: 0,
-    monthly_fee: 0,
-    can_sell: false,
-    marketplace_cap: 0,
-    has_landing_page: false,
-    has_custom_domain: false,
-  },
-  basic: {
-    // SSOT: must match DB quota enforcement (see supabase/migrations/020_basic_tier_cap.sql)
-    product_quota: 3,
-    storage_quota_gb: 5,
-    commission_rate: 0.08, // 8%
-    monthly_fee: 0,
-    can_sell: true,
-    marketplace_cap: 3, // Matches product_quota
-    has_landing_page: true, // Basic profile builder
-    has_custom_domain: false,
-  },
-  pro: {
-    product_quota: 50,
-    storage_quota_gb: 10,
-    commission_rate: 0.06, // 6%
-    monthly_fee: 2900, // A$29.00 in cents
-    can_sell: true,
-    marketplace_cap: 50,
-    has_landing_page: true,
-    has_custom_domain: true,
-  },
-  premium: {
-    product_quota: 50, // Premium tier per SSOT §3.2
-    storage_quota_gb: 20,
-    commission_rate: 0.05, // 5%
-    monthly_fee: 9900, // A$99.00 in cents
-    can_sell: true,
-    marketplace_cap: 50,
-    has_landing_page: true,
-    has_custom_domain: true,
-    // SSOT: "featured_slots" is a capability cap (max concurrent placements), not free credits.
-    featured_slots: 3,
-  },
-  suspended: {
-    product_quota: 0,
-    storage_quota_gb: 0,
-    commission_rate: 0,
-    monthly_fee: 0,
-    can_sell: false,
-    marketplace_cap: 0,
-    has_landing_page: false,
-    has_custom_domain: false,
-  },
-} as const;
 
 // ============================================================================
 // FEATURED SLOTS
@@ -87,124 +29,6 @@ export const FEATURED_SLOT = {
 } as const;
 
 // ============================================================================
-// DISPUTE GATING (Non-negotiable)
-// ============================================================================
-
-export const DISPUTE_AUTO_DELIST_THRESHOLD = 3; // 3+ disputes = auto-suspend
-export const AUTO_DELIST_DURATION_DAYS = 30; // 30-day suspension
-
-// ============================================================================
-// USER TYPES
-// ============================================================================
-
-export const USER_TYPES = {
-  CUSTOMER: "customer",
-  BUSINESS_OWNER: "business_owner",
-  ADMIN: "admin",
-} as const;
-
-export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
-
-// ============================================================================
-// VENDOR STATUS
-// ============================================================================
-
-export const VENDOR_STATUS = {
-  INACTIVE: "inactive",
-  ACTIVE: "active",
-  SUSPENDED: "suspended",
-} as const;
-
-export type VendorStatus = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];
-
-// ============================================================================
-// ORDER STATUS
-// ============================================================================
-
-export const ORDER_STATUS = {
-  PENDING: "pending",
-  SUCCEEDED: "succeeded",
-  FAILED: "failed",
-  REVERSED: "reversed",
-} as const;
-
-export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
-
-// ============================================================================
-// REFUND REQUEST STATUS
-// ============================================================================
-
-export const REFUND_STATUS = {
-  PENDING: "pending",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  CANCELLED: "cancelled",
-} as const;
-
-export type RefundStatus = (typeof REFUND_STATUS)[keyof typeof REFUND_STATUS];
-
-// ============================================================================
-// DISPUTE STATUS
-// ============================================================================
-
-export const DISPUTE_STATUS = {
-  OPEN: "open",
-  UNDER_REVIEW: "under_review",
-  RESOLVED: "resolved",
-  CLOSED: "closed",
-  ESCALATED: "escalated",
-} as const;
-
-export type DisputeStatus =
-  (typeof DISPUTE_STATUS)[keyof typeof DISPUTE_STATUS];
-
-// ============================================================================
-// APPEAL STATUS
-// ============================================================================
-
-export const APPEAL_STATUS = {
-  PENDING: "pending",
-  UNDER_REVIEW: "under_review",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  WITHDRAWN: "withdrawn",
-} as const;
-
-export type AppealStatus = (typeof APPEAL_STATUS)[keyof typeof APPEAL_STATUS];
-
-export const APPEAL_TYPES = {
-  SUSPENSION: "suspension",
-  DISPUTE_RESOLUTION: "dispute_resolution",
-  POLICY_VIOLATION: "policy_violation",
-  ACCOUNT_RESTRICTION: "account_restriction",
-} as const;
-
-export type AppealType = (typeof APPEAL_TYPES)[keyof typeof APPEAL_TYPES];
-
-// ============================================================================
-// RISK MANAGEMENT
-// ============================================================================
-
-export const RISK_THRESHOLDS = {
-  CHARGEBACK_WARNING_PERCENT: 0.01, // 1%
-  CHARGEBACK_RESTRICT_PERCENT: 0.02, // 2%
-  CHARGEBACK_COUNT_LIMIT: 5, // 5 chargebacks in 90 days
-  CHARGEBACK_WINDOW_DAYS: 90,
-  APPEAL_DEADLINE_DAYS: 14,
-  ADMIN_REVIEW_DEADLINE_HOURS: 48,
-} as const;
-
-// ============================================================================
-// STRIPE CONFIGURATION
-// ============================================================================
-
-export const STRIPE_CONFIG = {
-  CURRENCY: "aud",
-  COUNTRY: "AU",
-  CONNECT_TYPE: "standard", // Stripe Connect Standard
-} as const;
-
-// ============================================================================
 // PLATFORM SETTINGS
 // ============================================================================
 
@@ -215,6 +39,21 @@ export const PLATFORM = {
   NO_REPLY_EMAIL: "noreply@suburbmates.com.au",
   TIMEZONE: "Australia/Melbourne",
 } as const;
+
+// ============================================================================
+// REGIONAL TAXONOMY (Official Victorian Government Metro Regions)
+// ============================================================================
+
+export const METRO_REGIONS = [
+  "Inner Metro",
+  "Inner South-east",
+  "Northern",
+  "Western",
+  "Eastern",
+  "Southern"
+] as const;
+
+export type MetroRegion = (typeof METRO_REGIONS)[number];
 
 // ============================================================================
 // PAGINATION
@@ -266,13 +105,32 @@ export const VALIDATION = {
   MAX_PRODUCT_TITLE_LENGTH: 200,
   MIN_PRODUCT_DESCRIPTION_LENGTH: 10,
   MAX_PRODUCT_DESCRIPTION_LENGTH: 5000,
-  MIN_PRODUCT_PRICE_CENTS: 100, // A$1.00
-  MAX_PRODUCT_PRICE_CENTS: 1000000, // A$10,000.00
 
-  // Refund
-  MIN_REFUND_REASON_LENGTH: 10,
-  MAX_REFUND_REASON_LENGTH: 1000,
 } as const;
+
+// ============================================================================
+// USER TYPES
+// ============================================================================
+
+export const USER_TYPES = {
+  CUSTOMER: "customer",
+  BUSINESS_OWNER: "business_owner",
+  ADMIN: "admin",
+} as const;
+
+export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
+
+// ============================================================================
+// VENDOR STATUS
+// ============================================================================
+
+export const VENDOR_STATUS = {
+  INACTIVE: "inactive",
+  ACTIVE: "active",
+  SUSPENDED: "suspended",
+} as const;
+
+export type VendorStatus = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];
 
 // ============================================================================
 // ERROR CODES
@@ -300,12 +158,7 @@ export const ERROR_CODES = {
   INSUFFICIENT_PERMISSIONS: "INSUFFICIENT_PERMISSIONS",
   VENDOR_NOT_ACTIVE: "VENDOR_NOT_ACTIVE",
   VENDOR_SUSPENDED: "VENDOR_SUSPENDED",
-  STRIPE_NOT_CONNECTED: "STRIPE_NOT_CONNECTED",
 
-  // Payment errors
-  PAYMENT_FAILED: "PAYMENT_FAILED",
-  REFUND_FAILED: "REFUND_FAILED",
-  INVALID_AMOUNT: "INVALID_AMOUNT",
 
   // System errors
   INTERNAL_ERROR: "INTERNAL_ERROR",
@@ -337,44 +190,13 @@ export const RATE_LIMITS = {
 // ============================================================================
 
 /**
- * Get tier limits for a specific vendor tier
- */
-export function getTierLimits(tier: VendorTier) {
-  return TIER_LIMITS[tier] || TIER_LIMITS.none;
-}
-
-/**
- * Calculate commission for an amount based on tier
- */
-export function calculateCommission(
-  amountCents: number,
-  tier: VendorTier
-): number {
-  const limits = getTierLimits(tier);
-  return Math.round(amountCents * limits.commission_rate);
-}
-
-/**
  * Check if vendor can create more products
  */
 export function canCreateProduct(
-  currentCount: number,
-  tier: VendorTier
+  currentCount: number
 ): boolean {
-  const limits = getTierLimits(tier);
-  return currentCount < limits.product_quota;
-}
-
-/**
- * Check if vendor has storage available
- */
-export function hasStorageAvailable(
-  usedMB: number,
-  fileSizeMB: number,
-  tier: VendorTier
-): boolean {
-  const limits = getTierLimits(tier);
-  return usedMB + fileSizeMB <= limits.storage_quota_gb * 1024;
+  // SSOT v2: Standard 10 product limit for all creators.
+  return currentCount < 10;
 }
 
 /**

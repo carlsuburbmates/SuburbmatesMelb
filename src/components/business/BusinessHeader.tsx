@@ -1,6 +1,8 @@
+"use client";
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Clock, Globe, Phone, Mail, Check, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Check, Globe, Phone, Mail } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 import { MappedBusinessProfile } from "@/lib/types";
 
@@ -10,133 +12,100 @@ interface BusinessHeaderProps {
 
 export function BusinessHeader({ business }: BusinessHeaderProps) {
   return (
-    <section className="bg-white border-b border-gray-200">
-      <Container className="py-8">
-        {/* Breadcrumb Navigation */}
-        <div className="mb-6">
+    <section className="bg-white border-b border-black">
+      <Container className="py-12">
+        {/* Minimal Navigation */}
+        <div className="mb-12">
           <Link 
             href="/directory"
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center space-x-2 text-[10px] font-black text-black uppercase tracking-[0.3em] hover:opacity-60 transition-opacity"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Search</span>
+            <ArrowLeft className="w-3 h-3" />
+            <span>Return to Directory</span>
           </Link>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-start space-y-6 md:space-y-0 md:space-x-8">
-          {/* Business Avatar */}
+        <div className="flex flex-col md:flex-row md:items-end gap-10">
+          {/* Studio Profile Image - High Density Rectangular */}
           <div className="flex-shrink-0">
-            <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-32 h-32 md:w-48 md:h-48 bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden">
               {business.logoUrl ? (
                 <Image
                   src={business.logoUrl}
                   alt={business.name}
-                  width={128}
-                  height={128}
-                  className="w-full h-full rounded-lg object-cover"
-                  sizes="(min-width: 768px) 8rem, 6rem"
+                  width={256}
+                  height={256}
+                  className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
                   priority={true}
                 />
               ) : (
-                <span className="text-2xl md:text-3xl font-bold text-gray-600">
+                <span className="text-4xl font-black text-slate-200">
                   {business.name.charAt(0)}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Business Info */}
+          {/* Business Identity */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between">
-              <div className="flex-1">
-                {/* Title and Badges */}
-                <div className="flex items-start space-x-3 mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    {business.name}
-                  </h1>
-                  
-                  <div className="flex items-center space-x-2 flex-shrink-0 mt-1">
-                    {business.verified && (
-                      <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full" title="ABN Verified">
-                        <Check className="w-3 h-3 text-blue-500" />
-                      </div>
-                    )}
-                    {business.isVendor && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Marketplace Seller
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Location and Category */}
-                <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-3">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>{business.location}</span>
-                  </div>
-                  {business.category && (
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{business.category}</span>
+            <div className="flex flex-col gap-6">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-[10px] font-black text-black border border-black px-2 py-0.5 uppercase tracking-tighter">
+                    {business.category || "CREATIVE STUDIO"}
+                  </span>
+                  {business.verified && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <Check className="w-3 h-3" />
+                      Verified Studio
                     </div>
                   )}
                 </div>
 
-                {/* Rating */}
-                {business.rating && (business.reviewCount || 0) > 0 && (
-                  <div className="flex items-center space-x-2 mb-4">
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-5 h-5 text-amber-400 fill-current" />
-                      <span className="font-semibold text-gray-900">{business.rating}</span>
-                    </div>
-                    <span className="text-gray-600">
-                      ({business.reviewCount} reviews)
-                    </span>
-                  </div>
-                )}
+                <h1 className="text-5xl md:text-7xl font-extrabold text-black uppercase tracking-tighter leading-[0.9] mb-6">
+                  {business.name}
+                </h1>
 
-                {/* Description */}
-                <p className="text-gray-700 leading-relaxed max-w-3xl">
-                  {business.description}
-                </p>
+                <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[10px] font-black text-black uppercase tracking-[0.2em]">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3 h-3" />
+                    <span>{business.location} neighbourhood</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-3 h-3" />
+                    <span>Melbourne, VIC</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Quick Actions */}
-              <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-8">
-                <div className="flex flex-row flex-wrap md:flex-col gap-3">
-                  {business.contact.website && (
-                    <a
-                      href={business.contact.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
-                    >
-                      <Globe className="w-4 h-4 mr-2" />
-                      Visit Website
-                    </a>
-                  )}
-                  
-                  {business.contact.phone && (
-                    <a
-                      href={`tel:${business.contact.phone}`}
-                      className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call Now
-                    </a>
-                  )}
-                  
-                  {business.contact.email && (
-                    <a
-                      href={`mailto:${business.contact.email}`}
-                      className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-                    >
-                      <Mail className="w-4 h-4 mr-2" />
-                      Email
-                    </a>
-                  )}
-                </div>
+              {/* Action Grid */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-50">
+                {business.contact.website && (
+                  <a
+                    href={business.contact.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 transition-colors"
+                  >
+                    Official Website
+                  </a>
+                )}
+                {business.contact.phone && (
+                  <a
+                    href={`tel:${business.contact.phone}`}
+                    className="px-6 py-3 border border-slate-200 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                  >
+                    {business.contact.phone}
+                  </a>
+                )}
+                {business.contact.email && (
+                  <a
+                    href={`mailto:${business.contact.email}`}
+                    className="px-6 py-3 border border-slate-200 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                  >
+                    Email Studio
+                  </a>
+                )}
               </div>
             </div>
           </div>

@@ -11,7 +11,7 @@ import { withAuthRateLimit } from '@/middleware/rateLimit';
 import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
 import { withErrorHandler } from '@/middleware/errorHandler';
-import { VENDOR_TIERS } from '@/lib/constants';
+
 
 async function handler(req: NextRequest) {
   try {
@@ -67,25 +67,8 @@ async function handler(req: NextRequest) {
         return successResponse({ message: 'No changes provided' });
       }
 
-      // Enforce Tier Gating for Templates
-      if (template_key === 'high_end') {
-        const { data: currentProfile } = await dbClient
-          .from('business_profiles')
-          .select('vendor_tier')
-          .eq('user_id', user.id)
-          .single();
+      // SSOT v2.0: No tier gating — all templates are available
 
-        if (!currentProfile) {
-          return notFoundResponse('Profile not found');
-        }
-
-        const tier = currentProfile.vendor_tier;
-        const isEligible = tier === VENDOR_TIERS.PRO || tier === VENDOR_TIERS.PREMIUM;
-
-        if (!isEligible) {
-          return unauthorizedResponse('This template requires a Pro or Premium plan.');
-        }
-      }
 
       const { data: updatedProfile, error: updateError } = await dbClient
         .from('business_profiles')

@@ -1,8 +1,6 @@
 import { AuthSession, User, Vendor } from "./types";
 
-import {
-  TIER_LIMITS,
-} from "./constants";
+import { UNIVERSAL_PRODUCT_LIMIT } from "./tier-utils";
 
 export type VendorTier = "basic" | "pro" | "premium" | "none" | "suspended";
 
@@ -189,22 +187,19 @@ class AuthManager {
 
     const { data, error } = await supabase.from("vendors").insert({
       user_id: session.user.id,
-      is_vendor: false,
-      vendor_status: "inactive",
-      can_sell_products: false,
-      stripe_onboarding_complete: false,
+      is_vendor: true,
+      vendor_status: "active",
+      can_sell_products: true,
+      stripe_onboarding_complete: true, // Bypass legacy flow
       business_name: vendorData.business_name,
       bio: vendorData.bio,
       primary_region_id: vendorData.primary_region_id,
       abn_verified: false,
       product_count: 0,
       storage_used_mb: 0,
-      product_quota: TIER_LIMITS.none.product_quota,
-      storage_quota_gb: TIER_LIMITS.none.storage_quota_gb,
-      commission_rate: TIER_LIMITS.none.commission_rate,
-      has_custom_domain: TIER_LIMITS.none.has_custom_domain,
-      has_landing_page: TIER_LIMITS.none.has_landing_page,
-      marketplace_cap: TIER_LIMITS.none.marketplace_cap,
+      product_quota: UNIVERSAL_PRODUCT_LIMIT,
+      storage_quota_gb: 1, // Default 1GB
+      commission_rate: 0, // No commission in directory mode
     })
       .select()
       .single();

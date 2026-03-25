@@ -113,9 +113,9 @@ For product constitution, see `docs/README.md`.
 
 * Product detail must show:
 
-  * “Sold by [Creator]. Payments processed by Stripe.”
-* Delivery method must be explicit and non-misleading.
-* Reduce friction:
+  * “View on Creator's Store” (External routing).
+* Outbound tracking: All external clicks are anonymous and logged via `/api/redirect`.
+* Delivery method: Explicitly defined on the creator's third-party platform.
 
   * clean layout
   * simple hierarchy

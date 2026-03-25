@@ -1,6 +1,7 @@
 import "./env";
 import { randomUUID } from "node:crypto";
-import { TIER_LIMITS, type VendorTier } from "@/lib/constants";
+import { type VendorTier } from "@/lib/constants";
+import { UNIVERSAL_PRODUCT_LIMIT } from "../../src/lib/tier-utils";
 import type { User, Vendor } from "@/lib/types";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 
@@ -21,13 +22,12 @@ export interface VendorFixture {
   vendorRecord: Vendor;
 }
 
-const TEST_STRIPE_ACCOUNT_ID =
-  process.env.PLAYWRIGHT_STRIPE_ACCOUNT_ID || "acct_1SWef9PwC4EEv8iK";
+// Removed legacy Stripe constant
 
 export async function createVendorFixture(
   options: CreateVendorOptions = {}
 ): Promise<VendorFixture> {
-  const tier: VendorTier = options.tier ?? "pro";
+  const tier: VendorTier = options.tier ?? "basic";
   const productCount = options.productCount ?? 0;
   const regionId = options.regionId ?? 17;
 
@@ -73,7 +73,6 @@ export async function createVendorFixture(
   }
 
   const vendorId = randomUUID();
-  const tierLimits = TIER_LIMITS[tier] ?? TIER_LIMITS.basic;
   const { error: insertVendorError } = await admin.from("vendors").insert({
     id: vendorId,
     user_id: userId,
@@ -81,11 +80,10 @@ export async function createVendorFixture(
     vendor_status: "active",
     can_sell_products: true,
     is_vendor: true,
-    stripe_account_id: TEST_STRIPE_ACCOUNT_ID,
     stripe_account_status: "active",
     stripe_onboarding_complete: true,
-    product_quota: tierLimits.product_quota,
-    commission_rate: tierLimits.commission_rate,
+    product_quota: UNIVERSAL_PRODUCT_LIMIT,
+    commission_rate: 0,
     primary_region_id: regionId,
     product_count: 0,
   });

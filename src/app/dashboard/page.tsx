@@ -2,8 +2,6 @@
 
 import {
   BarChart3,
-  CreditCard,
-  DollarSign,
   Edit,
   Eye,
   LogOut,
@@ -13,13 +11,16 @@ import {
   Star,
   Store,
   Trash2,
-  TrendingUp,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { TIER_LIMITS, FEATURED_SLOT } from "@/lib/constants";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-hot-toast";
+import { supabase } from "@/lib/supabase";
+import { FEATURED_SLOT } from "@/lib/constants";
+import { UNIVERSAL_PRODUCT_LIMIT } from "@/lib/tier-utils";
 
 // Mock data for demonstration
 const mockBusiness = {
@@ -38,9 +39,9 @@ const mockBusiness = {
     totalViews: 15420,
     totalProducts: 12,
     averageRating: 4.8,
-    totalOrders: 89,
   },
 };
+
 
 const mockProducts = [
   {
@@ -78,54 +79,87 @@ const mockProducts = [
   },
 ];
 
-const mockOrders = [
-  {
-    id: "ORD-001",
-    customer: "John Smith",
-    product: "Website Design Package",
-    amount: 299,
-    status: "completed",
-    date: "2024-03-15",
-  },
-  {
-    id: "ORD-002",
-    customer: "Sarah Johnson",
-    product: "SEO Optimization",
-    amount: 199,
-    status: "completed",
-    date: "2024-03-14",
-  },
-  {
-    id: "ORD-003",
-    customer: "Mike Davis",
-    product: "Social Media Management",
-    amount: 149,
-    status: "pending",
-    date: "2024-03-13",
-  },
-];
 
-const mockEarnings = {
-  thisMonth: 2847,
-  lastMonth: 2156,
-  total: 15420,
-  pending: 599,
-};
 
-export default function Dashboard() {
+function ClaimBanner({ vendorId, onClaim }: { vendorId: string; onClaim: () => void }) {
+  return (
+    <div className="bg-black text-white p-4 flex items-center justify-between mb-8 animate-in fade-in slide-in-from-top duration-500">
+      <div className="flex items-center gap-4">
+        <Store className="w-5 h-5 text-slate-400" />
+        <div>
+          <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Concierge Handover In Progress</h4>
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Found your pre-seeded profile. Click to finalize ownership.</p>
+        </div>
+      </div>
+      <button 
+        onClick={onClaim}
+        className="bg-white text-black px-6 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+      >
+        Claim Profile
+      </button>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+    </div>}>
+      <Dashboard />
+    </Suspense>
+  );
+}
+
+function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [business, setBusiness] = useState(mockBusiness);
   const [products, setProducts] = useState(mockProducts);
-  const [orders] = useState(mockOrders);
-  const [earnings] = useState(mockEarnings);
   const [isLoading, setIsLoading] = useState(true);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, vendor } = useAuth();
+  const [claimId, setClaimId] = useState<string | null>(null);
+
   useEffect(() => {
+    const claim = searchParams.get('claim');
+    if (claim) {
+      setClaimId(claim);
+      toast.success('Found your seeded profile!', { icon: '🎁' });
+    }
+
     // Simulate data loading
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
-  }, []);
+  }, [searchParams]);
+
+  const handleFinalizeClaim = async () => {
+    if (!user || !claimId) return;
+    
+    setIsLoading(true);
+    try {
+      // Logic to update the vendor row with the current user's ID
+      const { error } = await supabase
+        .from('vendors') // Assuming 'vendors' is the table name
+        .update({ user_id: user.id })
+        .eq('id', claimId);
+
+      if (error) throw error;
+
+      toast.success('Profile successfully claimed!');
+      setClaimId(null);
+      // Refresh to pull updated vendor context
+      window.location.reload();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Claim profile error:', error);
+      toast.error(`Failed to claim profile: ${message}. Support has been notified.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFeatureToggle = (productId: string) => {
     setProducts(
@@ -163,18 +197,7 @@ export default function Dashboard() {
     }
   };
 
-  const getOrderStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -254,9 +277,6 @@ export default function Dashboard() {
                 {[
                   { id: "overview", label: "Overview", icon: BarChart3 },
                   { id: "products", label: "Products", icon: Package },
-                  { id: "orders", label: "Orders", icon: CreditCard },
-                  { id: "earnings", label: "Earnings", icon: DollarSign },
-                  { id: "customers", label: "Customers", icon: Users },
                   { id: "settings", label: "Settings", icon: Settings },
                 ].map((item) => (
                   <button
@@ -274,16 +294,13 @@ export default function Dashboard() {
                 ))}
               </nav>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">
-                  Upgrade to Premium
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  Directory Quota
                 </h4>
-                <p className="text-sm text-blue-700 mb-3">
-                  Get ${TIER_LIMITS.premium.product_quota} products and {FEATURED_SLOT.MAX_SLOTS_PER_VENDOR} featured slots
+                <p className="text-xs text-gray-600 mb-3">
+                  You are using {business.stats.totalProducts} of {UNIVERSAL_PRODUCT_LIMIT} products limit. Featured slots are managed manually.
                 </p>
-                <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Upgrade Now
-                </button>
               </div>
             </div>
           </div>
@@ -293,6 +310,7 @@ export default function Dashboard() {
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <div className="space-y-6">
+                {claimId && <ClaimBanner vendorId={claimId} onClaim={handleFinalizeClaim} />}
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900">
@@ -342,27 +360,13 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-600">
-                          Avg Rating
+                          Average Rating
                         </p>
                         <p className="text-2xl font-bold text-gray-900">
                           {business.stats.averageRating}
                         </p>
                       </div>
                       <Star className="h-8 w-8 text-yellow-500" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          Total Orders
-                        </p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          {business.stats.totalOrders}
-                        </p>
-                      </div>
-                      <TrendingUp className="h-8 w-8 text-purple-600" />
                     </div>
                   </div>
                 </div>
@@ -524,203 +528,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Orders Tab */}
-            {activeTab === "orders" && (
-              <div className="space-y-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Recent Orders
-                  </h1>
-                  <p className="text-gray-600">
-                    Manage customer orders and payments
-                  </p>
-                </div>
 
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Order ID
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Customer
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Product
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Amount
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {orders.map((order) => (
-                          <tr key={order.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {order.id}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {order.customer}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {order.product}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ${order.amount}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`px-2 py-1 text-xs font-medium rounded-full ${getOrderStatusColor(
-                                  order.status
-                                )}`}
-                              >
-                                {order.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {order.date}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Earnings Tab */}
-            {activeTab === "earnings" && (
-              <div className="space-y-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Earnings</h1>
-                  <p className="text-gray-600">
-                    Track your revenue and payment history
-                  </p>
-                </div>
-
-                {/* Earnings Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          This Month
-                        </p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          ${earnings.thisMonth.toLocaleString()}
-                        </p>
-                      </div>
-                      <TrendingUp className="h-8 w-8 text-green-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          Last Month
-                        </p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          ${earnings.lastMonth.toLocaleString()}
-                        </p>
-                      </div>
-                      <DollarSign className="h-8 w-8 text-blue-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          Pending
-                        </p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          ${earnings.pending.toLocaleString()}
-                        </p>
-                      </div>
-                      <CreditCard className="h-8 w-8 text-yellow-600" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment History */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Payment History
-                    </h3>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            March 2024 Payment
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            89 orders • ${earnings.thisMonth.toLocaleString()}
-                          </p>
-                        </div>
-                        <span className="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
-                          Completed
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            February 2024 Payment
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            76 orders • ${earnings.lastMonth.toLocaleString()}
-                          </p>
-                        </div>
-                        <span className="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
-                          Completed
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Customers Tab */}
-            {activeTab === "customers" && (
-              <div className="space-y-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Customers
-                  </h1>
-                  <p className="text-gray-600">
-                    Manage your customer relationships
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="text-center py-12">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Customer Management
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Track customer interactions and manage reviews
-                    </p>
-                    <button className="btn-primary">
-                      View Customer Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Settings Tab */}
             {activeTab === "settings" && (

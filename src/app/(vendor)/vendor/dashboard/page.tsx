@@ -187,11 +187,7 @@ function TierManagementCard({
   );
 }
 
-interface FeaturedPlacementCardProps {
-  token: string | null;
-}
-
-function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
+function FeaturedPlacementCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<
@@ -209,11 +205,7 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
     try {
       setIsLoading(true);
       setError(null);
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      const response = await fetch("/api/vendor/featured-slots", {
-        headers,
-      });
+      const response = await fetch("/api/vendor/featured-slots");
       const json = await response.json();
       if (!response.ok || !json.success) {
         throw new Error(json.error?.message ?? "Unable to load featured slots");
@@ -225,7 +217,7 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -241,13 +233,11 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
     setError(null);
     setSuccessMessage(null);
     try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
       const response = await fetch("/api/vendor/featured-slots", {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ suburb: suburbInput }),
       });
       const json = await response.json();
@@ -389,7 +379,6 @@ function FeaturedPlacementCard({ token }: FeaturedPlacementCardProps) {
 }
 
 export default function VendorDashboardPage() {
-  const { token } = useAuth();
   const { products, stats, isLoading, error, tierUtilization, refresh } =
     useVendorProducts();
   const [tierLoading, setTierLoading] = useState(false);
@@ -458,13 +447,7 @@ export default function VendorDashboardPage() {
           setTierError(null);
           setPreviewLoading(true);
           try {
-            const headers: Record<string, string> = {};
-            if (token) {
-              headers["Authorization"] = `Bearer ${token}`;
-            }
-            const response = await fetch(`/api/vendor/tier?target=${target}`, {
-              headers,
-            });
+            const response = await fetch(`/api/vendor/tier?target=${target}`);
             const json = await response.json();
             if (!response.ok || !json.success) {
               throw new Error(
@@ -496,15 +479,11 @@ export default function VendorDashboardPage() {
           setTierMessage(null);
           setTierError(null);
           try {
-            const headers: Record<string, string> = {
-              "Content-Type": "application/json",
-            };
-            if (token) {
-              headers["Authorization"] = `Bearer ${token}`;
-            }
             const response = await fetch("/api/vendor/tier", {
               method: "PATCH",
-              headers,
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({ tier: target }),
             });
             const json = await response.json();
@@ -569,7 +548,7 @@ export default function VendorDashboardPage() {
         />
       </section>
 
-      <FeaturedPlacementCard token={token} />
+      <FeaturedPlacementCard />
 
       <section className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">

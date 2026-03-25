@@ -131,6 +131,9 @@ Every UI surface must reinforce the intersection of local talent and digital pro
 * Banned claims: "Thousands of users", "Trusted by".
 * **Rule:** All social proof (e.g., "145 active digital drops", "Updated Today") must be powered by automated Supabase Views/RPCs. No hardcoded or manually updated stats.
 
-### 10.2 Outbound Click Tracking
+### 10.2 Outbound Click Tracking & Security
 * **Rule:** To measure MVP success, direct `href` links to external stores are banned.
-* All product outbound links must route through an internal API endpoint (e.g., `/api/redirect?url=...`) to log the CTR event before redirecting the visitor.
+* **Secure Routing:** All product outbound links must route through an internal API endpoint using an internal identifier (e.g., `/api/redirect?productId=123`). The server looks up the canonical URL. 
+* **Banned Pattern:** The endpoint must never accept arbitrary `url` parameters (Open Redirect vulnerability).
+* **Data Minimization:** Analytics must be strictly anonymous (e.g., logging `product_id` and timestamp). Capturing IP addresses or PII is banned to eliminate compliance overhead.
+* **Graceful Degradation:** The visitor journey is paramount. If the database insertion fails during a click log, the system must catch the error and execute the redirect anyway. Analytics must never block a creator's traffic.

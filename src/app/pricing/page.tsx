@@ -1,255 +1,119 @@
 "use client";
 
-import { Check, Star } from "lucide-react";
+import { Check, Store } from "lucide-react";
 import Link from "next/link";
-import { FEATURED_SLOT, TIER_LIMITS } from "@/lib/constants";
+import { FEATURED_SLOT } from "@/lib/constants";
+import { UNIVERSAL_PRODUCT_LIMIT } from "@/lib/tier-utils";
 
 export default function Pricing() {
-  const pricingPlans = [
-    {
-      key: "basic" as const,
-      name: "Basic",
-      description: "Get listed. Build trust. Sell a small catalogue.",
-      priceCents: TIER_LIMITS.basic.monthly_fee,
-      featured: false,
-      features: [
-        `Up to ${TIER_LIMITS.basic.product_quota} published products`,
-        `${TIER_LIMITS.basic.storage_quota_gb}GB storage`,
-        `Commission: ${Math.round(TIER_LIMITS.basic.commission_rate * 100)}%`,
-        "Public creator profile + directory listing",
-        "Sell via Stripe Connect (onboarding required)",
-        "ABN badge (optional)",
-      ],
-      cta: "Create profile",
-      ctaLink: "/auth/signup",
-    },
-    {
-      key: "pro" as const,
-      name: "Pro",
-      description: "More inventory, better ranking, lower commission.",
-      priceCents: TIER_LIMITS.pro.monthly_fee,
-      featured: true,
-      features: [
-        `Up to ${TIER_LIMITS.pro.product_quota} published products`,
-        `${TIER_LIMITS.pro.storage_quota_gb}GB storage`,
-        `Commission: ${Math.round(TIER_LIMITS.pro.commission_rate * 100)}%`,
-        "Higher directory ranking vs Basic",
-        `Featured placement available (paid, ${FEATURED_SLOT.DURATION_DAYS} days / $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)})`,
-        "Designed for creators who already share their work and want a professional page to send people to.",
-      ],
-      cta: "Upgrade to Pro",
-      ctaLink: "/auth/signup",
-    },
-    {
-      key: "premium" as const,
-      name: "Premium",
-      description: "Top ranking and the lowest commission.",
-      priceCents: TIER_LIMITS.premium.monthly_fee,
-      featured: false,
-      features: [
-        `Up to ${TIER_LIMITS.premium.product_quota} published products`,
-        `${TIER_LIMITS.premium.storage_quota_gb}GB storage`,
-        `Commission: ${Math.round(TIER_LIMITS.premium.commission_rate * 100)}%`,
-        "Highest directory ranking",
-        "Up to 3 concurrent featured placements (paid)",
-        "Designed for creators who already share their work and want a professional page to send people to.",
-      ],
-      cta: "Upgrade to Premium",
-      ctaLink: "/auth/signup",
-    },
+  const features = [
+    `Up to ${UNIVERSAL_PRODUCT_LIMIT} published products`,
+    "Public creator profile + directory listing",
+    "Self-managed checkout (send users to your own site)",
+    "Melbourne-wide search discovery",
+    "ABN verified badge (optional)",
+    `Featured placement available (paid, ${FEATURED_SLOT.DURATION_DAYS} days / $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)})`,
   ];
 
-  const formatPrice = (cents: number) => (cents === 0 ? "Free" : `$${(cents / 100).toFixed(0)}`);
-  
   const faqs = [
     {
-      question: "Can I change my plan later?",
-      answer:
-        "Yes, you can upgrade or downgrade your plan at any time. When upgrading, changes apply immediately. When downgrading, your new plan will take effect at the next billing cycle.",
+      question: "How much does it cost?",
+      answer: "Creating a directory profile and listing your studio is completely free. We do not charge subscription fees or commissions on your sales since you handle the checkout on your own website.",
     },
     {
-      question: "Do you offer annual billing?",
-      answer:
-        "Not yet. Pricing is monthly during beta to keep plans simple and avoid misleading claims.",
+      question: "Can I sell directly on Suburbmates?",
+      answer: "In SSOT v2.0, we have transitioned to a discovery-first model. You list your products here, and we send high-intent Melbourne traffic directly to your primary website or checkout page.",
     },
     {
-      question: "What payment methods do you accept?",
-      answer:
-        "We accept all major credit cards including Visa, MasterCard, and American Express. All payments are processed securely through our payment partner Stripe.",
+      question: "What is a Featured Slot?",
+      answer: `Featured slots give your studio top-of-page visibility in your specific Melbourne region. Each slot runs for ${FEATURED_SLOT.DURATION_DAYS} days for a flat fee of $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)}.`,
     },
     {
-      question: "Is there a setup fee?",
-      answer:
-        "No, there are no setup fees for any of our plans. You only pay the monthly subscription fee based on your chosen plan.",
-    },
-    {
-      question: "Can I cancel my subscription?",
-      answer:
-        "Yes, you can cancel your subscription at any time. There are no cancellation fees, and you will continue to have access to your plan until the end of your current billing period.",
-    },
-    {
-      question: "What happens if I exceed my product limit?",
-      answer:
-        "If you reach your product limit, you will have the option to upgrade to a higher plan or archive inactive products to free up space. We will notify you before you reach your limit.",
-    },
-    {
-      question: "How does featured placement work?",
-      answer:
-        `Featured placements are paid, time-boxed placements. A slot runs for ${FEATURED_SLOT.DURATION_DAYS} days and councils have a cap of ${FEATURED_SLOT.MAX_SLOTS_PER_LGA} active slots.`,
+      question: "How do I claim my profile?",
+      answer: "If you received an invitation from our concierge team, follow the link in your email to log in via Magic Link. You'll see a claim banner on your dashboard to finalize ownership.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container-custom py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Choose the perfect plan for your studio. Start with our free
-              Basic plan and upgrade as you grow.
-            </p>
-          </div>
+    <div className="min-h-screen bg-white selection:bg-black selection:text-white">
+      {/* Tesla Aesthetic Header */}
+      <div className="py-24 border-b border-gray-100">
+        <div className="container-custom max-w-4xl mx-auto text-center px-6">
+          <h1 className="text-[40px] md:text-[64px] font-black uppercase tracking-[-0.04em] leading-none mb-8">
+            Zero Friction.<br />Zero Fees.
+          </h1>
+          <p className="text-sm md:text-base text-gray-400 uppercase tracking-[0.2em] font-medium leading-relaxed max-w-2xl mx-auto">
+            Suburbmates is Melbourne&apos;s hyper-local discovery layer. We build the audience, you keep 100% of the revenue.
+          </p>
         </div>
       </div>
 
-      {/* Pricing Cards */}
-      <div className="container-custom py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {pricingPlans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-xl border-2 ${
-                plan.featured
-                  ? "border-gray-900 bg-white shadow-lg"
-                  : "border-gray-200 bg-white"
-              } overflow-hidden`}
-            >
-              {plan.featured && (
-                <div className="bg-gray-900 py-2 px-4">
-                  <div className="flex items-center justify-center">
-                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                    <span className="text-sm font-semibold text-white">
-                      Best Value
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-600 mb-6">{plan.description}</p>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-gray-900">
-                      {formatPrice(plan.priceCents)}
-                    </span>
-                    <span className="text-gray-600 ml-2">/month</span>
-                  </div>
-                  {plan.priceCents === 0 && (
-                    <p className="text-sm text-green-600 mt-1">Forever free</p>
-                  )}
-                </div>
-
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href={plan.ctaLink}
-                  className={`block w-full py-3 px-4 text-center font-medium rounded-lg transition-colors ${
-                    plan.featured
-                      ? "bg-gray-900 text-white hover:bg-gray-800"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+      {/* The Single Plan */}
+      <div className="py-24 bg-gray-50/50">
+        <div className="container-custom max-w-xl mx-auto px-6">
+          <div className="bg-white border border-gray-200 p-12 md:p-16 shadow-sm">
+            <div className="flex justify-between items-start mb-12">
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Creator</h2>
+                <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Standard Model</p>
+              </div>
+              <div className="text-right">
+                <span className="text-4xl font-black uppercase tracking-tighter">$0</span>
+                <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Forever</p>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* FAQ Section */}
-      <div className="bg-white py-16">
-        <div className="container-custom">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-              Frequently Asked Questions
-            </h2>
-
-            <div className="space-y-6">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-lg p-6"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    {faq.question}
-                  </h3>
-                  <p className="text-gray-600">{faq.answer}</p>
-                </div>
+            <ul className="space-y-6 mb-12">
+              {features.map((feature, index) => (
+                <li key={index} className="flex items-start gap-4">
+                  <Check className="h-4 w-4 text-black mt-1 flex-shrink-0" />
+                  <span className="text-[13px] text-gray-600 font-medium tracking-tight leading-snug">{feature}</span>
+                </li>
               ))}
-            </div>
-          </div>
-        </div>
-      </div>
+            </ul>
 
-      {/* CTA Section */}
-      <div className="bg-gray-900 py-16">
-        <div className="container-custom text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to get started?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join the community of Melbourne makers and studios using SuburbMates to
-            grow their online presence.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/signup"
-              className="btn-primary btn-cta text-white"
+              className="block w-full bg-black text-white text-center py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-800 transition-all duration-300"
             >
-              Create Your Free Account
-            </Link>
-            <Link
-              href="/contact"
-              className="btn-secondary text-gray-900 hover:text-gray-900"
-            >
-              Contact Sales
+              Get Started Now
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200">
-        <div className="container-custom py-8">
-          <div className="text-center text-gray-600">
-            <p>
-              Questions about pricing?{" "}
-              <Link
-                href="/contact"
-                className="text-gray-900 hover:text-gray-700 font-medium"
-              >
-                Contact us
-              </Link>
-            </p>
+      {/* FAQ */}
+      <div className="py-24 border-t border-gray-100">
+        <div className="container-custom max-w-3xl mx-auto px-6">
+          <h2 className="text-[13px] font-black uppercase tracking-[0.3em] text-center mb-16">Frequently Asked</h2>
+          <div className="grid gap-12">
+            {faqs.map((faq, index) => (
+              <div key={index}>
+                <h3 className="text-sm font-black uppercase tracking-widest mb-4 inline-flex items-center gap-2">
+                  <span className="text-gray-300">0{index + 1}</span> {faq.question}
+                </h3>
+                <p className="text-[13px] text-gray-500 leading-relaxed font-medium tracking-tight ml-8 border-l border-gray-100 pl-8">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
-      </footer>
+      </div>
+
+      {/* Footer CTA */}
+      <div className="py-32 bg-black text-white text-center">
+        <div className="container-custom px-6">
+          <Store className="w-12 h-12 mx-auto mb-8 text-white opacity-20" />
+          <h2 className="text-[40px] font-black uppercase tracking-[-0.04em] mb-12">Scale Your Studio.</h2>
+          <Link
+            href="/auth/signup"
+            className="inline-block border border-white/20 px-12 py-5 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all duration-500"
+          >
+            Join Suburbmates
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

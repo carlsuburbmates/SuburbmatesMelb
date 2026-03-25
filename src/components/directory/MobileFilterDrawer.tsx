@@ -9,13 +9,13 @@ interface MobileFilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   selectedCategory: string;
-  selectedSuburb: string;
+  selectedRegion: string;
   onFilterChange: (key: string, value: string) => void;
   onClear: () => void;
 }
 
 export function MobileFilterDrawer({
-  isOpen, onClose, selectedCategory, selectedSuburb, onFilterChange, onClear
+  isOpen, onClose, selectedCategory, selectedRegion, onFilterChange, onClear
 }: MobileFilterDrawerProps) {
   const shouldReduceMotion = useReducedMotion();
   
@@ -39,7 +39,7 @@ export function MobileFilterDrawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm md:hidden"
           />
           
           {/* Drawer */}
@@ -47,32 +47,41 @@ export function MobileFilterDrawer({
             initial={shouldReduceMotion ? { opacity: 0 } : { y: "100%" }}
             animate={shouldReduceMotion ? { opacity: 1 } : { y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { y: "100%" }}
-            transition={shouldReduceMotion ? { duration: 0.1 } : { type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-xl p-6 pb-20 md:hidden max-h-[90vh] overflow-y-auto"
+            transition={shouldReduceMotion ? { duration: 0.15 } : { type: "tween", ease: [0.4, 0, 0.2, 1], duration: 0.3 }}
+            className="fixed inset-x-0 bottom-0 z-[101] bg-white shadow-2xl md:hidden max-h-[95vh] flex flex-col pt-2"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-              <button onClick={onClose} className="p-2 -mr-2 text-gray-500 hover:text-gray-900">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h3 className="text-sm font-black text-black uppercase tracking-[0.2em]">Filter Directory</h3>
+              <button 
+                onClick={onClose} 
+                className="p-2 -mr-2 text-black hover:bg-slate-100 transition-colors"
+                aria-label="Close filters"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <FilterInputs 
-              selectedCategory={selectedCategory} 
-              selectedSuburb={selectedSuburb} 
-              onFilterChange={onFilterChange} 
-            />
+            {/* Content */}
+            <div className="p-6 pb-24 overflow-y-auto">
+              <FilterInputs 
+                selectedCategory={selectedCategory} 
+                selectedRegion={selectedRegion} 
+                onFilterChange={onFilterChange} 
+              />
+            </div>
 
-            <div className="mt-8 flex gap-3">
+            {/* Sticky Actions */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex gap-px">
               <button 
                 onClick={() => { onClear(); onClose(); }}
-                className="flex-1 py-3 px-4 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                className="flex-1 py-4 px-4 bg-white text-black text-xs font-black uppercase tracking-widest hover:bg-slate-50 border border-slate-200"
               >
                 Reset
               </button>
               <button 
                 onClick={onClose}
-                className="flex-1 py-3 px-4 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 shadow-sm"
+                className="flex-1 py-4 px-4 bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-slate-900 shadow-none border border-black"
               >
                 Show Results
               </button>

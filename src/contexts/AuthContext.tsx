@@ -1,17 +1,18 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { AuthSession, User, Vendor } from '@/lib/types';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Vendor } from '@/lib/types';
+import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
 
 interface AuthContextType {
   user: User | null;
   vendor: Vendor | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  token: string | null;
+  signInWithOtp: (email: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,138 +25,98 @@ export function useAuth() {
   return context;
 }
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const isAuthenticated = !!user && !!token;
-
-  const clearAuth = useCallback(() => {
-    setUser(null);
-    setVendor(null);
-    setToken(null);
-
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      localStorage.removeItem('vendor_data');
-    }
-  }, []);
-
-  const checkAuth = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      // Get token from localStorage
-      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-      const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user_data') : null;
-      const storedVendor = typeof window !== 'undefined' ? localStorage.getItem('vendor_data') : null;
-      
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        if (storedVendor) {
-          setVendor(JSON.parse(storedVendor));
-        }
-        
-        // Verify token is still valid
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedToken}`,
-        };
-        
-        const response = await fetch('/api/auth/me', {
-          method: 'GET',
-          headers,
-        });
-        
-        if (!response.ok) {
-          // Token is invalid, clear storage
-          clearAuth();
-        }
-      } else {
-        clearAuth();
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      clearAuth();
-    } finally {
-      setIsLoading(false);
-    }
-  }, [clearAuth]);
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  const login = async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      const session: AuthSession = data.data;
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       
-      // Store in state
-      setUser(session.user);
-      setVendor(session.vendor || null);
-      setToken(session.token);
-      
-      // Store in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', session.token);
-        localStorage.setItem('user_data', JSON.stringify(session.user));
-        if (session.vendor) {
-          localStorage.setItem('vendor_data', JSON.stringify(session.vendor));
+      if (session?.user) {
+        setToken(session.access_token);
+        // Sync user and check for vendor profile
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (userData) {
+          setUser(userData);
+          const { data: vendorData } = await supabase
+            .from('vendors')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+          setVendor(vendorData || null);
         }
       }
-    } else {
-      throw new Error(data.error || 'Login failed');
-    }
+      setIsLoading(false);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setToken(session.access_token);
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setUser(userData || null);
+      } else {
+        setUser(null);
+        setVendor(null);
+        setToken(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const signInWithOtp = async (email: string) => {
+    return await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const signInWithGoogle = async () => {
+    return await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
   };
 
   const logout = async () => {
-    try {
-      // Call logout endpoint if we have a token
-      if (token) {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      clearAuth();
-    }
+    await supabase.auth.signOut();
+    setUser(null);
+    setVendor(null);
+    setToken(null);
   };
 
-  const value: AuthContextType = {
+  const value = {
     user,
     vendor,
     token,
-    isAuthenticated,
+    isAuthenticated: !!user,
     isLoading,
-    login,
+    signInWithOtp,
+    signInWithGoogle,
     logout,
-    checkAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

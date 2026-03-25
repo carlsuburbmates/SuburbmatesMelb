@@ -1,3 +1,18 @@
+## 2026-03-24 — SSOT v2.0: Legacy Commerce Purge & Directory Alignment
+
+- **Status**: ✅ VERIFIED COMPLETE
+- **Scope**:
+    - **Inventory**: Removed all `stripe` dependencies and legacy marketplace tables (`orders`, `marketplace_sales`, `disputes`).
+    - **Onboarding**: Built and integrated `/api/scrape` for frictionless URL-based product creation.
+    - **Directory**: Overhauled Home/Directory with Region/Category tiles and dynamic **Daily Shuffle** RPC.
+    - **Gating**: Enforced universal 10-product limit for all creators.
+    - **Analytics**: Finalized `/api/redirect` gate for anonymous outbound tracking.
+- **Verbatim Gates**:
+    - `npm run lint`: PASS (0 errors)
+    - `npm run build`: PASS
+    - `ssot:check`: PASS
+- **Verdict**: Repository fully aligned with "Aggressively Minimal Directory" (SSOT v2.0).
+
 ## 2026-01-01 — PR10.x: System-Wide Truth Audit (main)
 
 - **Status**: ✅ VERIFIED COMPLETE
