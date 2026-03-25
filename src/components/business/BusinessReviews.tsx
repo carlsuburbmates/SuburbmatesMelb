@@ -140,8 +140,10 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
             <div
               key={rating}
               className="flex items-center space-x-2 text-sm"
-              aria-label={`${rating} stars: ${ratingDistribution[rating as keyof typeof ratingDistribution]} reviews`}
             >
+              <span className="sr-only">
+                {`${rating} stars: ${ratingDistribution[rating as keyof typeof ratingDistribution]} reviews`}
+              </span>
               <span className="w-3 text-gray-600" aria-hidden="true">{rating}</span>
               <Star className="w-4 h-4 text-amber-400 fill-current" aria-hidden="true" />
               <div className="flex-1 bg-gray-200 rounded-full h-2" aria-hidden="true">
