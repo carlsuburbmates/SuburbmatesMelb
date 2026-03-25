@@ -63,7 +63,7 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="text-center py-8">
-          <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" aria-hidden="true" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Yet</h3>
           <p className="text-gray-600">Be the first to leave a review for this business!</p>
         </div>
@@ -82,10 +82,11 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
   const renderStars = (rating: number, size: 'sm' | 'md' = 'sm') => {
     const sizeClass = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
     return (
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-1" role="img" aria-label={`Rating: ${rating} out of 5 stars`}>
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
+            aria-hidden="true"
             className={`${sizeClass} ${
               star <= rating ? 'text-amber-400 fill-current' : 'text-gray-300'
             }`}
@@ -110,7 +111,7 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
       {/* Reviews Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <MessageCircle className="w-5 h-5 text-gray-600" />
+          <MessageCircle className="w-5 h-5 text-gray-600" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-gray-900">Customer Reviews</h2>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
             {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
@@ -134,12 +135,18 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
         </div>
 
         {/* Rating Distribution */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-label="Rating distribution">
           {[5, 4, 3, 2, 1].map((rating) => (
-            <div key={rating} className="flex items-center space-x-2 text-sm">
-              <span className="w-3 text-gray-600">{rating}</span>
-              <Star className="w-4 h-4 text-amber-400 fill-current" />
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
+            <div
+              key={rating}
+              className="flex items-center space-x-2 text-sm"
+            >
+              <span className="sr-only">
+                {`${rating} stars: ${ratingDistribution[rating as keyof typeof ratingDistribution]} reviews`}
+              </span>
+              <span className="w-3 text-gray-600" aria-hidden="true">{rating}</span>
+              <Star className="w-4 h-4 text-amber-400 fill-current" aria-hidden="true" />
+              <div className="flex-1 bg-gray-200 rounded-full h-2" aria-hidden="true">
                 <div
                   className="bg-amber-400 h-2 rounded-full"
                   style={{
@@ -147,7 +154,7 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
                   }}
                 ></div>
               </div>
-              <span className="w-6 text-gray-600 text-right">
+              <span className="w-6 text-gray-600 text-right" aria-hidden="true">
                 {ratingDistribution[rating as keyof typeof ratingDistribution]}
               </span>
             </div>
@@ -197,8 +204,11 @@ export function BusinessReviews({ businessId }: BusinessReviewsProps) {
 
                 {/* Review Actions */}
                 <div className="flex items-center space-x-4 text-sm">
-                  <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
-                    <ThumbsUp className="w-4 h-4" />
+                  <button
+                    className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-2 py-1 -ml-2"
+                    aria-label={`Mark review by ${review.customerName} as helpful. Currently ${review.helpful} people found this helpful.`}
+                  >
+                    <ThumbsUp className="w-4 h-4" aria-hidden="true" />
                     <span>Helpful ({review.helpful})</span>
                   </button>
                 </div>
