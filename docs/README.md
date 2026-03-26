@@ -51,8 +51,8 @@ Every UI surface must reinforce the intersection of local talent and digital pro
 ## 3) Trust Model & Payments
 
 ### 3.1 Payment truth
-* **Creators sell through their own platforms** (Gumroad, Stripe).
-* Suburbmates is strictly a discovery and routing layer.
+* **Creators sell through their own platforms** (Gumroad, Stripe). Vendor is the Merchant of Record.
+* Suburbmates is strictly a discovery and routing layer. Suburbmates does not issue refunds.
 
 ### 3.2 ABN Verification (Trust Signal)
 * ABN input is **optional** and acts purely as a creator-supplied trust badge.

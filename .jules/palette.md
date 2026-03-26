@@ -1,0 +1,3 @@
+## 2024-06-18 - Client Component Separation for Semantic Forms in Server Layouts
+**Learning:** Extracting inline interactive UI elements like semantic `<form>`s (e.g., newsletter inputs requiring `onSubmit={(e) => e.preventDefault()}` and accessibility properties) into dedicated Client Components allows layout components (like footers/headers) to remain Server Components, preserving performance while improving accessibility.
+**Action:** Always wrap purely client-side interactive elements in semantic `<form>` tags, include visually hidden `<label>`s tied via `id`/`htmlFor`, and extract them into discrete `'use client'` components when embedding inside Server-rendered layouts.
