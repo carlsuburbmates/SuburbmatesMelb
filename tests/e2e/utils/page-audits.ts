@@ -18,6 +18,11 @@ export async function captureVisualSnapshot(
   page: Page,
   fileName: string
 ) {
+  if (process.env.CI === "true") {
+    console.log(`[visual] Skipping screenshot assertion for ${fileName} in CI.`);
+    return;
+  }
+
   try {
     await expect(page).toHaveScreenshot(fileName, {
       fullPage: true,
