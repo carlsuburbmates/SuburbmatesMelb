@@ -27,7 +27,7 @@ Visitors use it to:
 * Click through to purchase on the creator's preferred platform
 
 ### 1.2 What Suburbmates is NOT
-* Not a transaction processor (No MoR, no PCI, no checkout).
+* Not a transaction processor (No MoR, no PCI, no checkout). Vendor is the Merchant of Record. Suburbmates does not issue refunds.
 * Not a "Search-Only" blank canvas (Browse-first architecture is mandatory).
 * Not an automated scraping engine (Profiles are manually claimed or seeded).
 * Not a heavy React dashboard (Admin is handled 100% via Supabase GUI).

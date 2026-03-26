@@ -7,7 +7,8 @@ import { Resend } from 'resend';
 import { PLATFORM, TIER_LIMITS, RISK_THRESHOLDS } from './constants';
 
 // Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Use a dummy key if RESEND_API_KEY is not set to prevent Next.js build trace crashes
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
 
 // ============================================================================
 // EMAIL TYPES

@@ -1,0 +1,4 @@
+## 2024-03-26 - XSS & Email Header Injection in Contact Form
+**Vulnerability:** User inputs (`name`, `email`, `subject`, `message`) in the contact form were being directly interpolated into HTML emails, allowing XSS. Additionally, `subject` and `email` (used as `replyTo`) were passed to the email header without sanitization, risking Email Header Injection via CRLF.
+**Learning:** The base `sendEmail` utility does not auto-sanitize inputs. Callers must manually sanitize user inputs using `escapeHtml` before passing them into HTML templates. Furthermore, email headers must use `stripNewlines` and not `escapeHtml` to avoid double encoding while still preventing injection.
+**Prevention:** Always use `escapeHtml` when embedding user input into HTML payloads, and process the ampersand character first to avoid double-escaping. Always use `stripNewlines` on fields included in email headers.
