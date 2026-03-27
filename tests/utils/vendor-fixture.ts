@@ -31,6 +31,47 @@ export async function createVendorFixture(
   const productCount = options.productCount ?? 0;
   const regionId = options.regionId ?? 17;
 
+  // Mock implementation for CI environment where Supabase is not available
+  if (process.env.CI === "true" || process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+    console.log("Running in CI/Placeholder mode: Returning mock vendor fixture");
+    const userId = randomUUID();
+    const vendorId = randomUUID();
+    const businessId = randomUUID();
+    const email = `mock-vendor-${Date.now()}@example.com`;
+
+    return {
+      userId,
+      vendorId,
+      businessId,
+      email,
+      password: "mock-password",
+      token: "mock-token",
+      userRecord: {
+        id: userId,
+        email,
+        user_type: "vendor",
+        created_at: new Date().toISOString(),
+      } as User,
+      vendorRecord: {
+        id: vendorId,
+        user_id: userId,
+        business_name: "Mock Vendor",
+        vendor_status: "active",
+        can_sell_products: true,
+        is_vendor: true,
+        tier,
+        stripe_account_id: TEST_STRIPE_ACCOUNT_ID,
+        stripe_account_status: "active",
+        stripe_onboarding_complete: true,
+        product_quota: TIER_LIMITS[tier].product_quota,
+        commission_rate: TIER_LIMITS[tier].commission_rate,
+        primary_lga_id: lgaId,
+        product_count: productCount,
+        created_at: new Date().toISOString(),
+      } as Vendor,
+    };
+  }
+
   const admin = getSupabaseAdminClient();
   const email = `playwright-${Date.now()}-${Math.round(Math.random() * 1e6)}@example.com`;
   const password = `Pw-${Math.random().toString(36).slice(2, 10)}!Aa1`;
