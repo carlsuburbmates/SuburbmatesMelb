@@ -31,6 +31,25 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase & Extract Env Vars
+        run: |
+          supabase start
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "RESEND_API_KEY=dummy_resend_key" >> $GITHUB_ENV
+          echo "STRIPE_SECRET_KEY=dummy_stripe_key" >> $GITHUB_ENV
+          echo "STRIPE_WEBHOOK_SECRET=dummy_webhook_key" >> $GITHUB_ENV
+          echo "GA_TRACKING_ID=dummy_ga_key" >> $GITHUB_ENV
+          echo "CRON_SECRET=dummy_cron_key" >> $GITHUB_ENV
+          echo "POSTHOG_KEY=dummy_posthog_key" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000" >> $GITHUB_ENV
+
       - name: Build
         run: npm run build
 
