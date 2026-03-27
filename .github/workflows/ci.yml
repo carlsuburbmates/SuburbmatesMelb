@@ -33,9 +33,27 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+          STRIPE_SECRET_KEY: "placeholder-stripe-secret"
+          STRIPE_WEBHOOK_SECRET: "placeholder-stripe-webhook-secret"
+          RESEND_API_KEY: "placeholder-resend-key"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3010"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role"
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: "true"
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+          STRIPE_SECRET_KEY: "placeholder-stripe-secret"
+          STRIPE_WEBHOOK_SECRET: "placeholder-stripe-webhook-secret"
+          RESEND_API_KEY: "placeholder-resend-key"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3010"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role"
