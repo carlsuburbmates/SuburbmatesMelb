@@ -9,6 +9,14 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder"
+      STRIPE_SECRET_KEY: "placeholder"
+      RESEND_API_KEY: "re_placeholder"
+      NEXT_PUBLIC_POSTHOG_KEY: "placeholder"
+      NEXT_PUBLIC_POSTHOG_HOST: "https://app.posthog.com"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

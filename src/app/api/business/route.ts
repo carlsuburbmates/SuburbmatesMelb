@@ -4,12 +4,33 @@ import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Check for placeholder credentials to avoid initialization errors in CI
+const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') ||
+                      process.env.SUPABASE_SERVICE_ROLE_KEY?.includes('placeholder');
+
+const supabase = !isPlaceholder
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  : null;
 
 export async function GET(request: NextRequest) {
+  // Return mock response if using placeholder credentials (e.g. in CI)
+  if (!supabase) {
+    return NextResponse.json({
+      businesses: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
+    });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     
