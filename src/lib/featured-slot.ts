@@ -11,7 +11,7 @@ export async function getFeaturedSlotAvailability(
   regionId: number,
   referenceIso: string
 ) {
-  await client
+  const { data: regionRecord } = await client
     .from("regions")
     .select("active")
     .eq("id", regionId)

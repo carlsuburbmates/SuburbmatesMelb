@@ -46,7 +46,7 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Save */}
         <button
           onClick={handleSave}
-          aria-label={isLiked ? "Unsave business" : "Save business"}
+          aria-label="Save business"
           aria-pressed={isLiked}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
