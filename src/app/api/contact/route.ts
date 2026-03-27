@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
+import { escapeHtml, stripNewlines } from "@/lib/sanitization";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -50,19 +51,26 @@ export async function POST(request: Request) {
     }
 
     // 2. Send email to support
+    // Sanitize inputs to prevent HTML injection and header injection
+    const safeSubjectHeader = stripNewlines(subject);
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubjectBody = escapeHtml(subject);
+    const safeMessageBody = escapeHtml(message).replace(/\n/g, "<br>");
+
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
+      subject: `[Contact Form] ${safeSubjectHeader}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Subject:</strong> ${safeSubjectBody}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessageBody}</p>
       `,
-      text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
+      text: `Name: ${name}\nEmail: ${email}\nSubject: ${safeSubjectHeader}\nMessage:\n${message}`,
     });
 
     if (!emailResult.success) {
