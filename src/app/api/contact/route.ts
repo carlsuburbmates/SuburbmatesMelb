@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+import { withApiRateLimit } from "@/middleware/rateLimit";
+import { withLogging } from "@/middleware/logging";
+import { withErrorHandler } from "@/middleware/errorHandler";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -11,12 +15,14 @@ const contactSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
 
-export async function POST(request: Request) {
+async function contactHandler(request: NextRequest) {
+  // Sentinel: Added defensive rate limiting and improved logging
   try {
     const body = await request.json();
     const result = contactSchema.safeParse(body);
 
     if (!result.success) {
+      logger.warn("Invalid contact form submission", { details: result.error.issues });
       return NextResponse.json(
         { error: "Invalid input", details: result.error.issues },
         { status: 400 }
@@ -39,14 +45,14 @@ export async function POST(request: Request) {
       });
 
       if (dbError) {
-        console.error("Failed to save contact submission:", dbError);
+        logger.error("Failed to save contact submission", new Error(dbError.message), { code: dbError.code });
         return NextResponse.json(
           { error: "Failed to submit request" },
           { status: 500 }
         );
       }
     } else {
-      console.log("Skipping DB insert (DISABLE_DB_INSERT=true)");
+      logger.info("Skipping DB insert (DISABLE_DB_INSERT=true)");
     }
 
     // 2. Send email to support
@@ -66,17 +72,24 @@ export async function POST(request: Request) {
     });
 
     if (!emailResult.success) {
-      console.error("Failed to send email:", emailResult.error);
+      logger.error("Failed to send contact email", emailResult.error);
       // We still return success because the DB record was created
       // But we log the error for investigation
     }
 
+    logger.info("Contact form submitted successfully", { email: email });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Contact form error:", error);
+    logger.error("Contact form unexpected error", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+export const POST = withErrorHandler(
+  withLogging(
+    withApiRateLimit(contactHandler)
+  )
+);
