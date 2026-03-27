@@ -257,6 +257,7 @@ export default function HelpPage() {
                       <Button
                         onClick={() => setIsContactModalOpen(true)}
                         size="lg"
+                        className="btn-primary"
                       >
                         Send us a message
                       </Button>
@@ -357,7 +358,12 @@ export default function HelpPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full btn-primary"
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
         </form>

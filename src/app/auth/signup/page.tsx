@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Building2, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -298,22 +299,14 @@ export default function Signup() {
               </div>
 
               <div>
-                <button
+                <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full btn-primary flex justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  isLoading={isSubmitting}
+                  className="w-full btn-primary"
                 >
-                  {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Creating account...</span>
-                    </div>
-                  ) : formData.isVendor ? (
-                    "Create vendor account"
-                  ) : (
-                    "Create account"
-                  )}
-                </button>
+                  {isSubmitting ? "Creating account..." : formData.isVendor ? "Create vendor account" : "Create account"}
+                </Button>
               </div>
             </form>
           )}
