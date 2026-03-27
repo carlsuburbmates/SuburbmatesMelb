@@ -46,19 +46,22 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
         {/* Save */}
         <button
           onClick={handleSave}
+          aria-label="Save business"
+          aria-pressed={isLiked}
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
-          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-          <span className="text-[10px] mt-1 font-medium">Save</span>
+          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
+          <span className="text-[10px] mt-1 font-medium" aria-hidden="true">Save</span>
         </button>
 
         {/* Share */}
         <button
           onClick={handleShare}
+          aria-label="Share business"
           className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
         >
-          <Share2 className="w-6 h-6" />
-          <span className="text-[10px] mt-1 font-medium">Share</span>
+          <Share2 className="w-6 h-6" aria-hidden="true" />
+          <span className="text-[10px] mt-1 font-medium" aria-hidden="true">Share</span>
         </button>
 
         {/* Dynamic Actions */}
@@ -66,9 +69,10 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
            {business.isVendor && (business.productCount || 0) > 0 ? (
              <button 
                 onClick={scrollToProducts}
+                aria-label="Shop products"
                 className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               <ShoppingBag className="w-4 h-4 mr-2" />
+               <ShoppingBag className="w-4 h-4 mr-2" aria-hidden="true" />
                Shop
              </button>
            ) : business.website ? (
@@ -76,17 +80,19 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                href={business.website}
                target="_blank"
                rel="noopener noreferrer"
+               aria-label="Visit website"
                className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               <Globe className="w-4 h-4 mr-2" />
+               <Globe className="w-4 h-4 mr-2" aria-hidden="true" />
                Visit
              </a>
            ) : (business.email || business.phone) ? (
              <a
                href={business.email ? `mailto:${business.email}` : `tel:${business.phone}`}
+               aria-label={business.email ? "Contact via email" : "Contact via phone"}
                className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               {business.email ? <Mail className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
+               {business.email ? <Mail className="w-4 h-4 mr-2" aria-hidden="true" /> : <Phone className="w-4 h-4 mr-2" aria-hidden="true" />}
                Contact
              </a>
            ) : null}
