@@ -33,9 +33,36 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PHASE: phase-production-build
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          STRIPE_SECRET_KEY: mock_stripe_secret
+          SUPABASE_SERVICE_ROLE_KEY: mock_service_role
+          RESEND_API_KEY: mock_resend_key
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          CI: true
+          # Re-inject build env vars as runtime env vars for the server
+          # Note: Next.js embeds NEXT_PUBLIC_* vars at build time,
+          # but server-side vars (STRIPE_SECRET_KEY) are needed at runtime.
+          STRIPE_SECRET_KEY: mock_stripe_secret
+          SUPABASE_SERVICE_ROLE_KEY: mock_service_role
+          RESEND_API_KEY: mock_resend_key
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          # Required because e2e-serve.mjs runs a fresh build
+          NEXT_PHASE: phase-production-build
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          STRIPE_SECRET_KEY: mock_stripe_secret
+          SUPABASE_SERVICE_ROLE_KEY: mock_service_role
+          RESEND_API_KEY: mock_resend_key
+          # Required for E2E tests runtime
+          STRIPE_WEBHOOK_SECRET: mock_webhook_secret
