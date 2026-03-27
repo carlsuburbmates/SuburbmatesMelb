@@ -4,6 +4,10 @@ import { getSupabaseAdminClient } from "../utils/supabase";
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 test.describe("Search Telemetry", () => {
+  // Skip if we are in a placeholder environment
+  const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder");
+  test.skip(!!isPlaceholder, "Skipping tests in placeholder environment (requires live backend)");
+
   test("directory search logs hashed query and filters", async ({ request }) => {
     const sessionId = `playwright-search-${Date.now()}`;
 

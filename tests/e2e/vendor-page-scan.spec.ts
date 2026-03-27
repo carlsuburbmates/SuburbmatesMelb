@@ -90,6 +90,10 @@ async function primeVendorSession(page: Page, session: VendorSession) {
 }
 
 test.describe("Vendor workspace coverage", () => {
+  // Skip if we are in a placeholder environment
+  const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder");
+  test.skip(!!isPlaceholder, "Skipping tests in placeholder environment (requires live backend)");
+
   let vendorFixture: VendorFixture | null = null;
   let vendorSession: VendorSession | null = null;
 
