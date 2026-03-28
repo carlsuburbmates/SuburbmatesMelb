@@ -52,6 +52,8 @@ Every UI surface must reinforce the intersection of local talent and digital pro
 
 ### 3.1 Payment truth
 * **Creators sell through their own platforms** (Gumroad, Stripe).
+* Vendor is the Merchant of Record.
+* Suburbmates does not issue refunds.
 * Suburbmates is strictly a discovery and routing layer.
 
 ### 3.2 ABN Verification (Trust Signal)
