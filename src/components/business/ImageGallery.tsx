@@ -17,6 +17,7 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
 
   const nextImage = useCallback(() => {
     if (!images?.length) return;
@@ -33,12 +34,17 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
   }, []);
 
   const openModal = (index: number) => {
+    if (typeof document !== 'undefined') {
+      setLastFocusedElement(document.activeElement as HTMLElement);
+    }
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
 
   useEffect(() => {
     if (!isModalOpen) return;
+
+    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
@@ -47,8 +53,12 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, closeModal, prevImage, nextImage]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      lastFocusedElement?.focus();
+    };
+  }, [isModalOpen, closeModal, prevImage, nextImage, lastFocusedElement]);
 
   if (!images || images.length === 0) {
     return null;
@@ -149,6 +159,9 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery view"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
         >
           <div className="relative w-full h-full max-w-4xl max-h-4xl">
             <LazyImage
