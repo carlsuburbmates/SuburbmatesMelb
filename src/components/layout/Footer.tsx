@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Twitter, Linkedin, Mail } from 'lucide-react';
+import { NewsletterForm } from './NewsletterForm';
 
 export function Footer() {
   return (
@@ -29,16 +30,7 @@ export function Footer() {
             {/* Newsletter Signup */}
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 mb-2">Stay updated</h4>
-              <div className="flex max-w-md">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                />
-                <button className="px-6 py-2 bg-gray-900 text-white rounded-r-md hover:bg-gray-800 transition-colors">
-                  Subscribe
-                </button>
-              </div>
+              <NewsletterForm />
             </div>
 
             {/* Social Links */}
@@ -48,28 +40,28 @@ export function Footer() {
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="w-5 h-5" />
+                <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="#" 
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Twitter"
               >
-                <Twitter className="w-5 h-5" />
+                <Twitter className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="#" 
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="LinkedIn"
               >
-                <Linkedin className="w-5 h-5" />
+                <Linkedin className="w-5 h-5" aria-hidden="true" />
               </a>
               <a 
                 href="mailto:hello@suburbmates.com.au" 
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Email"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-5 h-5" aria-hidden="true" />
               </a>
             </div>
           </div>
