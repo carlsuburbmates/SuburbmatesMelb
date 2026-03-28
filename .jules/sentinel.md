@@ -1,0 +1,4 @@
+## 2024-05-18 - Missing Input Sanitization for Emails
+**Vulnerability:** User inputs passing directly into email headers (e.g., `subject`, `replyTo`) and HTML bodies without sanitization in `/api/contact` and `src/lib/email.ts`. This poses risks of Email Header / CRLF Injection and HTML Injection (XSS within email clients).
+**Learning:** Even though third-party services like Resend might provide some inherent protection, defense-in-depth requires that all user-provided data be sanitized prior to integration into raw formats like email templates or HTTP/SMTP headers.
+**Prevention:** Consistently apply `escapeHtml` for values rendered into HTML templates and `stripNewlines` for values placed in headers to mitigate injection risks.

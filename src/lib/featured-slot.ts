@@ -11,12 +11,6 @@ export async function getFeaturedSlotAvailability(
   regionId: number,
   referenceIso: string
 ) {
-  const { data: regionRecord } = await client
-    .from("regions")
-    .select("active")
-    .eq("id", regionId)
-    .maybeSingle();
-
   const slotCap = FEATURED_SLOT.MAX_SLOTS_PER_LGA;
 
   const { count, error } = await client
