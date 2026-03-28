@@ -4,6 +4,7 @@ import { Building2, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -226,6 +227,7 @@ export default function Signup() {
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -263,6 +265,7 @@ export default function Signup() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -298,22 +301,17 @@ export default function Signup() {
               </div>
 
               <div>
-                <button
+                <Button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full btn-primary flex justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  isLoading={isSubmitting}
+                  className="w-full btn-primary !inline-flex"
                 >
-                  {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Creating account...</span>
-                    </div>
-                  ) : formData.isVendor ? (
-                    "Create vendor account"
-                  ) : (
-                    "Create account"
-                  )}
-                </button>
+                  {isSubmitting
+                    ? "Creating account..."
+                    : formData.isVendor
+                    ? "Create vendor account"
+                    : "Create account"}
+                </Button>
               </div>
             </form>
           )}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -105,6 +106,7 @@ export default function LoginPage() {
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -150,20 +152,13 @@ export default function LoginPage() {
             )}
 
             <div>
-              <button
+              <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary flex justify-center"
+                isLoading={isLoading}
+                className="w-full btn-primary !inline-flex"
               >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span className="ml-2">Signing in...</span>
-                  </div>
-                ) : (
-                  "Sign in"
-                )}
-              </button>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
             </div>
           </form>
 
