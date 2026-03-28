@@ -1,79 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
+import { withApiRateLimit } from '@/middleware/rateLimit';
+import { withLogging } from '@/middleware/logging';
+import { withErrorHandler } from '@/middleware/errorHandler';
+import { withCors } from '@/middleware/cors';
 
-// Validate environment variables
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing required Supabase environment variables');
-}
-
-// Create admin client for server-side operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+async function handler(request: NextRequest) {
+  // Check for admin client configuration
+  if (!supabaseAdmin) {
+    logger.error('Supabase admin client not configured');
+    return NextResponse.json(
+      { error: 'Internal server configuration error' },
+      { status: 500 }
+    );
   }
-);
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const vendorId = searchParams.get('vendor_id');
-    const limit = parseInt(searchParams.get('limit') || '10');
+  const { searchParams } = new URL(request.url);
+  const vendorId = searchParams.get('vendor_id');
 
-    if (!vendorId) {
-      return NextResponse.json(
-        { error: 'Vendor ID is required' },
-        { status: 400 }
-      );
+  // Validate limit: default 10, min 1, max 100
+  let limit = parseInt(searchParams.get('limit') || '10');
+  if (isNaN(limit)) limit = 10;
+  limit = Math.min(Math.max(1, limit), 100);
+
+  if (!vendorId) {
+    return NextResponse.json(
+      { error: 'Vendor ID is required' },
+      { status: 400 }
+    );
+  }
+
+  // Query products
+  // Note: 'rating' and 'download_count' are not currently in the schema based on other files,
+  // so we select known fields and will default others in the transformation.
+  const { data: products, error } = await supabaseAdmin
+    .from('products')
+    .select('id, title, description, price, category, slug, thumbnail_url, images, created_at')
+    .eq('vendor_id', vendorId)
+    .eq('published', true)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    logger.error('Database error fetching products', error, { vendorId });
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500 }
+    );
+  }
+
+  // Transform data to match frontend expectations
+  const transformedProducts = products?.map(product => {
+    let imageUrl = product.thumbnail_url;
+    if (!imageUrl && Array.isArray(product.images) && product.images.length > 0) {
+      imageUrl = String(product.images[0]);
     }
 
-    // Query products
-    // Note: 'rating' and 'download_count' are not currently in the schema based on other files,
-    // so we select known fields and will default others in the transformation.
-    const { data: products, error } = await supabase
-      .from('products')
-      .select('id, title, description, price, category, slug, thumbnail_url, images, created_at')
-      .eq('vendor_id', vendorId)
-      .eq('published', true)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error('Database error fetching products:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch products' },
-        { status: 500 }
-      );
-    }
-
-    // Transform data to match frontend expectations
-    const transformedProducts = products?.map(product => ({
+    return {
       id: product.id,
       title: product.title,
       description: product.description,
       price: product.price,
-      imageUrl: product.thumbnail_url || (product.images?.[0]) || null,
+      imageUrl: imageUrl || null,
       category: product.category || 'General',
       downloadCount: 0, // Placeholder as column might not exist
       rating: 0, // Placeholder as column might not exist
       slug: product.slug,
       isFeatured: false // Placeholder
-    })) || [];
+    };
+  }) || [];
 
-    return NextResponse.json({
-      products: transformedProducts
-    });
-
-  } catch (error) {
-    console.error('Unexpected API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    products: transformedProducts
+  });
 }
+
+export const GET = withErrorHandler(withLogging(withCors(withApiRateLimit(handler))));
