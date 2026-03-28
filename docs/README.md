@@ -134,3 +134,7 @@ Every UI surface must reinforce the intersection of local talent and digital pro
 ### 10.2 Outbound Click Tracking
 * **Rule:** To measure MVP success, direct `href` links to external stores are banned.
 * All product outbound links must route through an internal API endpoint (e.g., `/api/redirect?url=...`) to log the CTR event before redirecting the visitor.
+
+## Important Terms
+- Vendor is the Merchant of Record
+- Suburbmates does not issue refunds
