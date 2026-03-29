@@ -15,11 +15,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
-import { FEATURED_SLOT } from "@/lib/constants";
 import { UNIVERSAL_PRODUCT_LIMIT } from "@/lib/tier-utils";
 
 // Mock data for demonstration
@@ -81,7 +80,7 @@ const mockProducts = [
 
 
 
-function ClaimBanner({ vendorId, onClaim }: { vendorId: string; onClaim: () => void }) {
+function ClaimBanner({ onClaim }: { onClaim: () => void }) {
   return (
     <div className="bg-black text-white p-4 flex items-center justify-between mb-8 animate-in fade-in slide-in-from-top duration-500">
       <div className="flex items-center gap-4">
@@ -118,8 +117,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { user, vendor } = useAuth();
+  const { user } = useAuth();
   const [claimId, setClaimId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -310,7 +308,7 @@ function Dashboard() {
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <div className="space-y-6">
-                {claimId && <ClaimBanner vendorId={claimId} onClaim={handleFinalizeClaim} />}
+                {claimId && <ClaimBanner onClaim={handleFinalizeClaim} />}
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900">

@@ -3,7 +3,6 @@ import { DirectoryHeader } from '@/components/regions/DirectoryHeader';
 import { DirectoryFilters } from '@/components/regions/DirectoryFilters';
 import { DirectoryListing } from '@/components/regions/DirectoryListing';
 import { DirectorySearch } from '@/components/regions/DirectorySearch';
-import { Container } from '@/components/layout/Container';
 
 interface DirectoryPageProps {
   searchParams: Promise<{
