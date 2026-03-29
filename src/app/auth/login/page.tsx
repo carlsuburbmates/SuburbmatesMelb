@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       const { error } = await signInWithGoogle();
       if (error) throw error;
-    } catch (err) {
+    } catch {
       toast.error('Google login failed.');
     }
   };

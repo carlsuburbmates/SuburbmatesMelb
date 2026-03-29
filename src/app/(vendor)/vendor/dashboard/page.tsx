@@ -1,11 +1,9 @@
 "use client";
 
-import { useAuth } from "@/contexts/AuthContext";
 import { useVendorProducts } from "@/hooks/useVendorProducts";
-import { MapPin, Package, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
+import { Package, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { MAX_PRODUCTS_PER_CREATOR, FEATURED_SLOT } from "@/lib/constants";
-import { useState, useEffect, useCallback } from "react";
+import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 
 function formatDate(dateString?: string | null) {
   if (!dateString) return "—";

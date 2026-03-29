@@ -3,16 +3,14 @@
  * Get current authenticated user
  */
 
-import { NextRequest } from 'next/server';
 import supabase from '@/lib/supabase';
 import {
   successResponse,
   unauthorizedResponse,
   internalErrorResponse,
 } from '@/app/api/_utils/response';
-import { Database } from "@/lib/database.types";
 
-async function meHandler(req: NextRequest) {
+async function meHandler() {
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
 

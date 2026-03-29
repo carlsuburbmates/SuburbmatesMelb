@@ -35,10 +35,11 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
     <div className="bg-white border border-slate-200 p-0 overflow-hidden shadow-none">
       <form onSubmit={handleSearch} className="flex items-stretch h-14">
         <div className="flex-1 relative flex items-center">
-          <Search className="absolute left-4 h-5 w-5 text-black" />
+          <Search className="absolute left-4 h-5 w-5 text-black" aria-hidden="true" />
           <input
             type="text"
             placeholder="Search keywords, studios, or services..."
+            aria-label="Search keywords, studios, or services"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-full pl-12 pr-12 text-base font-medium placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-black text-black bg-transparent"
@@ -46,10 +47,11 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
           {search && (
             <button
               type="button"
+              aria-label="Clear search"
               onClick={() => setSearch('')}
               className="absolute right-4 p-1 hover:bg-slate-100 transition-colors"
             >
-              <X className="h-4 w-4 text-black" />
+              <X className="h-4 w-4 text-black" aria-hidden="true" />
             </button>
           )}
         </div>

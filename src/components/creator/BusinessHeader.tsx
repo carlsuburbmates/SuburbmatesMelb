@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Check, Globe, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, MapPin, Check, Globe } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 import { MappedBusinessProfile } from "@/lib/types";
 

@@ -4,15 +4,13 @@
  */
 
 import { NextRequest } from 'next/server';
-import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { userSignupSchema } from '@/lib/validation';
-import { sendWelcomeEmail } from '@/lib/email';
 import { logger, logEvent, BusinessEvent } from '@/lib/logger';
 import {
   successResponse,
   badRequestResponse,
   validationErrorResponse,
-  internalErrorResponse,
 } from '@/app/api/_utils/response';
 import { validateBody } from '@/app/api/_utils/validation';
 import { withAuthRateLimit } from '@/middleware/rateLimit';
