@@ -121,7 +121,7 @@ export async function executeDirectorySearch(
 
   const mapped: DirectorySearchResult[] =
     data?.map((row) => {
-      const meta = featuredMeta.get(row.id);
+      const meta = featuredMeta.get(row.id) as { suburbLabel?: string | null; matchesSelection?: boolean } | undefined;
       return {
         id: row.id,
         name: row.business_name,
@@ -189,12 +189,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, any>();
+    return new Map<string, Record<string, unknown>>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, any>();
+  const featureMap = new Map<string, Record<string, unknown>>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
