@@ -9,6 +9,17 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role-key"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "placeholder-secret"
+      STRIPE_SECRET_KEY: "placeholder-stripe-secret"
+      STRIPE_WEBHOOK_SECRET: "placeholder-webhook-secret"
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "placeholder-stripe-publishable"
+      RESEND_API_KEY: "re_123456789"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
