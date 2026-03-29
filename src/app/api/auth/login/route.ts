@@ -4,16 +4,14 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { userLoginSchema } from '@/lib/validation';
 import { logger, logEvent, BusinessEvent, logSecurityEvent, SecurityEvent } from '@/lib/logger';
 import {
   successResponse,
-  unauthorizedResponse,
   validationErrorResponse,
   internalErrorResponse,
 } from '@/app/api/_utils/response';
-import { validateBody } from '@/app/api/_utils/validation';
 import { withAuthRateLimit } from '@/middleware/rateLimit';
 import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
