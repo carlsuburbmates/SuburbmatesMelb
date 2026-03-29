@@ -3,6 +3,7 @@ import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml, stripNewlines } from "@/lib/html-sanitizer";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -49,18 +50,25 @@ export async function POST(request: Request) {
       console.log("Skipping DB insert (DISABLE_DB_INSERT=true)");
     }
 
+    // Sanitize inputs to prevent XSS and header injection
+    const sanitizedSubject = stripNewlines(subject);
+    const sanitizedHtmlName = escapeHtml(name);
+    const sanitizedHtmlEmail = escapeHtml(email);
+    const sanitizedHtmlSubject = escapeHtml(subject);
+    const sanitizedHtmlMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
     // 2. Send email to support
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
-      subject: `[Contact Form] ${subject}`,
+      subject: `[Contact Form] ${sanitizedSubject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Name:</strong> ${sanitizedHtmlName}</p>
+        <p><strong>Email:</strong> ${sanitizedHtmlEmail}</p>
+        <p><strong>Subject:</strong> ${sanitizedHtmlSubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${sanitizedHtmlMessage}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
