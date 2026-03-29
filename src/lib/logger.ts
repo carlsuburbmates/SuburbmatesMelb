@@ -403,7 +403,9 @@ export function logRequest(data: RequestLogData): void {
 
 export enum BusinessEvent {
   USER_SIGNUP = "user.signup",
+  USER_SIGNUP_ATTEMPT = "user.signup_attempt",
   USER_LOGIN = "user.login",
+  USER_LOGIN_ATTEMPT = "user.login_attempt",
   VENDOR_CREATED = "vendor.created",
   VENDOR_APPROVED = "vendor.approved",
   VENDOR_SUSPENDED = "vendor.suspended",

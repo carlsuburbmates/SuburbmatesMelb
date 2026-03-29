@@ -3,6 +3,7 @@
 This document specifies interaction patterns and UX rules.
 It contains **no pricing, no quotas, no durations, no caps** (those are numeric policy in `src/lib/constants.ts`).
 It contains **no “complete” claims** (implementation truth belongs in `docs/VERIFICATION_LOG.md`).
+**Visual language is Obsidian & Ice. Strictly NO Serif or Italic typography. High-density 2-column mobile grid is mandatory.**
 
 For product constitution, see `docs/README.md`.
 

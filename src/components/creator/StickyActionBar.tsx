@@ -1,6 +1,6 @@
 "use client";
 
-import { Share2, Heart, Globe, Mail, Phone, ShoppingBag } from "lucide-react";
+import { Share2, Heart, Globe, Mail, Phone, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 
 interface StickyActionBarProps {
@@ -68,8 +68,8 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                 onClick={scrollToProducts}
                 className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
              >
-               <ShoppingBag className="w-4 h-4 mr-2" />
-               Shop
+               <ArrowUpRight className="w-4 h-4 mr-2" />
+               Explore Portfolio
              </button>
            ) : business.website ? (
              <a

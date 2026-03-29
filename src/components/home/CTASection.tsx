@@ -64,7 +64,7 @@ export function CTASection() {
             <h3 className="mb-4">Build Your Brand</h3>
             <p className="text-gray-600 mb-6 text-sm leading-relaxed">
               Create a free directory profile to establish your local presence.
-              Perfect for service providers and studios.
+              Capture regional demand.
             </p>
             <button onClick={handleCreatorCTA} className="btn-primary">
               Start Free
@@ -79,10 +79,10 @@ export function CTASection() {
             <h3 className="mb-4">Start Selling</h3>
             <p className="text-gray-600 mb-6 text-sm leading-relaxed">
               Sell digital products, guides, and courses to your local
-              community. Keep 92-94% of every sale.
+              community. Zero Commission. 100% Creator Backed.
             </p>
             <button onClick={handleVendorCTA} className="btn-cta">
-              Become Vendor
+              Claim Profile.
             </button>
           </div>
         </div>
@@ -91,7 +91,7 @@ export function CTASection() {
         <div className="mt-16 text-center">
           <p className="text-gray-500 text-sm max-w-2xl mx-auto">
             Every vendor starts with a directory profile. Upgrade anytime to
-            unlock marketplace features and start generating revenue from your
+            unlock premium regional discovery and start generating revenue from your
             digital expertise.
           </p>
         </div>

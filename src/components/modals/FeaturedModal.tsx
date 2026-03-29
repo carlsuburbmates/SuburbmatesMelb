@@ -30,7 +30,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
     {
       icon: <DollarSign className="w-5 h-5 text-purple-500" />,
       title: "Affordable Investment",
-      description: `Just A$${FEATURED_SLOT.PRICE_CENTS / 100} per placement - excellent value for local creators`,
+      description: `Just A$${FEATURED_SLOT.PRICE_CENTS / 100} per placement - guaranteed regional priority to maximize outbound traffic.`,
     }
   ];
 
@@ -120,7 +120,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
                 3
               </div>
               <p className="text-sm text-gray-600">
-                Enjoy ${FEATURED_SLOT.DURATION_DAYS} days of premium visibility and increased customer discovery
+                Secure ${FEATURED_SLOT.DURATION_DAYS}-day premium regional placement.
               </p>
             </div>
           </div>

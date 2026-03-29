@@ -219,7 +219,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="product-url" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-url" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
                 External URL
               </label>
               <div className="relative">
@@ -233,7 +233,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
                   onPaste={handleUrlPaste}
                   onBlur={handleUrlPaste}
                   placeholder="https://your-site.com/product"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
                 />
                 {formStatus === "fetching" && (
                   <div className="absolute right-3 top-3">
@@ -241,13 +241,13 @@ const handleTogglePublish = async (product: VendorProduct) => {
                   </div>
                 )}
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-onyx/40 uppercase">
                 Paste a URL to automatically fetch title, description, and images.
               </p>
             </div>
 
             <div>
-              <label htmlFor="product-title" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-title" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
                 Title {formStatus === "fetching" && "(autofilling...)"}
               </label>
               <input
@@ -257,12 +257,12 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 value={formState.title}
                 onChange={handleInputChange}
                 placeholder="e.g. Melbourne Branding Toolkit"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
               />
             </div>
 
             <div>
-              <label htmlFor="product-description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-description" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
                 Description
               </label>
               <textarea
@@ -273,13 +273,13 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 onChange={handleInputChange}
                 rows={4}
                 placeholder="Describe what buyers will receive."
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full glass-card rounded-2xl border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="product-category" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="product-category" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
                   Category
                 </label>
                 <input
@@ -288,14 +288,14 @@ const handleTogglePublish = async (product: VendorProduct) => {
                   value={formState.category}
                   onChange={handleInputChange}
                   placeholder="e.g. Digital templates"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
                 />
               </div>
             </div>
 
 
             <div>
-              <label htmlFor="product-images" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="product-images" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
                 Image URLs (max 3, one per line)
               </label>
               <textarea
@@ -305,7 +305,7 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 onChange={handleInputChange}
                 rows={3}
                 placeholder="https://example.com/cover.jpg"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full glass-card rounded-2xl border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
               />
             </div>
 
@@ -320,12 +320,12 @@ const handleTogglePublish = async (product: VendorProduct) => {
                 />
                 <label
                   htmlFor="published"
-                  className="text-sm font-medium text-gray-700"
+                  className="font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60"
                 >
                   Publish immediately
                 </label>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="font-mono text-[9px] tracking-[0.15em] text-onyx/40 uppercase">
                 Publishing respects the 10-product limit and FIFO auto-unpublishing.
               </p>
             </div>

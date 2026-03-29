@@ -71,7 +71,7 @@ export interface BusinessProfileExtended {
   website?: string | null;
   is_vendor?: boolean | null;
   product_count?: number;
-  abn_verified?: boolean;
+  is_verified?: boolean;
   images?: BusinessImage[];
   template_key?: string | null;
   slug?: string;
@@ -89,7 +89,7 @@ export interface MappedBusinessProfile {
   category?: string;
   heroImage: string;
   logoUrl: string; // derived from images or placeholder
-  verified: boolean;
+  is_verified: boolean;
   isVendor: boolean;
   sections: {
     about: boolean;
@@ -103,20 +103,8 @@ export interface MappedBusinessProfile {
     website?: string;
     instagram?: string;
   };
-  rating?: number;
-  reviewCount?: number;
   createdAt: string;
   businessHours?: Record<string, string>;
   specialties?: string[];
   socialMedia?: Record<string, string>;
-  yearsActive?: number;
-  clientsServed?: number;
-  awards?: string[];
-  certifications?: string[];
-  achievements?: {
-    icon: string;
-    title: string;
-    value: string;
-    description: string;
-  }[];
 }

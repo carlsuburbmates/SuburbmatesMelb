@@ -9,12 +9,12 @@ import { useFadeIn } from '@/hooks/useScrollAnimation';
 
 const faqs = [
   {
-    question: 'How do customers buy from my studio?',
-    answer: 'Suburbmates acts as a high-density discovery layer. When a user clicks your product, we land them directly on your checkout page or website. No middlemen, no extra fees.'
+    question: 'How does traffic route to my inventory?',
+    answer: 'Suburbmates acts as a high-density discovery layer. When a user clicks your product, it routes visitors directly to your external assets. No middlemen, no extra fees.'
   },
   {
     question: 'Is it really free?',
-    answer: `Yes. Directory profiles and listing up to ${UNIVERSAL_PRODUCT_LIMIT} products are completely free. We don't take a commission on your sales.`
+    answer: `Yes. Directory profiles and listing up to ${UNIVERSAL_PRODUCT_LIMIT} products are completely free. Zero Commission. We route traffic; you keep the revenue.`
   },
   {
     question: 'What is a featured slot?',

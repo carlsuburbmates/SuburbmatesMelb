@@ -1,73 +1,74 @@
-import { requireAuth } from "@/app/api/_utils/auth";
-import type { Database } from "@/lib/database.types";
-import { logger } from "@/lib/logger";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { Database } from '@/lib/database.types';
+import { getUserFromRequest } from '@/middleware/auth';
+import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
-type VendorInsert = Database["public"]["Tables"]["vendors"]["Insert"];
-
-/**
- * API Route: POST /api/auth/create-vendor
- *
- * Creates a vendor account.
- * This is the entry point for vendor onboarding flow.
- */
+type VendorInsert = Database['public']['Tables']['vendors']['Insert'];
 
 export async function POST(request: NextRequest) {
   try {
-    const authContext = await requireAuth(request);
-    const { user, dbClient } = authContext;
+    // Authenticate user using centralized middleware logic
+    const authContext = await getUserFromRequest(request);
+    const userId = authContext.user.id;
+
+    if (!userId) {
+      return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
+    }
 
     const { business_name } = await request.json();
-
     if (!business_name) {
-      return NextResponse.json(
-        { error: "Business name is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: { message: 'Business name is required' } }, { status: 400 });
     }
 
-    // Check if user already has a vendor account
-    const { data: existingVendor, error } = await dbClient
-      .from("vendors")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // Use admin client to ensure bypass of RLS if needed for profile creation
+    const dbClient = supabaseAdmin || authContext.supabaseClient;
 
-    if (!error && existingVendor) {
-      return NextResponse.json(
-        { error: "User already has a vendor account" },
-        { status: 409 }
-      );
+    // Check if user already has a vendor profile
+    const { data: existingVendor } = await dbClient
+      .from('vendors')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    if (existingVendor) {
+      return NextResponse.json({ success: false, error: { message: 'Vendor profile already exists' } }, { status: 400 });
     }
 
+    // Create vendor profile
     const vendorPayload: VendorInsert = {
-      user_id: user.id,
+      user_id: userId,
       business_name,
-      abn_verified: false,
       product_count: 0
     };
 
-    // Create vendor record in database
-    const { data: vendor, error: insertError } = await dbClient
-      .from("vendors")
+    const { data: vendor, error } = await dbClient
+      .from('vendors')
       .insert(vendorPayload)
       .select()
       .single();
 
-    if (insertError) {
-      throw insertError;
+    if (error) {
+      logger.error('Database error creating vendor:', error);
+      throw error;
     }
 
-    return NextResponse.json({
-      message: "Vendor account created successfully",
-      vendor_id: vendor?.id ?? null,
-      onboarding_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard`,
-    });
-  } catch (error) {
-    logger.error("Error creating vendor", error);
-    return NextResponse.json(
-      { error: "Failed to create vendor account" },
-      { status: 500 }
-    );
+    // Set user type to business_owner if needed
+    await dbClient
+      .from('users')
+      .update({ user_type: 'business_owner' })
+      .eq('id', userId);
+
+    return NextResponse.json({ success: true, data: { vendor } });
+  } catch (error: any) {
+    if (error.name === 'UnauthorizedError' || error.status === 401) {
+      return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
+    }
+    
+    logger.error('Error creating vendor profile:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: { message: error.message || 'Internal server error' } 
+    }, { status: 500 });
   }
 }

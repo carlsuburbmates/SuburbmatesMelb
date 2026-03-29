@@ -64,7 +64,7 @@ export function FreshSignals() {
             </p>
           </div>
           <Link
-            href="/directory"
+            href="/regions"
             className="text-[10px] font-black text-black uppercase tracking-widest hover:underline inline-flex items-center"
           >
             Explore All 
@@ -103,7 +103,7 @@ export function FreshSignals() {
               <div className="p-5 flex flex-col flex-grow min-h-[160px]">
                 <div className="mb-4">
                   <Link 
-                    href={`/business/${product.business_slug}`}
+                    href={`/creator/${product.business_slug}`}
                     className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-black transition-colors block mb-2"
                   >
                     {product.business_name}

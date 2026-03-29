@@ -26,97 +26,43 @@ async function signupHandler(req: NextRequest) {
     // Validate request body
     const body = await validateBody(userSignupSchema, req);
 
-    logger.info('User signup attempt', { email: body.email, userType: body.user_type });
+    logger.info('User signup (OTP) attempt', { email: body.email, userType: body.user_type });
 
-    let createdUserId: string | null = null;
-
-    if (supabaseAdmin) {
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
-        email: body.email,
-        password: body.password,
-        email_confirm: true,
-        user_metadata: {
+    // Initiate Magic Link Signup (Supabase auth will create user if they don't exist)
+    const { error } = await supabase.auth.signInWithOtp({
+      email: body.email,
+      options: {
+        emailRedirectTo: `${req.nextUrl.origin}/auth/callback`,
+        data: {
           first_name: body.first_name,
           last_name: body.last_name,
           user_type: body.user_type,
         },
-      });
-
-      if (error) {
-        logger.warn('Supabase admin signup failed', { email: body.email, error: error.message });
-        return badRequestResponse(error.message);
-      }
-
-      createdUserId = data.user?.id ?? null;
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email: body.email,
-        password: body.password,
-        options: {
-          data: {
-            first_name: body.first_name,
-            last_name: body.last_name,
-            user_type: body.user_type,
-          },
-        },
-      });
-
-      if (error) {
-        logger.warn('Supabase auth signup failed', { email: body.email, error: error.message });
-        return badRequestResponse(error.message);
-      }
-
-      createdUserId = data.user?.id ?? null;
-    }
-
-    if (!createdUserId) {
-      return internalErrorResponse('User registration failed');
-    }
-
-    // Create user record in database
-    const dbClient = supabaseAdmin ?? supabase;
-    const { error: dbError } = await dbClient.from('users').insert({
-      id: createdUserId,
-      email: body.email,
-      first_name: body.first_name || null,
-      last_name: body.last_name || null,
-      user_type: body.user_type,
-      deleted_at: null,
-      created_as_business_owner_at: null,
+      },
     });
 
-    if (dbError) {
-      logger.error('Failed to create user in database', dbError, { userId: createdUserId });
-      return internalErrorResponse(`Database error: ${dbError.message}`);
+    if (error) {
+      logger.warn('Signup (OTP) failed', { email: body.email, error: error.message });
+      return badRequestResponse(error.message);
     }
 
     // Log business event
-    logEvent(BusinessEvent.USER_SIGNUP, {
-      userId: createdUserId,
+    logEvent(BusinessEvent.USER_SIGNUP_ATTEMPT, {
       email: body.email,
       userType: body.user_type,
     });
 
     // Send welcome email (async, don't block response)
-    sendWelcomeEmail(body.email, body.first_name).catch((error) => {
-      logger.error('Failed to send welcome email', error, {
-        userId: createdUserId,
-        email: body.email,
-      });
-    });
-
-    logger.info('User signup successful', { userId: createdUserId });
+    // In a pure Magic Link flow, the user record is confirmed ONLY after the link is clicked.
+    // However, we can log the attempt.
+    logger.info('Magic link sent for signup', { email: body.email });
 
     return successResponse(
       {
-        message: 'User registered successfully. Please check your email.',
-        user: {
-          id: createdUserId,
-          email: body.email,
-          user_type: body.user_type,
-        },
+        message: 'Signup initiated. Please check your inbox for a magic link.',
+        email: body.email,
       },
-      201
+      200 // OK, but not yet "Created" since confirmation is pending link click
     );
   } catch (error) {
     if (error instanceof ValidationError) {

@@ -40,7 +40,7 @@ export function StandardTemplate({ business, mappedBusiness }: StandardTemplateP
                 <h2 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-2">
                   Featured Digital Works
                 </h2>
-                <p className="text-sm text-slate-500 font-medium italic">Discovery-first product feed</p>
+                <p className="text-sm text-slate-500 font-medium">Discovery-first product feed</p>
               </div>
               <BusinessProducts 
                 vendorId={business.user_id} 
@@ -48,7 +48,7 @@ export function StandardTemplate({ business, mappedBusiness }: StandardTemplateP
                   name: mappedBusiness.name,
                   slug: mappedBusiness.slug,
                   imageUrl: mappedBusiness.logoUrl,
-                  isVerified: mappedBusiness.verified
+                  isVerified: mappedBusiness.is_verified
                 }}
               />
             </section>

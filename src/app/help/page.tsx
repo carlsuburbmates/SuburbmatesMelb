@@ -284,7 +284,7 @@ export default function HelpPage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => (window.location.href = "/directory")}
+                onClick={() => (window.location.href = "/regions")}
                 className="border-white text-white hover:bg-white hover:text-gray-900"
               >
                 Browse Creators

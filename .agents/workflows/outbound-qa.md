@@ -16,8 +16,8 @@ description: Run Phase 4 of the SSOT v2 migration (Branding, Search & Outbound Q
 
 ## Step 3: High-Gloss Branding Pass
 - Audit the global `index.css` or CSS tokens.
-- **Requirement:** Implement "Vibrant Dark Mode" support where applicable and ensure the aesthetic feels premium (glassmorphism on cards, subtle hover transitions, modern Inter/Outfit typography).
-- Ensure the "Suburbmates Melbourne" logo/header uses the refined SSOT v2 branding (clean, digital-first).
+- **Requirement:** Enforce the locked **Obsidian & Ice** visual language — `#F5F5F7` background, Poppins sans-serif typography (NO serif or italic), `white/60` Ice Edge borders on glass cards, and `backdrop-blur-2xl` Liquid Glass treatment. Strictly NO Inter, Outfit, Newsreader, or serif fonts.
+- Ensure the "Suburbmates Melbourne" logo/header uses the refined SSOT v2 branding (clean, spatial, high-tech).
 
 ## Step 4: SEO & Performance Polish
 - Audit `src/app/sitemap.ts` to ensure it doesn't reference deleted routes (like `/marketplace`).

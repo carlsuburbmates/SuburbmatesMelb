@@ -254,20 +254,8 @@ do
 done
 ```
 
-### Phase 5: Stripe
-Before merging Stripe branches:
-```bash
-# Set up Stripe CLI
-stripe login
-stripe listen --forward-to localhost:3000/api/webhook/stripe
-
-# In another terminal
-npm run dev
-
-# Test webhooks
-stripe trigger checkout.session.completed
-stripe trigger payment_intent.succeeded
-```
+### Phase 5: Stripe (REMOVED — SSOT v2.0)
+> Stripe Connect was deprecated in the SSOT v2.0 migration. All checkout and payment flows have been replaced by the external redirect model (`/api/redirect`). The `setup-stripe.js` and `setup-stripe-complete.js` scripts have been permanently deleted.
 
 ---
 

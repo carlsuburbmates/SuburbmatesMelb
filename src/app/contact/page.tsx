@@ -308,7 +308,7 @@ export default function ContactPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                onClick={() => (window.location.href = "/directory")}
+                onClick={() => (window.location.href = "/regions")}
                 className="bg-white text-gray-900 hover:bg-gray-100"
               >
                 Browse Creators

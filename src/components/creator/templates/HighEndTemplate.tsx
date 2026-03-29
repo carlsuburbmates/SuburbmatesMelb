@@ -46,7 +46,7 @@ export function HighEndTemplate({ business, mappedBusiness }: HighEndTemplatePro
                         slug: mappedBusiness.slug,
                         imageUrl: mappedBusiness.logoUrl,
                         // MappedBusinessProfile usually derives verified from tier/abn
-                        isVerified: mappedBusiness.verified 
+                        isVerified: mappedBusiness.is_verified 
                      }}
                   />
                 </section>

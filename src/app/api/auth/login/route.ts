@@ -26,85 +26,40 @@ async function loginHandler(req: NextRequest) {
     // Validate request body
     const body = await validateBody(userLoginSchema, req);
 
-    logger.info('User login attempt', { email: body.email });
+    logger.info('User login (OTP) attempt', { email: body.email });
 
-    // Sign in user with Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({
+    // Send Magic Link (OTP) via Supabase
+    const { error } = await supabase.auth.signInWithOtp({
       email: body.email,
-      password: body.password,
+      options: {
+        emailRedirectTo: `${req.nextUrl.origin}/auth/callback`,
+      },
     });
 
     if (error) {
-      logger.warn('Login failed - invalid credentials', { email: body.email });
+      logger.warn('Login (OTP) failed', { email: body.email, error: error.message });
       logSecurityEvent(SecurityEvent.AUTH_FAILED, { 
         email: body.email,
         reason: error.message,
       });
-      return unauthorizedResponse('Invalid email or password');
+      return internalErrorResponse('Failed to send magic link. Please try again later.');
     }
 
-    if (!data.user) {
-      return internalErrorResponse('Authentication failed');
-    }
-
-    const accessToken = data.session?.access_token;
-    const dbClient =
-      supabaseAdmin ?? (accessToken ? createSupabaseClient(accessToken) : supabase);
-
-    if (!accessToken && !supabaseAdmin) {
-      return internalErrorResponse('Authentication failed');
-    }
-
-    // Get user data from database
-    const { data: users, error: dbError } = await dbClient
-      .from('users')
-      .select('*')
-      .eq('id', data.user.id);
-
-    if (dbError || !users || users.length === 0) {
-      logger.error('User not found in database after auth', dbError, { userId: data.user.id });
-      return internalErrorResponse('Database error');
-    }
-
-    const userData = users[0];
-
-    // Get vendor data if user has vendor account
-    let vendorData: Vendor | null = null;
-    const { data: vendors } = await dbClient
-      .from('vendors')
-      .select('*')
-      .eq('user_id', data.user.id);
-
-    if (vendors && vendors.length > 0) {
-      vendorData = vendors[0];
-    }
-
-    // Log successful login
-    logEvent(BusinessEvent.USER_LOGIN, {
-      userId: userData.id,
-      email: userData.email,
-      userType: userData.user_type,
+    // Log business event
+    logEvent(BusinessEvent.USER_LOGIN_ATTEMPT, {
+      email: body.email,
     });
 
     logSecurityEvent(SecurityEvent.AUTH_SUCCESS, {
-      userId: userData.id,
-      email: userData.email,
+      email: body.email,
+      context: 'magic_link_sent'
     });
 
-    logger.info('User login successful', { userId: userData.id });
+    logger.info('Magic link sent successfully', { email: body.email });
 
     return successResponse({
-      message: 'Login successful',
-      user: {
-        ...userData,
-        token: data.session?.access_token,
-      },
-      vendor: vendorData,
-      session: {
-        access_token: data.session?.access_token,
-        refresh_token: data.session?.refresh_token,
-        expires_at: data.session?.expires_at,
-      },
+      message: 'Magic link sent. Please check your email.',
+      email: body.email
     });
   } catch (error) {
     if (error instanceof ValidationError) {

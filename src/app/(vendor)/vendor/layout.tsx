@@ -91,7 +91,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center space-x-3">
               <Link
-                href="/directory"
+                href="/regions"
                 className="btn-secondary inline-flex items-center space-x-2"
               >
                 <EyeIcon className="w-4 h-4" />

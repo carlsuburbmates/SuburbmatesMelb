@@ -194,12 +194,10 @@ class AuthManager {
       business_name: vendorData.business_name,
       bio: vendorData.bio,
       primary_region_id: vendorData.primary_region_id,
-      abn_verified: false,
       product_count: 0,
       storage_used_mb: 0,
       product_quota: UNIVERSAL_PRODUCT_LIMIT,
       storage_quota_gb: 1, // Default 1GB
-      commission_rate: 0, // No commission in directory mode
     })
       .select()
       .single();

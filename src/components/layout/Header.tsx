@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 const NAV_LINKS = [
-  { label: 'DIRECTORY', href: '/directory' },
+  { label: 'DIRECTORY', href: '/regions' },
   { label: 'ABOUT', href: '/about' },
   { label: 'HELP', href: '/help' },
 ];
@@ -57,7 +57,7 @@ export function Header() {
                 Suburbmates
               </span>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
-                Melbourne Studio Feed
+                Melbourne&apos;s Top Digital Creators
               </span>
             </div>
           </Link>

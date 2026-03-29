@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { BusinessProfileRenderer } from '@/components/business/templates/BusinessProfileRenderer';
+import { BusinessProfileRenderer } from '@/components/creator/templates/BusinessProfileRenderer';
 
 interface BusinessPageProps {
   params: Promise<{
@@ -24,8 +24,7 @@ interface BusinessData {
   isVendor: boolean;
   vendorId?: string;
   productCount: number;
-  verified: boolean;
-  tier: string;
+  is_verified: boolean;
   createdAt: string;
   profileImageUrl?: string;
   phone?: string;
@@ -35,8 +34,6 @@ interface BusinessData {
   businessHours: Record<string, unknown>;
   specialties: string[];
   socialMedia: Record<string, string>;
-  rating: number;
-  reviewCount: number;
   images: BusinessImage[];
   templateKey?: string;
   themeConfig?: Record<string, unknown>;
@@ -116,8 +113,7 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     isVendor: raw.isVendor === true,
     vendorId: typeof raw.vendorId === "string" ? raw.vendorId : undefined,
     productCount: toNumberValue(raw.productCount, 0),
-    verified: raw.verified === true,
-    tier: toStringValue(raw.tier, "basic"),
+    is_verified: raw.is_verified === true,
     createdAt: toStringValue(raw.createdAt, ""),
     profileImageUrl: typeof raw.profileImageUrl === "string" ? raw.profileImageUrl : undefined,
     phone: typeof raw.phone === "string" ? raw.phone : undefined,
@@ -127,8 +123,6 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     businessHours,
     specialties,
     socialMedia,
-    rating: toNumberValue(raw.rating, 0),
-    reviewCount: toNumberValue(raw.reviewCount, 0),
     images,
     templateKey: typeof raw.templateKey === "string" ? raw.templateKey : undefined,
     themeConfig: raw.themeConfig && typeof raw.themeConfig === "object" ? (raw.themeConfig as Record<string, unknown>) : undefined,
@@ -161,7 +155,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
      address: business.address,
      is_vendor: business.isVendor,
      product_count: business.productCount,
-     abn_verified: business.verified,
+     is_verified: business.is_verified,
      images: business.images,
      template_key: business.templateKey,
      slug: business.slug,
@@ -183,7 +177,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 async function getBusinessBySlug(slug: string): Promise<BusinessData | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/business/${slug}`, {
+    const response = await fetch(`${baseUrl}/api/creator/${slug}`, {
       cache: 'no-store', // Ensure fresh data
       headers: {
         'Content-Type': 'application/json',
@@ -209,17 +203,17 @@ export async function generateMetadata({ params }: BusinessPageProps) {
 
   if (!business) {
     return {
-      title: 'Business Not Found - SuburbMates',
+      title: 'Creator Not Found - Suburbmates',
     };
   }
 
   return {
-    title: `${business.name} - ${business.suburb || 'Melbourne'} | SuburbMates`,
-    description: business.description || `${business.name} - Local business in ${business.suburb || 'Melbourne'}, Melbourne. ${business.category || 'Services'}.`,
+    title: `${business.name} - ${business.suburb || 'Melbourne'} | Suburbmates`,
+    description: business.description || `${business.name} - Local creator in ${business.suburb || 'Melbourne'}, Melbourne. ${business.category || 'Portfolio'}.`,
     openGraph: {
       title: `${business.name} - ${business.suburb || 'Melbourne'}`,
       description: business.description,
-      type: 'business.business',
+      type: 'profile',
       locale: 'en_AU',
       images: business.profileImageUrl
         ? [

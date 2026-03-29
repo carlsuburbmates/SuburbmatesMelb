@@ -28,7 +28,7 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
     // Reset to page 1 when searching
     params.delete('page');
     
-    router.push(`/directory?${params.toString()}`);
+    router.push(`/regions?${params.toString()}`);
   };
 
   return (
@@ -73,7 +73,7 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
                 const params = new URLSearchParams(searchParams);
                 params.set('search', term);
                 params.delete('page');
-                router.push(`/directory?${params.toString()}`);
+                router.push(`/regions?${params.toString()}`);
               }}
               className="text-[11px] font-bold text-slate-500 hover:text-black transition-colors whitespace-nowrap uppercase tracking-wider"
             >

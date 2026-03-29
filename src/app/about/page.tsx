@@ -148,7 +148,7 @@ export default function AboutPage() {
               wanting to support local talent, SuburbMates is here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/directory" className="btn-primary">
+              <a href="/regions" className="btn-primary">
                 Browse Local Creators
               </a>
               <a href="/contact" className="btn-secondary">

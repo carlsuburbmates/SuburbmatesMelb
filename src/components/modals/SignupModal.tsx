@@ -30,7 +30,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       const { error } = await signInWithGoogle();
       if (error) throw error;
     } catch (err) {
-      toast.error('Google login failed. Please try again.');
+      toast.error('Authentication failed. Retry.');
     }
   };
 
@@ -62,7 +62,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title={selectedRole ? `Join as ${selectedRole === 'vendor' ? 'Creator' : 'Customer'}` : 'Join SuburbMates'}
+      title={selectedRole ? (selectedRole === 'vendor' ? 'Create Profile.' : 'Join SuburbMates') : 'Join SuburbMates'}
       className="max-w-lg"
     >
       {!selectedRole ? (
@@ -81,7 +81,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Customer</h3>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase">Browse and discover local creators</p>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase">Explore the directory.</p>
               </div>
               <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
             </button>
@@ -129,7 +129,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   id="email"
                   required
                   className="w-full h-12 pl-10 pr-4 border border-slate-200 rounded-none focus:outline-none focus:ring-1 focus:ring-black placeholder:text-slate-300"
-                  placeholder="name@example.com"
+                  placeholder="e.g., name@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

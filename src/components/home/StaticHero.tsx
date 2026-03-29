@@ -33,24 +33,26 @@ export function StaticHero() {
         </div>
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+      {/* Ice Refraction Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#F5F5F7] via-[#F5F5F7]/40 to-transparent z-0 pointer-events-none" />
 
       {/* Content */}
-      <div className="absolute inset-0 flex items-end">
-        <div className="container-custom pb-20 md:pb-32">
-          <div className="max-w-2xl">
-            <h1 className="text-white mb-4 animate-fade-in">
-              Build Your Brand
+      <div className="absolute inset-0 flex items-end z-10">
+        <div className="container-custom relative pb-20 md:pb-32">
+          <div className="max-w-4xl">
+            <h1 className="font-sans font-black text-6xl md:text-8xl tracking-tighter text-black leading-[0.85] mb-6 animate-fade-in">
+              BUILD YOUR BRAND
             </h1>
-            <p className="text-white/90 text-lg md:text-2xl font-light mb-6 md:mb-8 animate-slide-up">
-              Melbourne&rsquo;s creator directory
-            </p>
-            <p className="text-xs text-white/70 flex items-center mt-3">
-              <Search className="h-3 w-3 mr-1" />
-              No sign-up required to browse. Discover local talent and
-              services in your area.
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+              <p className="text-black text-xl md:text-3xl font-bold tracking-tight animate-slide-up uppercase">
+                Melbourne&rsquo;s Top Digital Creators
+              </p>
+              <div className="h-px w-12 bg-black/10 hidden md:block" />
+              <p className="font-mono uppercase tracking-[0.2em] text-[10px] text-black/60 flex items-center animate-slide-up">
+                <Search className="h-3 w-3 mr-2" />
+                DROPS, PRODUCTS, COLLECTIONS — ZERO COMMISSION
+              </p>
+            </div>
           </div>
         </div>
       </div>

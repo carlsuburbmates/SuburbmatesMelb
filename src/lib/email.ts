@@ -99,7 +99,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
         <li>Create a free business directory profile</li>
         <li>Upgrade to become a vendor and sell your own digital products</li>
       </ul>
-      <p>Get started by exploring our <a href="${process.env.NEXT_PUBLIC_SITE_URL}/directory">creator directory</a>.</p>
+      <p>Get started by exploring our <a href="${process.env.NEXT_PUBLIC_SITE_URL}/regions">creator directory</a>.</p>
       <p>Need help? Reply to this email or contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
     `,

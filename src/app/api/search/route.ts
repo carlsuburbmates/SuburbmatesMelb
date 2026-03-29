@@ -2,17 +2,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { directorySearchSchema } from "@/lib/validation";
-import { searchBusinessProfiles } from "@/lib/search";
+import { executeDirectorySearch } from "@/lib/search";
 import { recordSearchTelemetry } from "@/lib/telemetry";
 import { z } from "zod";
 import { ApiResponse } from "@/lib/types";
+
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
     const parsed = directorySearchSchema.parse(payload);
 
-    const searchResponse = await searchBusinessProfiles(parsed);
+    const searchResponse = await executeDirectorySearch(supabase, parsed);
 
     if (
       (parsed.query && parsed.query.length > 0) ||
@@ -24,11 +26,9 @@ export async function POST(req: NextRequest) {
         filters: {
           suburb: parsed.suburb,
           category: parsed.category,
-          tier: parsed.tier,
         },
         result_count: searchResponse.pagination.total,
-        session_id:
-          parsed.session_id || req.headers.get("x-search-session") || null,
+        session_id: req.headers.get("x-search-session") || null,
       });
     }
 

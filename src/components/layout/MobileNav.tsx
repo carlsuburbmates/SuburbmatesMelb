@@ -8,7 +8,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   // Hide on business pages (replaced by StickyActionBar)
-  if (pathname.startsWith("/business/")) {
+  if (pathname.startsWith("/creator/")) {
     return null;
   }
 
@@ -20,10 +20,10 @@ export function MobileNav() {
       isActive: (path: string) => path === "/",
     },
     {
-      href: "/directory",
+      href: "/regions",
       label: "Discover",
       icon: Compass,
-      isActive: (path: string) => path.startsWith("/directory") || path.startsWith("/business"),
+      isActive: (path: string) => path.startsWith("/regions") || path.startsWith("/creator"),
     },
     {
       href: "/dashboard",

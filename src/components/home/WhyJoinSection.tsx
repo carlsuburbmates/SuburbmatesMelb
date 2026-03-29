@@ -12,7 +12,7 @@ export function WhyJoinSection() {
   // and the rendering part of the component.
   const features = [
     'No setup fees or monthly costs for directory profiles',
-    'Keep 92-94% of every digital product sale',
+    'Direct Outbound Routing. Keep 100% of your traffic.',
     'Local customer base in your suburb',
     'Studio credentials and reviews',
     'Direct neighbour relationships (no platform interference)',

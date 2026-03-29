@@ -4,7 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Toaster } from "react-hot-toast";
@@ -16,10 +16,18 @@ const poppins = Poppins({
   display: "swap",
 });
 
+
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "SuburbMates - Melbourne's Digital Neighbourhood",
-  description:
-    "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
+  title: "Suburbmates | Melbourne's Digital Creator Directory",
+  description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing.",
   keywords:
     "Melbourne creators, local directory, suburb creators, local services, digital products",
   authors: [{ name: "SuburbMates" }],
@@ -35,9 +43,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "SuburbMates - Melbourne's Digital Neighbourhood",
-    description:
-      "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
+    title: "Suburbmates | Melbourne's Digital Creator Directory",
+    description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing.",
     url: "https://suburbmates.com.au",
     siteName: "SuburbMates",
     locale: "en_AU",
@@ -53,9 +60,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SuburbMates - Melbourne's Digital Neighbourhood",
-    description:
-      "Connect with local creators and discover digital products in your neighbourhood. No sign-up required to browse.",
+    title: "Suburbmates | Melbourne's Digital Creator Directory",
+    description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing.",
     images: ["/og-image.jpg"],
     creator: "@suburbmates",
   },
@@ -81,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${poppins.variable} ${geistMono.variable}`}>
       <head>
         {/* Viewport meta tag - critical for mobile */}
         <meta
@@ -102,7 +108,7 @@ export default function RootLayout({
         />
         <StructuredData />
       </head>
-      <body className={`${poppins.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <AuthProvider>
           <GoogleAnalytics />
 

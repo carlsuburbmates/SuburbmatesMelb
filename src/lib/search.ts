@@ -1,89 +1,76 @@
-import { supabaseAdmin, supabase } from "./supabase";
-import { DirectorySearchPayload } from "./validation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 import { logger } from "./logger";
-import { resolveRegionMatch } from "./suburb-resolver";
+
+export type DirectorySearchPayload = {
+  query?: string | null;
+  suburb?: string | null;
+  category?: string | null;
+  page?: number;
+  limit?: number;
+};
 
 export type DirectorySearchResult = {
   id: string;
   name: string;
   description: string | null;
   slug: string;
-  tier: string | null;
-  suburb: {
-    id: number | null;
-    name: string | null;
-  };
-  category: {
-    id: number | null;
-    name: string | null;
-  };
+  suburb: { id: number | null; name: string | null };
+  category: { id: number | null; name: string | null };
   isFeatured: boolean;
   featuredSuburbLabel: string | null;
   featuredMatchesSelection: boolean;
   createdAt: string | null;
 };
 
-const TIER_PRIORITY: Record<string, number> = {
-  premium: 0,
-  pro: 1,
-  basic: 2,
-  directory: 3,
-  none: 4,
-};
-
-const DEFAULT_PRIORITY = 5;
-
-function tierWeight(tier: string | null): number {
-  if (!tier) return DEFAULT_PRIORITY;
-  return TIER_PRIORITY[tier as keyof typeof TIER_PRIORITY] ?? DEFAULT_PRIORITY;
+// Priority ranking is based on Featured status first, then randomized by the daily shuffle seed in the DB.
+function getPriorityScore(isFeatured: boolean): number {
+  return isFeatured ? 100 : 1;
 }
 
 function sanitize(term: string) {
-  return term.replace(/%/g, "\\%").replace(/_/g, "\\_");
+  return term.replace(/[^a-zA-Z0-9\s]/g, "").trim();
 }
 
-export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
-  const client = supabaseAdmin ?? supabase;
-
-  const limit = payload.limit ?? 12;
-  const page = payload.page ?? 1;
+/**
+ * Execute a directory search across regions and categories.
+ * SSOT v2.1: Strictly discovery-first. No billing tiers at query level.
+ */
+export async function executeDirectorySearch(
+  client: SupabaseClient<Database>,
+  payload: DirectorySearchPayload
+) {
+  const page = payload.page || 1;
+  const limit = payload.limit || 20;
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let regionFilter: { regionIds: number[]; label: string | null } | null = null;
+  // 1. Resolve region if provided
+  let regionFilter: { regionIds: number[] | null } | null = null;
   if (payload.suburb) {
-    const resolved = await resolveRegionMatch(client, payload.suburb);
-    if (!resolved || !resolved.regionIds.length) {
-      return buildEmptyResult(page, limit);
+    const { data: regions } = await client
+      .from("regions")
+      .select("id")
+      .ilike("name", `%${payload.suburb}%`);
+    
+    if (regions && regions.length > 0) {
+      regionFilter = { regionIds: regions.map(r => r.id) };
     }
-    regionFilter = {
-      regionIds: resolved.regionIds,
-      label: resolved.matchedLabel ?? payload.suburb,
-    };
   }
 
+  // 2. Resolve category if provided
   let categoryIds: number[] | null = null;
   if (payload.category) {
-    const { data: cats, error } = await client
+    const { data: categories } = await client
       .from("categories")
-      .select("id, name, slug")
-      .or(
-        `name.ilike.%${sanitize(payload.category)}%,slug.ilike.%${sanitize(
-          payload.category
-        )}%`
-      );
-    if (error) {
-      logger.error("search_category_lookup_failed", error);
-      throw error;
-    }
-    categoryIds = cats?.map((row) => row.id) ?? [];
-    if (!categoryIds.length) {
-      return buildEmptyResult(page, limit);
+      .select("id")
+      .ilike("name", `%${payload.category}%`);
+    if (categories && categories.length > 0) {
+      categoryIds = categories.map(c => c.id);
     }
   }
 
+  // 3. Build query
   let queryBuilder = client
     .from("business_profiles")
     .select(
@@ -92,29 +79,22 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         business_name,
         profile_description,
         slug,
-        vendor_tier,
         vendor_status,
         suburb_id,
         category_id,
-        created_at,
-        regions:regions!business_profiles_suburb_id_fkey ( id, name ),
-        categories:categories!business_profiles_category_id_fkey ( id, name )
-
+        created_at
       `,
       { count: "exact" }
     )
-    .eq("is_public", true);
+    .eq("is_public", true)
+    .eq("vendor_status", "active");
 
-  if (regionFilter) {
+  if (regionFilter?.regionIds) {
     queryBuilder = queryBuilder.in("suburb_id", regionFilter.regionIds);
   }
 
   if (categoryIds) {
     queryBuilder = queryBuilder.in("category_id", categoryIds);
-  }
-
-  if (payload.tier) {
-    queryBuilder = queryBuilder.eq("vendor_tier", payload.tier);
   }
 
   if (payload.query) {
@@ -129,9 +109,11 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
     .range(from, to);
 
   if (error) {
+    logger.error("search_query_failed", error);
     throw error;
   }
 
+  // Lookup featured status for the result set
   const featuredMeta = await resolveFeaturedProfileMetadata(client, {
     regionIds: regionFilter?.regionIds ?? null,
     suburbTerm: payload.suburb ?? null,
@@ -145,15 +127,8 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
         name: row.business_name,
         description: row.profile_description,
         slug: row.slug,
-        tier: row.vendor_tier,
-        suburb: {
-          id: (row.regions as unknown as { id: number; name: string })?.id ?? null,
-          name: (row.regions as unknown as { id: number; name: string })?.name ?? null,
-        },
-        category: {
-          id: (row.categories as unknown as { id: number; name: string })?.id ?? null,
-          name: (row.categories as unknown as { id: number; name: string })?.name ?? null,
-        },
+        suburb: { id: null, name: null }, // Names resolved via client or joins if needed
+        category: { id: null, name: null },
         isFeatured: Boolean(meta),
         featuredSuburbLabel: meta?.suburbLabel ?? null,
         featuredMatchesSelection: meta?.matchesSelection ?? false,
@@ -161,16 +136,13 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
       };
     }) ?? [];
 
+  // Sort by featured first
   const sorted = mapped.sort((a, b) => {
     if (a.featuredMatchesSelection !== b.featuredMatchesSelection) {
       return a.featuredMatchesSelection ? -1 : 1;
     }
     if (a.isFeatured !== b.isFeatured) {
       return a.isFeatured ? -1 : 1;
-    }
-    const tierDiff = tierWeight(a.tier) - tierWeight(b.tier);
-    if (tierDiff !== 0) {
-      return tierDiff;
     }
     return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
   });
@@ -190,26 +162,6 @@ export async function searchBusinessProfiles(payload: DirectorySearchPayload) {
     },
   };
 }
-
-function buildEmptyResult(page: number, limit: number) {
-  return {
-    results: [] as DirectorySearchResult[],
-    pagination: {
-      page,
-      limit,
-      total: 0,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: page > 1,
-    },
-  };
-}
-
-type FeaturedMeta = {
-  suburbLabel: string | null;
-  regionId: number | null;
-  matchesSelection: boolean;
-};
 
 async function resolveFeaturedProfileMetadata(
   client: SupabaseClient<Database>,
@@ -237,12 +189,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, FeaturedMeta>();
+    return new Map<string, any>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, FeaturedMeta>();
+  const featureMap = new Map<string, any>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false

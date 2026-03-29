@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
-import { DirectoryHeader } from '@/components/directory/DirectoryHeader';
-import { DirectoryFilters } from '@/components/directory/DirectoryFilters';
-import { DirectoryListing } from '@/components/directory/DirectoryListing';
-import { DirectorySearch } from '@/components/directory/DirectorySearch';
+import { DirectoryHeader } from '@/components/regions/DirectoryHeader';
+import { DirectoryFilters } from '@/components/regions/DirectoryFilters';
+import { DirectoryListing } from '@/components/regions/DirectoryListing';
+import { DirectorySearch } from '@/components/regions/DirectorySearch';
 import { Container } from '@/components/layout/Container';
 
 interface DirectoryPageProps {
@@ -17,36 +17,40 @@ interface DirectoryPageProps {
 export default async function DirectoryPage({ searchParams }: DirectoryPageProps) {
   const params = await searchParams;
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-[#F5F5F7]">
       <DirectoryHeader />
       
-      <Container className="py-8">
-        {/* Search Section */}
-        <div className="mb-8">
+      <div className="container-custom py-20">
+        {/* Discovery & Navigation Layer */}
+        <div className="mb-20">
           <DirectorySearch 
             initialSearch={params.search || ''} 
             initialRegion={params.region || ''}
           />
         </div>
 
-        {/* Filters Section */}
-        <div className="mb-8">
-          <DirectoryFilters 
-            selectedCategory={params.category || ''}
-            selectedRegion={params.region || ''}
-          />
-        </div>
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Refined Sidebar Navigation */}
+          <aside className="lg:w-1/4">
+            <DirectoryFilters 
+              selectedCategory={params.category || ''}
+              selectedRegion={params.region || ''}
+            />
+          </aside>
 
-        {/* Results Section */}
-        <Suspense fallback={<DirectoryListingSkeleton />}>
-          <DirectoryListing 
-            region={params.region}
-            category={params.category}
-            search={params.search}
-            page={parseInt(params.page || '1')}
-          />
-        </Suspense>
-      </Container>
+          {/* High-Density Results Grid */}
+          <div className="lg:w-3/4">
+            <Suspense fallback={<DirectoryListingSkeleton />}>
+              <DirectoryListing 
+                region={params.region}
+                category={params.category}
+                search={params.search}
+                page={parseInt(params.page || '1')}
+              />
+            </Suspense>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

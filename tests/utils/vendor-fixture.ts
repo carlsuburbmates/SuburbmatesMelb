@@ -1,12 +1,10 @@
 import "./env";
 import { randomUUID } from "node:crypto";
-import { type VendorTier } from "@/lib/constants";
-import { UNIVERSAL_PRODUCT_LIMIT } from "../../src/lib/tier-utils";
-import type { User, Vendor } from "@/lib/types";
+import { type User, type Vendor } from "@/lib/types";
+import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 
 interface CreateVendorOptions {
-  tier?: VendorTier;
   productCount?: number;
   regionId?: number;
 }
@@ -22,12 +20,9 @@ export interface VendorFixture {
   vendorRecord: Vendor;
 }
 
-// Removed legacy Stripe constant
-
 export async function createVendorFixture(
   options: CreateVendorOptions = {}
 ): Promise<VendorFixture> {
-  const tier: VendorTier = options.tier ?? "basic";
   const productCount = options.productCount ?? 0;
   const regionId = options.regionId ?? 17;
 
@@ -49,7 +44,7 @@ export async function createVendorFixture(
   const { error: upsertUserError } = await admin.from("users").upsert({
     id: userId,
     email,
-    user_type: "vendor",
+    user_type: "business_owner",
   });
   if (upsertUserError) {
     throw upsertUserError;
@@ -64,7 +59,6 @@ export async function createVendorFixture(
       business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
       slug: `playwright-vendor-${businessId.slice(0, 8)}`,
       vendor_status: "active",
-      vendor_tier: tier,
       is_vendor: true,
       suburb_id: regionId,
     });
@@ -82,8 +76,7 @@ export async function createVendorFixture(
     is_vendor: true,
     stripe_account_status: "active",
     stripe_onboarding_complete: true,
-    product_quota: UNIVERSAL_PRODUCT_LIMIT,
-    commission_rate: 0,
+    product_quota: MAX_PRODUCTS_PER_CREATOR,
     primary_region_id: regionId,
     product_count: 0,
   });

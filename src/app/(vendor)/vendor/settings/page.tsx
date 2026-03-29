@@ -70,7 +70,7 @@ export default function VendorSettingsPage() {
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Theme Colors</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">Theme Colours.</h2>
         <p className="text-sm text-gray-500">
            Coming soon to Pro and Premium plans.
         </p>

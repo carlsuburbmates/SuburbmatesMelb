@@ -17,7 +17,7 @@ export default function Blog() {
       date: "2024-11-15",
       readTime: "5 min read",
       category: "business",
-      image: "/images/business-workspace-grayscale.jpg",
+      image: "/images/creator-workspace-grayscale.jpg",
       slug: "local-business-digital-age",
     },
     {

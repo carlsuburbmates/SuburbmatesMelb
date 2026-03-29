@@ -13,12 +13,10 @@ description: Onboard the agent into the SuburbmatesMelb workspace and verify the
    - `npm run test:unit`
    - `npm run build`
    - `npm run test:e2e`
-5. Identify the legacy and transition-sensitive surfaces that carry high regression risk:
-   - `src/app/api/checkout/route.ts`
-   - `src/app/api/webhooks/stripe/handler.ts`
-   - `src/lib/stripe.ts`
-   - `src/lib/database.types.ts`
+5. Acknowledge that legacy commerce surfaces have been fully removed (SSOT v2.0). The following carry regression risk if touched:
+   - `src/lib/database.types.ts` (auto-generated — do not manually patch)
    - `supabase/migrations/`
+   - Any code referencing Stripe, checkout, or cart functionality must be flagged as a violation.
 6. Inspect the currently active discovery endpoints (`/api/redirect`, `/api/scrape`), region filtering, and RLS mechanisms. Note where they appear in routes, components, tests, and docs.
 7. If the intended change touches directory discovery or routing, produce a short impact map before implementation:
    - how it affects discovery filtering or region grouping

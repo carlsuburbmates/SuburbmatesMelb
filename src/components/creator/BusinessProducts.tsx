@@ -133,7 +133,7 @@ export function BusinessProducts({ vendorId, limit }: BusinessProductsProps) {
                   className="inline-flex items-center text-[10px] font-black text-black uppercase tracking-widest group/btn py-1"
                   onClick={() => analytics.productClick(product.id as string)}
                 >
-                  View Details
+                  View Asset
                   <ArrowUpRight className="w-3 h-3 ml-1 translate-y-px transition-transform group-hover/btn:-translate-y-px group-hover/btn:translate-x-px" />
                 </Link>
               </div>

@@ -7,7 +7,6 @@ export interface VendorProduct {
   id: string;
   title: string;
   description?: string | null;
-  price?: number | null;
   category?: string | null;
   external_url: string;
   slug?: string | null;
@@ -24,9 +23,6 @@ export interface VendorProductStats {
   publishedProducts: number;
   draftProducts: number;
   featuredSlots: number;
-  tier: string;
-  productQuota: number | null;
-  remainingQuota: number | null;
   lastUpdated: string | null;
 }
 
@@ -34,7 +30,6 @@ interface ProductPayload {
   title: string;
   description: string;
   external_url: string;
-  price?: number | null;
   category?: string;
   images?: string[];
   published?: boolean;
@@ -180,13 +175,6 @@ export function useVendorProducts() {
     [token, fetchProducts]
   );
 
-  const tierUtilization = useMemo(() => {
-    if (!stats || !stats.productQuota || stats.productQuota <= 0) {
-      return 0;
-    }
-    return Math.min(stats.totalProducts / stats.productQuota, 1);
-  }, [stats]);
-
   return {
     products,
     stats,
@@ -196,6 +184,5 @@ export function useVendorProducts() {
     createProduct,
     updateProduct,
     deleteProduct,
-    tierUtilization,
   };
 }

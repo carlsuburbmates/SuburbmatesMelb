@@ -7,11 +7,11 @@ import Link from "next/link";
 
 const REGIONS = [
   { id: 1, name: "Inner Metro", slug: "inner-metro", icon: "🏙️" },
-  { id: 2, name: "Western Metro", slug: "western-metro", icon: "🌅" },
-  { id: 3, name: "Northern Metro", slug: "northern-metro", icon: "🌳" },
-  { id: 4, name: "Eastern Metro", slug: "eastern-metro", icon: "⛰️" },
-  { id: 5, name: "Southern Metro", slug: "southern-metro", icon: "🏖️" },
-  { id: 6, name: "South Eastern Metro", slug: "south-eastern-metro", icon: "🌾" },
+  { id: 2, name: "Inner South-east", slug: "inner-south-east", icon: "🏰" },
+  { id: 3, name: "Northern", slug: "northern", icon: "🌳" },
+  { id: 4, name: "Western", slug: "western", icon: "🌅" },
+  { id: 5, name: "Eastern", slug: "eastern", icon: "⛰️" },
+  { id: 6, name: "Southern", slug: "southern", icon: "🏖️" },
 ];
 
 const CATEGORIES = [
@@ -44,7 +44,7 @@ export function BrowseSection() {
             </p>
           </div>
           <Link
-            href="/directory"
+            href="/regions"
             className="inline-flex items-center text-gray-900 font-semibold hover:translate-x-1 transition-transform"
           >
             Open Directory
@@ -64,7 +64,7 @@ export function BrowseSection() {
             {REGIONS.map((region) => (
               <Link
                 key={region.id}
-                href={`/directory?region=${region.id}`}
+                href={`/regions?region=${region.id}`}
                 className="group relative flex flex-col items-center justify-center p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-gray-200 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 transform hover:-translate-y-1"
                 onClick={() => analytics.searchSuburb(region.name)}
               >
@@ -91,7 +91,7 @@ export function BrowseSection() {
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
-                href={`/directory?category=${cat.slug}`}
+                href={`/regions?category=${cat.slug}`}
                 className="group flex items-center p-4 rounded-xl border border-gray-100 bg-white hover:border-gray-900 transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-xl mr-4 group-hover:bg-gray-100 transition-colors">

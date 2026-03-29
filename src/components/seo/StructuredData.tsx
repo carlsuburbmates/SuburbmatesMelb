@@ -37,7 +37,7 @@ export function StructuredData() {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://suburbmates.com.au/directory?search={search_term_string}"
+        "urlTemplate": "https://suburbmates.com.au/regions?search={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }

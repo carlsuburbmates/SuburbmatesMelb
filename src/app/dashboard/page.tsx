@@ -232,7 +232,7 @@ function Dashboard() {
                   Dashboard
                 </Link>
                 <Link
-                  href="/directory"
+                  href="/regions"
                   className="text-gray-600 hover:text-gray-900"
                 >
                   Directory

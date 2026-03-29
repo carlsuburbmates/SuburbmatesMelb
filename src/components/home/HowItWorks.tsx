@@ -11,7 +11,7 @@ export function HowItWorks() {
     {
       number: '01',
       title: 'Create Profile',
-      description: 'Set up your free studio profile in minutes. Add photos, contact details, and showcase your services.',
+      description: 'Launch your profile. Add photos, contact details, and showcase your services.',
       icon: '👤'
     },
     {
@@ -23,7 +23,7 @@ export function HowItWorks() {
     {
       number: '03',
       title: 'Grow Revenue',
-      description: 'Upgrade to sell digital products when ready. Keep 92-94% of sales with our vendor-friendly commission structure.',
+      description: 'Deploy your digital assets. Direct-to-creator routing architecture.',
       icon: '📈'
     }
   ];

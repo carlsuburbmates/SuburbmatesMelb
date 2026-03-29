@@ -84,7 +84,7 @@ export function TemplateSelector({ currentTemplate }: { currentTemplate: string 
             {/* Thumbnail */}
             <div className={`h-32 w-full ${template.thumbnail} flex items-center justify-center relative`}>
               {template.key === 'high_end' && (
-                 <span className="text-white font-serif text-2xl opacity-50">Aa</span>
+                 <span className="text-white font-sans font-bold text-2xl opacity-50">Aa</span>
               )}
               {template.key === 'standard' && (
                  <Layout className="text-gray-400 w-12 h-12" />

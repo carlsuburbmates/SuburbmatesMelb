@@ -17,7 +17,7 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
         {/* Minimal Navigation */}
         <div className="mb-12">
           <Link 
-            href="/directory"
+            href="/regions"
             className="inline-flex items-center space-x-2 text-[10px] font-black text-black uppercase tracking-[0.3em] hover:opacity-60 transition-opacity"
           >
             <ArrowLeft className="w-3 h-3" />
@@ -54,12 +54,12 @@ export function BusinessHeader({ business }: BusinessHeaderProps) {
                   <span className="text-[10px] font-black text-black border border-black px-2 py-0.5 uppercase tracking-tighter">
                     {business.category || "CREATIVE STUDIO"}
                   </span>
-                  {business.verified && (
+                  {business.is_verified ? (
                     <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       <Check className="w-3 h-3" />
                       Verified Studio
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-extrabold text-black uppercase tracking-tighter leading-[0.9] mb-6">

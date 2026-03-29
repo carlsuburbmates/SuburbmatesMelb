@@ -8,23 +8,21 @@
 // ============================================================================
 
 // Vendor tiers are deprecated in SSOT v2.0 - All vendors are standard.
-export const VENDOR_TIERS = {
-  NONE: "none",
-  BASIC: "basic",
-} as const;
+// ============================================================================
+// VENDOR CONFIGURATION
+// ============================================================================
 
-export type VendorTier = (typeof VENDOR_TIERS)[keyof typeof VENDOR_TIERS];
+// SSOT v2.0: Standard 10 product limit for all creators. No tiers.
+export const MAX_PRODUCTS_PER_CREATOR = 10;
 
 // ============================================================================
-// FEATURED SLOTS
+// FEATURED PLACEMENTS
 // ============================================================================
 
 export const FEATURED_SLOT = {
   PRICE_CENTS: 2000, // A$20.00
   DURATION_DAYS: 30,
-  MAX_SLOTS_PER_LGA: 5,
-  MAX_SLOTS_PER_VENDOR: 3, // per vendor across all suburbs
-  FIFO_SCHEDULING: true, // Implements queue if full
+  MAX_SLOTS_PER_REGION: 12, // Standardised to 12 slots per region
   EXPIRY_REMINDER_DAYS: 3, // Notify 3 days before expiry
 } as const;
 
@@ -33,7 +31,7 @@ export const FEATURED_SLOT = {
 // ============================================================================
 
 export const PLATFORM = {
-  NAME: "SuburbMates",
+  NAME: "Suburbmates",
   LOCATION: "Melbourne, Australia",
   SUPPORT_EMAIL: "support@suburbmates.com.au",
   NO_REPLY_EMAIL: "noreply@suburbmates.com.au",
@@ -60,30 +58,9 @@ export type MetroRegion = (typeof METRO_REGIONS)[number];
 // ============================================================================
 
 export const PAGINATION = {
-  DEFAULT_PAGE_SIZE: 20,
-  MAX_PAGE_SIZE: 100,
+  DEFAULT_PAGE_SIZE: 12, // 2-column mobile density (even number)
+  MAX_PAGE_SIZE: 48,
   MIN_PAGE_SIZE: 1,
-} as const;
-
-// ============================================================================
-// FILE UPLOADS
-// ============================================================================
-
-export const FILE_UPLOAD = {
-  MAX_PRODUCT_FILE_SIZE_MB: 500,
-  MAX_THUMBNAIL_SIZE_MB: 5,
-  MAX_LOGO_SIZE_MB: 2,
-  ALLOWED_PRODUCT_FILE_TYPES: [
-    "application/pdf",
-    "application/zip",
-    "image/jpeg",
-    "image/png",
-    "video/mp4",
-    "audio/mpeg",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ],
-  ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/webp"],
 } as const;
 
 // ============================================================================
@@ -91,12 +68,7 @@ export const FILE_UPLOAD = {
 // ============================================================================
 
 export const VALIDATION = {
-  // User
-  MIN_PASSWORD_LENGTH: 8,
-  MAX_PASSWORD_LENGTH: 128,
-
   // Business
-  ABN_LENGTH: 11,
   MIN_BUSINESS_NAME_LENGTH: 2,
   MAX_BUSINESS_NAME_LENGTH: 100,
 
@@ -105,7 +77,6 @@ export const VALIDATION = {
   MAX_PRODUCT_TITLE_LENGTH: 200,
   MIN_PRODUCT_DESCRIPTION_LENGTH: 10,
   MAX_PRODUCT_DESCRIPTION_LENGTH: 5000,
-
 } as const;
 
 // ============================================================================
@@ -137,32 +108,22 @@ export type VendorStatus = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];
 // ============================================================================
 
 export const ERROR_CODES = {
-  // Auth errors
   UNAUTHORIZED: "UNAUTHORIZED",
   FORBIDDEN: "FORBIDDEN",
-  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
-  SESSION_EXPIRED: "SESSION_EXPIRED",
-
-  // Validation errors
-  VALIDATION_ERROR: "VALIDATION_ERROR",
   INVALID_INPUT: "INVALID_INPUT",
-  MISSING_REQUIRED_FIELD: "MISSING_REQUIRED_FIELD",
-
-  // Resource errors
   NOT_FOUND: "NOT_FOUND",
-  ALREADY_EXISTS: "ALREADY_EXISTS",
-  RESOURCE_DELETED: "RESOURCE_DELETED",
-
-  // Business logic errors
-  QUOTA_EXCEEDED: "QUOTA_EXCEEDED",
-  INSUFFICIENT_PERMISSIONS: "INSUFFICIENT_PERMISSIONS",
-  VENDOR_NOT_ACTIVE: "VENDOR_NOT_ACTIVE",
-  VENDOR_SUSPENDED: "VENDOR_SUSPENDED",
-
-
-  // System errors
   INTERNAL_ERROR: "INTERNAL_ERROR",
   DATABASE_ERROR: "DATABASE_ERROR",
+  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+  SESSION_EXPIRED: "SESSION_EXPIRED",
+  INSUFFICIENT_PERMISSIONS: "INSUFFICIENT_PERMISSIONS",
+  RESOURCE_DELETED: "RESOURCE_DELETED",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  MISSING_REQUIRED_FIELD: "MISSING_REQUIRED_FIELD",
+  ALREADY_EXISTS: "ALREADY_EXISTS",
+  QUOTA_EXCEEDED: "QUOTA_EXCEEDED",
+  VENDOR_NOT_ACTIVE: "VENDOR_NOT_ACTIVE",
+  VENDOR_SUSPENDED: "VENDOR_SUSPENDED",
   EXTERNAL_SERVICE_ERROR: "EXTERNAL_SERVICE_ERROR",
 } as const;
 

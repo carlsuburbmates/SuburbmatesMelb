@@ -9,12 +9,13 @@
 - **Banned (Removed Scope):** Automated product commerce, in-app shopping carts, checkout sessions, vendor platform fees, or Stripe Connect for creator products.
 - **Permitted (Retained Scope):** Founder-operated featured monetization (e.g., via manual Stripe Payment Links), email waitlists, and manual `is_featured` toggles.
 
-## Legacy & Transition-Sensitive Surfaces
-- Treat the following as transition-sensitive legacy files. They must be handled with extreme care to avoid accidental revival of marketplace commerce or destructive breaks during migration:
-  - `src/app/api/checkout/route.ts`
-  - `src/app/api/webhooks/stripe/handler.ts`
-  - `src/lib/stripe.ts`
-- When interacting with legacy surfaces, treat them as deprecation targets or shared dependencies for the retained founder monetization. Do not restore marketplace functionality.
+## Legacy Commerce (SSOT v2.0 — Fully Removed)
+- The following legacy files have been permanently deleted and must **never be recreated**:
+  - `src/app/api/checkout/route.ts` — deleted
+  - `src/app/api/webhooks/stripe/handler.ts` — deleted
+  - `src/lib/stripe.ts` — deleted
+  - `scripts/setup-stripe.js` / `scripts/setup-stripe-complete.js` — deleted
+- Do not restore marketplace, checkout, or Stripe Connect functionality under any circumstances.
 
 ## Context Before Change
 - Inspect relevant routes, components, API handlers, tests, and SSOT docs before changing behavior.

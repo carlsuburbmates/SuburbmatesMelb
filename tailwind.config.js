@@ -9,8 +9,13 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['var(--font-poppins)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        serif: ['var(--font-newsreader)', 'serif'],
+        mono: ['var(--font-geist-mono)', 'monospace'],
       },
       colors: {
+        silica: '#FAFAFA',
+        onyx: '#090A0B',
+        glass: 'rgba(255, 255, 255, 0.05)',
         // Grayscale (UI only)
         gray: {
           50: '#FAFAFA',
