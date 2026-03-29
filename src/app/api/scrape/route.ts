@@ -11,6 +11,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
+  // Security: Prevent SSRF by validating the URL
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+      return NextResponse.json({ error: "Invalid URL protocol" }, { status: 400 });
+    }
+
+    const hostname = parsedUrl.hostname;
+    // Block local, loopback, and cloud metadata IPs
+    const isInternalIp = /^(127\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|169\.254\.|::1)/.test(hostname) || hostname === "localhost";
+
+    if (isInternalIp) {
+      return NextResponse.json({ error: "Access to internal networks is not allowed" }, { status: 400 });
+    }
+  } catch (error) {
+    return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
+  }
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
