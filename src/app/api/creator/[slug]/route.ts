@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
-import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
 // Validate environment variables
@@ -77,7 +76,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         .eq('id', creator.user_id)
         .single();
       userEmail = userData?.email || null;
-    } catch (userError) {
+    } catch {
       // Non-critical
     }
 
@@ -97,7 +96,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           productCount = vendor.product_count || 0;
           vendorId = vendor.id;
         }
-      } catch (vendorError) {
+      } catch {
         // Non-critical
       }
     }

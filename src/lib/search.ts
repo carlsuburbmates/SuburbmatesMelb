@@ -130,8 +130,8 @@ export async function executeDirectorySearch(
         suburb: { id: null, name: null }, // Names resolved via client or joins if needed
         category: { id: null, name: null },
         isFeatured: Boolean(meta),
-        featuredSuburbLabel: meta?.suburbLabel ?? null,
-        featuredMatchesSelection: meta?.matchesSelection ?? false,
+        featuredSuburbLabel: (meta as { suburbLabel?: string })?.suburbLabel ?? null,
+        featuredMatchesSelection: (meta as { matchesSelection?: boolean })?.matchesSelection ?? false,
         createdAt: row.created_at,
       };
     }) ?? [];

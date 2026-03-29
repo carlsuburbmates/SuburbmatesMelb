@@ -12,12 +12,12 @@ import {
   validationErrorResponse,
   internalErrorResponse,
 } from '@/app/api/_utils/response';
+import { validateBody } from '@/app/api/_utils/validation';
 import { withAuthRateLimit } from '@/middleware/rateLimit';
 import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
 import { withErrorHandler } from '@/middleware/errorHandler';
 import { ValidationError } from '@/lib/errors';
-import { Vendor } from '@/lib/types';
 
 async function loginHandler(req: NextRequest) {
   try {
