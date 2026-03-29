@@ -1,172 +1,75 @@
 # Suburbmates — UX Spec (Patterns + Rules)
 
-This document specifies interaction patterns and UX rules.
-It contains **no pricing, no quotas, no durations, no caps** (those are numeric policy in `src/lib/constants.ts`).
-It contains **no “complete” claims** (implementation truth belongs in `docs/VERIFICATION_LOG.md`).
-**Visual language is Obsidian & Ice. Strictly NO Serif or Italic typography. High-density 2-column mobile grid is mandatory.**
+This document specifies interaction patterns and UX rules for the **v2.1 Minimal Directory**.
 
-For product constitution, see `docs/README.md`.
+> [!IMPORTANT]
+> **SSOT ALIGNMENT (v2.1):** No pricing, no quotas, no durations. Implementation truth belongs in `docs/VERIFICATION_LOG.md`. **Visual language is Obsidian & Ice.**
 
----
+## 1) Information Architecture (Mobile-First)
 
-## 1) Information architecture (mobile-first)
+### 1.1 Hierarchy of Intent
+*   **Browse-first Discovery:** Hero tiles (Category/Region) provide low-intent entry points. 
+*   **Global Search:** High-intent search bar provides instant querying.
+*   **Creator Profiles as Mini-sites:** Profiles are the final destination for discovery and shareable assets.
 
-### 1.1 Default hierarchy
-
-* **Search-first discovery**: Search is primary. Filters are secondary.
-* **Collections as taste layer**: Collections create meaning and “alive” signals.
-* **Profiles as mini-sites**: Profiles must feel shareable and premium.
-
-### 1.2 Primary destinations
-
-* Discover (Directory)
-* Collections (Editorial + signal-based)
-* Creator profile
-* Marketplace/product detail (where applicable)
-* Creator dashboard (for creators only)
+### 1.2 Primary Destinations
+*   **The Homepage (`/`):** High-density entry for Browse Tiles.
+*   **Regional Folders (`/regions`):** The 6-Region Metro mapping.
+*   **Creator Profiles (`/creator/[slug]`):** Branding, Portfolio, and Product Cards.
+*   **Outbound Gate (`/api/redirect`):** Mandatory tracking layer (invisible to user).
 
 ---
 
-## 2) Navigation patterns
+## 2) Navigation Patterns (Glass UI)
 
-* Thumb-first bottom navigation is the preferred pattern for the core loop surfaces (if implemented).
-* Secondary navigation lives behind a lightweight menu, not a dense header.
+### 2.1 Mobile Tab Bar
+*   **Pattern:** Floating Glass Tab Bar at the bottom (`bottom-4`).
+*   **Appearance:** `backdrop-blur-lg`, `bg-white/10` (dark) or `bg-black/5` (light), thin `border-t border-white/10`.
+*   **Thumb-friendly:** Actions must be reachable within a 44px tap target.
 
-### 2.2 Desktop navigation
-
-* Desktop should remain clean and fast; do not “desktopify” the entire UI at the expense of mobile.
+### 2.2 Desktop Navigation
+*   **Pattern:** Minimalist header with Logo (left), Search (center), and Profile (right).
+*   **Constraint:** Do not "desktopify" the UI at the expense of mobile density.
 
 ---
 
-## 3) Search and filters
+## 3) Search & Taxonomy
 
 ### 3.1 Search UX
+*   **Persistent Search:** The global search bar remains accessible on discovery routes.
+*   **Constraint:** Autocomplete must be non-blocking. 
 
-* Search box is always easy to find on Directory.
-* Autocomplete is optional; if used, it must be fast and not block input.
-
-### 3.2 Filters UX (mobile)
-
-* Filters open as a **bottom sheet**.
-* Bottom sheet includes:
-
-  * Clear section headings
-  * Apply and Reset actions
-  * Persisted selection state while open
-* Avoid long filter forms; prefer progressive disclosure.
-
-### 3.3 Empty and no-results states
-
-* Provide a helpful next step:
-
-  * broaden search
-  * remove a filter
-  * view a relevant collection
-* No guilt/pressure copy.
+### 3.2 Regional Filters
+*   **Pattern:** Bottom Sheet Drawer on mobile.
+*   **Mapping:** Must strictly adhere to the **6 Metropolitan Regions** defined in `src/lib/constants.ts`.
 
 ---
 
-## 4) Creator profile (mini-site rules)
+## 4) Creator Profile (The Mini-Site)
 
-### 4.1 Profile hierarchy (public)
+### 4.1 Visual Hierarchy
+1.  **Identity:** Creator Name + Unified Category + Council Cue.
+2.  **Portfolio:** High-precision imagery crop (Obsidian & Ice).
+3.  **Product Drops:** High-density 2-column mobile grid.
 
-* Identity: creator name + category + location cue (Melbourne/council if applicable)
-* Proof: portfolio/media, product highlights, links
-* Action: save/share/view products/contact
-
-### 4.2 Sticky actions (mobile)
-
-* On profile pages, keep primary actions reachable:
-
-  * Save / Share / View Products
-* Sticky UI must not obstruct content; it should collapse when scrolling if needed.
-
-### 4.3 Template behavior (if templates exist)
-
-* Templates change layout presentation, not core content.
-* Template switching must not lose content or break share previews.
+### 4.2 Product Cards (The Asset Showcase)
+*   **Attribution:** "Distributed by [Creator]".
+*   **Action:** "View Drop" or "Explore Asset".
+*   **Implicit Tracking:** All clicks route through `/api/redirect`.
+*   **Constraint:** No in-app "Product Detail" page. Tapping the card performs an external redirect.
 
 ---
 
-## 5) Cards (canonical archetypes)
+## 5) Visual Constraints (Obsidian & Ice)
 
-### 5.1 Creator card
-
-* Clear identity + category + council cue (if used)
-* One primary image (consistent crop rules)
-* One clear tap target for full profile
-
-### 5.2 Product card
-
-* Product title, image, category cue
-* Creator attribution is visible or one tap away
-* Consistent affordance for “view details”
-
-### 5.3 Collection card
-
-* Collection name + short descriptor
-* Avoid noisy badges; keep it tasteful
-* Tap takes you into a focused list experience
+*   **Palette:** Background `#F5F5F7` (Cool White). Typography `#000000`.
+*   **Typography:** strictly NO Serifs or Italics. Upright Bold Sans-Serif only.
+*   **Liquid Glass Spec:** `bg-white/40`, `backdrop-blur-2xl`, `border border-white/60`.
 
 ---
 
-## 6) Marketplace UX rules (truth + clarity)
-
-* Product detail must show:
-
-  * “View on Creator's Store” (External routing).
-* Outbound tracking: All external clicks are anonymous and logged via `/api/redirect`.
-* Delivery method: Explicitly defined on the creator's third-party platform.
-
-  * clean layout
-  * simple hierarchy
-  * minimal distractions
-
----
-
-## 7) “Alive-but-fast” implementation constraints
-
-* “Alive” comes from:
-
-  * fresh creators
-  * fresh drops
-  * updated profiles
-  * collections
-* Avoid heavy carousels as default.
-* Prefer server-rendered modules and cached queries over client-heavy widgets.
-
----
-
-## 8) Motion discipline
-
-* Motion is user-intent driven (open sheet, confirm action).
-* Cheap primitives only (opacity/transform).
-* Respect reduced motion.
-* Avoid auto-advancing carousels and background motion effects.
-
----
-
-## 9) Feedback and error states
-
-### 9.1 Forms
-
-* Inline errors near the field.
-* Clear success confirmation states.
-* Loading states that are calm and non-janky.
-
-### 9.2 Toasts/alerts
-
-* Use sparingly.
-* No “gamified” or manipulative messaging.
-
----
-
-## 10) Accessibility baseline
-
-* Semantic page landmarks.
-* Keyboard operability.
-* Visible focus states.
-* Alt text for meaningful images.
-* Avoid “icon-only” buttons without labels.
-
----
+## 6) Deprecated UX Patterns (Banned)
+*   No in-app checkout or payment status screens.
+*   No "Featured Queue" progress tracking.
+*   No sidebars for navigation (Mobile).
+*   No "Add to Cart" interactions.

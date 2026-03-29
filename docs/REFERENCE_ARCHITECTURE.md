@@ -7,7 +7,7 @@ It does **not** define product truth. For product constitution, see `docs/SSOT_V
 
 ## 1) Pointers
 
-* **SSOT (Product Constitution):** `docs/SSOT_V2.1.md`
+* **SSOT (Product Constitution):** `docs/README.md`
 * **Numeric policy source:** `src/lib/constants.ts`
 * **Verification Evidence:** `docs/VERIFICATION_LOG.md`
 

@@ -1,128 +1,83 @@
 # Suburbmates — QA Checklist (Prelaunch)
 
 This is a **checklist** of what must be tested before launch.
-It contains **no “complete” claims** and should be used alongside `docs/VERIFICATION_LOG.md` to record evidence.
 
-For product truth, see `docs/README.md`. For implementation sequence, see `docs/EXECUTION_PLAN.md`.
+> [!IMPORTANT]
+> **SSOT ALIGNMENT (v2.1):** It contains **no “complete” claims** and should be used alongside `docs/VERIFICATION_LOG.md` to record evidence.
 
 ---
 
-## 1) Credibility + positioning checks
+## 1) Credibility + Positioning Checks
 
 * [ ] No fake testimonials, fake partners, fake usage counts, or fake team language on any public page.
 * [ ] No generic “business directory” framing; copy matches SSOT positioning.
-* [ ] No “merchant-of-record” implication language on marketplace/product pages.
+* [ ] No “merchant-of-record” implication language on creator/product pages.
 * [ ] No hardcoded numeric limits/prices in docs or UI copy outside `src/lib/constants.ts`.
 
-**Suggested validation commands (record outputs in Verification Log):**
-
+**Suggested validation commands:**
 * `rg -n "already using|trusted by|join hundreds|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates" docs src/app src/components`
 * `rg -n "\$[0-9]+|30 days|max [0-9]+|up to [0-9]+|[0-9]+ products|[0-9]+ featured" docs src/app src/components`
 
 ---
 
-## 2) Core loop QA (public)
+## 2) Core Loop QA (Public Discovery)
 
-### 2.1 Home
+### 2.1 Homepage (`/`)
+* [ ] Loads fast on mobile (Lighthouse > 90).
+* [ ] “Alive” signals are real (recent creators, new drops) and not gimmicks.
+* [ ] Hero tiles (Category/Region) provide clear entry points for low-intent browsing.
 
-* [ ] Loads fast on mobile.
-* [ ] “Alive” signals are real (recent creators, new drops, collections) and not gimmicks.
-* [ ] Primary navigation is clear and thumb-friendly (e.g., bottom navigation if implemented).
-
-### 2.2 Directory
-
+### 2.2 Regional Directory (`/regions`)
 * [ ] Search works (empty query, common queries, no results).
-* [ ] Filters open as bottom sheet on mobile and are usable one-handed.
-* [ ] Pagination/load-more does not freeze or shift layout badly.
-* [ ] Empty states are helpful and credibility-safe.
+* [ ] Region filters open as a bottom sheet on mobile.
+* [ ] Taxonomy strictly adheres to the **6 Metropolitan Regions**.
+* [ ] Empty states provide a path back to discovery.
 
-### 2.3 Creator profile
-
+### 2.3 Creator Profile (`/creator/[slug]`)
 * [ ] Creator identity and category info is clear.
 * [ ] Share action produces a clean, convincing link preview (OG tags).
-* [ ] Primary actions are reachable (save/share/view products).
-* [ ] If templates exist, switching templates doesn’t break content.
+* [ ] Product Drop cards are consistent and display the correct "Distributed by" attribution.
+* [ ] Mobile Page Density: "Three-Card Rule" is met (2.5 to 3 cards visible on screen).
 
-### 2.4 Marketplace/product pages
-
-* [ ] Product cards are consistent.
-* [ ] Product detail page clearly shows “Sold by [Creator]. Payments processed by Stripe.”
-* [ ] Delivery method labels are clear (link/file/license) and do not mislead.
-* [ ] No claims that Suburbmates processes payments.
-
----
-
-## 3) Creator (vendor) flows QA
-
-### 3.1 Auth / session
-
-* [ ] Signup/login/logout works.
-* [ ] Protected routes are protected (no direct access without session).
-* [ ] Session expiry behavior is sane (redirects, errors).
-
-### 3.2 Profile management
-
-* [ ] Create/edit profile works.
-* [ ] Image uploads work and validate file types/sizes (behavior, not numeric limits).
-* [ ] Validation errors are user-friendly and don’t leak stack traces.
-
-### 3.3 Products management
-
-* [ ] Create/edit product works.
-* [ ] Product visibility matches expected rules (no leaking private drafts if drafts exist).
-* [ ] If quotas exist, UI messaging is consistent and pulls from constants (no hardcoding).
-
-### 3.4 Stripe onboarding
-
-* [ ] Creator can start onboarding.
-* [ ] Creator can resume onboarding.
-* [ ] Onboarding status is visible and not confusing.
-* [ ] Failures show clear next steps.
+### 2.4 Outbound Redirect (`/api/redirect`)
+* [ ] Direct `href` links to external stores are absent from the UI.
+* [ ] Tapping a Product Card triggers a 302 redirect via internal identifier lookup.
+* [ ] SECURE: Endpoint rejects arbitrary `url` query parameters (Open Redirect test).
+* [ ] IDEMPOTENCY: Outbound click is logged to DB without stalling the visitor's redirect.
 
 ---
 
-## 4) Featured placement QA (if present)
+## 3) Creator (Workspace) Flows QA
 
-* [ ] Purchase flow succeeds in sandbox.
-* [ ] If capacity is full, scheduling behavior is fairness-safe (FIFO).
-* [ ] UI communicates scheduling truthfully (no guaranteed immediate placement language).
-* [ ] Expiry behavior does not silently mislead creators.
-* [ ] Reminder emails (if implemented) are idempotent and credibility-safe.
+### 3.1 Auth / Session
+* [ ] Magic Link (Email OTP) and OAuth login work.
+* [ ] No password-based UI exists in the application.
 
----
-
-## 5) Accessibility (baseline)
-
-* [ ] Semantic structure (header/nav/main/footer) on core pages.
-* [ ] Keyboard navigation works (tab order, focus visible).
-* [ ] Interactive controls have labels (including icon buttons).
-* [ ] Color contrast acceptable for key text.
-* [ ] Reduced motion respected (no forced animations).
+### 3.2 Workspace & Products
+* [ ] `/api/scrape` extracted product metadata (Title, OG:Image, Desc) accurately.
+* [ ] Create/Edit Product Drop flows are frictionless.
+* [ ] Image uploads are optimized and follow Obsidian & Ice crop rules.
 
 ---
 
-## 6) Performance (baseline)
+## 4) Featured Placement QA (Manual Audit)
 
-* [ ] Core routes pass a basic mobile Lighthouse run (Home/Directory/Profile/Product).
-* [ ] Above-the-fold media is optimized (Next/Image or equivalent).
-* [ ] Below-the-fold content is lazy loaded where appropriate.
-* [ ] No major layout shift during load (CLS).
+* [ ] Manual scheduling of featured creators in Supabase results in correct UI placement.
+* [ ] UI communicates "Featured" status without overpromising specific ranking outcomes.
 
 ---
 
-## 7) Security sanity checks
+## 5) Accessibility & Performance (Baseline)
 
-* [ ] No secrets in repo (scan history if needed).
-* [ ] Webhooks verify signatures and reject invalid payloads.
-* [ ] Rate limiting or abuse mitigations exist where appropriate (auth, webhooks).
-* [ ] Error responses do not leak sensitive internals.
-
----
-
-## 8) Legal/data practice alignment
-
-* [ ] Terms/Privacy exist and match actual behavior (data collected, retention posture, contact method).
-* [ ] No misleading claims about verification or safety.
-* [ ] ABN verification is presented as a badge/trust signal only.
+* [ ] **Motion:** Reduced motion is respected. No auto-advancing carousels.
+* [ ] **A11y:** Semanticlandmarks (header/nav/main/footer) on core routes. All interactive controls have labels.
+* [ ] **Performance:** No major layout shift (CLS). Above-the-fold media is eagerly loaded/prioritized.
+* [ ] **Obsidian & Ice:** Strictly no serifs/italics on any interface element.
 
 ---
+
+## 6) Security & Privacy
+
+* [ ] **Zero-Wall:** Public discovery routes (`/`, `/regions`, `/creator/[slug]`) are accessible without authentication.
+* [ ] **Data Minimization:** No IP addresses or User-Agents are logged in the `outbound_clicks` table.
+* [ ] **Secrets:** No API keys (Supabase Service Role, Resend) are exposed in the frontend or git history.
