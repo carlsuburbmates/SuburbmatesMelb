@@ -3,6 +3,7 @@ import { sendEmail } from "@/lib/email";
 import { supabaseAdmin, supabase } from "@/lib/supabase";
 import { PLATFORM } from "@/lib/constants";
 import { z } from "zod";
+import { escapeHtml } from "@/lib/html-sanitizer";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,17 +51,21 @@ export async function POST(request: Request) {
     }
 
     // 2. Send email to support
+    const safeName = escapeHtml(name);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+
     const emailResult = await sendEmail({
       to: PLATFORM.SUPPORT_EMAIL,
       subject: `[Contact Form] ${subject}`,
       replyTo: email,
       html: `
         <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Subject:</strong> ${safeSubject}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${safeMessage.replace(/\n/g, "<br>")}</p>
       `,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
     });
