@@ -66,9 +66,10 @@ export async function POST(request: NextRequest) {
     }
     
     logger.error('Error creating vendor profile:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ 
       success: false, 
-      error: { message: error.message || 'Internal server error' } 
+      error: { message: errorMessage }
     }, { status: 500 });
   }
 }
