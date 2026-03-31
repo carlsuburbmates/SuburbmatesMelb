@@ -101,3 +101,8 @@ The following must be purged or ignored by all agents:
 *   Automated FIFO scheduling / `featured_queue` / `fn_try_reserve_featured_slot`.
 *   Legacy `lgas` table (31 councils).
 *   Custom Admin frontend routes.
+
+## 8) Legal & Compliance
+
+*   **Vendor is the Merchant of Record**
+*   **Suburbmates does not issue refunds**
