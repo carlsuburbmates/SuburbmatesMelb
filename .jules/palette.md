@@ -1,0 +1,3 @@
+## 2024-05-24 - Missing ARIA Labels on Core Interactive Elements
+**Learning:** Found that core layout components like `DirectorySearch` (used for filtering and finding content) are relying entirely on `placeholder` attributes for input context and using icon-only buttons for actions like clearing input. Screen readers do not reliably announce placeholders as labels, and icon-only buttons are completely opaque to assistive technologies without an explicit ARIA label.
+**Action:** Always verify that input fields have either a visible `<label>` or an `aria-label`, and ensure all icon-only action buttons (e.g., clear, close, delete) have explicit `aria-label` attributes describing their function. This is a crucial, recurring pattern in this app's components.
