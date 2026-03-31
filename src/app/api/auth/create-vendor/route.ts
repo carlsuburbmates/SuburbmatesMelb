@@ -60,15 +60,17 @@ export async function POST(request: NextRequest) {
       .eq('id', userId);
 
     return NextResponse.json({ success: true, data: { vendor } });
-  } catch (error: any) {
-    if (error.name === 'UnauthorizedError' || error.status === 401) {
+  } catch (error: unknown) {
+    const isUnauthorized = error instanceof Error && (error.name === 'UnauthorizedError' || (error as { status?: number }).status === 401);
+    if (isUnauthorized) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
     
     logger.error('Error creating vendor profile:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ 
       success: false, 
-      error: { message: error.message || 'Internal server error' } 
+      error: { message: errorMessage }
     }, { status: 500 });
   }
 }
