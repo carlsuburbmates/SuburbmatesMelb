@@ -28,6 +28,26 @@ jobs:
       - name: Install Playwright (Chromium + deps)
         run: npx playwright install --with-deps chromium
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local emulator
+        run: supabase start
+
+      - name: Set build environment variables
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "RESEND_API_KEY=re_123456789" >> $GITHUB_ENV
+          echo "STRIPE_SECRET_KEY=sk_test_123" >> $GITHUB_ENV
+          echo "STRIPE_WEBHOOK_SECRET=whsec_123" >> $GITHUB_ENV
+          echo "GA_TRACKING_ID=G-123" >> $GITHUB_ENV
+          echo "CRON_SECRET=cron_123" >> $GITHUB_ENV
+          echo "POSTHOG_KEY=phc_123" >> $GITHUB_ENV
+
       - name: Lint (optional)
         run: npm run lint --if-present
 

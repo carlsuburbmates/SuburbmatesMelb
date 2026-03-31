@@ -39,6 +39,7 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
           <input
             type="text"
             placeholder="Search keywords, studios, or services..."
+            aria-label="Search keywords, studios, or services"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-full pl-12 pr-12 text-base font-medium placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-black text-black bg-transparent"
@@ -46,6 +47,7 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
           {search && (
             <button
               type="button"
+              aria-label="Clear search"
               onClick={() => setSearch('')}
               className="absolute right-4 p-1 hover:bg-slate-100 transition-colors"
             >
