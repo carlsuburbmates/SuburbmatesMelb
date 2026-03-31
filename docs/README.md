@@ -16,10 +16,11 @@
 *   **Visitors:** Browse talent via high-density Category/Region tiles and support the "Melbourne underground" digital economy.
 
 ### 1.2 What Suburbmates is NOT
-*   Not a transaction processor (No checkout/fees).
+*   Not a transaction processor (No checkout/fees). Vendor is the Merchant of Record.
 *   Not a "Search-Only" empty state (Browse-first is mandatory).
 *   Not an automated scraper engine (Manual claim/seed model).
 *   Not a heavy React dashboard (Admin is 100% via Supabase GUI).
+*   Suburbmates does not issue refunds.
 
 ### 1.3 Framing Language
 *   **Use:** "Melbourne's top digital creators", "Support local", "Drops", "Mini-sites".
