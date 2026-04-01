@@ -61,14 +61,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: { vendor } });
   } catch (error: unknown) {
-    if (error.name === 'UnauthorizedError' || error.status === 401) {
+    const err = error as Record<string, unknown>;
+    if (err.name === 'UnauthorizedError' || err.status === 401) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
     
     logger.error('Error creating vendor profile:', error);
     return NextResponse.json({ 
       success: false, 
-      error: { message: error.message || 'Internal server error' } 
+      error: { message: (err.message as string) || 'Internal server error' }
     }, { status: 500 });
   }
 }

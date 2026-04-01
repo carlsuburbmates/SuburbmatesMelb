@@ -170,7 +170,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updateData: unknown = { updated_at: new Date().toISOString() };
+    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
     if (region_id) updateData.suburb_id = region_id;
