@@ -23,11 +23,6 @@ export type DirectorySearchResult = {
   createdAt: string | null;
 };
 
-// Priority ranking is based on Featured status first, then randomized by the daily shuffle seed in the DB.
-function getPriorityScore(isFeatured: boolean): number {
-  return isFeatured ? 100 : 1;
-}
-
 function sanitize(term: string) {
   return term.replace(/[^a-zA-Z0-9\s]/g, "").trim();
 }
@@ -189,12 +184,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, any>();
+    return new Map<string, { suburbLabel: string | null; regionId: number | null; matchesSelection: boolean }>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, any>();
+  const featureMap = new Map<string, { suburbLabel: string | null; regionId: number | null; matchesSelection: boolean }>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
