@@ -31,6 +31,10 @@ export async function GET(request: NextRequest) {
       )
       .eq('is_public', true);
     
+    function sanitize(term: string) {
+      return term.replace(/[^a-zA-Z0-9\s\-'&]/g, "").trim();
+    }
+
     // Apply filters
     if (suburb) {
       // Note: This assumes suburb names are stored directly
@@ -45,7 +49,8 @@ export async function GET(request: NextRequest) {
     }
     
     if (search) {
-      query = query.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
+      const sanitizedSearch = sanitize(search);
+      query = query.or(`business_name.ilike.%${sanitizedSearch}%,profile_description.ilike.%${sanitizedSearch}%`);
     }
     
     // Get total count for pagination  
@@ -62,7 +67,8 @@ export async function GET(request: NextRequest) {
       countQuery.ilike('category_id', `%${category}%`);
     }
     if (search) {
-      countQuery.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
+      const sanitizedSearch = sanitize(search);
+      countQuery.or(`business_name.ilike.%${sanitizedSearch}%,profile_description.ilike.%${sanitizedSearch}%`);
     }
     
     const { count } = await countQuery;

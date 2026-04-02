@@ -38,9 +38,9 @@ vi.mock('@supabase/supabase-js', () => {
 });
 
 // Import the module AFTER defining mocks
-import { GET } from '@/app/api/business/[slug]/route';
+import { GET } from '@/app/api/creator/[slug]/route';
 
-describe('GET /api/business/[slug]', () => {
+describe('GET /api/creator/[slug]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
