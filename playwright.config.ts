@@ -8,6 +8,11 @@ export default defineConfig({
   retries: 0,
   timeout: 30_000,
   expect: { timeout: 10_000 },
+  // In CI without real credentials, skip tests that require a live backend.
+  // We can determine this if NEXT_PUBLIC_SUPABASE_URL includes "placeholder".
+  testIgnore: process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')
+    ? ['tests/e2e/**']
+    : undefined,
   use: {
     baseURL,
     trace: 'on-first-retry',
