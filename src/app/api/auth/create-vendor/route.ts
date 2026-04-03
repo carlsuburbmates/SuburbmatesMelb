@@ -60,8 +60,9 @@ export async function POST(request: NextRequest) {
       .eq('id', userId);
 
     return NextResponse.json({ success: true, data: { vendor } });
-  } catch (error: any) {
-    if (error.name === 'UnauthorizedError' || error.status === 401) {
+  } catch (error: unknown) {
+    const err = error as { name?: string; status?: number };
+    if (err.name === 'UnauthorizedError' || err.status === 401) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
     
