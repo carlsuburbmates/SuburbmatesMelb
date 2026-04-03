@@ -1,0 +1,4 @@
+## 2024-05-24 - PostgREST Filter Injection via Supabase .or()
+**Vulnerability:** The application was passing unsanitized user input into Supabase's `.or()` filter (e.g., `query.or('col.ilike.%${input}%')`). Because PostgREST uses commas to separate conditions in the `or` syntax, an attacker could inject commas into the input to alter the query logic and bypass intended filters or extract additional information.
+**Learning:** Supabase client methods like `.or()` and `.and()` that accept query strings do not automatically sanitize the values embedded in those strings. This is a common pitfall when migrating from ORMs that automatically parameterize all inputs.
+**Prevention:** Always sanitize user input before passing it into PostgREST query string filters to remove reserved characters like commas. A safe regex for standard text fields (like business names) is `/[^a-zA-Z0-9\s\-'&]/g`.
