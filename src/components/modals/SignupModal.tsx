@@ -29,7 +29,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     try {
       const { error } = await signInWithGoogle();
       if (error) throw error;
-    } catch (err) {
+    } catch {
       toast.error('Authentication failed. Retry.');
     }
   };
@@ -76,28 +76,28 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               onClick={() => handleRoleSelect('customer')}
               className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
+              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors" aria-hidden="true">
                 <User className="w-6 h-6" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Customer</h3>
                 <p className="text-[10px] text-slate-500 mt-1 uppercase">Explore the directory.</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
+              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" aria-hidden="true" />
             </button>
 
             <button
               onClick={() => handleRoleSelect('vendor')}
               className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
+              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors" aria-hidden="true">
                 <Store className="w-6 h-6" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Creator</h3>
                 <p className="text-[10px] text-slate-500 mt-1 uppercase">Build your profile and share your work</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
+              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" aria-hidden="true" />
             </button>
           </div>
         </div>
