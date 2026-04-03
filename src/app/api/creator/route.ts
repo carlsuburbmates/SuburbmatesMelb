@@ -45,7 +45,11 @@ export async function GET(request: NextRequest) {
     }
     
     if (search) {
-      query = query.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
+      // Sanitize search to prevent PostgREST filter injection via reserved characters
+      const sanitizedSearch = search.replace(/[,()]/g, '');
+      if (sanitizedSearch) {
+        query = query.or(`business_name.ilike.%${sanitizedSearch}%,profile_description.ilike.%${sanitizedSearch}%`);
+      }
     }
     
     // Get total count for pagination  
@@ -62,7 +66,11 @@ export async function GET(request: NextRequest) {
       countQuery.ilike('category_id', `%${category}%`);
     }
     if (search) {
-      countQuery.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
+      // Sanitize search to prevent PostgREST filter injection via reserved characters
+      const sanitizedSearch = search.replace(/[,()]/g, '');
+      if (sanitizedSearch) {
+        countQuery.or(`business_name.ilike.%${sanitizedSearch}%,profile_description.ilike.%${sanitizedSearch}%`);
+      }
     }
     
     const { count } = await countQuery;
