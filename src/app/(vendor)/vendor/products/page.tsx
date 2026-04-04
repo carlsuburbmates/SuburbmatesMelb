@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Edit, Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import { useVendorProducts, VendorProduct } from "@/hooks/useVendorProducts";
 

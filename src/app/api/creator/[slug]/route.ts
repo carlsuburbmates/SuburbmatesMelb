@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
+import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
 // Validate environment variables
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         .eq('id', creator.user_id)
         .single();
       userEmail = userData?.email || null;
-    } catch {
+    } catch (userError) {
       // Non-critical
     }
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           productCount = vendor.product_count || 0;
           vendorId = vendor.id;
         }
-      } catch {
+      } catch (vendorError) {
         // Non-critical
       }
     }
@@ -169,7 +170,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const updateData: any = { updated_at: new Date().toISOString() };
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
     if (region_id) updateData.suburb_id = region_id;

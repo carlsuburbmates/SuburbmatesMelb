@@ -24,6 +24,10 @@ export type DirectorySearchResult = {
 };
 
 // Priority ranking is based on Featured status first, then randomized by the daily shuffle seed in the DB.
+function getPriorityScore(isFeatured: boolean): number {
+  return isFeatured ? 100 : 1;
+}
+
 function sanitize(term: string) {
   return term.replace(/[^a-zA-Z0-9\s]/g, "").trim();
 }
@@ -126,8 +130,8 @@ export async function executeDirectorySearch(
         suburb: { id: null, name: null }, // Names resolved via client or joins if needed
         category: { id: null, name: null },
         isFeatured: Boolean(meta),
-        featuredSuburbLabel: (meta?.suburbLabel as string | null | undefined) ?? null,
-        featuredMatchesSelection: (meta?.matchesSelection as boolean | undefined) ?? false,
+        featuredSuburbLabel: meta?.suburbLabel ?? null,
+        featuredMatchesSelection: meta?.matchesSelection ?? false,
         createdAt: row.created_at,
       };
     }) ?? [];
@@ -185,12 +189,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, { suburbLabel: string | null; regionId: number | null; matchesSelection: boolean }>();
+    return new Map<string, any>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, { suburbLabel: string | null; regionId: number | null; matchesSelection: boolean }>();
+  const featureMap = new Map<string, any>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false

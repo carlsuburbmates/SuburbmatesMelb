@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { UNIVERSAL_PRODUCT_LIMIT } from '@/lib/tier-utils';
 import { getImageBySection, generateImageUrl } from '@/lib/images';
 import { LazyImage } from '@/components/ui/LazyImage';
