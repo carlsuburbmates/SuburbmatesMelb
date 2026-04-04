@@ -45,17 +45,36 @@ export function FAQSection() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {faqs.map((faq, index) => (
-              <div key={index} className="space-y-4">
-                <h4 className="text-[13px] font-black uppercase tracking-wider flex items-center gap-3">
-                  <span className="text-gray-300 w-6">0{index + 1}</span>
-                  {faq.question}
-                </h4>
-                <p className="text-[13px] text-gray-500 font-medium leading-relaxed pl-9 border-l border-gray-50">
-                  {faq.answer}
-                </p>
-              </div>
-            ))}
+            {faqs.map((faq, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <div key={index} className="flex flex-col">
+                  <button
+                    onClick={() => toggleFAQ(index)}
+                    className="group text-[13px] font-black uppercase tracking-wider flex items-center gap-3 w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-4 rounded-sm py-2"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-answer-${index}`}
+                  >
+                    <span className="text-gray-300 w-6 group-hover:text-black transition-colors">0{index + 1}</span>
+                    <span className="flex-1">{faq.question}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <div
+                    id={`faq-answer-${index}`}
+                    className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] mt-4 opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="text-[13px] text-gray-500 font-medium leading-relaxed pl-9 border-l border-gray-100">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
