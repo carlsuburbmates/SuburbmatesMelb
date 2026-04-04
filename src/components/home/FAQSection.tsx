@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { UNIVERSAL_PRODUCT_LIMIT } from '@/lib/tier-utils';
-import { getImageBySection, generateImageUrl } from '@/lib/images';
-import { LazyImage } from '@/components/ui/LazyImage';
-import { useFadeIn } from '@/hooks/useScrollAnimation';
 
 const faqs = [
   {
@@ -28,8 +25,6 @@ const faqs = [
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const faqImage = getImageBySection('faq')[0];
-  const contentAnimation = useFadeIn<HTMLDivElement>({ delay: 150, duration: 700 });
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);

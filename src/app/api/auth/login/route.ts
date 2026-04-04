@@ -4,12 +4,11 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { userLoginSchema } from '@/lib/validation';
 import { logger, logEvent, BusinessEvent, logSecurityEvent, SecurityEvent } from '@/lib/logger';
 import {
   successResponse,
-  unauthorizedResponse,
   validationErrorResponse,
   internalErrorResponse,
 } from '@/app/api/_utils/response';
@@ -19,7 +18,6 @@ import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
 import { withErrorHandler } from '@/middleware/errorHandler';
 import { ValidationError } from '@/lib/errors';
-import { Vendor } from '@/lib/types';
 
 async function loginHandler(req: NextRequest) {
   try {
