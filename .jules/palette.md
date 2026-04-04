@@ -1,0 +1,3 @@
+## 2024-04-04 - Interactive Accordion State Regression
+**Learning:** When converting a static list into an interactive component (like an accordion) that previously relied on dummy visual variables, ensure all required state hooks (e.g., `useState`) and event handlers are fully implemented and imported. Removing unused dummy variables might introduce `ReferenceError`s if their usages lower down in the component tree are not also removed or updated.
+**Action:** Always verify the full component logic and run a local build (`pnpm build`) after making UX changes to catch undeclared variables before requesting a code review or submitting.
