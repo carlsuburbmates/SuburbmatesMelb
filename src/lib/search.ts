@@ -130,8 +130,8 @@ export async function executeDirectorySearch(
         suburb: { id: null, name: null }, // Names resolved via client or joins if needed
         category: { id: null, name: null },
         isFeatured: Boolean(meta),
-        featuredSuburbLabel: meta?.suburbLabel ?? null,
-        featuredMatchesSelection: meta?.matchesSelection ?? false,
+        featuredSuburbLabel: (meta?.suburbLabel as string) ?? null,
+        featuredMatchesSelection: (meta?.matchesSelection as boolean) ?? false,
         createdAt: row.created_at,
       };
     }) ?? [];
@@ -189,12 +189,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, any>();
+    return new Map<string, Record<string, unknown>>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, any>();
+  const featureMap = new Map<string, Record<string, unknown>>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
