@@ -163,6 +163,12 @@ export async function executeDirectorySearch(
   };
 }
 
+type FeatureMeta = {
+  suburbLabel: string | null;
+  regionId: number | null;
+  matchesSelection: boolean;
+};
+
 async function resolveFeaturedProfileMetadata(
   client: SupabaseClient<Database>,
   {
@@ -189,12 +195,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, Record<string, unknown>>();
+    return new Map<string, FeatureMeta>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, Record<string, unknown>>();
+  const featureMap = new Map<string, FeatureMeta>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
