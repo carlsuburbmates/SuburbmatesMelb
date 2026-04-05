@@ -90,6 +90,10 @@ Discovery is grouped by these 6 official Metropolitan Regions. Mapping is immuta
 *   **Frictionless Scraper:** `/api/scrape` (Cheerio/Vercel) extracts Title, Desc, and OG:Image from pasted URLs.
 *   **Trust Signal:** Optional ABN field with frontend 11-digit regex only. No ABR verification.
 
+*   **Legal Disclaimers:**
+    *   Vendor is the Merchant of Record.
+    *   Suburbmates does not issue refunds.
+
 ---
 
 ## 7) Exclusions & Deprecated Components (DEAD CODE)

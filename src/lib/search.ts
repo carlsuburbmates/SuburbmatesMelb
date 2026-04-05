@@ -29,7 +29,7 @@ function getPriorityScore(isFeatured: boolean): number {
 }
 
 function sanitize(term: string) {
-  return term.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+  return term.replace(/[,()]/g, "").trim();
 }
 
 /**
@@ -163,6 +163,12 @@ export async function executeDirectorySearch(
   };
 }
 
+type FeatureMeta = {
+  suburbLabel: string | null;
+  regionId: number | null;
+  matchesSelection: boolean;
+};
+
 async function resolveFeaturedProfileMetadata(
   client: SupabaseClient<Database>,
   {
@@ -189,12 +195,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, any>();
+    return new Map<string, FeatureMeta>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, any>();
+  const featureMap = new Map<string, FeatureMeta>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
