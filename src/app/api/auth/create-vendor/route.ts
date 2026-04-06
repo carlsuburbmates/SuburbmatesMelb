@@ -4,7 +4,7 @@ import { getUserFromRequest } from '@/middleware/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 
-type VendorInsert = Database['public']['Tables']['vendors']['Insert'];
+type CreatorInsert = Database['public']['Tables']['vendors']['Insert'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,32 +24,34 @@ export async function POST(request: NextRequest) {
     // Use admin client to ensure bypass of RLS if needed for profile creation
     const dbClient = supabaseAdmin || authContext.supabaseClient;
 
-    // Check if user already has a vendor profile
-    const { data: existingVendor } = await dbClient
+    // Check if user already has a creator profile
+    const { data: existingCreator } = await dbClient
       .from('vendors')
       .select('id')
       .eq('user_id', userId)
       .single();
 
-    if (existingVendor) {
-      return NextResponse.json({ success: false, error: { message: 'Vendor profile already exists' } }, { status: 400 });
+    if (existingCreator) {
+      return NextResponse.json({ success: false, error: { message: 'Creator profile already exists' } }, { status: 400 });
     }
 
-    // Create vendor profile
-    const vendorPayload: VendorInsert = {
+    // Create creator profile
+    const creatorPayload: CreatorInsert = {
       user_id: userId,
       business_name,
-      product_count: 0
+      primary_region_id: null,
+      product_count: 0,
+      vendor_status: 'inactive'
     };
 
-    const { data: vendor, error } = await dbClient
+    const { data: creator, error } = await dbClient
       .from('vendors')
-      .insert(vendorPayload)
+      .insert(creatorPayload)
       .select()
       .single();
 
     if (error) {
-      logger.error('Database error creating vendor:', error);
+      logger.error('Database error creating creator:', error);
       throw error;
     }
 
@@ -59,13 +61,13 @@ export async function POST(request: NextRequest) {
       .update({ user_type: 'business_owner' })
       .eq('id', userId);
 
-    return NextResponse.json({ success: true, data: { vendor } });
+    return NextResponse.json({ success: true, data: { creator } });
   } catch (error: any) {
     if (error.name === 'UnauthorizedError' || error.status === 401) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
     
-    logger.error('Error creating vendor profile:', error);
+    logger.error('Error creating creator profile:', error);
     return NextResponse.json({ 
       success: false, 
       error: { message: error.message || 'Internal server error' } 

@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { TemplateSelector } from "@/components/vendor/TemplateSelector";
-import { Loader2 } from "lucide-react";
 import { BusinessProfile } from "@/lib/types";
 
 export default function VendorSettingsPage() {
@@ -41,9 +39,12 @@ export default function VendorSettingsPage() {
 
   if (isLoading || loadingProfile) {
     return (
-        <div className="flex h-[50vh] items-center justify-center">
-             <Loader2 className="animate-spin text-gray-400 w-8 h-8" />
-        </div>
+      <div className="flex flex-col h-[50vh] items-center justify-center space-y-6">
+        <div className="w-8 h-8 rounded-full border-t border-white animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-ink-tertiary">
+          Initialising Parameters...
+        </p>
+      </div>
     );
   }
 
@@ -52,29 +53,40 @@ export default function VendorSettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500">Manage your business profile preferences.</p>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-16 pb-24">
+      <header className="pb-8 border-b border-white/5">
+        <h1 className="text-3xl font-black uppercase tracking-[0.4em] text-ink-primary">
+          Workspace Parameters
+        </h1>
+        <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.2em] mt-3">
+          Manage directory profile preferences and architectural settings
+        </p>
+      </header>
 
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <section className="bg-ink-surface-1 border border-white/5 p-12 lg:p-16 space-y-12">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">Profile Appearance</h2>
-          <p className="text-sm text-gray-500 mb-6">
-            Choose how your business profile looks to customers.
+          <h2 className="text-xs font-black text-ink-primary uppercase tracking-[0.3em] mb-3">
+            Profile Architecture
+          </h2>
+          <p className="text-[11px] font-bold text-ink-tertiary uppercase tracking-widest leading-relaxed max-w-lg">
+            Public creator pages use the standard launch template. Directory visibility is controlled by publish state and canonical region mapping.
           </p>
         </div>
-        
-        <TemplateSelector currentTemplate={(profile as BusinessProfile & { template_key?: string }).template_key || "standard"} />
-      </div>
+      </section>
 
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Theme Colours.</h2>
-        <p className="text-sm text-gray-500">
-           Coming soon to Pro and Premium plans.
-        </p>
-      </div>
+      <section className="bg-ink-surface-1 border border-white/5 p-12 lg:p-16 opacity-30 cursor-not-allowed">
+        <h2 className="text-xs font-black text-ink-primary uppercase tracking-[0.3em] mb-4">
+          Visual Identity
+        </h2>
+        <div className="space-y-2">
+          <p className="text-[11px] font-bold text-ink-tertiary uppercase tracking-widest">
+            Extended visual themes and custom rendering protocols.
+          </p>
+          <p className="text-[9px] font-black text-ink-primary uppercase tracking-[0.3em] pt-4">
+            Allocation pending - Pro System Upgrade Required
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

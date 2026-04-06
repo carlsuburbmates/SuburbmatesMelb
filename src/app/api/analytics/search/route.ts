@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireVendor } from "@/app/api/_utils/auth";
+import { requireCreator } from "@/app/api/_utils/auth";
 
 interface SearchLogRow {
   filters: Record<string, unknown> | null;
@@ -9,7 +9,7 @@ interface SearchLogRow {
 
 export async function GET(req: NextRequest) {
   try {
-    const { authContext } = await requireVendor(req);
+    const { authContext } = await requireCreator(req);
     const client = authContext.dbClient;
 
     const { data, error } = await client
@@ -28,13 +28,13 @@ export async function GET(req: NextRequest) {
       (entry) => (entry.result_count ?? 0) === 0
     ).length;
 
-    const topSuburbs = aggregateFilterCounts(logs, "suburb");
+    const topRegions = aggregateFilterCounts(logs, "region");
     const topCategories = aggregateFilterCounts(logs, "category");
 
     const latestSearches = logs.slice(0, 10).map((entry) => {
       const filters = (entry.filters ?? {}) as Record<string, string>;
       return {
-        suburb: filters.suburb ?? null,
+        region: filters.region ?? null,
         category: filters.category ?? null,
         tier: filters.tier ?? null,
         resultCount: entry.result_count ?? null,
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
           zeroResultCount,
           zeroResultRate:
             totalEvents === 0 ? 0 : zeroResultCount / totalEvents,
-          topSuburbs,
+          topRegions,
           topCategories,
           latestSearches,
         },

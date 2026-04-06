@@ -48,14 +48,17 @@ export function MobileFilterDrawer({
             animate={shouldReduceMotion ? { opacity: 1 } : { y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { y: "100%" }}
             transition={shouldReduceMotion ? { duration: 0.15 } : { type: "tween", ease: [0.4, 0, 0.2, 1], duration: 0.3 }}
-            className="fixed inset-x-0 bottom-0 z-[101] bg-white shadow-2xl md:hidden max-h-[95vh] flex flex-col pt-2"
+            className="fixed inset-x-0 bottom-0 z-[101] bg-ink-surface-1 shadow-2xl md:hidden max-h-[95vh] flex flex-col pt-2 border-t border-white/10"
           >
+            {/* Swipe Handle */}
+            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-2" />
+
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h3 className="text-sm font-black text-black uppercase tracking-[0.2em]">Filter Directory</h3>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <h3 className="text-sm font-bold text-ink-primary uppercase tracking-widest">Filter Directory</h3>
               <button 
                 onClick={onClose} 
-                className="p-2 -mr-2 text-black hover:bg-slate-100 transition-colors"
+                className="p-2 -mr-2 text-ink-secondary hover:text-ink-primary hover:bg-white/5 transition-colors"
                 aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
@@ -72,16 +75,16 @@ export function MobileFilterDrawer({
             </div>
 
             {/* Sticky Actions */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex gap-px">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-ink-surface-1 border-t border-white/10 flex gap-px">
               <button 
                 onClick={() => { onClear(); onClose(); }}
-                className="flex-1 py-4 px-4 bg-white text-black text-xs font-black uppercase tracking-widest hover:bg-slate-50 border border-slate-200"
+                className="flex-1 py-4 px-4 bg-ink-surface-2 text-ink-primary text-xs font-bold uppercase tracking-widest hover:bg-white/10 border border-white/5"
               >
                 Reset
               </button>
               <button 
                 onClick={onClose}
-                className="flex-1 py-4 px-4 bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-slate-900 shadow-none border border-black"
+                className="flex-1 py-4 px-4 bg-white/5 text-ink-primary text-xs font-bold uppercase tracking-widest hover:bg-white/10 shadow-none border border-white/10"
               >
                 Show Results
               </button>

@@ -15,7 +15,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
     {
       icon: <Star className="w-5 h-5 text-amber-500" />,
       title: "Prime Search Position",
-      description: "Appear at the top of search results in your suburb",
+      description: "Appear at the top of search results in your region",
     },
     {
       icon: <MapPin className="w-5 h-5 text-blue-500" />,
@@ -57,7 +57,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
             Boost Your Local Visibility
           </h3>
           <p className="text-gray-600 text-lg">
-            Get premium placement in your suburb&rsquo;s creator directory and attract more customers
+            Get premium placement in your region&rsquo;s creator directory and attract more customers
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
 
         {/* Fine Print */}
         <p className="text-xs text-gray-500 text-center">
-          Featured placement is available to ABN Verified partners only. Subject to community guidelines.
+          Featured placement is managed manually by the operator. Subject to availability and community guidelines.
         </p>
       </div>
     </Modal>

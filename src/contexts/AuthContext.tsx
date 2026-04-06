@@ -11,6 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   token: string | null;
   signInWithOtp: (email: string) => Promise<{ error: Error | null }>;
+  signInWithOtpAs: (email: string, userType: 'customer' | 'business_owner') => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
 }
@@ -36,11 +37,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    const ensureUserRecord = async (sessionUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }) => {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', sessionUser.id)
+        .maybeSingle();
+
+      if (!userError && !userData) {
+        const metadata = (sessionUser.user_metadata ?? {}) as Record<string, unknown>;
+        const requestedType = metadata.user_type === 'business_owner' ? 'business_owner' : 'customer';
+        await supabase.from('users').upsert({
+          id: sessionUser.id,
+          email: sessionUser.email || '',
+          user_type: requestedType,
+          first_name: typeof metadata.first_name === 'string' ? metadata.first_name : null,
+          last_name: typeof metadata.last_name === 'string' ? metadata.last_name : null,
+        });
+      }
+    };
+
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
         setToken(session.access_token);
+        await ensureUserRecord(session.user);
         // Sync user and check for vendor profile
         const { data: userData } = await supabase
           .from('users')
@@ -66,12 +88,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setToken(session.access_token);
+        await ensureUserRecord(session.user);
         const { data: userData } = await supabase
           .from('users')
           .select('*')
           .eq('id', session.user.id)
           .single();
         setUser(userData || null);
+        const { data: vendorData } = await supabase
+          .from('vendors')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        setVendor(vendorData || null);
       } else {
         setUser(null);
         setVendor(null);
@@ -84,10 +113,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   const signInWithOtp = async (email: string) => {
+    return await signInWithOtpAs(email, 'customer');
+  };
+
+  const signInWithOtpAs = async (email: string, userType: 'customer' | 'business_owner') => {
     return await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: {
+          user_type: userType,
+        },
       },
     });
   };
@@ -115,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     signInWithOtp,
+    signInWithOtpAs,
     signInWithGoogle,
     logout,
   };

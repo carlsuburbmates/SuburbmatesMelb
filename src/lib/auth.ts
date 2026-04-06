@@ -1,8 +1,6 @@
 import { AuthSession, User, Vendor } from "./types";
 
-import { UNIVERSAL_PRODUCT_LIMIT } from "./tier-utils";
-
-export type VendorTier = "basic" | "pro" | "premium" | "none" | "suspended";
+// SSOT v2.1: Tiers and quotas are deprecated.
 
 // Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
@@ -14,11 +12,11 @@ class AuthManager {
   async signUp(
     email: string,
     password: string,
-    userData: {
-      first_name?: string;
-      last_name?: string;
-      user_type?: "customer" | "vendor";
-    }
+      userData: {
+        first_name?: string;
+        last_name?: string;
+        user_type?: "customer" | "business_owner";
+      }
   ): Promise<AuthSession> {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -149,7 +147,7 @@ class AuthManager {
     };
 
     // Get vendor data if user is a vendor
-    if (userData?.user_type === "vendor") {
+      if (userData?.user_type === "business_owner") {
       const { data: vendorData, error: vendorError } = await supabase
         .from("vendors")
         .select("*")
@@ -162,7 +160,6 @@ class AuthManager {
           user_id: vendorData.user_id ?? user.id,
           product_count: vendorData.product_count ?? 0,
           can_appeal: vendorData.can_appeal ?? false,
-          payment_reversal_count: vendorData.payment_reversal_count ?? 0,
           storage_used_mb: vendorData.storage_used_mb ?? 0,
           created_at: vendorData.created_at ?? new Date().toISOString(),
           updated_at: vendorData.updated_at ?? new Date().toISOString(),
@@ -181,22 +178,17 @@ class AuthManager {
     profile_url?: string;
   }): Promise<Vendor> {
     const session = await this.getCurrentSession();
-    if (!session || session.user.user_type !== "vendor") {
-      throw new Error("Must be authenticated as vendor");
+    if (!session || session.user.user_type !== "business_owner") {
+      throw new Error("Must be authenticated as business owner");
     }
 
     const { data, error } = await supabase.from("vendors").insert({
       user_id: session.user.id,
-      is_vendor: true,
-      vendor_status: "active",
-      can_sell_products: true,
-      stripe_onboarding_complete: true, // Bypass legacy flow
       business_name: vendorData.business_name,
       bio: vendorData.bio,
       primary_region_id: vendorData.primary_region_id,
       product_count: 0,
       storage_used_mb: 0,
-      product_quota: UNIVERSAL_PRODUCT_LIMIT,
       storage_quota_gb: 1, // Default 1GB
     })
       .select()
@@ -206,9 +198,9 @@ class AuthManager {
       throw new Error(`Failed to create vendor profile: ${error?.message ?? "unknown error"}`);
     }
 
-    // Update user type to vendor
+    // Update user type to business owner
     await supabase.from("users").update({
-      user_type: "vendor",
+      user_type: "business_owner",
     }).eq("id", session.user.id);
 
     // Refresh session
@@ -242,7 +234,7 @@ class AuthManager {
 
   // Utility methods
   isVendor(): boolean {
-    return this.currentSession?.user.user_type === "vendor";
+    return this.currentSession?.user.user_type === "business_owner";
   }
 
   isAdmin(): boolean {

@@ -36,9 +36,10 @@ export async function GET(request: NextRequest) {
     // so we select known fields and will default others in the transformation.
     const { data: products, error } = await supabase
       .from('products')
-      .select('id, title, description, price, category, slug, thumbnail_url, images, created_at')
+      .select('id, title, description, price, category_id, slug, image_urls, product_url, created_at')
       .eq('vendor_id', vendorId)
-      .eq('published', true)
+      .eq('is_active', true)
+      .eq('is_archived', false)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -57,12 +58,15 @@ export async function GET(request: NextRequest) {
       title: product.title,
       description: product.description,
       price: product.price,
-      imageUrl: product.thumbnail_url || (product.images?.[0]) || null,
-      category: product.category || 'General',
-      downloadCount: 0, // Placeholder as column might not exist
-      rating: 0, // Placeholder as column might not exist
+      imageUrl: product.image_urls?.[0] || null,
+      image_urls: product.image_urls || [],
+      productUrl: product.product_url,
+      categoryId: product.category_id,
+      category_id: product.category_id,
+      downloadCount: 0,
+      rating: 0,
       slug: product.slug,
-      isFeatured: false // Placeholder
+      isFeatured: false
     })) || [];
 
     return NextResponse.json({

@@ -32,7 +32,6 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
 
   const handleSave = () => {
     setIsLiked(!isLiked);
-    // TODO: Implement actual save logic
   };
 
   const scrollToProducts = () => {
@@ -41,34 +40,36 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4 pb-safe md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-      <div className="flex items-center justify-around gap-2">
-        {/* Save */}
-        <button
-          onClick={handleSave}
-          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
-        >
-          <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-          <span className="text-[10px] mt-1 font-medium">Save</span>
-        </button>
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-t border-white/10 p-4 pb-safe md:hidden shadow-2xl">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1">
+          {/* Save */}
+          <button
+            onClick={handleSave}
+            className="flex flex-col items-center justify-center text-ink-tertiary hover:text-ink-primary min-w-[3rem] transition-colors"
+          >
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-ink-primary text-ink-primary" : ""}`} />
+            <span className="text-[8px] mt-1 font-bold uppercase tracking-widest leading-none">Save</span>
+          </button>
 
-        {/* Share */}
-        <button
-          onClick={handleShare}
-          className="flex flex-col items-center justify-center text-gray-600 hover:text-amber-600 min-w-[3.5rem]"
-        >
-          <Share2 className="w-6 h-6" />
-          <span className="text-[10px] mt-1 font-medium">Share</span>
-        </button>
+          {/* Share */}
+          <button
+            onClick={handleShare}
+            className="flex flex-col items-center justify-center text-ink-tertiary hover:text-ink-primary min-w-[3rem] transition-colors"
+          >
+            <Share2 className="w-5 h-5" />
+            <span className="text-[8px] mt-1 font-bold uppercase tracking-widest leading-none">Share</span>
+          </button>
+        </div>
 
         {/* Dynamic Actions */}
-        <div className="flex items-center gap-2 flex-1 justify-end ml-2">
-           {business.isVendor && (business.productCount || 0) > 0 ? (
+        <div className="flex-1">
+           {(business.productCount || 0) > 0 ? (
              <button 
                 onClick={scrollToProducts}
-                className="flex-1 bg-amber-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+                className="w-full bg-ink-primary text-black px-6 py-4 flex items-center justify-center font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
              >
-               <ArrowUpRight className="w-4 h-4 mr-2" />
+               <ArrowUpRight className="w-3.5 h-3.5 mr-2" />
                Explore Portfolio
              </button>
            ) : business.website ? (
@@ -76,18 +77,18 @@ export function StickyActionBar({ business }: StickyActionBarProps) {
                href={business.website}
                target="_blank"
                rel="noopener noreferrer"
-               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+               className="w-full bg-white text-black px-6 py-4 flex items-center justify-center font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
              >
-               <Globe className="w-4 h-4 mr-2" />
-               Visit
+               <Globe className="w-3.5 h-3.5 mr-2" />
+               Direct Website
              </a>
            ) : (business.email || business.phone) ? (
              <a
                href={business.email ? `mailto:${business.email}` : `tel:${business.phone}`}
-               className="flex-1 bg-gray-900 text-white px-4 py-2.5 rounded-lg flex items-center justify-center shadow-sm font-semibold text-sm"
+               className="w-full bg-white text-black px-6 py-4 flex items-center justify-center font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
              >
-               {business.email ? <Mail className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
-               Contact
+               {business.email ? <Mail className="w-3.5 h-3.5 mr-2" /> : <Phone className="w-3.5 h-3.5 mr-2" />}
+               Contact Studio
              </a>
            ) : null}
         </div>

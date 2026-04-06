@@ -43,17 +43,17 @@ export function DirectoryFilters({ selectedCategory = '', selectedRegion = '' }:
 
   return (
     <>
-      <div className="glass-card rounded-2xl overflow-hidden mb-8">
+      <div className="bg-ink-surface-1 border border-white/5 rounded-sm overflow-hidden mb-8">
         {/* Header Bar */}
-        <div className="p-4 md:p-6 flex items-center justify-between border-b border-onyx/5">
+        <div className="p-4 md:p-6 flex items-center justify-between border-b border-white/5">
           <div className="flex items-center space-x-2">
-            <SlidersHorizontal className="h-4 w-4 text-onyx hidden md:block" />
-            <h3 className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-onyx hidden md:block">
+            <SlidersHorizontal className="h-4 w-4 text-ink-primary hidden md:block" />
+            <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-ink-primary hidden md:block">
               Filter Selection
             </h3>
             
             {/* Mobile Title */}
-            <span className="md:hidden font-mono text-[10px] font-black uppercase tracking-[0.2em] text-onyx/40">
+            <span className="md:hidden font-mono text-[10px] font-bold uppercase tracking-widest text-ink-secondary">
               {hasActiveFilters ? 'Filters Active' : 'Filter Directory'}
             </span>
           </div>
@@ -62,7 +62,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedRegion = '' }:
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="items-center space-x-1 font-mono text-[10px] uppercase tracking-[0.2em] text-onyx/60 hover:text-onyx transition-colors hidden md:inline-flex"
+                className="items-center space-x-1 font-mono text-[10px] uppercase tracking-widest text-ink-secondary hover:text-white transition-colors hidden md:inline-flex"
               >
                 <X className="h-3 w-3" />
                 <span>Reset</span>
@@ -72,7 +72,7 @@ export function DirectoryFilters({ selectedCategory = '', selectedRegion = '' }:
             {/* Mobile Trigger Button */}
             <button 
               onClick={() => setIsDrawerOpen(true)}
-              className="md:hidden flex items-center space-x-2 bg-onyx text-silica rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all"
+              className="md:hidden flex items-center space-x-2 bg-ink-surface-2 border border-white/10 text-ink-primary rounded-sm px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest shadow-lg hover:bg-white/5 transition-all"
             >
               <Filter className="w-3 h-3" />
               <span>Filters</span>

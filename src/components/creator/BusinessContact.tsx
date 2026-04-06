@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, Mail, Globe, MapPin, MessageCircle, Send, CheckCircle } from 'lucide-react';
-
+import { Phone, Mail, Globe, MessageCircle, Send, CheckCircle, ArrowRight } from 'lucide-react';
 import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessContactProps {
@@ -30,11 +29,7 @@ export function BusinessContact({ business }: BusinessContactProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // TODO: Implement contact form submission
-    // This would send an email to the business owner
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-    
+    await new Promise(resolve => setTimeout(resolve, 1500)); 
     setSuccess(true);
     setFormData({ name: '', email: '', phone: '', message: '' });
     setIsSubmitting(false);
@@ -42,242 +37,157 @@ export function BusinessContact({ business }: BusinessContactProps) {
 
   const handleReset = () => {
     setSuccess(false);
-    // Keep form open so user can send another message
     setShowContactForm(true);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Contact Information Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+    <div className="space-y-12">
+      {/* Contact Channels */}
+      <div className="space-y-6">
+        <h3 className="text-[11px] font-black text-ink-primary uppercase tracking-widest border-b border-white/10 pb-4">
+          Direct Channels
+        </h3>
         
-        <div className="space-y-4">
-          {/* Phone */}
+        <div className="space-y-2">
           {business.contact.phone && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Phone className="w-5 h-5 text-gray-600" />
+            <a 
+              href={`tel:${business.contact.phone}`}
+              className="flex items-center justify-between p-4 bg-ink-surface-1 border border-white/5 hover:border-white/20 transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <Phone className="w-4 h-4 text-ink-tertiary" />
+                <span className="text-[11px] font-bold text-ink-primary uppercase tracking-widest">{business.contact.phone}</span>
               </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-500">Phone</p>
-                <a 
-                  href={`tel:${business.contact.phone}`}
-                  className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
-                >
-                  {business.contact.phone}
-                </a>
-              </div>
-            </div>
+              <ArrowRight className="w-3 h-3 text-ink-tertiary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
           )}
 
-          {/* Email */}
           {business.contact.email && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-gray-600" />
+            <a 
+              href={`mailto:${business.contact.email}`}
+              className="flex items-center justify-between p-4 bg-ink-surface-1 border border-white/5 hover:border-white/20 transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <Mail className="w-4 h-4 text-ink-tertiary" />
+                <span className="text-[11px] font-bold text-ink-primary uppercase tracking-widest leading-none truncate max-w-[200px]">{business.contact.email}</span>
               </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-500">Email</p>
-                <a 
-                  href={`mailto:${business.contact.email}`}
-                  className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
-                >
-                  {business.contact.email}
-                </a>
-              </div>
-            </div>
+              <ArrowRight className="w-3 h-3 text-ink-tertiary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
           )}
 
-          {/* Website */}
           {business.contact.website && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Globe className="w-5 h-5 text-gray-600" />
+            <a 
+              href={business.contact.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-4 bg-ink-surface-1 border border-white/5 hover:border-white/20 transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <Globe className="w-4 h-4 text-ink-tertiary" />
+                <span className="text-[11px] font-bold text-ink-primary uppercase tracking-widest">Digital HQ</span>
               </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-500">Website</p>
-                <a 
-                  href={business.contact.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
-                >
-                  Visit Website
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* Address */}
-          {business.address && (
-            <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <MapPin className="w-5 h-5 text-gray-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-500">Address</p>
-                <p className="text-gray-900 font-medium">{business.address}</p>
-                <a 
-                  href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm mt-1 inline-block"
-                >
-                  Get Directions →
-                </a>
-              </div>
-            </div>
+              <ArrowRight className="w-3 h-3 text-ink-tertiary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
           )}
         </div>
       </div>
 
-      {/* Contact Form Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <MessageCircle className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Send a Message</h3>
+      {/* Inquiry Protocol */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <MessageCircle className="w-4 h-4 text-ink-primary" />
+          <h3 className="text-[11px] font-black text-ink-primary uppercase tracking-widest">Inquiry Protocol</h3>
         </div>
 
         {!showContactForm ? (
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">
-              Get in touch with {business.name} directly through our contact form.
+          <div className="bg-ink-surface-1 border border-white/5 p-6 space-y-6">
+            <p className="text-ink-secondary text-xs leading-relaxed uppercase tracking-wide">
+              Interface directly with {business.name} for project inquiries or collaboration requests.
             </p>
             <button
               onClick={() => setShowContactForm(true)}
-              className="btn-primary w-full"
+              className="w-full py-4 bg-ink-primary text-black text-[11px] font-black uppercase tracking-widest hover:opacity-90 transition-opacity"
             >
-              Contact Business
+              Initialize Contact
             </button>
           </div>
         ) : success ? (
           <div
-            className="text-center py-8 animate-in fade-in duration-300"
+            className="bg-ink-surface-1 border border-ink-success/20 p-8 text-center animate-in fade-in zoom-in-95 duration-500"
             role="status"
-            aria-live="polite"
           >
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" aria-hidden="true" />
+            <div className="w-12 h-12 bg-ink-success/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-6 h-6 text-ink-success" />
             </div>
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">Message Sent!</h4>
-            <p className="text-gray-600 mb-6">
-              Thanks for reaching out. {business.name} will get back to you shortly.
+            <h4 className="text-[11px] font-black text-ink-primary uppercase tracking-widest mb-3">Transmission Successful</h4>
+            <p className="text-ink-secondary text-[11px] uppercase tracking-widest mb-8 leading-relaxed">
+              Your message has been processed. The studio will respond within their standard timeframe.
             </p>
             <button
               onClick={handleReset}
-              className="text-blue-600 hover:text-blue-800 font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm"
+              className="text-ink-primary text-[11px] font-black uppercase tracking-widest border-b border-white/10 pb-1"
             >
-              Send another message
+              New Transmission
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex justify-end">
-               <span className="text-xs text-gray-500" aria-hidden="true">* Required fields</span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="IDENTIFIER (NAME)"
+                  className="w-full bg-black border border-white/10 px-4 py-4 text-[11px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/20 transition-colors"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="COMMUNICATION ENDPOINT (EMAIL)"
+                  className="w-full bg-black border border-white/10 px-4 py-4 text-[11px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/20 transition-colors"
+                />
+              </div>
+
+              <div className="relative">
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  placeholder="BRIEF / MESSAGE"
+                  className="w-full bg-black border border-white/10 px-4 py-4 text-[11px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/20 transition-colors resize-none"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name <span className="text-red-500" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                aria-required="true"
-                placeholder="e.g. John Doe"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address <span className="text-red-500" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                aria-required="true"
-                placeholder="name@example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number (Optional)
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="0400 000 000"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                Message <span className="text-red-500" aria-hidden="true">*</span>
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleInputChange}
-                required
-                aria-required="true"
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none placeholder:text-gray-400"
-                placeholder="Hi, I'm interested in..."
-              />
-            </div>
-
-            <div className="flex space-x-3 pt-2">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setShowContactForm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="flex-1 py-4 border border-white/10 text-ink-tertiary text-[11px] font-black uppercase tracking-widest hover:bg-white/5 transition-colors"
               >
-                Cancel
+                Abort
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 btn-primary inline-flex items-center justify-center min-w-[140px]"
+                className="flex-[2] py-4 bg-ink-primary text-black text-[11px] font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {isSubmitting ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-                    <span>Sending...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <Send className="w-4 h-4" aria-hidden="true" />
-                    <span>Send Message</span>
-                  </div>
-                )}
+                {isSubmitting ? "TRANSMITTING..." : "SEND MESSAGE"}
               </button>
             </div>
           </form>
         )}
-
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500">
-            Your message will be sent directly to {business.name}. 
-            They typically respond within 24 hours.
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -3,9 +3,9 @@
 import { Container } from "@/components/layout/Container";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
-import { Mail, MessageSquare, Send } from "lucide-react";
+import { Mail, MessageSquare, Send, ArrowRight, HelpCircle } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -52,221 +52,173 @@ export default function ContactPage() {
     }
   };
 
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: "Email",
-      value: "hello@suburbmates.com.au",
-      action: "mailto:hello@suburbmates.com.au",
-    },
-  ];
-
   const faqs = [
     {
-      question: "How do I create a profile?",
+      question: "HOW DO I INITIALIZE A STUDIO PROFILE?",
       answer:
-        "Click on &lsquo;Sign up&rsquo; and select &lsquo;Creator&rsquo;. Fill in your details and we will review your profile shortly.",
+        "SELECT 'SIGN UP' AND CHOOSE THE 'CREATOR' PATHWAY. PROVIDE YOUR IDENTIFICATION AND STUDIO DETAILS FOR SYSTEM VERIFICATION.",
     },
     {
-      question: "How much does it cost?",
+      question: "WHAT IS THE FISCAL REQUIREMENT?",
       answer:
-        "Basic listing is free! We offer tiered plans for creators looking for more products and visibility.",
+        "STANDARD DIRECTORY LISTING IS FREE. WE OFFER PREMIUM DEPLOYMENT TIERS FOR CREATIVES REQUIRING ENHANCED ASSET VISIBILITY.",
     },
     {
-      question: "How do I sell digital products?",
+      question: "HOW ARE DIGITAL ASSETS DISTRIBUTED?",
       answer:
-        "Once your profile is active, you can add products to your listing. Simply go to your dashboard and upload your digital files.",
+        "UPON VERIFICATION, STUDIOS CAN UPLOAD ASSETS DIRECTLY VIA THE DASHBOARD. THESE ARE INDEXED AND MADE DISCOVERABLE IN REAL-TIME.",
     },
     {
-      question: "How do I get paid?",
+      question: "HOW IS CAPITAL DISTRIBUTED?",
       answer:
-        "We use Stripe Connect. Connect your bank account to receive payments automatically after each sale.",
+        "WE UTILIZE THE STRIPE CONNECT PROTOCOL. INTEGRATE YOUR BANK ENDPOINT FOR AUTOMATED SETTLEMENT AFTER EACH SUCCESSFUL TRANSACTION.",
     },
   ];
 
   return (
-    <>
+    <div className="bg-black min-h-screen flex flex-col">
       <Header />
-      <main className="min-h-screen bg-gray-50">
-        <div className="bg-white border-b border-gray-200">
-          <Container className="py-16">
-            <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Contact Us
+      <main className="flex-1">
+        <div className="bg-black border-b border-white/10">
+          <Container className="py-24 md:py-32">
+            <div className="max-w-4xl">
+              <span className="text-[10px] font-black text-ink-tertiary uppercase tracking-[0.5em] mb-6 block underline underline-offset-8 decoration-white/20">
+                COMMUNICATION / PROTOCOL
+              </span>
+              <h1 className="text-5xl md:text-8xl font-extrabold text-ink-primary uppercase tracking-tighter leading-[0.85] mb-8">
+                INTERFACE WITH US
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Get in touch with our founders for any questions or support
+              <p className="text-xl text-ink-secondary leading-relaxed uppercase tracking-tight max-w-2xl font-medium">
+                Direct channel to the founding team. Deploy your inquiries or system feedback.
               </p>
             </div>
           </Container>
         </div>
 
-        <Container className="py-16">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">
-                Get in Touch
-              </h2>
-
-              <div className="space-y-6 mb-12">
-                {contactInfo.map((info, index) => {
-                  const Icon = info.icon;
-                  return (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-white" />
+        <Container className="py-24">
+          <div className="grid md:grid-cols-5 gap-20">
+            {/* Primary Interface Information */}
+            <div className="md:col-span-2 space-y-16">
+              <section className="space-y-8">
+                <h2 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.4em] border-b border-white/10 pb-4">
+                  Direct Endpoints
+                </h2>
+                <div className="space-y-4">
+                   <a 
+                      href="mailto:hello@suburbmates.com.au"
+                      className="flex items-center justify-between p-6 bg-ink-surface-1 border border-white/5 hover:border-white/20 transition-all group"
+                   >
+                      <div className="flex items-center gap-4">
+                         <Mail className="w-5 h-5 text-ink-tertiary" />
+                         <span className="text-[11px] font-bold text-ink-primary uppercase tracking-widest">hello@suburbmates.com.au</span>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {info.title}
-                        </h3>
-                        {info.action ? (
-                          <a
-                            href={info.action}
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
-                          >
-                            {info.value}
-                          </a>
-                        ) : (
-                          <p className="text-gray-600">{info.value}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      <ArrowRight className="w-4 h-4 text-ink-tertiary opacity-0 group-hover:opacity-100 transition-opacity" />
+                   </a>
+                </div>
+              </section>
 
-              <div className="bg-gray-900 text-white p-8 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">Have questions?</h3>
-                <p className="text-gray-300 mb-6">
-                  Check out our Help Centre for frequently asked questions and
-                  support options.
+              <section className="bg-ink-surface-1 border border-white/5 p-10 space-y-8 shadow-2xl">
+                <div className="flex items-center gap-3">
+                  <HelpCircle className="w-5 h-5 text-ink-primary" />
+                  <h3 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.4em]">Resource Centre</h3>
+                </div>
+                <p className="text-ink-tertiary text-xs uppercase tracking-widest leading-relaxed">
+                  Access our centralized documentation for technical support and platform guidelines.
                 </p>
-                <Button
-                  onClick={() => (window.location.href = "/help")}
-                  variant="secondary"
-                  className="bg-white text-gray-900 hover:bg-gray-100"
+                <Link
+                  href="/help"
+                  className="inline-block w-full text-center py-4 bg-ink-primary text-black text-[10px] font-black uppercase tracking-[0.3em] hover:opacity-90 transition-opacity"
                 >
-                  Visit Help Centre
-                </Button>
-              </div>
+                  ACCESS DOCUMENTATION
+                </Link>
+              </section>
             </div>
 
-            {/* Contact Form */}
-            <div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Send us a Message
+            {/* Transmission Form */}
+            <div className="md:col-span-3">
+              <div className="bg-ink-surface-1 border border-white/5 p-12 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4">
+                   <span className="text-[8px] font-bold text-ink-tertiary uppercase tracking-widest opacity-30">SECURE CHANNEL PRO-V1.0</span>
+                </div>
+                <h2 className="text-2xl font-black text-ink-primary uppercase tracking-tighter mb-10">
+                  SEND TRANSMISSION
                 </h2>
 
                 {isSubmitted ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MessageSquare className="w-8 h-8 text-green-600" />
+                  <div className="text-center py-16 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="w-16 h-16 bg-ink-success/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                      <MessageSquare className="w-8 h-8 text-ink-success" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Message Sent!
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Thank you for contacting us. We&rsquo;ll get back to you shortly.
+                    <h3 className="text-xl font-black text-ink-primary uppercase tracking-[0.3em] mb-4">Transmission Received</h3>
+                    <p className="text-ink-tertiary text-[10px] uppercase tracking-widest mb-10 leading-relaxed max-w-sm mx-auto">
+                      Thank you for contacting Suburbmates. Our team has received your logs and will respond shortly.
                     </p>
-                    <Button
+                    <button
                       onClick={() => setIsSubmitted(false)}
-                      variant="outline"
+                      className="text-ink-primary text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/10 pb-1 hover:border-ink-primary transition-all"
                     >
-                      Send Another Message
-                    </Button>
+                      New Transmission
+                    </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="name"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Name *
-                        </label>
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">IDENTIFIER</label>
                         <input
                           type="text"
-                          id="name"
                           name="name"
                           required
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          placeholder="FULL NAME"
+                          className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
                         />
                       </div>
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Email *
-                        </label>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">ENDPOINT (EMAIL)</label>
                         <input
                           type="email"
-                          id="email"
                           name="email"
                           required
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          placeholder="NAME@DOMAIN.COM"
+                          className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
                         />
                       </div>
                     </div>
-                    <div>
-                      <label
-                        htmlFor="subject"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Subject *
-                      </label>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">SUBJECT MATTER</label>
                       <input
                         type="text"
-                        id="subject"
                         name="subject"
                         required
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                        placeholder="CATEGORY OF INQUIRY"
+                        className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
                       />
                     </div>
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Message *
-                      </label>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">MESSAGE LOGS</label>
                       <textarea
-                        id="message"
                         name="message"
-                        rows={5}
+                        rows={6}
                         required
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                        placeholder="SPECIFY YOUR REQUIREMENTS..."
+                        className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors resize-none"
                       />
                     </div>
-                    <Button
+                    <button
                       type="submit"
-                      className="w-full"
+                      className="w-full py-5 bg-ink-primary text-black text-[10px] font-black uppercase tracking-[0.3em] hover:opacity-90 transition-opacity disabled:opacity-50"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Sending...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Send Message
-                        </>
-                      )}
-                    </Button>
+                      {isSubmitting ? "TRANSMITTING..." : "SEND TRANSMISSION"}
+                    </button>
                   </form>
                 )}
               </div>
@@ -274,57 +226,58 @@ export default function ContactPage() {
           </div>
         </Container>
 
-        {/* FAQ Section */}
-        <div className="py-16 bg-white">
-          <Container className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-              Frequently Asked Questions
+        {/* FAQ Section - Clinical Minimalist */}
+        <div className="py-32 bg-black border-t border-white/10">
+          <Container className="max-w-5xl">
+            <h2 className="text-3xl md:text-5xl font-black text-ink-primary uppercase tracking-tighter mb-20 text-center">
+              SYSTEM PROTOCOLS (FAQ)
             </h2>
-            <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-10">
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 rounded-lg p-6"
+                  className="bg-ink-surface-1 border border-white/5 p-10 hover:border-white/20 transition-all group"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  <h3 className="text-[11px] font-black text-ink-primary uppercase tracking-[0.2em] mb-6 leading-relaxed group-hover:text-white">
                     {faq.question}
                   </h3>
-                  <p className="text-gray-600">{faq.answer}</p>
+                  <p className="text-ink-tertiary text-[10px] leading-relaxed uppercase tracking-widest font-medium">
+                    {faq.answer}
+                  </p>
                 </div>
               ))}
             </div>
           </Container>
         </div>
 
-        {/* CTA Section */}
-        <div className="bg-gray-900 text-white py-16">
+        {/* CTA Section - Final Interface */}
+        <div className="bg-ink-primary py-32 text-black">
           <Container className="text-center">
-            <h2 className="text-3xl font-bold mb-6">
-              Ready to connect with local creators?
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] mb-8 block opacity-60">NEXT STEPS</span>
+            <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">
+              READY TO INTEGRATE?
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join SuburbMates today and discover Melbourne&rsquo;s best local
-              creators.
+            <p className="text-lg uppercase tracking-widest mb-16 max-w-2xl mx-auto font-bold opacity-80 leading-relaxed">
+              Join Melbourne&rsquo;s leading creative directory and showcase your professional assets.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => (window.location.href = "/regions")}
-                className="bg-white text-gray-900 hover:bg-gray-100"
+              <Link
+                href="/regions"
+                className="px-12 py-5 bg-black text-white hover:bg-zinc-900 transition-colors text-[10px] font-black uppercase tracking-[0.3em]"
               >
-                Browse Creators
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => (window.location.href = "/contact")}
-                className="border-white text-white hover:bg-white hover:text-gray-900"
+                EXPLORE DIRECTORY
+              </Link>
+              <Link
+                href="/auth/register"
+                className="px-12 py-5 border-2 border-black text-black hover:bg-black hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]"
               >
-                Contact Us
-              </Button>
+                INITIALIZE ACCOUNT
+              </Link>
             </div>
           </Container>
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

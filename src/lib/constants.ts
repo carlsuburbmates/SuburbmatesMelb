@@ -12,8 +12,8 @@
 // VENDOR CONFIGURATION
 // ============================================================================
 
-// SSOT v2.0: Standard 10 product limit for all creators. No tiers.
-export const MAX_PRODUCTS_PER_CREATOR = 10;
+// SSOT v2.1: Standard 5 product limit for all creators. No tiers/overrides.
+export const MAX_PRODUCTS_PER_CREATOR = 5;
 
 // ============================================================================
 // FEATURED PLACEMENTS
@@ -156,8 +156,8 @@ export const RATE_LIMITS = {
 export function canCreateProduct(
   currentCount: number
 ): boolean {
-  // SSOT v2: Standard 10 product limit for all creators.
-  return currentCount < 10;
+  // SSOT v2.1: Standard 5 product limit for all creators.
+  return currentCount < 5;
 }
 
 /**

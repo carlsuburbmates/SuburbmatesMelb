@@ -5,7 +5,7 @@
  * Stage 3 Task 1: Product CRUD
  */
 
-import { requireVendor } from "@/app/api/_utils/auth";
+import { requireCreator } from "@/app/api/_utils/auth";
 import {
   forbiddenResponse,
   internalErrorResponse,
@@ -15,7 +15,7 @@ import {
 import { parseProductUpdateRequest } from "../payload";
 import { Database } from "@/lib/database.types";
 import { generateUniqueSlug, shouldRegenerateSlug } from "@/lib/slug-utils";
-import { canPublishProduct } from "@/lib/tier-utils";
+import { FEATURED_SLOT, MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { NextRequest } from "next/server";
 import { withCors } from "@/middleware/cors";
 
@@ -25,7 +25,7 @@ async function updateProductHandler(
 ) {
   const params = await context.params;
 
-  const { vendor, authContext } = await requireVendor(req);
+  const { creator, authContext } = await requireCreator(req);
   const dbClient = authContext.dbClient;
 
   // 2. Validate request body
@@ -36,24 +36,28 @@ async function updateProductHandler(
     .from("products")
     .select("*")
     .eq("id", params.id)
-    .eq("vendor_id", vendor.id)
+    .eq("vendor_id", creator.id)
     .maybeSingle();
 
   if (fetchError || !existingProductData) {
     return notFoundResponse("Product");
   }
 
-  // 5. Check if publishing (and wasn't published before)
-  if (body.published && existingProductData.published !== true) {
-    const canPublish = await canPublishProduct(
-      vendor.id,
-      existingProductData.published || false,
-      dbClient
-    );
+  // 5. Check if making active (and wasn't active before)
+  if (body.is_active && !existingProductData.is_active) {
+    const { count, error: countError } = await dbClient
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("vendor_id", creator.id)
+      .eq("is_active", true);
 
-    if (!canPublish) {
+    if (countError) {
+      return internalErrorResponse("Failed to verify product cap");
+    }
+
+    if ((count || 0) >= MAX_PRODUCTS_PER_CREATOR) {
       return forbiddenResponse(
-        `Product cap reached. Please contact support to increase your listing limit.`
+        `Product limit reached. Up to ${MAX_PRODUCTS_PER_CREATOR} active products allowed.`
       );
     }
   }
@@ -65,7 +69,7 @@ async function updateProductHandler(
     existingProductData.slug &&
     shouldRegenerateSlug(existingProductData.slug, body.title)
   ) {
-    newSlug = await generateUniqueSlug(vendor.id, body.title, dbClient);
+    newSlug = await generateUniqueSlug(creator.id, body.title, dbClient);
   }
 
   const updatePayload: Record<string, unknown> = {
@@ -79,26 +83,27 @@ async function updateProductHandler(
   if (body.description) {
     updatePayload.description = body.description;
   }
-  if (body.published !== undefined) {
-    updatePayload.published = body.published;
+  if (body.is_active !== undefined) {
+    updatePayload.is_active = body.is_active;
   }
-  if (body.category !== undefined) {
-    updatePayload.category = body.category;
+  if (body.is_archived !== undefined) {
+    updatePayload.is_archived = body.is_archived;
   }
-  if (body.external_url !== undefined) {
-    updatePayload.external_url = body.external_url;
+  if (body.category_id !== undefined) {
+    updatePayload.category_id = body.category_id;
+  }
+  if (body.product_url !== undefined) {
+    updatePayload.product_url = body.product_url;
   }
   if (Array.isArray(body.images)) {
-    updatePayload.images = body.images;
-    updatePayload.thumbnail_url =
-      body.images.length > 0 ? body.images[0] : null;
+    updatePayload.image_urls = body.images;
   }
 
   const { data: updatedProduct, error: updateError } = await dbClient
     .from("products")
     .update(updatePayload)
     .eq("id", params.id)
-    .eq("vendor_id", vendor.id)
+    .eq("vendor_id", creator.id)
     .select()
     .maybeSingle();
 
@@ -121,7 +126,7 @@ async function deleteProductHandler(
 ) {
   const params = await context.params;
 
-  const { vendor, authContext } = await requireVendor(req);
+  const { creator, authContext } = await requireCreator(req);
   const dbClient = authContext.dbClient;
 
   // 3. Delete product (RLS ensures vendor owns it)
@@ -129,7 +134,7 @@ async function deleteProductHandler(
     .from("products")
     .delete()
     .eq("id", params.id)
-    .eq("vendor_id", vendor.id);
+    .eq("vendor_id", creator.id);
 
   if (deleteError) {
     console.error("Product deletion error:", deleteError);

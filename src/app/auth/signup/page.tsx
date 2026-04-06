@@ -1,19 +1,16 @@
 "use client";
 
-import { Building2, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { Building2, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from 'react-hot-toast';
 
 export default function Signup() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     businessName: "",
-    password: "",
-    confirmPassword: "",
     isVendor: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,16 +22,6 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
 
     setIsSubmitting(true);
 
@@ -51,7 +38,6 @@ export default function Signup() {
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password,
           first_name: firstName,
           last_name: lastName,
           user_type: formData.isVendor ? 'business_owner' : 'customer',
@@ -62,6 +48,7 @@ export default function Signup() {
 
       if (response.ok && data.success) {
         setIsSubmitted(true);
+        toast.success('Magic link sent. Check your inbox.');
 
         // Redirect to login after successful signup
         setTimeout(() => {
@@ -86,27 +73,30 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-ink-base flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Ambient background glow — depth matching design system */}
+      <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/4 w-[600px] h-[600px] bg-slate-500/10 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
+      
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Create your account
+          <h2 className="text-3xl font-bold text-ink-primary uppercase tracking-[0.3em] leading-none mb-4">
+            Identity Registration
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.5em]">
             {formData.isVendor
-              ? "Join as a vendor and start selling"
-              : "Join the community"}
+              ? "Vendor Protocol Initialization"
+              : "Community Entry Protocol"}
           </p>
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-ink-surface-1 border border-white/5 py-10 px-6 md:px-10 shadow-2xl rounded-sm">
           {isSubmitted ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-12">
+              <div className="w-16 h-16 border border-green-500/30 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
-                  className="w-8 h-8 text-green-600"
+                  className="w-8 h-8 text-green-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -119,32 +109,30 @@ export default function Signup() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Account created successfully!
+              <h3 className="text-sm font-bold text-ink-primary uppercase tracking-widest mb-2">
+                Authentication Confirmed
               </h3>
-              <p className="text-gray-600">Redirecting to login...</p>
+              <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest">Redirecting to Secure Access...</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-5">
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.3em] mb-3 ml-1"
                   >
-                    Full Name
+                    Full Identity (Name)
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-tertiary group-focus-within:text-ink-primary transition-colors" />
                     <input
                       id="name"
                       name="name"
                       type="text"
                       required
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      placeholder="John Doe"
+                      className="block w-full h-14 pl-12 pr-4 bg-ink-base border border-white/10 focus:border-white/30 text-ink-primary text-sm transition-all focus:outline-none placeholder:text-ink-tertiary/30"
+                      placeholder="ENTER FULL NAME"
                       value={formData.name}
                       onChange={handleInputChange}
                     />
@@ -154,21 +142,19 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.3em] mb-3 ml-1"
                   >
-                    Email address
+                    Communication Link (Email)
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-tertiary group-focus-within:text-ink-primary transition-colors" />
                     <input
                       id="email"
                       name="email"
                       type="email"
                       required
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      placeholder="you@example.com"
+                      className="block w-full h-14 pl-12 pr-4 bg-ink-base border border-white/10 focus:border-white/30 text-ink-primary text-sm transition-all focus:outline-none placeholder:text-ink-tertiary/30"
+                      placeholder="NAME@DOMAIN.COM"
                       value={formData.email}
                       onChange={handleInputChange}
                     />
@@ -176,24 +162,22 @@ export default function Signup() {
                 </div>
 
                 {formData.isVendor && (
-                  <div>
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                     <label
                       htmlFor="businessName"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.3em] mb-3 ml-1"
                     >
-                      Business Name
+                      Organization Nomenclature
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Building2 className="h-5 w-5 text-gray-400" />
-                      </div>
+                    <div className="relative group">
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-tertiary group-focus-within:text-ink-primary transition-colors" />
                       <input
                         id="businessName"
                         name="businessName"
                         type="text"
                         required
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                        placeholder="Your Business Name"
+                        className="block w-full h-14 pl-12 pr-4 bg-ink-base border border-white/10 focus:border-white/30 text-ink-primary text-sm transition-all focus:outline-none placeholder:text-ink-tertiary/30"
+                        placeholder="ENTITY NAME"
                         value={formData.businessName}
                         onChange={handleInputChange}
                       />
@@ -201,99 +185,43 @@ export default function Signup() {
                   </div>
                 )}
 
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      required
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      placeholder="••••••••"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      )}
-                    </button>
-                  </div>
+                <div className="border border-white/10 bg-white/5 px-4 py-4 rounded-sm">
+                  <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-[0.3em] mb-2">
+                    Passwordless Access
+                  </p>
+                  <p className="text-xs text-ink-tertiary leading-relaxed">
+                    Signup sends a magic link to your inbox. Google sign-in is also supported from the login screen after your account is created.
+                  </p>
                 </div>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="bg-red-900/10 border border-red-900/30 rounded-sm p-4 animate-in fade-in slide-in-from-top-1">
+                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest text-center">{error}</p>
                 </div>
               )}
 
-              <div className="flex items-center">
-                <input
-                  id="isVendor"
-                  name="isVendor"
-                  type="checkbox"
-                  checked={formData.isVendor}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
-                />
+              <div className="flex items-center gap-3 px-1">
+                <div className="relative flex items-center">
+                  <input
+                    id="isVendor"
+                    name="isVendor"
+                    type="checkbox"
+                    checked={formData.isVendor}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 appearance-none border border-white/20 bg-ink-base checked:bg-white checked:border-white transition-all cursor-pointer rounded-sm"
+                  />
+                  {formData.isVendor && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-2 h-2 bg-black rounded-full" />
+                    </div>
+                  )}
+                </div>
                 <label
                   htmlFor="isVendor"
-                  className="ml-2 block text-sm text-gray-900"
+                  className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest cursor-pointer hover:text-ink-primary transition-colors"
                 >
-                  I want to sell digital products as a vendor
+                  Initialize Vendor Protocol (Sell Digital Assets)
                 </label>
               </div>
 
@@ -301,66 +229,33 @@ export default function Signup() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full btn-primary flex justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-16 bg-white text-black uppercase font-bold tracking-[0.5em] text-[10px] hover:bg-slate-200 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Creating account...</span>
-                    </div>
+                    <span className="flex items-center justify-center gap-4">
+                      <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-black"></span>
+                      PROCESSING
+                    </span>
                   ) : formData.isVendor ? (
-                    "Create vendor account"
+                    "Send Creator Magic Link"
                   ) : (
-                    "Create account"
+                    "Send Magic Link"
                   )}
                 </button>
               </div>
-            </form>
-          )}
 
-          {!isSubmitted && (
-            <>
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  >
-                    <span className="sr-only">Sign up with Google</span>
-                    Google
-                  </button>
-                  <button
-                    type="button"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  >
-                    <span className="sr-only">Sign up with Facebook</span>
-                    Facebook
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{" "}
+              <div className="pt-4 text-center border-t border-white/5">
+                <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest">
+                  Existing Identity?{" "}
                   <Link
                     href="/auth/login"
-                    className="font-medium text-gray-900 hover:text-gray-700"
+                    className="text-ink-primary hover:text-white transition-colors underline decoration-white/20 underline-offset-4"
                   >
-                    Log in
+                    Residency Log In
                   </Link>
                 </p>
               </div>
-            </>
+            </form>
           )}
         </div>
       </div>

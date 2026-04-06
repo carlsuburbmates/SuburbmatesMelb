@@ -56,19 +56,19 @@ async function handler(req: NextRequest) {
     if (req.method === 'PATCH') {
       const body = await req.json();
 
-      // Allowlist of updatable fields
-      const { template_key, theme_config } = body;
-      const updates: Record<string, string | null | object | boolean> = {};
+      const { business_name, profile_description, region_id, category_id, website, phone } = body;
+      const updates: Record<string, string | null | number> = {};
 
-      if (template_key !== undefined) updates.template_key = template_key;
-      if (theme_config !== undefined) updates.theme_config = theme_config;
+      if (business_name !== undefined) updates.business_name = business_name;
+      if (profile_description !== undefined) updates.profile_description = profile_description;
+      if (region_id !== undefined) updates.suburb_id = region_id;
+      if (category_id !== undefined) updates.category_id = category_id;
+      if (website !== undefined) updates.website = website;
+      if (phone !== undefined) updates.phone = phone;
 
       if (Object.keys(updates).length === 0) {
         return successResponse({ message: 'No changes provided' });
       }
-
-      // SSOT v2.0: No tier gating — all templates are available
-
 
       const { data: updatedProfile, error: updateError } = await dbClient
         .from('business_profiles')

@@ -43,59 +43,59 @@ export async function requireAdmin(req: NextRequest): Promise<AuthContext> {
 /**
  * Get vendor for authenticated user (throws if not a vendor)
  */
-export async function requireVendor(
+export async function requireCreator(
   req: NextRequest
-): Promise<{ authContext: AuthContext; vendor: Vendor }> {
+): Promise<{ authContext: AuthContext; creator: Vendor }> {
   const authContext = await getUserFromRequest(req);
-
-  const { data: vendors, error } = await authContext.dbClient
+ 
+  const { data: creators, error } = await authContext.dbClient
     .from('vendors')
     .select('*')
     .eq('user_id', authContext.user.id);
-
-  if (error || !vendors || vendors.length === 0) {
-    throw new ForbiddenError('Vendor account required');
+ 
+  if (error || !creators || creators.length === 0) {
+    throw new ForbiddenError('Creator account required');
   }
-
-  const vendor = vendors[0] as Vendor;
-
-  if (vendor.vendor_status !== 'active') {
-    throw new ForbiddenError('Vendor account is not active');
+ 
+  const creator = creators[0] as Vendor;
+ 
+  if (creator.vendor_status !== 'active') {
+    throw new ForbiddenError('Creator account is not active');
   }
-
+ 
   return {
     authContext,
-    vendor,
+    creator,
   };
 }
 
 /**
- * Get vendor for authenticated user (returns null if not a vendor)
+ * Get creator for authenticated user (returns null if not a creator)
  */
-export async function getVendorIfExists(
+export async function getCreatorIfExists(
   req: NextRequest
-): Promise<{ authContext: AuthContext | null; vendor: Vendor | null }> {
+): Promise<{ authContext: AuthContext | null; creator: Vendor | null }> {
   try {
     const authContext = await getUserFromRequest(req);
-
-    const { data: vendors, error } = await authContext.dbClient
+ 
+    const { data: creators, error } = await authContext.dbClient
       .from('vendors')
       .select('*')
       .eq('user_id', authContext.user.id);
-
-    if (error || !vendors || vendors.length === 0) {
-      return { authContext, vendor: null };
+ 
+    if (error || !creators || creators.length === 0) {
+      return { authContext, creator: null };
     }
-
+ 
     return {
       authContext,
-      vendor: vendors[0] as Vendor,
+      creator: creators[0] as Vendor,
     };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       throw error;
     }
-    return { authContext: null, vendor: null };
+    return { authContext: null, creator: null };
   }
 }
 

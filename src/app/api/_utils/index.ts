@@ -33,7 +33,7 @@ export {
   requireAuth,
   requireRole,
   requireAdmin,
-  requireVendor,
-  getVendorIfExists,
+  requireCreator,
+  getCreatorIfExists,
   requireOwnership,
 } from './auth';

@@ -4,12 +4,12 @@
 > **LEGACY ROADMAP (SUPERSEDED):**
 > Sections 3-5 of this document depict the legacy "Marketplace" model (PR0–PR10).
 > These are retained for archival context ONLY. 
-> For active implementation truth, see `docs/VERIFICATION_LOG.md`.
+> For active implementation truth, see `docs/SSOT_V2.1.md` and the current verification docs.
 
 ## 1) Core Operating Rules (v2.1)
 
 ### 1.1 Authority & Infrastructure
-*   **SSOT (Product Constitution):** `docs/README.md` (v2.1).
+*   **SSOT (Product Constitution):** `docs/SSOT_V2.1.md`.
 *   **Numeric Policy:** `src/lib/constants.ts` (Limits, regions, durations).
 *   **Remote-Only Supabase:** All database development **MUST** target the production project `hmmqhwnxylqcbffjffpj`. Local Postgres instances are banned.
 *   **Docker-Free Mandate:** Usage of Docker or OrbStack for database hosting or tool execution is **EXPLICITLY BANNED**.

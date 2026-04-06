@@ -1,118 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Check, Layout, Loader2 } from "lucide-react";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { Layout } from "lucide-react";
 
-interface TemplateOption {
-  key: string;
-  name: string;
-  description: string;
-  thumbnail: string; // CSS class for placeholder or image URL
-  minTier: "basic" | "pro" | "premium";
-}
-
-const TEMPLATES: TemplateOption[] = [
-  {
-    key: "standard",
-    name: "Standard",
-    description: "Clean, classic layout focused on your business info.",
-    thumbnail: "bg-gray-100",
-    minTier: "basic",
-  },
-  {
-    key: "high_end",
-    name: "High-End",
-    description: "Immersive hero showcase with premium aesthetics.",
-    thumbnail: "bg-gradient-to-br from-gray-900 to-gray-800",
-    minTier: "basic",
-  },
-];
-
-export function TemplateSelector({ currentTemplate }: { currentTemplate: string }) {
-  const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate);
-  const [saving, setSaving] = useState(false);
-  const router = useRouter();
-
-  // All templates are available in Discovery Mode parity
-  const isEligible = () => true;
-
-  const handleSave = async (key: string) => {
-    setSaving(true);
-    
-    try {
-      const response = await fetch('/api/vendor/profile', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ template_key: key })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update');
-      }
-      
-      setSelectedTemplate(key);
-      toast.success("Profile template updated!");
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update template.");
-    } finally {
-      setSaving(false);
-    }
-  };
+export function TemplateSelector() {
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {TEMPLATES.map((template) => {
-        const isActive = selectedTemplate === template.key;
-
-        return (
-          <div
-            key={template.key}
-            className={`
-              relative rounded-xl border-2 transition-all overflow-hidden group
-              ${isActive ? "border-gray-900 ring-1 ring-gray-900" : "border-gray-200 hover:border-gray-300"}
-              cursor-pointer bg-white
-            `}
-            onClick={() => handleSave(template.key)}
-          >
-            {/* Thumbnail */}
-            <div className={`h-32 w-full ${template.thumbnail} flex items-center justify-center relative`}>
-              {template.key === 'high_end' && (
-                 <span className="text-white font-sans font-bold text-2xl opacity-50">Aa</span>
-              )}
-              {template.key === 'standard' && (
-                 <Layout className="text-gray-400 w-12 h-12" />
-              )}
-              
-              {isActive && (
-                <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                  <div className="bg-white rounded-full p-2 shadow-sm">
-                    {saving ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-gray-900" />
-                    ) : (
-                      <Check className="w-6 h-6 text-green-600" />
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-900">{template.name}</h3>
-              </div>
-              <p className="text-sm text-gray-500">{template.description}</p>
-            </div>
-          </div>
-        );
-      })}
+    <div className="rounded-sm border border-white/5 bg-ink-surface-1 overflow-hidden">
+      <div className="h-32 w-full bg-black flex items-center justify-center border-b border-white/5">
+        <Layout className="text-white/20 w-10 h-10" />
+      </div>
+      <div className="p-5 space-y-2">
+        <h3 className="text-sm font-bold text-ink-primary uppercase tracking-widest">Standard</h3>
+        <p className="text-[11px] text-ink-secondary leading-relaxed uppercase tracking-wider">
+          Launch profiles use the standard public template. Template switching is not part of the canonical remote schema.
+        </p>
+      </div>
     </div>
   );
 }

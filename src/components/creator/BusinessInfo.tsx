@@ -9,57 +9,51 @@ interface BusinessInfoProps {
 
 export function BusinessInfo({ business }: BusinessInfoProps) {
   return (
-    <div className="space-y-8">
-      {/* About Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">About {business.name}</h2>
-        <div className="prose prose-gray max-w-none">
-          <p className="text-gray-700 leading-relaxed">{business.description}</p>
-        </div>
-      </div>
-
+    <div className="space-y-12">
       {/* Business Details */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Business Details</h2>
+      <div className="space-y-10">
+        <h2 className="text-[11px] font-black text-ink-primary uppercase tracking-widest border-b border-white/10 pb-4">
+          Studio Specifications
+        </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-8">
           {/* Location */}
-          {business.address && (
-            <div className="flex items-start space-x-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          {business.location && (
+            <div className="flex items-start space-x-4">
+              <MapPin className="w-4 h-4 text-ink-tertiary mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-gray-900 mb-1">Address</h3>
-                <p className="text-gray-600">{business.address}</p>
+                <h3 className="text-[11px] font-bold text-ink-tertiary uppercase tracking-widest mb-1">Location</h3>
+                <p className="text-ink-primary font-medium tracking-tight uppercase text-sm">{business.location}, Melbourne</p>
                 <a 
-                  href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`}
+                  href={`https://maps.google.com/?q=${encodeURIComponent(business.location + " Melbourne")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm mt-1 inline-block"
+                  className="text-ink-tertiary hover:text-ink-primary text-[11px] font-bold uppercase tracking-widest mt-2 inline-block border-b border-white/10"
                 >
-                  View on Google Maps →
+                  Global Map Reference →
                 </a>
               </div>
             </div>
           )}
 
           {/* Category */}
-          <div className="flex items-start space-x-3">
-            <Tag className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start space-x-4">
+            <Tag className="w-4 h-4 text-ink-tertiary mt-1 flex-shrink-0" />
             <div>
-              <h3 className="font-medium text-gray-900 mb-1">Category</h3>
-              <p className="text-gray-600">{business.category}</p> {/* Warning: category not in MappedBusinessProfile yet? I should check */}
+              <h3 className="text-[11px] font-bold text-ink-tertiary uppercase tracking-widest mb-1">Industry</h3>
+              <p className="text-ink-primary font-medium tracking-tight uppercase text-sm">{business.category || "General Creative"}</p>
             </div>
           </div>
 
           {/* Established */}
-          <div className="flex items-start space-x-3">
-            <Calendar className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start space-x-4">
+            <Calendar className="w-4 h-4 text-ink-tertiary mt-1 flex-shrink-0" />
             <div>
-              <h3 className="font-medium text-gray-900 mb-1">Established</h3>
-              <p className="text-gray-600">
+              <h3 className="text-[11px] font-bold text-ink-tertiary uppercase tracking-widest mb-1">Deployment Date</h3>
+              <p className="text-ink-primary font-medium tracking-tight uppercase text-sm">
                 {new Date(business.createdAt).toLocaleDateString('en-AU', {
                   year: 'numeric',
-                  month: 'long'
+                  month: 'short'
                 })}
               </p>
             </div>
@@ -67,38 +61,17 @@ export function BusinessInfo({ business }: BusinessInfoProps) {
         </div>
       </div>
 
-      {/* Business Hours */}
-      {business.businessHours && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <Clock className="w-5 h-5 text-gray-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Business Hours</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {Object.entries(business.businessHours).map(([day, hours]) => (
-              <div key={day} className="flex justify-between items-center py-2">
-                <span className="font-medium text-gray-900 capitalize">
-                  {day}
-                </span>
-                <span className="text-gray-600">
-                  {hours || 'Closed'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Specialties */}
       {business.specialties && business.specialties.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Specialties</h2>
+        <div className="space-y-6">
+          <h2 className="text-[11px] font-black text-ink-primary uppercase tracking-widest border-b border-white/10 pb-4">
+            Core Competencies
+          </h2>
           <div className="flex flex-wrap gap-2">
             {business.specialties.map((specialty, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
+                className="inline-flex items-center px-4 py-2 bg-ink-surface-1 border border-white/10 text-[10px] font-bold text-ink-primary uppercase tracking-widest"
               >
                 {specialty}
               </span>
@@ -108,18 +81,21 @@ export function BusinessInfo({ business }: BusinessInfoProps) {
       )}
 
       {/* Social Media */}
-      {business.socialMedia && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Follow Us</h2>
-          <div className="flex space-x-4">
+      {business.socialMedia && Object.values(business.socialMedia).some(v => !!v) && (
+        <div className="space-y-6">
+          <h2 className="text-[11px] font-black text-ink-primary uppercase tracking-widest border-b border-white/10 pb-4">
+            Network Presence
+          </h2>
+          <div className="grid grid-cols-1 gap-2">
             {business.socialMedia.facebook && (
               <a
                 href={business.socialMedia.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="flex items-center justify-between px-4 py-3 bg-ink-surface-1 border border-white/10 hover:bg-white hover:text-black transition-all group"
               >
-                Facebook
+                <span className="text-[11px] font-bold uppercase tracking-widest">Facebook Connectivity</span>
+                <span className="text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">Launch →</span>
               </a>
             )}
             {business.socialMedia.instagram && (
@@ -127,9 +103,10 @@ export function BusinessInfo({ business }: BusinessInfoProps) {
                 href={`https://instagram.com/${business.socialMedia.instagram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors text-sm font-medium"
+                className="flex items-center justify-between px-4 py-3 bg-ink-surface-1 border border-white/10 hover:bg-white hover:text-black transition-all group"
               >
-                Instagram
+                <span className="text-[11px] font-bold uppercase tracking-widest">Instagram Visuals</span>
+                <span className="text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">Launch →</span>
               </a>
             )}
             {business.socialMedia.linkedin && (
@@ -137,9 +114,10 @@ export function BusinessInfo({ business }: BusinessInfoProps) {
                 href={business.socialMedia.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-medium"
+                className="flex items-center justify-between px-4 py-3 bg-ink-surface-1 border border-white/10 hover:bg-white hover:text-black transition-all group"
               >
-                LinkedIn
+                <span className="text-[11px] font-bold uppercase tracking-widest">LinkedIn Enterprise</span>
+                <span className="text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">Launch →</span>
               </a>
             )}
           </div>

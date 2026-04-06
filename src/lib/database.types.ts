@@ -250,70 +250,6 @@ export type Database = {
         }
         Relationships: []
       }
-      featured_queue: {
-        Row: {
-          business_profile_id: string
-          created_at: string | null
-          id: string
-          joined_at: string | null
-          notified_at: string | null
-          payment_deadline: string | null
-          position: number | null
-          region_id: number | null
-          status: string | null
-          suburb_label: string | null
-          vendor_id: string | null
-        }
-        Insert: {
-          business_profile_id: string
-          created_at?: string | null
-          id?: string
-          joined_at?: string | null
-          notified_at?: string | null
-          payment_deadline?: string | null
-          position?: number | null
-          region_id?: number | null
-          status?: string | null
-          suburb_label?: string | null
-          vendor_id?: string | null
-        }
-        Update: {
-          business_profile_id?: string
-          created_at?: string | null
-          id?: string
-          joined_at?: string | null
-          notified_at?: string | null
-          payment_deadline?: string | null
-          position?: number | null
-          region_id?: number | null
-          status?: string | null
-          suburb_label?: string | null
-          vendor_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "featured_queue_business_profile_id_fkey"
-            columns: ["business_profile_id"]
-            isOneToOne: false
-            referencedRelation: "business_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "featured_queue_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "featured_queue_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       featured_slot_reminders: {
         Row: {
           error: string | null
@@ -431,25 +367,19 @@ export type Database = {
         Row: {
           clicked_at: string | null
           id: string
-          ip_address: string | null
           product_id: string | null
-          user_agent: string | null
           vendor_id: string | null
         }
         Insert: {
           clicked_at?: string | null
           id?: string
-          ip_address?: string | null
           product_id?: string | null
-          user_agent?: string | null
           vendor_id?: string | null
         }
         Update: {
           clicked_at?: string | null
           id?: string
-          ip_address?: string | null
           product_id?: string | null
-          user_agent?: string | null
           vendor_id?: string | null
         }
         Relationships: [
@@ -477,12 +407,14 @@ export type Database = {
           deleted_at: string | null
           description: string | null
           digital_file_url: string | null
-          external_url: string
           file_size_bytes: number | null
           id: string
+          image_urls: string[] | null
           images: Json | null
+          is_active: boolean | null
+          is_archived: boolean | null
           price: number | null
-          published: boolean | null
+          product_url: string
           slug: string | null
           thumbnail_url: string | null
           title: string
@@ -496,12 +428,14 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           digital_file_url?: string | null
-          external_url: string
           file_size_bytes?: number | null
           id?: string
+          image_urls?: string[] | null
           images?: Json | null
+          is_active?: boolean | null
+          is_archived?: boolean | null
           price?: number | null
-          published?: boolean | null
+          product_url: string
           slug?: string | null
           thumbnail_url?: string | null
           title: string
@@ -515,12 +449,14 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           digital_file_url?: string | null
-          external_url?: string
           file_size_bytes?: number | null
           id?: string
+          image_urls?: string[] | null
           images?: Json | null
+          is_active?: boolean | null
+          is_archived?: boolean | null
           price?: number | null
-          published?: boolean | null
+          product_url?: string
           slug?: string | null
           thumbnail_url?: string | null
           title?: string
@@ -654,44 +590,6 @@ export type Database = {
           },
         ]
       }
-      transactions_log: {
-        Row: {
-          amount_cents: number
-          created_at: string | null
-          id: number
-          reason: string | null
-          stripe_reference: string | null
-          type: string
-          vendor_id: string | null
-        }
-        Insert: {
-          amount_cents: number
-          created_at?: string | null
-          id?: number
-          reason?: string | null
-          stripe_reference?: string | null
-          type: string
-          vendor_id?: string | null
-        }
-        Update: {
-          amount_cents?: number
-          created_at?: string | null
-          id?: number
-          reason?: string | null
-          stripe_reference?: string | null
-          type?: string
-          vendor_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_log_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       users: {
         Row: {
           created_as_business_owner_at: string | null
@@ -738,7 +636,6 @@ export type Database = {
           business_name: string | null
           can_appeal: boolean | null
           can_sell_products: boolean | null
-          commission_rate: number | null
           created_at: string | null
           delist_until: string | null
           dispute_count: number
@@ -748,7 +645,6 @@ export type Database = {
           last_activity_at: string | null
           last_dispute_at: string | null
           logo_url: string | null
-          payment_reversal_count: number | null
           payment_reversal_window_start: string | null
           primary_region_id: number | null
           product_count: number | null
@@ -758,8 +654,6 @@ export type Database = {
           secondary_regions: number[] | null
           storage_quota_gb: number | null
           storage_used_mb: number | null
-          stripe_account_status: string | null
-          stripe_onboarding_complete: boolean | null
           suspended_at: string | null
           suspension_reason: string | null
           updated_at: string | null
@@ -775,7 +669,6 @@ export type Database = {
           business_name?: string | null
           can_appeal?: boolean | null
           can_sell_products?: boolean | null
-          commission_rate?: number | null
           created_at?: string | null
           delist_until?: string | null
           dispute_count?: number
@@ -785,7 +678,6 @@ export type Database = {
           last_activity_at?: string | null
           last_dispute_at?: string | null
           logo_url?: string | null
-          payment_reversal_count?: number | null
           payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
@@ -795,8 +687,6 @@ export type Database = {
           secondary_regions?: number[] | null
           storage_quota_gb?: number | null
           storage_used_mb?: number | null
-          stripe_account_status?: string | null
-          stripe_onboarding_complete?: boolean | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
@@ -812,7 +702,6 @@ export type Database = {
           business_name?: string | null
           can_appeal?: boolean | null
           can_sell_products?: boolean | null
-          commission_rate?: number | null
           created_at?: string | null
           delist_until?: string | null
           dispute_count?: number
@@ -822,7 +711,6 @@ export type Database = {
           last_activity_at?: string | null
           last_dispute_at?: string | null
           logo_url?: string | null
-          payment_reversal_count?: number | null
           payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
@@ -832,8 +720,6 @@ export type Database = {
           secondary_regions?: number[] | null
           storage_quota_gb?: number | null
           storage_used_mb?: number | null
-          stripe_account_status?: string | null
-          stripe_onboarding_complete?: boolean | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
@@ -925,15 +811,14 @@ export type Database = {
           business_slug: string
           created_at: string
           description: string
-          external_url: string
           id: string
-          thumbnail_url: string
+          image_urls: string[]
+          product_url: string
           title: string
           vendor_id: string
         }[]
       }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
-      get_vendor_tier: { Args: { vendor_uuid: string }; Returns: string }
       is_appeal_within_deadline: {
         Args: { suspension_date: string; vendor_uuid: string }
         Returns: boolean

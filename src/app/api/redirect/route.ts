@@ -32,8 +32,9 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('products')
-      .select('id, vendor_id, external_url, published')
-      .eq('published', true)
+      .select('id, vendor_id, product_url, is_active, is_archived')
+      .eq('is_active', true)
+      .is('is_archived', false)
       .is('deleted_at', null);
 
     if (isUuid) {
@@ -44,8 +45,8 @@ export async function GET(request: NextRequest) {
 
     const { data: product, error } = await query.single();
 
-    if (error || !product || !product.external_url) {
-      console.warn('Redirect error: Product not found, unpublished, or missing external_url', error);
+    if (error || !product || !product.product_url) {
+      console.warn('Redirect error: Product not found, inactive, archived, or missing product_url', error);
       // Fallback to homepage to prevent leaks
       return NextResponse.redirect(new URL('/', request.url));
     }
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
       console.error('Failed to log outbound click (analytics failure, proceeding with redirect):', logError);
     }
 
-    return NextResponse.redirect(product.external_url, 302);
+    return NextResponse.redirect(product.product_url, 302);
   } catch (error) {
     console.error('Unexpected redirect API error:', error);
     return NextResponse.redirect(new URL('/', request.url));

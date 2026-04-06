@@ -2,25 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Edit, Plus, Save, Trash2, UploadCloud } from "lucide-react";
+import { AlertCircle, Edit, Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import { useVendorProducts, VendorProduct } from "@/hooks/useVendorProducts";
 
 interface ProductFormState {
   title: string;
   description: string;
-  external_url: string;
-  category: string;
+  product_url: string;
+  category_id: string; // Keep as string for input, convert to number on submit
   images: string;
-  published: boolean;
+  is_active: boolean;
+  is_archived: boolean;
 }
 
 const initialFormState: ProductFormState = {
   title: "",
   description: "",
-  external_url: "",
-  category: "",
+  product_url: "",
+  category_id: "",
   images: "",
-  published: false,
+  is_active: false,
+  is_archived: false,
 };
 
 
@@ -55,8 +57,8 @@ export default function VendorProductsPage() {
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleTogglePublished = (value: boolean) => {
-    setFormState((prev) => ({ ...prev, published: value }));
+  const handleToggleActive = (value: boolean) => {
+    setFormState((prev) => ({ ...prev, is_active: value }));
   };
 
   const resetForm = () => {
@@ -70,10 +72,11 @@ export default function VendorProductsPage() {
     setFormState({
       title: product.title ?? "",
       description: product.description ?? "",
-      external_url: product.external_url ?? "",
-      category: product.category ?? "",
-      images: (product.images ?? []).join("\n"),
-      published: Boolean(product.published),
+      product_url: product.product_url ?? "",
+      category_id: product.category_id?.toString() ?? "",
+      images: (product.image_urls ?? []).join("\n"),
+      is_active: Boolean(product.is_active),
+      is_archived: Boolean(product.is_archived),
     });
   };
 
@@ -129,14 +132,14 @@ const handleDelete = async (productId: string) => {
   }
 };
 
-const handleTogglePublish = async (product: VendorProduct) => {
+const handleToggleStatus = async (product: VendorProduct) => {
   try {
-    await updateProduct(product.id, { published: !product.published });
+    await updateProduct(product.id, { is_active: !product.is_active });
   } catch (err) {
     setFormError(
       err instanceof Error
         ? err.message
-        : "Unable to update publish status. Please try again."
+        : "Unable to update status. Please try again."
     );
   }
 };
@@ -149,14 +152,15 @@ const handleTogglePublish = async (product: VendorProduct) => {
     const payload = {
       title: formState.title.trim(),
       description: formState.description.trim(),
-      external_url: formState.external_url.trim(),
-      category: formState.category.trim() || undefined,
+      product_url: formState.product_url.trim(),
+      category_id: parseInt(formState.category_id) || undefined,
       images: parseImagesInput(formState.images),
-      published: formState.published,
+      is_active: formState.is_active,
+      is_archived: formState.is_archived,
     };
 
-    if (!payload.external_url) {
-      setFormError("External URL is required.");
+    if (!payload.product_url) {
+      setFormError("Product URL is required.");
       setFormStatus("idle");
       return;
     }
@@ -181,157 +185,165 @@ const handleTogglePublish = async (product: VendorProduct) => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Product management
-        </h1>
-        <p className="text-gray-600">
-          Add products sold through your own external website. SuburbMates
-          tracks clicks and surfaces your listings to local buyers.
-        </p>
+    <div className="space-y-16 pb-24">
+      <header className="pb-8 border-b border-white/5 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black uppercase tracking-[0.4em] text-ink-primary">
+            Asset Management
+          </h1>
+          <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.2em] mt-3 max-w-xl leading-relaxed">
+            Configure directory listings and external routing parameters. Suburbmates tracks interaction signals and surfaces your assets to the local network.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="px-4 py-2 border border-white/5 bg-ink-surface-1 rounded-sm">
+            <p className="text-[8px] font-black text-ink-tertiary uppercase tracking-widest mb-1">Utilization</p>
+            <p className="text-sm font-black text-ink-primary tracking-tight">
+              {stats?.totalProducts ?? 0} <span className="text-white/20">/</span> 10 SLOTS
+            </p>
+          </div>
+          <button
+            onClick={refresh}
+            className="p-3 border border-white/5 hover:border-white/20 transition-colors rounded-sm group"
+            title="Refresh Data"
+          >
+            <UploadCloud className="w-4 h-4 text-ink-tertiary group-hover:text-ink-primary transition-colors" />
+          </button>
+        </div>
+      </header>
 
-      </div>
-
-      <section className="grid gap-6 lg:grid-cols-[1.15fr,1fr]">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
+      <div className="grid gap-12 lg:grid-cols-[1.2fr,1fr]">
+        {/* Form Container */}
+        <section className="bg-ink-surface-1 border border-white/5 p-8 lg:p-12 space-y-12">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {editingProductId ? "Update product" : "Create product"}
+              <h2 className="text-xs font-black text-ink-primary uppercase tracking-[0.3em]">
+                {editingProductId ? "Update Sequence" : "Entry Initialization"}
               </h2>
-              <p className="text-sm text-gray-500">
-                {editingProductId
-                  ? "Editing an existing listing updates the live product immediately."
-                  : "Draft products can be published later without losing data."}
+              <p className="text-[9px] font-bold text-ink-tertiary uppercase tracking-widest mt-2">
+                Configure primary metadata for directory lookup
               </p>
             </div>
             {editingProductId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex h-11 min-w-[110px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
+                className="text-[9px] font-black text-ink-tertiary uppercase tracking-widest hover:text-ink-primary transition-colors border-b border-white/5 hover:border-white/20 pb-0.5"
               >
-                Reset
+                Abort Edit
               </button>
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="product-url" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
-                External URL
+          <form onSubmit={handleSubmit} className="space-y-10">
+            <div className="space-y-4">
+              <label className="block text-[9px] font-black text-ink-tertiary uppercase tracking-[0.3em]">
+                Source URL
               </label>
               <div className="relative">
                 <input
                   required
-                  id="product-url"
-                  name="external_url"
+                  name="product_url"
                   type="url"
-                  value={formState.external_url}
+                  value={formState.product_url}
                   onChange={handleInputChange}
                   onPaste={handleUrlPaste}
                   onBlur={handleUrlPaste}
-                  placeholder="https://your-site.com/product"
-                  className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
+                  placeholder="HTTPS://YOUR-INSTANCE.COM/PRODUCT-SLUG"
+                  className="w-full bg-black border border-white/10 px-6 py-4 text-xs font-bold tracking-wider text-ink-primary focus:border-white/40 outline-none transition-all placeholder:text-white/10 rounded-sm"
                 />
                 {formStatus === "fetching" && (
-                  <div className="absolute right-3 top-3">
-                    <Save className="w-4 h-4 animate-spin text-gray-400" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-t-2 border-white/40 rounded-full animate-spin" />
                   </div>
                 )}
               </div>
-              <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-onyx/40 uppercase">
-                Paste a URL to automatically fetch title, description, and images.
-              </p>
             </div>
 
-            <div>
-              <label htmlFor="product-title" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
-                Title {formStatus === "fetching" && "(autofilling...)"}
-              </label>
-              <input
-                required
-                id="product-title"
-                name="title"
-                value={formState.title}
-                onChange={handleInputChange}
-                placeholder="e.g. Melbourne Branding Toolkit"
-                className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
-              />
+            <div className="grid gap-8 sm:grid-cols-2">
+              <div className="space-y-4">
+                <label className="block text-[9px] font-black text-ink-tertiary uppercase tracking-[0.3em]">
+                  Asset Title
+                </label>
+                <input
+                  required
+                  name="title"
+                  value={formState.title}
+                  onChange={handleInputChange}
+                  placeholder="MELBOURNE BRANDING TOOLKIT"
+                  className="w-full bg-black border border-white/10 px-6 py-4 text-xs font-bold tracking-wider text-ink-primary focus:border-white/40 outline-none transition-all placeholder:text-white/10 rounded-sm"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-[9px] font-black text-ink-tertiary uppercase tracking-[0.3em]">
+                  Category Identifier
+                </label>
+                <input
+                  name="category_id"
+                  type="number"
+                  value={formState.category_id}
+                  onChange={handleInputChange}
+                  placeholder="01"
+                  className="w-full bg-black border border-white/10 px-6 py-4 text-xs font-bold tracking-wider text-ink-primary focus:border-white/40 outline-none transition-all placeholder:text-white/10 rounded-sm"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="product-description" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
-                Description
+            <div className="space-y-4">
+              <label className="block text-[9px] font-black text-ink-tertiary uppercase tracking-[0.3em]">
+                Functional Description
               </label>
               <textarea
                 required
-                id="product-description"
                 name="description"
                 value={formState.description}
                 onChange={handleInputChange}
                 rows={4}
-                placeholder="Describe what buyers will receive."
-                className="w-full glass-card rounded-2xl border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
+                placeholder="DEFINE THE CORE VALUE PROPOSITION FOR LOCAL BUYERS."
+                className="w-full bg-black border border-white/10 px-6 py-4 text-xs font-bold tracking-wider text-ink-primary focus:border-white/40 outline-none transition-all placeholder:text-white/10 rounded-sm resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label htmlFor="product-category" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
-                  Category
-                </label>
-                <input
-                  id="product-category"
-                  name="category"
-                  value={formState.category}
-                  onChange={handleInputChange}
-                  placeholder="e.g. Digital templates"
-                  className="w-full glass-card rounded-full border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
-                />
-              </div>
-            </div>
-
-
-            <div>
-              <label htmlFor="product-images" className="block font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60 mb-2">
-                Image URLs (max 3, one per line)
+            <div className="space-y-4">
+              <label className="block text-[9px] font-black text-ink-tertiary uppercase tracking-[0.3em]">
+                Visual Assets (ONE PER LINE)
               </label>
               <textarea
-                id="product-images"
                 name="images"
                 value={formState.images}
                 onChange={handleInputChange}
                 rows={3}
-                placeholder="https://example.com/cover.jpg"
-                className="w-full glass-card rounded-2xl border border-white/60 px-6 py-3 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none shadow-sm transition-all"
+                placeholder="HTTPS://EXAMPLE.COM/ASSET-01.JPG"
+                className="w-full bg-black border border-white/10 px-6 py-4 text-xs font-bold tracking-wider text-ink-primary focus:border-white/40 outline-none transition-all placeholder:text-white/10 rounded-sm resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <input
-                  id="published"
-                  type="checkbox"
-                  checked={formState.published}
-                  onChange={(e) => handleTogglePublished(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
-                />
-                <label
-                  htmlFor="published"
-                  className="font-mono uppercase text-[10px] tracking-[0.2em] font-black text-onyx/60"
+            <div className="flex items-center justify-between pt-6 border-t border-white/5">
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleToggleActive(!formState.is_active)}
+                  className={`w-10 h-5 px-1 rounded-full transition-colors flex items-center ${
+                    formState.is_active ? "bg-white" : "bg-white/10"
+                  }`}
                 >
-                  Publish immediately
-                </label>
+                  <div
+                    className={`w-3 h-3 rounded-full transition-transform ${
+                      formState.is_active
+                        ? "translate-x-5 bg-black"
+                        : "translate-x-0 bg-white/40"
+                    }`}
+                  />
+                </button>
+                <span className="text-[9px] font-bold text-ink-tertiary uppercase tracking-widest">
+                  Live Status Protocol
+                </span>
               </div>
-              <p className="font-mono text-[9px] tracking-[0.15em] text-onyx/40 uppercase">
-                Publishing respects the 10-product limit and FIFO auto-unpublishing.
-              </p>
             </div>
 
             {formError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">
+              <div className="p-4 bg-red-900/10 border border-red-900/20 rounded-sm text-[10px] font-bold uppercase tracking-widest text-red-400">
                 {formError}
               </div>
             )}
@@ -339,177 +351,99 @@ const handleTogglePublish = async (product: VendorProduct) => {
             <button
               type="submit"
               disabled={formStatus === "saving"}
-              className="btn-primary w-full inline-flex items-center justify-center space-x-2"
+              className="w-full py-5 bg-white text-black text-[10px] font-black uppercase tracking-[0.5em] hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed group rounded-sm"
             >
               {formStatus === "saving" ? (
-                <>
-                  <Save className="w-4 h-4 animate-spin" />
-                  <span>Saving…</span>
-                </>
+                "Processing..."
               ) : (
-                <>
-                  {editingProductId ? (
-                    <>
-                      <Edit className="w-4 h-4" />
-                      <span>Update product</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      <span>Create product</span>
-                    </>
-                  )}
-                </>
+                <span className="flex items-center justify-center gap-3">
+                  {editingProductId ? "Update Asset" : "Initialize Asset"}
+                </span>
               )}
             </button>
           </form>
-        </div>
+        </section>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-          <div className="flex items-center space-x-3">
-            <UploadCloud className="w-10 h-10 text-gray-900" />
-            <div>
-              <p className="text-sm uppercase tracking-widest text-gray-500">
-                Publish checklist
-              </p>
-              <p className="text-lg font-semibold text-gray-900">
-                Approved formats only
-              </p>
-            </div>
-          </div>
-          <ul className="text-sm text-gray-600 space-y-2">
-            <li>• No customer service promises (non-negotiable #2).</li>
-            <li>• External links must be direct to product pages.</li>
-            <li>
-              • FIFO logic auto-unpublishes the oldest products if over the 10-slot limit.
-            </li>
-            <li>
-              • Contact support to purchase Featured Slots for your region.
-            </li>
-          </ul>
-
-          <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-            <p className="text-sm font-semibold text-gray-900">
-              Product limit utilisation
-            </p>
-            <p className="text-sm text-gray-600">
-              {stats?.totalProducts ?? 0} of 10 slots used
-            </p>
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Need more exposure?</span>
-              <span className="font-medium text-gray-900">
-                Contact Support
+        {/* List Container */}
+        <div className="space-y-8">
+          <section className="bg-ink-surface-1 border border-white/5 p-8 lg:p-12 space-y-10">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-black text-ink-primary uppercase tracking-[0.3em]">
+                Portfolio Feed
+              </h2>
+              <span className="text-[10px] font-black text-ink-tertiary uppercase tracking-widest">
+                {products.length} INSTANCES
               </span>
             </div>
-          </div>
 
-          <button
-            onClick={refresh}
-            type="button"
-            className="inline-flex h-11 min-w-[140px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
-          >
-            Refresh product list
-          </button>
-        </div>
-      </section>
-
-      <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Your products
-            </h2>
-            <p className="text-sm text-gray-500">
-              Published and draft entries. Delete operations are permanent.
-            </p>
-          </div>
-          <span className="text-sm text-gray-500">
-            {stats?.totalProducts ?? 0} total
-          </span>
-        </div>
-
-        {isLoading ? (
-          <div className="p-6 text-center text-gray-600">Loading products…</div>
-        ) : error ? (
-          <div className="p-6 text-red-600 text-sm">{error}</div>
-        ) : products.length === 0 ? (
-          <div className="p-6 text-gray-600 text-sm">
-            No products yet. Use the form above to create your first listing.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead>
-                <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  <th className="px-6 py-4">Title</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Updated</th>
-                  <th className="px-6 py-4">Actions</th>
-
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+            {products.length === 0 ? (
+              <div className="py-20 text-center border border-dashed border-white/5">
+                <p className="text-[10px] font-black text-ink-tertiary uppercase tracking-[0.4em]">
+                  Portfolio Empty
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-900">
-                        {product.title}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate max-w-xs">
-                        {product.slug}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          product.published
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {product.published ? "Published" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {formatDate(product.updated_at ?? undefined)}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-2">
+                  <div key={product.id} className="py-8 space-y-6 group">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-[11px] font-black text-ink-primary uppercase tracking-[0.2em] group-hover:text-white transition-colors">
+                          {product.title}
+                        </h3>
+                        <p className="text-[9px] font-bold text-ink-tertiary uppercase tracking-widest mt-1">
+                          {product.is_active ? "Signal Active" : "Signal Dormant"} • {formatDate(product.updated_at ?? undefined)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1">
                         <button
-                          type="button"
-                          onClick={() =>
-                            handleEditProduct(product as VendorProduct)
-                          }
-                          className="inline-flex min-h-[44px] min-w-[110px] items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-gray-700 hover:border-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
+                          onClick={() => handleEditProduct(product as VendorProduct)}
+                          className="p-2 border border-white/5 rounded-sm hover:border-white/20 hover:bg-white/5 transition-all"
+                          title="Edit"
                         >
-                          <Edit className="w-3.5 h-3.5 mr-1" />
-                          Edit
+                          <Edit className="w-3.5 h-3.5 text-white/40" />
                         </button>
                         <button
-                          type="button"
-                          onClick={() => handleTogglePublish(product)}
-                          className="inline-flex min-h-[44px] min-w-[120px] items-center justify-center rounded-full border border-gray-900 px-4 text-sm font-semibold text-gray-900 hover:bg-gray-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
-                        >
-                          {product.published ? "Unpublish" : "Publish"}
-                        </button>
-                        <button
-                          type="button"
                           onClick={() => handleDelete(product.id)}
-                          className="inline-flex min-h-[44px] min-w-[110px] items-center justify-center rounded-full border border-red-200 px-4 text-sm font-semibold text-red-600 hover:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+                          className="p-2 border border-white/5 rounded-sm hover:border-red-900/40 hover:bg-red-900/10 transition-all group"
+                          title="Delete"
                         >
-                          <Trash2 className="w-3.5 h-3.5 mr-1" />
-                          Delete
+                          <Trash2 className="w-3.5 h-3.5 text-white/20 group-hover:text-red-400" />
                         </button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+              </div>
+            )}
+          </section>
+
+          {/* Guidelines */}
+          <section className="bg-black/40 border border-white/5 p-8 space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <AlertCircle className="w-4 h-4 text-white/20" />
+              <h3 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.3em]">
+                Listing Protocols
+              </h3>
+            </div>
+            <ul className="space-y-4">
+              {[
+                "No client service promises or direct support links.",
+                "External URLs must resolve directly to source pages.",
+                "FIFO logic deactivates oldest assets if over quota.",
+                "Region featured slots require separate allocation."
+              ].map((rule, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="text-white/10 text-[9px] mt-0.5">0{i+1}</span>
+                  <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-wider leading-relaxed">
+                    {rule}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,10 +17,10 @@ const supabaseAdmin = createClient(
  */
 export async function POST(request: Request) {
   try {
-    const { email, vendor_id } = await request.json();
+    const { email } = await request.json();
 
-    if (!email || !vendor_id) {
-      return NextResponse.json({ error: 'Email and Vendor ID are required' }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // 1. Generate an invitation/magic link using Admin API
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?claim=${vendor_id}`
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/dashboard`
       }
     });
 

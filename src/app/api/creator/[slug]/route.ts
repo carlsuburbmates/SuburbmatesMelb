@@ -51,14 +51,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         category_id,
         slug,
         is_public,
+        vendor_status,
         created_at,
         user_id,
-        is_vendor,
-        template_key,
-        theme_config
+        images
       `)
       .eq('slug', slug)
       .eq('is_public', true)
+      .eq('vendor_status', 'active')
       .single();
 
     if (error || !creator) {
@@ -85,14 +85,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let productCount = 0;
     let vendorId: string | undefined = undefined;
 
-    if (creator.is_vendor && creator.user_id) {
+    if (creator.user_id) {
       try {
         const { data: vendor } = await supabase
           .from('vendors')
           .select('id, product_count')
           .eq('user_id', creator.user_id)
-          .single();
-
+          .maybeSingle();
+ 
         if (vendor) {
           productCount = vendor.product_count || 0;
           vendorId = vendor.id;
@@ -121,17 +121,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       id: creator.id,
       name: creator.business_name,
       description: creator.profile_description,
-      suburb: regionName,
+      region: regionName,
       category: categoryName,
       slug: creator.slug,
-      isVendor: creator.is_vendor,
+      isVendor: !!vendorId,
       vendorId: vendorId,
       productCount: productCount,
       createdAt: creator.created_at,
       profileImageUrl: null, // Placeholder or fetch from assets table
       email: userEmail,
-      images: (creator && 'images' in creator && Array.isArray(creator.images)) ? creator.images : [],
-      templateKey: creator.template_key || 'standard',
+      images: Array.isArray(creator.images) ? creator.images : [],
     };
 
     return NextResponse.json({

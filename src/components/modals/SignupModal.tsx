@@ -12,13 +12,13 @@ interface SignupModalProps {
   onClose: () => void;
 }
 
-type UserRole = 'customer' | 'vendor' | null;
+type UserRole = 'customer' | 'business_owner' | null;
 
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithOtp, signInWithGoogle } = useAuth();
+  const { signInWithOtpAs, signInWithGoogle } = useAuth();
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -39,11 +39,12 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     setIsLoading(true);
     
     try {
-      const { error } = await signInWithOtp(email);
+      const role = selectedRole === 'business_owner' ? 'business_owner' : 'customer';
+      const { error } = await signInWithOtpAs(email, role);
       if (error) throw error;
       
       toast.success('Magic link sent! Check your inbox.');
-      analytics.signupComplete(selectedRole === 'vendor' ? 'vendor' : 'customer');
+      analytics.signupComplete(role);
       onClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to send magic link.');
@@ -62,42 +63,42 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title={selectedRole ? (selectedRole === 'vendor' ? 'Create Profile.' : 'Join SuburbMates') : 'Join SuburbMates'}
+      title={selectedRole ? (selectedRole === 'business_owner' ? 'Create Profile.' : 'Join SuburbMates') : 'Join SuburbMates'}
       className="max-w-lg"
     >
       {!selectedRole ? (
         <div className="space-y-4">
-          <p className="text-slate-500 text-center mb-6 text-sm">
-            Choose how you&rsquo;d like to use SuburbMates
+          <p className="text-ink-secondary text-center mb-6 text-xs uppercase tracking-wider font-mono">
+            How would you like to use SuburbMates?
           </p>
           
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             <button
               onClick={() => handleRoleSelect('customer')}
-              className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
+              className="flex items-center p-5 border border-white/10 rounded-sm hover:border-white/30 hover:bg-white/5 transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
-                <User className="w-6 h-6" />
+              <div className="flex-shrink-0 w-12 h-12 bg-white/5 border border-white/5 flex items-center justify-center mr-4 group-hover:bg-white group-hover:text-black transition-colors rounded-sm">
+                <User className="w-5 h-5 text-ink-primary group-hover:text-black" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Customer</h3>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase">Explore the directory.</p>
+                <h3 className="font-bold text-ink-primary uppercase tracking-widest text-xs">Customer</h3>
+                <p className="text-[10px] text-ink-tertiary mt-1 uppercase tracking-wider">Explore and find creators.</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
+              <ArrowRight className="w-4 h-4 text-ink-tertiary group-hover:text-ink-primary transition-all group-hover:translate-x-1" />
             </button>
 
             <button
-              onClick={() => handleRoleSelect('vendor')}
-              className="flex items-center p-4 border border-slate-200 rounded-none hover:border-black transition-all text-left group"
+              onClick={() => handleRoleSelect('business_owner')}
+              className="flex items-center p-5 border border-white/10 rounded-sm hover:border-white/30 hover:bg-white/5 transition-all text-left group"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-slate-50 flex items-center justify-center mr-4 group-hover:bg-black group-hover:text-white transition-colors">
-                <Store className="w-6 h-6" />
+              <div className="flex-shrink-0 w-12 h-12 bg-white/5 border border-white/5 flex items-center justify-center mr-4 group-hover:bg-white group-hover:text-black transition-colors rounded-sm">
+                <Store className="w-5 h-5 text-ink-primary group-hover:text-black" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-black uppercase tracking-widest text-xs">I&rsquo;m a Creator</h3>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase">Build your profile and share your work</p>
+                <h3 className="font-bold text-ink-primary uppercase tracking-widest text-xs">Creator</h3>
+                <p className="text-[10px] text-ink-tertiary mt-1 uppercase tracking-wider">Showcase your work and get leads.</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-black" />
+              <ArrowRight className="w-4 h-4 text-ink-tertiary group-hover:text-ink-primary transition-all group-hover:translate-x-1" />
             </button>
           </div>
         </div>
@@ -105,31 +106,31 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         <div className="space-y-6">
           <button
             onClick={handleGoogleLogin}
-            className="w-full h-12 border border-slate-200 flex items-center justify-center gap-3 hover:bg-slate-50 transition-colors uppercase font-black text-[10px] tracking-[0.2em]"
+            className="w-full h-12 border border-white/20 bg-white/5 flex items-center justify-center gap-3 hover:bg-white/10 transition-colors uppercase font-bold text-[10px] tracking-widest text-ink-primary rounded-sm"
           >
             Continue with Google
           </button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-            <div className="relative flex justify-center text-[8px] uppercase font-black tracking-widest text-slate-400">
-              <span className="bg-white px-4">Or use magic link</span>
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
+            <div className="relative flex justify-center text-[10px] font-bold tracking-widest text-ink-tertiary">
+              <span className="bg-ink-surface-1 px-4 uppercase">Direct Link</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-[10px] font-black uppercase tracking-widest text-black mb-2">
-                Email Address
+              <label htmlFor="email" className="block text-[10px] font-bold uppercase tracking-widest text-ink-secondary mb-3 ml-1">
+                Enter your email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-tertiary" />
                 <input
                   type="email"
                   id="email"
                   required
-                  className="w-full h-12 pl-10 pr-4 border border-slate-200 rounded-none focus:outline-none focus:ring-1 focus:ring-black placeholder:text-slate-300"
-                  placeholder="e.g., name@gmail.com"
+                  className="w-full h-14 pl-12 pr-4 bg-ink-surface-2 border border-white/10 rounded-sm focus:outline-none focus:border-white/40 transition-all placeholder:text-white/10 text-ink-primary"
+                  placeholder="name@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -139,17 +140,18 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-14 bg-black text-white uppercase font-black tracking-[0.3em] text-[10px] hover:bg-slate-900 transition-colors disabled:opacity-50"
+              className="w-full h-14 bg-white text-black uppercase font-bold tracking-widest text-xs hover:bg-white/90 transition-all rounded-sm disabled:opacity-30 disabled:cursor-not-allowed group relative overflow-hidden"
             >
-              {isLoading ? 'Sending...' : 'Send Magic Link'}
+              <span className="relative z-10">{isLoading ? 'Sending...' : 'Send Magic Link'}</span>
+              {!isLoading && <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedRole(null)}
-              className="w-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-black transition-colors"
+              className="w-full text-[10px] font-bold uppercase tracking-widest text-ink-tertiary hover:text-ink-primary transition-colors text-center pb-2"
             >
-              Back to selection
+              ← Back to selection
             </button>
           </form>
         </div>

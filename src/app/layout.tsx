@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   title: "Suburbmates | Melbourne's Digital Creator Directory",
   description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing.",
   keywords:
-    "Melbourne creators, local directory, suburb creators, local services, digital products",
+    "Melbourne creators, regional creator directory, local digital products, outbound showcase",
   authors: [{ name: "SuburbMates" }],
   creator: "SuburbMates",
   publisher: "SuburbMates",

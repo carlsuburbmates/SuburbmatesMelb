@@ -1,103 +1,179 @@
 "use client";
 
 import { SignupModal } from "@/components/modals/SignupModal";
-import { LazyImage } from "@/components/ui/LazyImage";
 import { useFadeIn } from "@/hooks/useScrollAnimation";
 import { analytics } from "@/lib/analytics";
-import { generateImageUrl, getImageBySection } from "@/lib/images";
 import { useState } from "react";
+import { ArrowRight, Check } from "lucide-react";
+
+const FEATURES = [
+  "Free creator profile",
+  "No transaction fees",
+  "Direct outbound routing",
+  "Tracked product clicks",
+];
 
 export function CTASection() {
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  const ctaImage = getImageBySection("cta")[0];
-  const contentAnimation = useFadeIn<HTMLDivElement>({
-    delay: 150,
-    duration: 600,
-  });
+  const contentAnimation = useFadeIn<HTMLDivElement>({ delay: 150, duration: 600 });
 
-  const openSignupModal = () => setIsSignupModalOpen(true);
-  const closeSignupModal = () => setIsSignupModalOpen(false);
   const handleCreatorCTA = () => {
     analytics.signupModalOpen("cta_creator");
-    openSignupModal();
+    setIsSignupModalOpen(true);
   };
-  const handleVendorCTA = () => {
-    analytics.signupModalOpen("cta_vendor");
-    openSignupModal();
-  };
+
   return (
-    <section className="relative overflow-hidden py-12 md:py-16 lg:py-24 accent-overlay-sage">
-      <div className="absolute inset-0">
-        {ctaImage ? (
-          <LazyImage
-            src={generateImageUrl(ctaImage)}
-            alt={ctaImage.description}
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gray-100" />
-        )}
-      </div>
-      <div className="absolute inset-0 bg-white/90" />
+    <section
+      className="relative overflow-hidden py-20 md:py-32"
+      style={{
+        background: "var(--bg-base)",
+        borderTop: "1px solid var(--border)",
+      }}
+    >
+      {/* Ambient colour glow — replaces background image */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: [
+            "radial-gradient(ellipse 60% 60% at 80% 50%, rgba(70, 100, 160, 0.10) 0%, transparent 65%)",
+            "radial-gradient(ellipse 50% 40% at 10% 20%, rgba(60, 100, 80, 0.08) 0%, transparent 60%)",
+          ].join(", "),
+        }}
+      />
 
       <div
         ref={contentAnimation.elementRef}
-        className={`container-custom relative ${contentAnimation.className}`}
+        className={`container-custom relative z-10 ${contentAnimation.className}`}
         style={contentAnimation.style}
       >
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="mb-4 md:mb-6">Melbourne&rsquo;s Dual Platform</h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Start with a free studio profile, then upgrade to sell
-            digital products when you&rsquo;re ready to monetize your expertise.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 max-w-4xl mx-auto">
-          {/* Creator Path */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <div className="w-8 h-8 bg-gray-400 rounded"></div>
-            </div>
-            <h3 className="mb-4">Build Your Brand</h3>
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              Create a free directory profile to establish your local presence.
-              Capture regional demand.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+          {/* Left — copy */}
+          <div>
+            <p
+              className="mb-4"
+              style={{
+                fontSize: "10px",
+                fontWeight: 500,
+                letterSpacing: "0.20em",
+                textTransform: "uppercase",
+                color: "var(--text-tertiary)",
+              }}
+            >
+              Creator Profiles
             </p>
-            <button onClick={handleCreatorCTA} className="btn-primary">
-              Start Free
+
+            <h2
+              className="mb-4"
+              style={{
+                color: "var(--text-primary)",
+                fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
+                fontWeight: 700,
+                lineHeight: 1.1,
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Claim Your Profile
+            </h2>
+
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "1rem",
+                lineHeight: 1.65,
+                maxWidth: "40ch",
+                marginBottom: "2.5rem",
+              }}
+            >
+              Launch your free directory profile and get discovered by
+              Melbourne&rsquo;s digital neighbourhood.
+            </p>
+
+            <button
+              onClick={handleCreatorCTA}
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              Get Started — Free
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Vendor Path */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <div className="w-8 h-8 bg-blue-600 rounded"></div>
-            </div>
-            <h3 className="mb-4">Start Selling</h3>
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              Sell digital products, guides, and courses to your local
-              community. Zero Commission. 100% Creator Backed.
-            </p>
-            <button onClick={handleVendorCTA} className="btn-cta">
-              Claim Profile.
-            </button>
-          </div>
-        </div>
+          {/* Right — glass card with feature list + coloured shadow */}
+          <div>
+            <div
+              className="p-8"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                borderRadius: "2px",
+                boxShadow: [
+                  "0 4px 32px 0 rgba(70, 100, 160, 0.14)",
+                  "0 1px 0 0 rgba(255,255,255,0.06) inset",
+                ].join(", "),
+              }}
+            >
+              <h3
+                className="mb-6"
+                style={{
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Your Digital Storefront
+              </h3>
 
-        {/* Dual Model Explanation */}
-        <div className="mt-16 text-center">
-          <p className="text-gray-500 text-sm max-w-2xl mx-auto">
-            Every vendor starts with a directory profile. Upgrade anytime to
-            unlock premium regional discovery and start generating revenue from your
-            digital expertise.
-          </p>
+              <ul className="space-y-4">
+                {FEATURES.map((feature) => (
+                  <li key={feature} className="flex items-center gap-3">
+                    <span
+                      className="flex-shrink-0 flex items-center justify-center w-5 h-5"
+                      style={{
+                        background: "rgba(255,255,255,0.08)",
+                        borderRadius: "2px",
+                      }}
+                    >
+                      <Check className="w-3 h-3" style={{ color: "var(--text-secondary)" }} />
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "0.875rem",
+                        color: "var(--text-secondary)",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {feature}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Bottom — visual separator */}
+              <div
+                className="mt-8 pt-6"
+                style={{ borderTop: "1px solid var(--border)" }}
+              >
+                <p
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--text-tertiary)",
+                    letterSpacing: "0.04em",
+                    lineHeight: 1.55,
+                    marginBottom: 0,
+                  }}
+                >
+                  100% creator-backed. No lock-in. Cancel anytime.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <SignupModal isOpen={isSignupModalOpen} onClose={closeSignupModal} />
+      <SignupModal isOpen={isSignupModalOpen} onClose={() => setIsSignupModalOpen(false)} />
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireAuth } from '@/app/api/_utils/auth';
 import { generateUniqueBusinessSlug } from '@/lib/slug-utils';
 import { logger } from '@/lib/logger';
+import { executeDirectorySearch } from '@/lib/search';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,101 +13,22 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
-    // Extract query parameters
-    const suburb = searchParams.get('suburb');
+    const region = searchParams.get('region');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
-    
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit;
-    
-    // Start building the query
-    let query = supabase
-      .from('business_profiles')
-      .select(
-        `id,business_name,profile_description,suburb_id,category_id,slug,is_public,created_at,updated_at,user_id,vendor_status,vendor_tier,users:users!inner(email,user_type)`
-      )
-      .eq('is_public', true);
-    
-    // Apply filters
-    if (suburb) {
-      // Note: This assumes suburb names are stored directly
-      // In production, you'd join with suburbs table
-      query = query.ilike('suburb_id', `%${suburb}%`);
-    }
-    
-    if (category) {
-      // Note: This assumes category names are stored directly  
-      // In production, you'd join with categories table
-      query = query.ilike('category_id', `%${category}%`);
-    }
-    
-    if (search) {
-      query = query.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
-    }
-    
-    // Get total count for pagination  
-    const countQuery = supabase
-      .from('business_profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_public', true);
-    
-    // Apply same filters for count
-    if (suburb) {
-      countQuery.ilike('suburb_id', `%${suburb}%`);
-    }
-    if (category) {
-      countQuery.ilike('category_id', `%${category}%`);
-    }
-    if (search) {
-      countQuery.or(`business_name.ilike.%${search}%,profile_description.ilike.%${search}%`);
-    }
-    
-    const { count } = await countQuery;
-    
-    // Apply pagination and ordering
-    query = query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-    
-    const { data: businesses, error } = await query;
-    
-    if (error) {
-      logger.error('Database error', new Error(error.message), { code: error.code });
-      return NextResponse.json(
-        { error: 'Failed to fetch businesses' },
-        { status: 500 }
-      );
-    }
-    
-    // Transform data to match frontend interface
-    const transformedBusinesses = (businesses ?? []).map((business) => ({
-      id: business.id,
-      name: business.business_name,
-      description: business.profile_description,
-      suburb: business.suburb_id,
-      category: business.category_id,
-      slug: business.slug,
-      isVendor: Boolean(business.vendor_status === 'active'),
-      productCount: 0,
-      verified: business.vendor_status === 'verified',
-      createdAt: business.created_at,
-      profileImageUrl: null,
-    }));
-    
+    const searchResponse = await executeDirectorySearch(supabase, {
+      query: search,
+      region,
+      category,
+      page,
+      limit,
+    });
+
     return NextResponse.json({
-      businesses: transformedBusinesses,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-        hasNextPage: (count || 0) > page * limit,
-        hasPreviousPage: page > 1
-      }
+      businesses: searchResponse.results,
+      pagination: searchResponse.pagination,
     });
     
   } catch (error) {
@@ -149,7 +71,7 @@ export async function POST(request: NextRequest) {
     const {
       business_name,
       profile_description,
-      suburb_id,
+      region_id,
       category_id
     } = body;
 
@@ -163,7 +85,7 @@ export async function POST(request: NextRequest) {
     // Get vendor details if they exist
     const { data: vendor } = await dbClient
       .from('vendors')
-      .select('id')
+      .select('id, vendor_status, primary_region_id')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -176,12 +98,10 @@ export async function POST(request: NextRequest) {
         business_name,
         slug,
         profile_description,
-        suburb_id,
+        suburb_id: region_id ?? vendor?.primary_region_id ?? null,
         category_id,
-        is_public: true, // Default to public or make it pending? Assuming public for now.
-        is_vendor: !!vendor,
-        vendor_status: null,
-        vendor_tier: null,
+        is_public: Boolean(vendor?.vendor_status === 'active'),
+        vendor_status: vendor?.vendor_status ?? 'inactive',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

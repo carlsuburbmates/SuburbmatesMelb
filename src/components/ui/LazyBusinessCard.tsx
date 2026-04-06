@@ -7,7 +7,7 @@ interface LazyBusinessCardProps {
     id: string;
     name: string;
     description?: string;
-    suburb: string;
+    region: string;
     category: string;
     slug: string;
   };
@@ -42,7 +42,7 @@ export function LazyBusinessCard({ business, delay = 0 }: LazyBusinessCardProps)
             
             <div className="flex items-center space-x-4 font-mono text-[10px] tracking-[0.2em] uppercase text-onyx/50 mb-2">
               <span className="flex items-center">
-                {business.suburb}
+                {business.region}
               </span>
               <span className="border-l border-onyx/10 pl-4">
                 {business.category}

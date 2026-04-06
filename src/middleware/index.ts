@@ -4,7 +4,7 @@
  */
 
 // Authentication
-export { withAuth, withAdmin, withVendor, withUser, getUserFromRequest } from './auth';
+export { withAuth, withAdmin, withCreator, withUser, getUserFromRequest } from './auth';
 export type { AuthContext, AuthenticatedHandler, AuthOptions } from './auth';
 
 // Rate Limiting

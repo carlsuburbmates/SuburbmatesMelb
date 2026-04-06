@@ -6,13 +6,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 export interface VendorProduct {
   id: string;
   title: string;
-  description?: string | null;
-  category?: string | null;
-  external_url: string;
+  description?: string| null;
+  category_id?: number | null;
+  product_url: string;
   slug?: string | null;
-  thumbnail_url?: string | null;
-  published: boolean | null;
-  images?: string[] | null;
+  image_urls?: string[] | null;
+  is_active: boolean;
+  is_archived: boolean;
   created_at?: string | null;
   updated_at?: string | null;
 }
@@ -20,8 +20,8 @@ export interface VendorProduct {
 
 export interface VendorProductStats {
   totalProducts: number;
-  publishedProducts: number;
-  draftProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
   featuredSlots: number;
   lastUpdated: string | null;
 }
@@ -29,10 +29,11 @@ export interface VendorProductStats {
 interface ProductPayload {
   title: string;
   description: string;
-  external_url: string;
-  category?: string;
+  product_url: string;
+  category_id?: number;
   images?: string[];
-  published?: boolean;
+  is_active?: boolean;
+  is_archived?: boolean;
 }
 
 

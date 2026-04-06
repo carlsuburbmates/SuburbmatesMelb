@@ -63,17 +63,16 @@ export interface BusinessProfileExtended {
   profile_image_url?: string | null;
   created_at?: string | null;
   user_id: string;
-  suburb?: string;
+  vendor_id?: string;
+  region?: string;
   category?: string;
   email?: string;
   address?: string;
   phone?: string | null;
   website?: string | null;
-  is_vendor?: boolean | null;
   product_count?: number;
   is_verified?: boolean;
   images?: BusinessImage[];
-  template_key?: string | null;
   slug?: string;
   business_hours?: Record<string, string>;
   specialties?: string[];
@@ -90,7 +89,6 @@ export interface MappedBusinessProfile {
   heroImage: string;
   logoUrl: string; // derived from images or placeholder
   is_verified: boolean;
-  isVendor: boolean;
   sections: {
     about: boolean;
     products: boolean;

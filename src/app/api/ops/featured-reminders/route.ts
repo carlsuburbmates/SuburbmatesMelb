@@ -10,11 +10,11 @@ const supabaseAdmin = createClient(
 
 const REMINDER_WINDOWS = [7, 2];
 
-interface SlotWithVendor {
+interface SlotWithCreator {
   id: string;
   end_date: string;
   suburb_label: string | null;
-  vendor_id: string;
+  vendor_id: string; // Foreign key is vendor_id (DB level)
   vendors: {
     business_name: string | null;
     user_id: string;
@@ -83,7 +83,7 @@ export async function GET(req: Request) {
 
       if (!slots || slots.length === 0) continue;
 
-      const typedSlots = slots as unknown as SlotWithVendor[];
+      const typedSlots = slots as unknown as SlotWithCreator[];
 
       for (const slot of typedSlots) {
         totalProcessed++;
@@ -100,11 +100,11 @@ export async function GET(req: Request) {
           if (checkError) throw checkError;
           if (existing) continue; // Already sent
 
-          // Extract vendor/email info
-          const vendor = Array.isArray(slot.vendors) ? slot.vendors[0] : slot.vendors;
-          const user = vendor?.users ? (Array.isArray(vendor.users) ? vendor.users[0] : vendor.users) : null;
-
-          if (!vendor || !user?.email) {
+          // Extract creator/email info
+          const creator = Array.isArray(slot.vendors) ? slot.vendors[0] : slot.vendors;
+          const user = creator?.users ? (Array.isArray(creator.users) ? creator.users[0] : creator.users) : null;
+ 
+          if (!creator || !user?.email) {
             console.warn(`[PR4] Skipping slot ${slot.id}: No email found`);
             continue;
           }
@@ -112,7 +112,7 @@ export async function GET(req: Request) {
           // Send Email
           const emailResult = await sendFeaturedSlotExpiryEmail(
             user.email,
-            vendor.business_name || "Vendor",
+            creator.business_name || "Creator",
             slot.suburb_label || "Featured Suburb",
             slot.end_date,
             daysBefore

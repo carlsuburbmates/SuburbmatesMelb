@@ -49,9 +49,9 @@ export const analytics = {
       label: `slide_${slideIndex}`,
     }),
 
-  searchSuburb: (searchTerm: string) =>
+  searchRegion: (searchTerm: string) =>
     trackEvent({
-      action: 'suburb_search',
+      action: 'region_search',
       category: 'search',
       label: searchTerm,
     }),
@@ -64,14 +64,14 @@ export const analytics = {
       label: trigger,
     }),
 
-  signupRoleSelect: (role: 'customer' | 'vendor') =>
+  signupRoleSelect: (role: 'customer' | 'business_owner') =>
     trackEvent({
       action: 'signup_role_select',
       category: 'signup',
       label: role,
     }),
 
-  signupComplete: (role: 'customer' | 'vendor') =>
+  signupComplete: (role: 'customer' | 'business_owner') =>
     trackEvent({
       action: 'signup_complete',
       category: 'conversion',

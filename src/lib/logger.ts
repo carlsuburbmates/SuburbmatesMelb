@@ -410,7 +410,7 @@ export enum BusinessEvent {
   VENDOR_APPROVED = "vendor.approved",
   VENDOR_SUSPENDED = "vendor.suspended",
   PRODUCT_CREATED = "product.created",
-  PRODUCT_PUBLISHED = "product.published",
+  PRODUCT_ACTIVATED = "product.activated",
   ORDER_CREATED = "order.created",
   ORDER_COMPLETED = "order.completed",
   REFUND_REQUESTED = "refund.requested",
@@ -420,8 +420,6 @@ export enum BusinessEvent {
   APPEAL_SUBMITTED = "appeal.submitted",
   APPEAL_DECIDED = "appeal.decided",
   FEATURED_SLOT_PURCHASED = "featured_slot.purchased",
-  VENDOR_TIER_CHANGED = "vendor.tier_changed",
-  VENDOR_PRODUCTS_AUTO_UNPUBLISHED = "vendor.products_auto_unpublished",
 }
 
 /**

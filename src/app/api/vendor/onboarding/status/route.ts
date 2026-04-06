@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 /**
  * API Route: GET /api/vendor/onboarding/status
  * 
- * Checks the current onboarding status of a vendor.
+ * Checks the current onboarding status of a creator.
  * Following SSOT v2 Phase 1, Stripe Connect is non-mandatory/deprecated for discovery.
  */
 export async function GET(request: Request) {
@@ -27,29 +27,29 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid authentication" }, { status: 401 });
     }
 
-    const { data: vendor, error: vendorError } = await supabase
+    const { data: creator, error: creatorError } = await supabase
       .from("vendors")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (vendorError || !vendor) {
+    if (creatorError || !creator) {
       return NextResponse.json({
         status: "not_started",
-        message: "No vendor account found",
-        next_step: "create_vendor",
+        message: "No creator account found",
+        next_step: "create_creator",
       });
     }
 
-    // SSOT v2: All vendors with a record are considered onboarded for discovery
+    // SSOT v2: All creators with a record are considered onboarded for discovery
     return NextResponse.json({
       status: "completed",
-      message: "Vendor onboarding completed (Discovery Mode)",
+      message: "Creator onboarding completed (Discovery Mode)",
       next_step: "start_listing",
       charges_enabled: true, // Mocked for legacy frontend consistency
     });
   } catch (error) {
-    console.error("Error checking vendor onboarding status:", error);
+    console.error("Error checking creator onboarding status:", error);
     return NextResponse.json(
       { error: "Failed to check onboarding status" },
       { status: 500 }
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
 export async function POST() {
   return NextResponse.json({
     status: "completed",
-    message: "Stripe Connect onboarding is no longer required for this marketplace tier.",
+    message: "Stripe Connect onboarding is no longer required for the creator model.",
   });
 }
 

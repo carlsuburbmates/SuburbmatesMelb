@@ -21,13 +21,25 @@ function normalizeProductPayload(raw: JsonRecord): JsonRecord {
     normalized.description = raw.details;
   }
 
-  if (normalized.published === undefined) {
+  if (normalized.is_active === undefined) {
     if (typeof raw.status === "string") {
-      normalized.published = raw.status === "published";
+      normalized.is_active = raw.status === "published";
     } else if (typeof raw.status === "boolean") {
-      normalized.published = raw.status;
+      normalized.is_active = raw.status;
     }
   }
+
+  if (normalized.is_archived === undefined) {
+    if (typeof raw.status === "string") {
+      normalized.is_archived = raw.status === "archived";
+    } else if (raw.is_archived !== undefined) {
+      normalized.is_archived = !!raw.is_archived;
+    } else {
+      normalized.is_archived = false;
+    }
+  }
+
+  // Removed raw.external_url fallback to enforce canonical product_url contract.
 
 
   if (

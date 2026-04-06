@@ -47,7 +47,7 @@ export default function BusinessNotFound() {
             <h2 className="font-semibold text-gray-900 mb-4">Looking for something specific?</h2>
             <div className="space-y-2 text-sm text-gray-600">
               <p>• Try searching in our <Link href="/regions" className="text-blue-600 hover:text-blue-800">creator directory</Link></p>
-              <p>• Browse by <Link href="/regions?category=" className="text-blue-600 hover:text-blue-800">category</Link> or <Link href="/regions?suburb=" className="text-blue-600 hover:text-blue-800">suburb</Link></p>
+              <p>• Browse by <Link href="/regions?category=" className="text-blue-600 hover:text-blue-800">category</Link> or <Link href="/regions?region=" className="text-blue-600 hover:text-blue-800">region</Link></p>
             </div>
           </div>
         </div>

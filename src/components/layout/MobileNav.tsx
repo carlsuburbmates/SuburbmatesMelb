@@ -7,10 +7,8 @@ import { Compass, User, Home } from "lucide-react";
 export function MobileNav() {
   const pathname = usePathname();
 
-  // Hide on business pages (replaced by StickyActionBar)
-  if (pathname.startsWith("/creator/")) {
-    return null;
-  }
+  // Hidden on creator pages — replaced by StickyActionBar
+  if (pathname.startsWith("/creator/")) return null;
 
   const links = [
     {
@@ -23,33 +21,41 @@ export function MobileNav() {
       href: "/regions",
       label: "Discover",
       icon: Compass,
-      isActive: (path: string) => path.startsWith("/regions") || path.startsWith("/creator"),
+      isActive: (path: string) =>
+        path.startsWith("/regions") || path.startsWith("/creator"),
     },
     {
-      href: "/dashboard",
+      href: "/vendor/dashboard",
       label: "Profile",
       icon: User,
-      isActive: (path: string) => path.startsWith("/dashboard") || path.startsWith("/auth"),
+      isActive: (path: string) =>
+        path.startsWith("/vendor") || path.startsWith("/dashboard") || path.startsWith("/auth"),
     },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 pb-safe md:hidden">
-      <div className="flex justify-around items-center h-16">
+    <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden bg-ink-surface-1/90 backdrop-blur-xl border border-white/10 rounded-sm">
+      <div className="flex justify-around items-center h-14 pb-safe">
         {links.map((link) => {
           const active = link.isActive(pathname);
           const Icon = link.icon;
-          
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
-                active ? "text-amber-600" : "text-gray-500 hover:text-gray-900"
-              }`}
+              className="flex flex-col items-center justify-center w-full h-full gap-1 transition-opacity"
+              style={{ color: active ? "#F5F5F7" : "#636366" }}
             >
-              <Icon className={`w-6 h-6 ${active ? "fill-current" : ""}`} strokeWidth={active ? 2.5 : 2} />
-              <span className="text-[10px] font-medium">{link.label}</span>
+              <Icon
+                className="w-5 h-5"
+                strokeWidth={active ? 2 : 1.5}
+              />
+              <span
+                className="text-[10px] tracking-wide"
+                style={{ fontWeight: active ? 500 : 400 }}
+              >
+                {link.label}
+              </span>
             </Link>
           );
         })}

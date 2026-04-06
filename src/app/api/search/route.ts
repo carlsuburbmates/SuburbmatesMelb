@@ -18,13 +18,13 @@ export async function POST(req: NextRequest) {
 
     if (
       (parsed.query && parsed.query.length > 0) ||
-      parsed.suburb ||
+      parsed.region ||
       parsed.category
     ) {
       await recordSearchTelemetry({
         query: parsed.query ?? "",
         filters: {
-          suburb: parsed.suburb,
+          region: parsed.region,
           category: parsed.category,
         },
         result_count: searchResponse.pagination.total,

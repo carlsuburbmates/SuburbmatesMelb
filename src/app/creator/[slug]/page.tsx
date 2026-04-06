@@ -18,10 +18,9 @@ interface BusinessData {
   id: string;
   name: string;
   description: string;
-  suburb: string;
+  region: string;
   category: string;
   slug: string;
-  isVendor: boolean;
   vendorId?: string;
   productCount: number;
   is_verified: boolean;
@@ -35,8 +34,6 @@ interface BusinessData {
   specialties: string[];
   socialMedia: Record<string, string>;
   images: BusinessImage[];
-  templateKey?: string;
-  themeConfig?: Record<string, unknown>;
 }
 
 function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
@@ -107,10 +104,9 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     id: toStringValue(raw.id, ""),
     name: toStringValue(raw.name, "Business"),
     description: toStringValue(raw.description, ""),
-    suburb: toStringValue(raw.suburb, "Melbourne"),
+    region: toStringValue(raw.region, "Melbourne"),
     category: toStringValue(raw.category, "General"),
     slug: toStringValue(raw.slug, ""),
-    isVendor: raw.isVendor === true,
     vendorId: typeof raw.vendorId === "string" ? raw.vendorId : undefined,
     productCount: toNumberValue(raw.productCount, 0),
     is_verified: raw.is_verified === true,
@@ -124,8 +120,6 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
     specialties,
     socialMedia,
     images,
-    templateKey: typeof raw.templateKey === "string" ? raw.templateKey : undefined,
-    themeConfig: raw.themeConfig && typeof raw.themeConfig === "object" ? (raw.themeConfig as Record<string, unknown>) : undefined,
   };
 }
 
@@ -146,30 +140,64 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
      profile_description: business.description,
      profile_image_url: business.profileImageUrl,
      created_at: business.createdAt,
-     user_id: business.vendorId || "",
-     suburb: business.suburb,
-     category: business.category,
-     email: business.email,
-     phone: business.phone,
+     user_id: "",
+      vendor_id: business.vendorId,
+      region: business.region,
+      category: business.category,
+      email: business.email,
+      phone: business.phone,
      website: business.website,
      address: business.address,
-     is_vendor: business.isVendor,
-     product_count: business.productCount,
-     is_verified: business.is_verified,
-     images: business.images,
-     template_key: business.templateKey,
-     slug: business.slug,
-     business_hours: business.businessHours as Record<string, string>,
-     specialties: business.specialties,
+      product_count: business.productCount,
+      is_verified: business.is_verified,
+      images: business.images,
+      slug: business.slug,
+      business_hours: business.businessHours as Record<string, string>,
+      specialties: business.specialties,
      social_media: business.socialMedia
    };
 
-   return (
-    <BusinessProfileRenderer 
-      business={extendedProfile} 
-      template_key={business.templateKey || "standard"}
-      slug={slug}
-    />
+  const category = business.category || "General";
+  const glowColors = category.includes("Design") 
+    ? ["rgba(180, 120, 60, 0.08)", "rgba(100, 80, 140, 0.07)"]
+    : category.includes("Technology") || category.includes("Software")
+    ? ["rgba(60, 120, 180, 0.08)", "rgba(80, 140, 120, 0.07)"]
+    : ["rgba(180, 120, 60, 0.08)", "rgba(80, 100, 140, 0.07)"];
+
+  return (
+    <div className="min-h-screen bg-ink-base relative overflow-hidden">
+      {/* Radial ambient glows — category-aware depth */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: [
+            `radial-gradient(ellipse 70% 50% at 15% 20%, ${glowColors[0]} 0%, transparent 65%)`,
+            `radial-gradient(ellipse 60% 45% at 85% 10%, ${glowColors[1]} 0%, transparent 60%)`,
+            "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(60, 100, 90, 0.05) 0%, transparent 70%)",
+          ].join(", "),
+        }}
+      />
+
+      {/* Subtle grid texture */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.5) 70%, transparent 100%)",
+        }}
+      />
+
+      <div className="relative z-10">
+        <BusinessProfileRenderer 
+          business={extendedProfile} 
+          slug={slug}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -208,10 +236,10 @@ export async function generateMetadata({ params }: BusinessPageProps) {
   }
 
   return {
-    title: `${business.name} - ${business.suburb || 'Melbourne'} | Suburbmates`,
-    description: business.description || `${business.name} - Local creator in ${business.suburb || 'Melbourne'}, Melbourne. ${business.category || 'Portfolio'}.`,
+    title: `${business.name} - ${business.region || 'Melbourne'} | Suburbmates`,
+    description: business.description || `${business.name} - Local creator in ${business.region || 'Melbourne'}, Melbourne. ${business.category || 'Portfolio'}.`,
     openGraph: {
-      title: `${business.name} - ${business.suburb || 'Melbourne'}`,
+      title: `${business.name} - ${business.region || 'Melbourne'}`,
       description: business.description,
       type: 'profile',
       locale: 'en_AU',

@@ -48,24 +48,24 @@ export function Modal({ isOpen, onClose, title, children, className = '' }: Moda
       onClick={handleBackdropClick}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
       
       {/* Modal */}
       <div 
         ref={modalRef}
-        className={`relative w-full max-w-md bg-white rounded-lg shadow-xl animate-fade-in ${className}`}
+        className={`relative w-full max-w-md bg-ink-surface-1 border border-white/10 rounded-sm shadow-2xl animate-fade-in ${className}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 id="modal-title" className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-6 border-b border-white/5">
+          <h2 id="modal-title" className="text-sm font-bold text-ink-primary uppercase tracking-widest font-mono">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-ink-secondary hover:text-ink-primary transition-colors p-2 -mr-2"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />

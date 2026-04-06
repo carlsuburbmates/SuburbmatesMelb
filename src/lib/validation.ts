@@ -75,10 +75,11 @@ export const productCreateSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  category: z.string().optional(),
+  category_id: z.number().int().positive().optional(),
   images: z.array(z.string().url()).max(3, "Maximum 3 images").default([]),
-  published: z.boolean().default(false),
-  external_url: z.string().url("Invalid external URL"),
+  is_active: z.boolean().default(false),
+  is_archived: z.boolean().default(false),
+  product_url: z.string().url("Invalid product URL"),
 });
 
 export const productUpdateSchema = productCreateSchema.partial();
@@ -89,7 +90,7 @@ export const productUpdateSchema = productCreateSchema.partial();
 
 export const directorySearchSchema = z.object({
   query: z.string().max(100).nullable().optional(),
-  suburb: z.string().max(120).nullable().optional(),
+  region: z.string().max(120).nullable().optional(),
   category: z.string().max(120).nullable().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(48).default(12),
@@ -99,7 +100,7 @@ export const searchTelemetrySchema = z.object({
   query: z.string().max(500),
   filters: z
     .object({
-      suburb: z.string().nullable().optional(),
+      region: z.string().nullable().optional(),
       category: z.string().nullable().optional(),
     })
     .optional(),

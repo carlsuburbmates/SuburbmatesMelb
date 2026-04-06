@@ -13,7 +13,7 @@ interface StandardTemplateProps {
 
 export function StandardTemplate({ business, mappedBusiness }: StandardTemplateProps) {
   return (
-    <main className="min-h-screen bg-white pb-24">
+    <main className="min-h-screen bg-transparent pb-24">
       {/* Tesla-style minimal header */}
       <BusinessHeader business={mappedBusiness} />
       
@@ -24,11 +24,11 @@ export function StandardTemplate({ business, mappedBusiness }: StandardTemplateP
             
             {/* High-Density About Section */}
             <section id="about" className="max-w-3xl">
-              <h2 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-8 border-b border-black pb-2 inline-block">
+              <h2 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.3em] mb-8 border-b border-white/20 pb-2 inline-block">
                 Studio Profile
               </h2>
-              <div className="prose prose-slate max-w-none">
-                <p className="text-xl text-black font-medium leading-relaxed tracking-tight whitespace-pre-wrap">
+              <div className="max-w-none">
+                <p className="text-xl text-ink-primary font-medium leading-relaxed tracking-tight whitespace-pre-wrap">
                   {mappedBusiness.description || "Digital creator & professional services based in Melbourne."}
                 </p>
               </div>
@@ -37,13 +37,13 @@ export function StandardTemplate({ business, mappedBusiness }: StandardTemplateP
             {/* Products / Discovery Grid */}
             <section id="products">
               <div className="mb-12">
-                <h2 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-2">
+                <h2 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.3em] mb-2">
                   Featured Digital Works
                 </h2>
-                <p className="text-sm text-slate-500 font-medium">Discovery-first product feed</p>
+                <p className="text-sm text-ink-tertiary font-medium uppercase tracking-widest">Discovery-first product feed</p>
               </div>
               <BusinessProducts 
-                vendorId={business.user_id} 
+                vendorId={business.vendor_id} 
                 vendorProfile={{
                   name: mappedBusiness.name,
                   slug: mappedBusiness.slug,

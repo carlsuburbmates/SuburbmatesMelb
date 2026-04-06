@@ -4,8 +4,7 @@
  */
 
 import { Resend } from 'resend';
-import { PLATFORM } from './constants';
-import { UNIVERSAL_PRODUCT_LIMIT } from './tier-utils';
+import { PLATFORM, MAX_PRODUCTS_PER_CREATOR } from './constants';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -121,7 +120,7 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
       <p><a href="${dashboardUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
       <p>Benefits of your free profile:</p>
       <ul>
-        <li>List up to ${UNIVERSAL_PRODUCT_LIMIT} products with external links</li>
+        <li>List up to ${MAX_PRODUCTS_PER_CREATOR} products with external links</li>
         <li>Automatic metadata scraping for fast listing</li>
         <li>Direct traffic to your Gumroad, Stripe, or personal store</li>
       </ul>

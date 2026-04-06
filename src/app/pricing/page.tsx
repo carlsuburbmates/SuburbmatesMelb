@@ -1,98 +1,128 @@
 "use client";
 
-import { Check, Store } from "lucide-react";
+import { Check, Store, Shield, Zap, Globe, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { FEATURED_SLOT } from "@/lib/constants";
-import { UNIVERSAL_PRODUCT_LIMIT } from "@/lib/tier-utils";
+import { FEATURED_SLOT, MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 
 export default function Pricing() {
   const features = [
-    `Up to ${UNIVERSAL_PRODUCT_LIMIT} published products`,
-    "Public creator profile + directory listing",
-    "Self-managed checkout (send users to your own site)",
-    "Melbourne-wide search discovery",
-    "ABN verified badge (optional)",
-    `Featured placement available (paid, ${FEATURED_SLOT.DURATION_DAYS} days / $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)})`,
+    `Up to ${MAX_PRODUCTS_PER_CREATOR} active product slots`,
+    "Public studio identity + region-specific indexing",
+    "Direct outbound routing (zero commission model)",
+    "Melbourne-wide discovery layer integration",
+    "ABN protocol verification badge (optional)",
+    `Featured visibility available (paid, ${FEATURED_SLOT.DURATION_DAYS} days / $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)})`,
   ];
 
   const faqs = [
     {
-      question: "How much does it cost?",
-      answer: "Creating a directory profile and listing your studio is completely free. We do not charge subscription fees or commissions on your sales since you handle the checkout on your own website.",
+      question: "Operational Costs?",
+      answer: "Creating a studio profile and indexing your services is completely free. We do not charge subscription fees or commissions. You maintain 100% of your revenue by handling checkouts on your primary infrastructure.",
     },
     {
-      question: "Can I sell directly on Suburbmates?",
-      answer: "In SSOT v2.0, we have transitioned to a discovery-first model. You list your products here, and we send high-intent Melbourne traffic directly to your primary website or checkout page.",
+      question: "Commerce Integration?",
+      answer: "Suburbmates acts as a discovery layer, not a marketplace. We bridge high-intent Melbourne traffic directly to your existing website. This eliminates transaction friction and middleman fees.",
     },
     {
-      question: "What is a Featured Slot?",
-      answer: `Featured slots give your studio top-of-page visibility in your specific Melbourne region. Each slot runs for ${FEATURED_SLOT.DURATION_DAYS} days for a flat fee of $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)}.`,
+      question: "Visibility Boosts?",
+      answer: `Featured slots provide priority placement in your specific Melbourne region. These are tactical boosts that run for ${FEATURED_SLOT.DURATION_DAYS} days for a flat $${(FEATURED_SLOT.PRICE_CENTS / 100).toFixed(0)} fee.`,
     },
     {
-      question: "How do I claim my profile?",
-      answer: "If you received an invitation from our concierge team, follow the link in your email to log in via Magic Link. You'll see a claim banner on your dashboard to finalize ownership.",
+      question: "Identity Claims?",
+      answer: "If our concierge team has pre-seeded your studio, follow your unique invitation link. Once authenticated, a claim protocol will appear on your dashboard to finalize identity ownership.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white selection:bg-black selection:text-white">
-      {/* Tesla Aesthetic Header */}
-      <div className="py-24 border-b border-gray-100">
-        <div className="container-custom max-w-4xl mx-auto text-center px-6">
-          <h1 className="text-[40px] md:text-[64px] font-black uppercase tracking-[-0.04em] leading-none mb-8">
-            Zero Friction.<br />Zero Fees.
+    <div className="min-h-screen bg-ink-base selection:bg-white selection:text-black font-medium text-ink-primary">
+      {/* High-Contrast Hero Navigation */}
+      <div className="py-32 border-b border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-white/[0.02] rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" />
+        
+        <div className="container-custom max-w-5xl mx-auto text-center px-6 relative z-10">
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="w-12 h-[1px] bg-white/20"></span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-ink-tertiary">Economic Protocol</span>
+            <span className="w-12 h-[1px] bg-white/20"></span>
+          </div>
+          <h1 className="text-5xl md:text-8xl font-bold uppercase tracking-tighter leading-[0.9] mb-12">
+            Zero Fees.<br />
+            <span className="text-ink-tertiary">Pure Growth.</span>
           </h1>
-          <p className="text-sm md:text-base text-gray-400 uppercase tracking-[0.2em] font-medium leading-relaxed max-w-2xl mx-auto">
-            Suburbmates is Melbourne&apos;s hyper-local discovery layer. We build the audience, you keep 100% of the revenue.
+          <p className="text-xs md:text-sm text-ink-tertiary uppercase tracking-[0.3em] font-bold leading-relaxed max-w-2xl mx-auto opacity-70">
+            Suburbmates is Melbourne&apos;s infrastructure for discovery. We build the audience, you retain the value.
           </p>
         </div>
       </div>
 
-      {/* The Single Plan */}
-      <div className="py-24 bg-gray-50/50">
-        <div className="container-custom max-w-xl mx-auto px-6">
-          <div className="bg-white border border-gray-200 p-12 md:p-16 shadow-sm">
-            <div className="flex justify-between items-start mb-12">
-              <div>
-                <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Creator</h2>
-                <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Standard Model</p>
-              </div>
-              <div className="text-right">
-                <span className="text-4xl font-black uppercase tracking-tighter">$0</span>
-                <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Forever</p>
-              </div>
+      {/* The Unified Plan Configuration */}
+      <div className="py-32 relative">
+        <div className="container-custom max-w-5xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-white/5 border border-white/10 shadow-2xl overflow-hidden rounded-sm">
+            
+            {/* Value Proposition */}
+            <div className="lg:col-span-7 bg-black p-12 md:p-20">
+              <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-ink-tertiary mb-12">System Capabilities</h2>
+              <ul className="space-y-10">
+                {features.map((feature, index) => (
+                  <li key={index} className="flex items-start gap-6 group">
+                    <div className="w-6 h-6 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors mt-0.5">
+                      <Check className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-sm font-bold uppercase tracking-tight text-ink-secondary group-hover:text-ink-primary transition-colors">{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <ul className="space-y-6 mb-12">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-4">
-                  <Check className="h-4 w-4 text-black mt-1 flex-shrink-0" />
-                  <span className="text-[13px] text-gray-600 font-medium tracking-tight leading-snug">{feature}</span>
-                </li>
-              ))}
-            </ul>
+            {/* Pricing Action */}
+            <div className="lg:col-span-5 bg-ink-surface-1 p-12 md:p-20 flex flex-col justify-center border-l border-white/5">
+              <div className="mb-12">
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-7xl font-bold uppercase tracking-tighter">$0</span>
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-ink-tertiary">/ Forever</span>
+                </div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-ink-primary mb-4">Studio Identity</h3>
+                <p className="text-[10px] text-ink-tertiary uppercase tracking-widest font-medium leading-relaxed">
+                  Join the discovery network without operational overhead. We bridge the gap between your products and Melbourne's intent.
+                </p>
+              </div>
 
-            <Link
-              href="/auth/signup"
-              className="block w-full bg-black text-white text-center py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-800 transition-all duration-300"
-            >
-              Get Started Now
-            </Link>
+              <div className="space-y-4">
+                <Link
+                  href="/auth/signup"
+                  className="flex items-center justify-center gap-4 w-full bg-white text-ink-base py-6 text-[10px] font-bold uppercase tracking-[0.4em] hover:scale-[1.02] active:scale-100 transition-all duration-300 rounded-sm"
+                >
+                  Join Protocol <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/regions"
+                  className="flex items-center justify-center w-full border border-white/10 text-ink-primary py-6 text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-white/5 transition-all duration-300 rounded-sm"
+                >
+                  Browse Map
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* FAQ */}
-      <div className="py-24 border-t border-gray-100">
-        <div className="container-custom max-w-3xl mx-auto px-6">
-          <h2 className="text-[13px] font-black uppercase tracking-[0.3em] text-center mb-16">Frequently Asked</h2>
-          <div className="grid gap-12">
+      {/* Grid of Intel (FAQ) */}
+      <div className="py-32 border-t border-white/5 bg-black">
+        <div className="container-custom max-w-5xl mx-auto px-6">
+          <div className="flex flex-col items-center mb-24">
+            <small className="text-[9px] font-bold uppercase tracking-[0.6em] text-ink-tertiary mb-6">Operational Intelligence</small>
+            <h2 className="text-2xl font-bold uppercase tracking-tighter text-center">Frequently Asked Questions</h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-x-20 gap-y-16">
             {faqs.map((faq, index) => (
-              <div key={index}>
-                <h3 className="text-sm font-black uppercase tracking-widest mb-4 inline-flex items-center gap-2">
-                  <span className="text-gray-300">0{index + 1}</span> {faq.question}
+              <div key={index} className="group">
+                <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-ink-primary mb-4 flex items-center gap-4">
+                  <span className="text-white/10 group-hover:text-white/30 transition-colors font-mono">0{index + 1}</span>
+                  {faq.question}
                 </h3>
-                <p className="text-[13px] text-gray-500 leading-relaxed font-medium tracking-tight ml-8 border-l border-gray-100 pl-8">
+                <p className="text-[11px] text-ink-tertiary leading-relaxed font-bold uppercase tracking-widest ml-12 border-l border-white/5 pl-8 py-2">
                   {faq.answer}
                 </p>
               </div>
@@ -101,17 +131,40 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* Footer CTA */}
-      <div className="py-32 bg-black text-white text-center">
-        <div className="container-custom px-6">
-          <Store className="w-12 h-12 mx-auto mb-8 text-white opacity-20" />
-          <h2 className="text-[40px] font-black uppercase tracking-[-0.04em] mb-12">Scale Your Studio.</h2>
+      {/* Final Call to Identity */}
+      <div className="py-40 relative overflow-hidden text-center">
+        <div className="absolute inset-0 bg-white/[0.01]" />
+        <div className="container-custom px-6 relative z-10">
+          <div className="w-16 h-16 border border-white/10 mx-auto mb-10 flex items-center justify-center bg-black rotate-45 group-hover:rotate-90 transition-transform duration-700">
+            <Store className="w-6 h-6 text-white opacity-40 -rotate-45" />
+          </div>
+          <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter mb-16 max-w-3xl mx-auto">
+            Ready to <span className="text-ink-tertiary">Scale Your Studio</span> Across Melbourne?
+          </h2>
           <Link
             href="/auth/signup"
-            className="inline-block border border-white/20 px-12 py-5 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all duration-500"
+            className="inline-flex items-center gap-6 border border-white/20 px-16 py-6 text-[10px] font-bold uppercase tracking-[0.5em] hover:bg-white hover:text-black transition-all duration-700 rounded-sm"
           >
-            Join Suburbmates
+            Finalize Enrollment <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
+      </div>
+
+      {/* Global Infrastructure Banner */}
+      <div className="py-12 border-t border-white/5 text-center">
+        <div className="flex items-center justify-center gap-8 opacity-20">
+          <div className="flex items-center gap-2">
+            <Shield className="w-3 h-3" />
+            <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Verified Infrastructure</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Zap className="w-3 h-3" />
+            <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Hyper-Local Speed</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Globe className="w-3 h-3" />
+            <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Melbourne Centrality</span>
+          </div>
         </div>
       </div>
     </div>

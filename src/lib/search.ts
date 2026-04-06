@@ -4,7 +4,7 @@ import { logger } from "./logger";
 
 export type DirectorySearchPayload = {
   query?: string | null;
-  suburb?: string | null;
+  region?: string | null;
   category?: string | null;
   page?: number;
   limit?: number;
@@ -15,10 +15,10 @@ export type DirectorySearchResult = {
   name: string;
   description: string | null;
   slug: string;
-  suburb: { id: number | null; name: string | null };
+  region: { id: number | null; name: string | null };
   category: { id: number | null; name: string | null };
   isFeatured: boolean;
-  featuredSuburbLabel: string | null;
+  featuredRegionLabel: string | null;
   featuredMatchesSelection: boolean;
   createdAt: string | null;
 };
@@ -45,28 +45,32 @@ export async function executeDirectorySearch(
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  // 1. Resolve region if provided
-  let regionFilter: { regionIds: number[] | null } | null = null;
-  if (payload.suburb) {
+  let regionFilter: { regionIds: number[] | null; regionNameById: Map<number, string> } | null = null;
+  if (payload.region) {
     const { data: regions } = await client
       .from("regions")
-      .select("id")
-      .ilike("name", `%${payload.suburb}%`);
+      .select("id, name")
+      .ilike("name", `%${payload.region}%`);
     
     if (regions && regions.length > 0) {
-      regionFilter = { regionIds: regions.map(r => r.id) };
+      regionFilter = {
+        regionIds: regions.map((r) => r.id),
+        regionNameById: new Map(regions.map((r) => [r.id, r.name])),
+      };
     }
   }
 
   // 2. Resolve category if provided
   let categoryIds: number[] | null = null;
+  let categoryNameById = new Map<number, string>();
   if (payload.category) {
     const { data: categories } = await client
       .from("categories")
-      .select("id")
+      .select("id, name")
       .ilike("name", `%${payload.category}%`);
     if (categories && categories.length > 0) {
       categoryIds = categories.map(c => c.id);
+      categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
     }
   }
 
@@ -116,24 +120,36 @@ export async function executeDirectorySearch(
   // Lookup featured status for the result set
   const featuredMeta = await resolveFeaturedProfileMetadata(client, {
     regionIds: regionFilter?.regionIds ?? null,
-    suburbTerm: payload.suburb ?? null,
+    regionTerm: payload.region ?? null,
   });
 
   const mapped: DirectorySearchResult[] =
     data?.map((row) => {
       const meta = featuredMeta.get(row.id);
-      return {
-        id: row.id,
-        name: row.business_name,
-        description: row.profile_description,
-        slug: row.slug,
-        suburb: { id: null, name: null }, // Names resolved via client or joins if needed
-        category: { id: null, name: null },
-        isFeatured: Boolean(meta),
-        featuredSuburbLabel: meta?.suburbLabel ?? null,
-        featuredMatchesSelection: meta?.matchesSelection ?? false,
-        createdAt: row.created_at,
-      };
+        return {
+          id: row.id,
+          name: row.business_name,
+          description: row.profile_description,
+          slug: row.slug,
+          region: {
+            id: row.suburb_id,
+            name:
+              row.suburb_id != null
+                ? regionFilter?.regionNameById.get(row.suburb_id) ?? null
+                : null,
+          },
+          category: {
+            id: row.category_id,
+            name:
+              row.category_id != null
+                ? categoryNameById.get(row.category_id) ?? null
+                : null,
+          },
+          isFeatured: Boolean(meta),
+          featuredRegionLabel: meta?.regionLabel ?? null,
+          featuredMatchesSelection: meta?.matchesSelection ?? false,
+          createdAt: row.created_at,
+        };
     }) ?? [];
 
   // Sort by featured first
@@ -167,10 +183,10 @@ async function resolveFeaturedProfileMetadata(
   client: SupabaseClient<Database>,
   {
     regionIds,
-    suburbTerm,
+    regionTerm,
   }: {
     regionIds: number[] | null;
-    suburbTerm: string | null;
+    regionTerm: string | null;
   }
 ) {
   const now = new Date().toISOString();
@@ -192,23 +208,23 @@ async function resolveFeaturedProfileMetadata(
     return new Map<string, any>();
   }
 
-  const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
+  const normalizedRegion = regionTerm?.trim().toLowerCase() ?? null;
 
   const featureMap = new Map<string, any>();
   (data ?? []).forEach((slot) => {
-    const matchesSuburb = normalizedSuburb
-      ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
+    const matchesRegion = normalizedRegion
+      ? slot.suburb_label?.toLowerCase().includes(normalizedRegion) ?? false
       : false;
-    const matchesRegion = regionIds?.length
+    const matchesRegionId = regionIds?.length
       ? slot.region_id
         ? regionIds.includes(slot.region_id)
         : false
       : false;
 
     featureMap.set(slot.business_profile_id, {
-      suburbLabel: slot.suburb_label ?? null,
+      regionLabel: slot.suburb_label ?? null,
       regionId: slot.region_id ?? null,
-      matchesSelection: normalizedSuburb ? matchesSuburb : matchesRegion,
+      matchesSelection: normalizedRegion ? matchesRegion : matchesRegionId,
     });
   });
 

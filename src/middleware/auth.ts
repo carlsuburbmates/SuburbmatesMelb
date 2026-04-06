@@ -43,7 +43,7 @@ export type AuthenticatedHandler = (
 
 export interface AuthOptions {
   roles?: UserType[];
-  requireVendor?: boolean;
+  requireCreator?: boolean;
 }
 
 // ============================================================================
@@ -142,29 +142,25 @@ export function withAuth(
         }
       }
 
-      // Check vendor requirements
-      if (options.requireVendor) {
-        const { data: vendors, error } = await authContext.dbClient
+      // Check creator requirements
+      if (options.requireCreator) {
+        const { data: creators, error } = await authContext.dbClient
           .from("vendors")
-          .select("id, vendor_status, can_sell_products")
+          .select("id, vendor_status")
           .eq("user_id", authContext.user.id);
-
-        if (error || !vendors || vendors.length === 0) {
-          throw new ForbiddenError("Vendor account required");
+ 
+        if (error || !creators || creators.length === 0) {
+          throw new ForbiddenError("Creator account required");
         }
-
-        const [vendor] = vendors;
-
-        if (!vendor) {
-          throw new ForbiddenError("Vendor account required");
+ 
+        const [creator] = creators;
+ 
+        if (!creator) {
+          throw new ForbiddenError("Creator account required");
         }
-
-        if (vendor.vendor_status !== "active") {
-          throw new ForbiddenError("Vendor account is not active");
-        }
-
-        if (!vendor.can_sell_products) {
-          throw new ForbiddenError("Vendor cannot sell products");
+ 
+        if (creator.vendor_status !== "active") {
+          throw new ForbiddenError("Creator account is not active");
         }
       }
 
@@ -224,10 +220,10 @@ export function withAdmin(handler: AuthenticatedHandler) {
 }
 
 /**
- * Require vendor account
+ * Require creator account
  */
-export function withVendor(handler: AuthenticatedHandler) {
-  return withAuth(handler, { requireVendor: true });
+export function withCreator(handler: AuthenticatedHandler) {
+  return withAuth(handler, { requireCreator: true });
 }
 
 /**

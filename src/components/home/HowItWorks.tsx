@@ -1,62 +1,61 @@
 'use client';
 
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
-import { getImageBySection, generateImageUrl } from '@/lib/images';
-import { LazyImage } from '@/components/ui/LazyImage';
+import { UserPlus, Radar, Zap } from 'lucide-react';
 
 export function HowItWorks() {
   const headerAnimation = useFadeIn<HTMLDivElement>({ delay: 200, duration: 800 });
-  const howItWorksImage = getImageBySection('how-it-works')[0];
   const steps = [
     {
       number: '01',
       title: 'Create Profile',
-      description: 'Launch your profile. Add photos, contact details, and showcase your services.',
-      icon: '👤'
+      description: 'Launch your creator profile. Add imagery, contact details, and showcase your digital drops.',
+      Icon: UserPlus,
+      glow: 'rgba(70, 110, 160, 0.08)',
     },
     {
-      number: '02', 
-      title: 'Connect Locally',
-      description: 'Get discovered by customers in your suburb. Build trust through reviews and local community engagement.',
-      icon: '🤝'
+      number: '02',
+      title: 'Get Discovered',
+      description: 'Surface in your local region. Melbourne visitors browse by category and metro area to find creators like you.',
+      Icon: Radar,
+      glow: 'rgba(60, 120, 100, 0.08)',
     },
     {
       number: '03',
-      title: 'Grow Revenue',
-      description: 'Deploy your digital assets. Direct-to-creator routing architecture.',
-      icon: '📈'
-    }
+      title: 'Drive Traffic',
+      description: 'Deploy your digital assets. Direct-to-creator outbound routing architecture.',
+      Icon: Zap,
+      glow: 'rgba(160, 100, 60, 0.08)',
+    },
   ];
   const stepsAnimation = useStaggeredAnimation<HTMLDivElement>(steps.length, 150);
 
   return (
-    <section className="relative overflow-hidden py-16 md:py-24 accent-overlay-purple">
-      <div className="absolute inset-0">
-        {howItWorksImage ? (
-          <LazyImage
-            src={generateImageUrl(howItWorksImage)}
-            alt={howItWorksImage.description}
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gray-300" />
-        )}
-      </div>
-      <div className="absolute inset-0 bg-black/60" />
-      
+    <section
+      className="relative overflow-hidden py-16 md:py-24"
+      style={{ background: 'var(--bg-surface-0)' }}
+    >
+      {/* Ambient glow — slate */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 50% at 70% 40%, rgba(70, 110, 160, 0.05) 0%, transparent 70%)',
+        }}
+      />
+
       <div className="relative container-custom">
         <div
           ref={headerAnimation.elementRef}
           className={`text-center mb-16 ${headerAnimation.className}`}
           style={headerAnimation.style}
         >
-          <h2 className="text-white mb-6">
+          <h2 className="mb-6" style={{ color: 'var(--ink-primary)' }}>
             How It Works
           </h2>
-          <p className="text-white/90 text-lg max-w-2xl mx-auto">
-            Three simple steps to establish your local digital presence and start 
+          <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--ink-secondary)' }}>
+            Three simple steps to establish your local digital presence and start
             building meaningful connections with your community.
           </p>
         </div>
@@ -66,20 +65,33 @@ export function HowItWorks() {
           className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
         >
           {steps.map((step, index) => (
-            <div 
+            <div
               key={step.number}
               className={`${stepsAnimation.getItemClassName(index)} text-center`}
             >
-              <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
-                {step.icon}
+              <div
+                className="w-20 h-20 flex items-center justify-center mx-auto mb-6"
+                style={{
+                  background: step.glow,
+                  border: '1px solid var(--border)',
+                }}
+              >
+                <step.Icon
+                  className="w-8 h-8"
+                  style={{ color: 'var(--ink-secondary)' }}
+                  strokeWidth={1.5}
+                />
               </div>
-              <div className="text-white/60 text-sm font-medium tracking-wider uppercase mb-2">
+              <div
+                className="text-sm font-medium tracking-wider uppercase mb-2"
+                style={{ color: 'var(--ink-tertiary)' }}
+              >
                 Step {step.number}
               </div>
-              <h3 className="text-white mb-4 text-xl">
+              <h3 className="mb-4 text-xl" style={{ color: 'var(--ink-primary)' }}>
                 {step.title}
               </h3>
-              <p className="text-white/80 text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-secondary)' }}>
                 {step.description}
               </p>
             </div>
@@ -87,7 +99,15 @@ export function HowItWorks() {
         </div>
 
         <div className="text-center mt-16">
-          <a href="/auth/signup" className="btn-secondary bg-white text-gray-900 hover:bg-gray-100">
+          <a
+            href="/auth/signup"
+            className="inline-block px-8 py-3 text-sm font-semibold tracking-wide transition-colors"
+            style={{
+              background: 'var(--bg-surface-2)',
+              color: 'var(--ink-primary)',
+              border: '1px solid var(--border)',
+            }}
+          >
             Start Now
           </a>
         </div>

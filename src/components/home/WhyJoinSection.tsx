@@ -2,91 +2,90 @@
 
 import { useFadeIn, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
 import { Check } from 'lucide-react';
-import { getImageBySection, generateImageUrl } from '@/lib/images';
-import { LazyImage } from '@/components/ui/LazyImage';
 
 export function WhyJoinSection() {
   const sectionAnimation = useFadeIn<HTMLDivElement>({ delay: 100, duration: 700 });
-  const whyJoinImage = getImageBySection('why-join')[0];
-  // The original benefits array is replaced by a new features array as per the instruction's intent
-  // and the rendering part of the component.
   const features = [
     'No setup fees or monthly costs for directory profiles',
     'Direct Outbound Routing. Keep 100% of your traffic.',
-    'Local customer base in your suburb',
+    'Regional visibility across Melbourne creators',
     'Studio credentials and reviews',
     'Direct neighbour relationships (no platform interference)',
-    'Australian-owned and operated'
+    'Australian-owned and operated',
   ];
-  // The animation now uses the length of the new features array
   const benefitsAnimation = useStaggeredAnimation<HTMLDivElement>(features.length, 80);
 
   return (
-    <section className="relative overflow-hidden py-16 md:py-24 accent-overlay-rose">
-      <div className="absolute inset-0">
-        {whyJoinImage ? (
-          <LazyImage
-            src={generateImageUrl(whyJoinImage)}
-            alt={whyJoinImage.description}
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gray-300" />
-        )}
-      </div>
-      <div className="absolute inset-0 bg-black/50" />
-      
+    <section
+      className="relative overflow-hidden py-16 md:py-24"
+      style={{ background: 'var(--bg-surface-1)' }}
+    >
+      {/* Ambient glow — sage */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 50% 60% at 20% 60%, rgba(60, 120, 100, 0.06) 0%, transparent 70%)',
+        }}
+      />
+
       <div className="relative container-custom">
         <div
           ref={sectionAnimation.elementRef}
           className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${sectionAnimation.className}`}
           style={sectionAnimation.style}
         >
+          {/* Left — Features list */}
           <div>
-            <h2 className="text-white mb-8">
+            <h2 className="mb-8" style={{ color: 'var(--ink-primary)' }}>
               Why Join SuburbMates?
             </h2>
             <div ref={benefitsAnimation.containerRef} className="space-y-4">
-              {/* Original benefits list replaced with new features and styling */}
-              <ul className="space-y-3 text-white">
+              <ul className="space-y-3">
                 {features.map((feature, index) => (
-                  <li key={index} className={`flex items-center ${benefitsAnimation.getItemClassName(index)}`}>
-                    <div className="bg-green-100 p-1 rounded-full mr-3 flex-shrink-0">
-                      <Check className="h-4 w-4 text-green-600" />
+                  <li
+                    key={index}
+                    className={`flex items-center ${benefitsAnimation.getItemClassName(index)}`}
+                  >
+                    <div
+                      className="p-1 mr-3 flex-shrink-0"
+                      style={{ background: 'rgba(60, 120, 100, 0.15)' }}
+                    >
+                      <Check className="h-4 w-4" style={{ color: 'var(--ink-secondary)' }} />
                     </div>
-                    <span className="text-sm leading-relaxed">{feature}</span>
+                    <span className="text-sm leading-relaxed" style={{ color: 'var(--ink-secondary)' }}>
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          
+
+          {/* Right — CTA card */}
           <div className="text-center lg:text-left">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20">
-              <h3 className="text-white mb-4 text-xl">
+            <div
+              className="p-8 glass-shine"
+              style={{
+                background: 'var(--bg-surface-2)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              <h3 className="mb-4 text-xl" style={{ color: 'var(--ink-primary)' }}>
                 Ready to Get Started?
               </h3>
-              {/* Original paragraph replaced with new content including avatars */}
-              <div className="mb-6">
-                <div className="mt-8 pt-8 border-t border-gray-100"> {/* This border-t seems misplaced here, but keeping as per instruction */}
-                  <div className="flex items-center">
-                    <div className="flex -space-x-2 mr-4">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-10 w-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                          {/* Placeholder avatars - would be real users */}
-                          <div className="h-full w-full bg-gradient-to-br from-blue-100 to-purple-100" />
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-sm text-white/80">
-                      Join Melbourne&rsquo;s local creators and studios on SuburbMates
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <a href="/auth/signup" className="btn-secondary bg-white text-gray-900 hover:bg-gray-100 w-full block text-center">
+              <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--ink-secondary)' }}>
+                Join Melbourne&rsquo;s local creators and studios on SuburbMates. Free profile, no platform fees, direct traffic.
+              </p>
+              <a
+                href="/auth/signup"
+                className="block w-full text-center px-8 py-3 text-sm font-semibold tracking-wide transition-colors"
+                style={{
+                  background: 'var(--ink-primary)',
+                  color: 'var(--bg-surface-0)',
+                }}
+              >
                 Join Free
               </a>
             </div>

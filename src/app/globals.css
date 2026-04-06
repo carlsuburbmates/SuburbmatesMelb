@@ -1,14 +1,47 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────
+   DESIGN TOKENS — Tesla Dark (Suburbmates)
+   Single source of truth for all surfaces.
+   ───────────────────────────────────────── */
 :root {
-  --font-poppins: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  --font-geist-mono: "Geist Mono", monospace;
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Surfaces — 3-level depth system */
+  --bg-base:      #0A0A0A;
+  --bg-surface-1: #141414;
+  --bg-surface-2: #1C1C1E;
+  --bg-surface-3: #242426;
+
+  /* Text — tonal hierarchy */
+  --text-primary:   #F5F5F7;
+  --text-secondary: #A1A1A6;
+  --text-tertiary:  #636366;
+
+  /* Borders — white at low opacity */
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-active: rgba(255, 255, 255, 0.16);
+
+  /* Glass recipe */
+  --glass-bg:     rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.10);
+
+  /* Ink aliases — used by rebuilt dark components */
+  --ink-primary:   var(--text-primary);
+  --ink-secondary: var(--text-secondary);
+  --ink-tertiary:  var(--text-tertiary);
+
+  /* Mobile nav clearance (56px nav + 8px gap) */
+  --mobile-nav-h: 72px;
 }
 
+/* ─────────────────────────────────────────
+   RESET
+   ───────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
@@ -20,87 +53,83 @@ html {
 }
 
 body {
-  font-family: var(--font-poppins);
+  font-family: var(--font-inter);
   margin: 0;
   padding: 0;
   line-height: 1.5;
-  color: #090A0B;
-  background-color: #F5F5F7;
-  font-feature-settings: "ss01", "ss02", "cv01";
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  font-feature-settings: "cv01", "cv02", "cv03", "cv04";
   min-height: 100vh;
   min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.02;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* Base typography */
+/* ─────────────────────────────────────────
+   TYPOGRAPHY
+   ───────────────────────────────────────── */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-poppins);
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  line-height: 1.15;
   margin: 0 0 1rem 0;
-}
-
-h1 {
-  font-size: clamp(2rem, 5vw + 1rem, 3.5rem);
-  font-weight: 800;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
-h2 {
-  font-size: clamp(1.75rem, 4vw + 0.5rem, 2.75rem);
+/* Fluid scale — capped so it never breaks 375px mobile */
+h1 {
+  font-size: clamp(1.875rem, 6vw, 3.5rem);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 h3 {
-  font-size: clamp(1.25rem, 3vw + 0.25rem, 2rem);
-  font-weight: 700;
+  font-size: clamp(1.125rem, 3vw, 1.75rem);
+  font-weight: 600;
 }
 
 h4 {
-  font-size: clamp(1.125rem, 2.5vw + 0.25rem, 1.5rem);
-  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.375rem);
+  font-weight: 500;
 }
 
 p {
   margin: 0 0 1rem 0;
-  font-size: clamp(0.9375rem, 2vw, 1rem);
-  line-height: 1.6;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  line-height: 1.65;
+  color: var(--text-secondary);
 }
 
-/* Button styles */
+/* ─────────────────────────────────────────
+   BUTTONS
+   Dark context: primary = white bg / black text (max contrast)
+   ───────────────────────────────────────── */
 .btn-primary {
-  background-color: #171717;
-  color: white;
-  padding: 14px 20px;
+  background-color: var(--text-primary);
+  color: var(--bg-base);
+  padding: 14px 24px;
   min-height: 44px;
   font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.05em;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-radius: 6px;
+  border-radius: 2px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease-out;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
   text-decoration: none;
   display: inline-block;
   min-width: 50px;
@@ -108,23 +137,23 @@ p {
 }
 
 .btn-primary:hover {
-  background-color: #262626;
-  transform: scale(1.05);
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: white;
-  color: #171717;
-  border: 1px solid #d4d4d4;
-  padding: 14px 20px;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-active);
+  padding: 13px 24px;
   min-height: 44px;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
-  transition: all 0.3s ease-out;
+  transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
   text-decoration: none;
   display: inline-block;
   min-width: 50px;
@@ -132,179 +161,158 @@ p {
 }
 
 .btn-secondary:hover {
-  border-color: #a3a3a3;
-  transform: scale(1.05);
+  background-color: var(--bg-surface-2);
+  border-color: var(--border-active);
 }
 
+/* Legacy CTA — kept for other pages, updated for dark */
 .btn-cta {
-  background-color: #1d4ed8;
-  color: white;
-  padding: 16px 24px;
+  background-color: var(--text-primary);
+  color: var(--bg-base);
+  padding: 16px 28px;
   min-height: 44px;
   font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.05em;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-radius: 6px;
+  border-radius: 2px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease-out;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
   text-decoration: none;
   display: inline-block;
   min-width: 50px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   line-height: 1;
 }
 
 .btn-cta:hover {
-  background-color: #1e40af;
-  transform: scale(1.05);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
-/* Liquid Glass Utilities */
+/* ─────────────────────────────────────────
+   GLASS CARD — Dark Recipe
+   Replaces light-mode glass-card
+   ───────────────────────────────────────── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.03);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 2px;
 }
 
-/* Container */
+/* ─────────────────────────────────────────
+   CONTAINER
+   ───────────────────────────────────────── */
 .container-custom {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 20px;
 }
 
 @media (min-width: 640px) {
-  .container-custom {
-    padding: 0 20px;
-  }
-}
-
-@media (min-width: 768px) {
   .container-custom {
     padding: 0 24px;
   }
 }
 
-/* Accent overlays */
-.accent-overlay-orange {
-  position: relative;
+@media (min-width: 768px) {
+  .container-custom {
+    padding: 0 32px;
+  }
 }
 
-.accent-overlay-orange::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 107, 53, 0.05) 0%,
-    rgba(255, 107, 53, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.accent-overlay-teal {
-  position: relative;
-}
-
-.accent-overlay-teal::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(32, 178, 170, 0.05) 0%,
-    rgba(32, 178, 170, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.accent-overlay-purple {
-  position: relative;
-}
-
-.accent-overlay-purple::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 125, 179, 0.05) 0%,
-    rgba(139, 125, 179, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.accent-overlay-rose {
-  position: relative;
-}
-
-.accent-overlay-rose::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(216, 160, 199, 0.05) 0%,
-    rgba(216, 160, 199, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.accent-overlay-amber {
-  position: relative;
-}
-
-.accent-overlay-amber::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(212, 165, 116, 0.05) 0%,
-    rgba(212, 165, 116, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
+/* ─────────────────────────────────────────
+   ACCENT OVERLAYS — neutralised for dark mode
+   Keep class names to avoid breaking existing usage
+   ───────────────────────────────────────── */
+.accent-overlay-orange,
+.accent-overlay-teal,
+.accent-overlay-purple,
+.accent-overlay-rose,
+.accent-overlay-amber,
 .accent-overlay-sage {
   position: relative;
 }
 
+.accent-overlay-orange::before,
+.accent-overlay-teal::before,
+.accent-overlay-purple::before,
+.accent-overlay-rose::before,
+.accent-overlay-amber::before,
 .accent-overlay-sage::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(124, 170, 157, 0.05) 0%,
-    rgba(124, 170, 157, 0.1) 100%
-  );
+  inset: 0;
+  background: transparent;
   pointer-events: none;
 }
 
+/* ─────────────────────────────────────────
+   SECTION DIVIDERS
+   ───────────────────────────────────────── */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  border: none;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────
+   CHROMATIC SHADOW UTILITIES
+   Subtle colour glows for dark surfaces.
+   Keep opacity ≤ 0.20 to stay controlled.
+   ───────────────────────────────────────── */
+.shadow-amber  { box-shadow: 0 2px 16px 0 rgba(160, 100, 60, 0.16); }
+.shadow-slate  { box-shadow: 0 2px 16px 0 rgba(70, 110, 160, 0.16); }
+.shadow-sage   { box-shadow: 0 2px 16px 0 rgba(60, 120, 100, 0.16); }
+.shadow-mauve  { box-shadow: 0 2px 16px 0 rgba(140, 80, 120, 0.16); }
+.shadow-teal   { box-shadow: 0 2px 16px 0 rgba(80, 140, 140, 0.16); }
+
+.glow-amber:hover  { box-shadow: 0 4px 28px 0 rgba(160, 100, 60, 0.22); }
+.glow-slate:hover  { box-shadow: 0 4px 28px 0 rgba(70, 110, 160, 0.22); }
+.glow-sage:hover   { box-shadow: 0 4px 28px 0 rgba(60, 120, 100, 0.22); }
+
+/* Glass inset highlight — top edge shine */
+.glass-shine {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 4px 24px 0 rgba(0, 0, 0, 0.20);
+}
+
+/* ─────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes carouselScroll {
+  0%, 33%      { transform: translateX(0%); }
+  33.33%, 66%  { transform: translateX(-100%); }
+  66.33%, 100% { transform: translateX(-200%); }
+}
+
+@keyframes pulse-dim {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ─────────────────────────────────────────
+   REDUCED MOTION — mandatory a11y
+   ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
