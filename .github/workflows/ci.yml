@@ -31,8 +31,27 @@ jobs:
       - name: Lint (optional)
         run: npm run lint --if-present
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase and Inject Keys
+        run: |
+          supabase start
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+
       - name: Build
         run: npm run build
+        env:
+          RESEND_API_KEY: dummy
+          STRIPE_SECRET_KEY: dummy
+          STRIPE_WEBHOOK_SECRET: dummy
+          GA_TRACKING_ID: dummy
+          CRON_SECRET: dummy
+          POSTHOG_KEY: dummy
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
