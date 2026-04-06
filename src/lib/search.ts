@@ -189,12 +189,12 @@ async function resolveFeaturedProfileMetadata(
 
   if (error) {
     logger.error("featured_lookup_failed", error);
-    return new Map<string, Record<string, unknown>>();
+    return new Map<string, any>();
   }
 
   const normalizedSuburb = suburbTerm?.trim().toLowerCase() ?? null;
 
-  const featureMap = new Map<string, Record<string, unknown>>();
+  const featureMap = new Map<string, any>();
   (data ?? []).forEach((slot) => {
     const matchesSuburb = normalizedSuburb
       ? slot.suburb_label?.toLowerCase().includes(normalizedSuburb) ?? false
