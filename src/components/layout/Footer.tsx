@@ -1,13 +1,12 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Instagram, Twitter, Linkedin, ArrowUpRight } from 'lucide-react';
+import Link from "next/link";
+import Image from "next/image";
+import { Instagram, Twitter, Linkedin, ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="bg-white border-t border-black pt-24 pb-12">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-16 mb-24">
-          
           {/* Brand - Strategic Identity */}
           <div className="md:col-span-2 lg:col-span-3">
             <Link href="/" className="flex items-center gap-4 mb-8">
@@ -28,10 +27,11 @@ export function Footer() {
               Melbourne&rsquo;s Digital Neighbourhood Feed.
             </p>
             <p className="text-sm text-slate-500 font-medium max-w-sm leading-relaxed mb-8">
-              Discovery-first directory for local creators and studios. 
-              Connecting the Victorian creative network through a high-frequency digital signal.
+              Discovery-first directory for local creators and studios.
+              Connecting the Victorian creative network through a high-frequency
+              digital signal.
             </p>
-            
+
             {/* Social Signal */}
             <div className="flex gap-6">
               {[
@@ -39,13 +39,15 @@ export function Footer() {
                 { icon: Twitter, label: "Network X" },
                 { icon: Linkedin, label: "Professional" },
               ].map((social, i) => (
-                <a 
+                <a
                   key={i}
-                  href="#" 
+                  href="#"
                   className="text-black hover:text-slate-400 transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
                 >
-                  <social.icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{social.label}</span>
+                  <social.icon className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only sm:not-sr-only sm:inline">
+                    {social.label}
+                  </span>
                 </a>
               ))}
             </div>
@@ -58,13 +60,16 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               {[
-                { label: 'Directory', href: '/regions' },
-                { label: 'About Us', href: '/about' },
-                { label: 'Help Centre', href: '/help' },
-                { label: 'Contact', href: '/contact' },
+                { label: "Directory", href: "/regions" },
+                { label: "About Us", href: "/about" },
+                { label: "Help Centre", href: "/help" },
+                { label: "Contact", href: "/contact" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-[0.2em] flex items-center group">
+                  <Link
+                    href={link.href}
+                    className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-[0.2em] flex items-center group"
+                  >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
@@ -75,17 +80,20 @@ export function Footer() {
 
           {/* Legal / Network */}
           <div className="lg:col-span-1">
-             <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-8 border-b border-black pb-2">
+            <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-8 border-b border-black pb-2">
               Legal
             </h4>
             <ul className="space-y-4">
               {[
-                { label: 'Privacy', href: '/privacy' },
-                { label: 'Terms', href: '/terms' },
-                { label: 'Cookies', href: '/cookies' },
+                { label: "Privacy", href: "/privacy" },
+                { label: "Terms", href: "/terms" },
+                { label: "Cookies", href: "/cookies" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-[0.2em] flex items-center group">
+                  <Link
+                    href={link.href}
+                    className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-[0.2em] flex items-center group"
+                  >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
@@ -99,8 +107,8 @@ export function Footer() {
             <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-8 border-b border-black pb-2">
               Direct
             </h4>
-            <a 
-              href="mailto:hello@suburbmates.com.au" 
+            <a
+              href="mailto:hello@suburbmates.com.au"
               className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-[0.2em] block hover:underline decoration-2 underline-offset-8"
             >
               hello@suburbmates.com.au

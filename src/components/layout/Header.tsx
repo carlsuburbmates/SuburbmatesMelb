@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Menu, X, LogOut, ChevronRight } from 'lucide-react';
-import { SignupModal } from '@/components/modals/SignupModal';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, X, LogOut, ChevronRight } from "lucide-react";
+import { SignupModal } from "@/components/modals/SignupModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const NAV_LINKS = [
-  { label: 'DIRECTORY', href: '/regions' },
-  { label: 'ABOUT', href: '/about' },
-  { label: 'HELP', href: '/help' },
+  { label: "DIRECTORY", href: "/regions" },
+  { label: "ABOUT", href: "/about" },
+  { label: "HELP", href: "/help" },
 ];
 
 export function Header() {
@@ -27,13 +27,15 @@ export function Header() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/');
+    router.push("/");
   };
 
   useEffect(() => {
-    if (isMenuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
-    return () => { document.body.style.overflow = ''; };
+    if (isMenuOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMenuOpen]);
 
   return (
@@ -43,14 +45,14 @@ export function Header() {
           {/* Minimal Logo */}
           <Link href="/" className="flex items-center gap-4 group">
             <div className="relative w-12 h-12 bg-black overflow-hidden hover:rotate-90 transition-transform duration-500">
-               <Image
-                 src="/icon.png"
-                 alt="SM"
-                 width={64}
-                 height={64}
-                 className="object-cover grayscale brightness-200"
-                 priority
-               />
+              <Image
+                src="/icon.png"
+                alt="SM"
+                width={64}
+                height={64}
+                className="object-cover grayscale brightness-200"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-black text-black uppercase tracking-[0.3em] leading-none">
@@ -81,7 +83,7 @@ export function Header() {
               <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin" />
             ) : isAuthenticated ? (
               <div className="flex items-center gap-6">
-                 {user?.user_type === 'vendor' && (
+                {user?.user_type === "vendor" && (
                   <Link
                     href="/dashboard"
                     className="text-[10px] font-black text-black uppercase tracking-widest hover:underline decoration-2 underline-offset-4"
@@ -93,8 +95,9 @@ export function Header() {
                   onClick={handleLogout}
                   className="p-2 text-black hover:bg-slate-50 transition-colors"
                   title="Logout"
+                  aria-label="Logout"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             ) : (
@@ -119,16 +122,25 @@ export function Header() {
           <button
             onClick={toggleMenu}
             className="md:hidden p-2 text-black"
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? (
+              <X className="w-6 h-6" aria-hidden="true" />
+            ) : (
+              <Menu className="w-6 h-6" aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Overlay - High Density */}
       {isMenuOpen && (
-        <div className="fixed inset-0 top-20 z-[90] bg-white md:hidden animate-in fade-in slide-in-from-top-4 duration-300">
+        <div
+          id="mobile-menu"
+          className="fixed inset-0 top-20 z-[90] bg-white md:hidden animate-in fade-in slide-in-from-top-4 duration-300"
+        >
           <nav className="p-8 space-y-12">
             {NAV_LINKS.map((link) => (
               <Link
@@ -141,27 +153,33 @@ export function Header() {
                 <ChevronRight className="w-6 h-6" />
               </Link>
             ))}
-            
+
             <div className="pt-12 border-t border-slate-100 flex flex-col gap-6">
               {!isAuthenticated ? (
                 <>
-                   <Link
-                      href="/auth/login"
-                      className="text-sm font-black text-black uppercase tracking-widest"
-                      onClick={closeMenu}
-                    >
-                      Login
-                    </Link>
-                    <button
-                      onClick={() => { closeMenu(); openSignupModal(); }}
-                      className="w-full bg-black text-white py-4 text-xs font-black uppercase tracking-widest"
-                    >
-                      Get Started
-                    </button>
+                  <Link
+                    href="/auth/login"
+                    className="text-sm font-black text-black uppercase tracking-widest"
+                    onClick={closeMenu}
+                  >
+                    Login
+                  </Link>
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      openSignupModal();
+                    }}
+                    className="w-full bg-black text-white py-4 text-xs font-black uppercase tracking-widest"
+                  >
+                    Get Started
+                  </button>
                 </>
               ) : (
                 <button
-                  onClick={() => { closeMenu(); handleLogout(); }}
+                  onClick={() => {
+                    closeMenu();
+                    handleLogout();
+                  }}
                   className="text-left text-sm font-black text-red-600 uppercase tracking-widest"
                 >
                   Logout
@@ -171,11 +189,8 @@ export function Header() {
           </nav>
         </div>
       )}
-      
-      <SignupModal 
-        isOpen={isSignupModalOpen} 
-        onClose={closeSignupModal} 
-      />
+
+      <SignupModal isOpen={isSignupModalOpen} onClose={closeSignupModal} />
     </header>
   );
 }
