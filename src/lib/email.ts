@@ -5,7 +5,6 @@
 
 import { Resend } from 'resend';
 import { PLATFORM, MAX_PRODUCTS_PER_CREATOR } from './constants';
-import { escapeHtml, stripNewlines } from './html-sanitizer';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -53,10 +52,10 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     const { data, error } = await resend.emails.send({
       from: options.from || PLATFORM.NO_REPLY_EMAIL,
       to: Array.isArray(options.to) ? options.to : [options.to],
-      subject: stripNewlines(options.subject),
+      subject: options.subject,
       html: options.html,
       text: options.text,
-      replyTo: options.replyTo ? stripNewlines(options.replyTo) : undefined,
+      replyTo: options.replyTo,
       cc: options.cc,
       bcc: options.bcc,
     });
@@ -84,7 +83,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
  * Welcome email for new customers
  */
 export async function sendWelcomeEmail(email: string, firstName?: string): Promise<EmailResult> {
-  const name = escapeHtml(firstName || 'there');
+  const name = firstName || 'there';
   
   return sendEmail({
     to: email,
@@ -111,12 +110,11 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
  * Vendor profile claimed/created
  */
 export async function sendVendorOnboardingEmail(email: string, businessName: string, dashboardUrl: string): Promise<EmailResult> {
-  const safeBusinessName = escapeHtml(businessName);
   return sendEmail({
     to: email,
     subject: `Welcome to the ${PLATFORM.NAME} Creator Community`,
     html: `
-      <h1>Welcome, ${safeBusinessName}! 🎉</h1>
+      <h1>Welcome, ${businessName}! 🎉</h1>
       <p>Your directory profile is now ready on ${PLATFORM.NAME}.</p>
       <p>Log in to your dashboard to start adding your digital products:</p>
       <p><a href="${dashboardUrl}" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
@@ -136,12 +134,11 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
  * Vendor onboarding complete
  */
 export async function sendVendorApprovedEmail(email: string, businessName: string): Promise<EmailResult> {
-  const safeBusinessName = escapeHtml(businessName);
   return sendEmail({
     to: email,
     subject: '🎉 Your Vendor Account is Active!',
     html: `
-      <h1>Congratulations, ${safeBusinessName}! 🎉</h1>
+      <h1>Congratulations, ${businessName}! 🎉</h1>
       <p>Your vendor account is now active on ${PLATFORM.NAME}.</p>
       <p>You can now:</p>
       <ul>
@@ -171,16 +168,14 @@ export async function sendVendorWarningEmail(
   businessName: string,
   reason: string
 ): Promise<EmailResult> {
-  const safeBusinessName = escapeHtml(businessName);
-  const safeReason = escapeHtml(reason);
   return sendEmail({
     to: email,
     subject: '⚠️ Account Warning - Action Required',
     html: `
       <h1>Account Warning</h1>
-      <p>Hi ${safeBusinessName},</p>
+      <p>Hi ${businessName},</p>
       <p>Your vendor account has received a warning:</p>
-      <p><strong>Reason:</strong> ${safeReason}</p>
+      <p><strong>Reason:</strong> ${reason}</p>
       <p>Please review our policies and take corrective action to avoid account suspension.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Dashboard</a></p>
       <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
@@ -197,16 +192,14 @@ export async function sendVendorSuspensionEmail(
   businessName: string,
   reason: string
 ): Promise<EmailResult> {
-  const safeBusinessName = escapeHtml(businessName);
-  const safeReason = escapeHtml(reason);
   return sendEmail({
     to: email,
     subject: '🚨 Account Suspended',
     html: `
       <h1>Account Suspended</h1>
-      <p>Hi ${safeBusinessName},</p>
+      <p>Hi ${businessName},</p>
       <p>Your directory profile has been suspended.</p>
-      <p><strong>Reason:</strong> ${safeReason}</p>
+      <p><strong>Reason:</strong> ${reason}</p>
       <p>If you believe this is an error, please contact us at ${PLATFORM.SUPPORT_EMAIL}.</p>
       <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
     `,
@@ -223,18 +216,16 @@ export async function sendAppealDecisionEmail(
   notes: string
 ): Promise<EmailResult> {
   const approved = decision === 'approved';
-  const safeBusinessName = escapeHtml(businessName);
-  const safeNotes = escapeHtml(notes);
   
   return sendEmail({
     to: email,
     subject: approved ? '✅ Appeal Approved' : '❌ Appeal Rejected',
     html: `
       <h1>Appeal Decision: ${approved ? 'Approved' : 'Rejected'}</h1>
-      <p>Hi ${safeBusinessName},</p>
+      <p>Hi ${businessName},</p>
       <p>Your appeal has been ${decision}.</p>
       <p><strong>Decision Notes:</strong></p>
-      <p>${safeNotes}</p>
+      <p>${notes}</p>
       ${approved ? `
         <p>Your account has been reinstated. You can now resume selling on ${PLATFORM.NAME}.</p>
         <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
@@ -263,16 +254,14 @@ export async function sendFeaturedSlotExpiryEmail(
     month: 'long',
     day: 'numeric',
   });
-  const safeBusinessName = escapeHtml(businessName);
-  const safeSuburb = escapeHtml(suburb);
 
   return sendEmail({
     to: email,
     subject: `Featured Slot Expiring Soon - ${suburb}`,
     html: `
       <h1>Your Featured Slot is Expiring Soon</h1>
-      <p>Hi ${safeBusinessName},</p>
-      <p>Your featured slot for <strong>${safeSuburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${daysRemaining} days).</p>
+      <p>Hi ${businessName},</p>
+      <p>Your featured slot for <strong>${suburb}</strong> will expire on <strong>${formattedDate}</strong> (in ${daysRemaining} days).</p>
       <p>To keep your top spot and continue getting premium visibility, you can renew your slot from your dashboard.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Manage Featured Slots</a></p>
       <p>If you choose not to renew, your slot will become available for other local studios.</p>
