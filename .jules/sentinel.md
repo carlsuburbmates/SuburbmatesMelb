@@ -1,0 +1,5 @@
+## 2024-04-08 - Fix XSS and Email Header Injection in Contact Form
+
+**Vulnerability:** The application was vulnerable to Cross-Site Scripting (XSS) via HTML injection in the contact form (`src/app/api/contact/route.ts`), where user-provided input (`name`, `email`, `subject`, `message`) was directly interpolated into the HTML body of outbound support emails. Additionally, email headers (`subject`, `replyTo`) lacked sanitization against CRLF injection, risking email header manipulation.
+**Learning:** `sendEmail` utilities do not automatically sanitize HTML body content, and standard Next.js architectures require manual escaping of variables when constructing raw HTML template strings.
+**Prevention:** Created a standard `src/lib/html-sanitizer.ts` utility containing `escapeHtml` (processing `&` first to prevent double-escaping) and `stripNewlines`. Updated `sendEmail` to auto-sanitize headers, and updated the contact API route to explicitly sanitize all user inputs before interpolation into HTML templates.

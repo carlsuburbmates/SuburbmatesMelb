@@ -5,6 +5,7 @@
 
 import { Resend } from 'resend';
 import { PLATFORM, MAX_PRODUCTS_PER_CREATOR } from './constants';
+import { stripNewlines } from './html-sanitizer';
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -52,10 +53,10 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     const { data, error } = await resend.emails.send({
       from: options.from || PLATFORM.NO_REPLY_EMAIL,
       to: Array.isArray(options.to) ? options.to : [options.to],
-      subject: options.subject,
+      subject: stripNewlines(options.subject),
       html: options.html,
       text: options.text,
-      replyTo: options.replyTo,
+      replyTo: options.replyTo ? stripNewlines(options.replyTo) : undefined,
       cc: options.cc,
       bcc: options.bcc,
     });
