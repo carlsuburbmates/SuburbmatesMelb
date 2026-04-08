@@ -13,11 +13,9 @@ import {
   successResponse,
 } from "@/app/api/_utils/response";
 import { parseProductUpdateRequest } from "../payload";
-import { Database } from "@/lib/database.types";
 import { generateUniqueSlug, shouldRegenerateSlug } from "@/lib/slug-utils";
-import { FEATURED_SLOT, MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
+import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { NextRequest } from "next/server";
-import { withCors } from "@/middleware/cors";
 
 async function updateProductHandler(
   req: NextRequest,

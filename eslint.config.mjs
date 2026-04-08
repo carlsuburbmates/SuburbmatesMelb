@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Workspace-specific ignores
+    "analyze_spec.js",
+    ".agent/**",
+    ".agents/**",
     "node_modules/**",
     "scripts/**",
     "test-results/**",

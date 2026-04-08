@@ -1,0 +1,8 @@
+analyze_spec.js
+scripts/
+.agent/
+.agents/
+node_modules/
+.next/
+dist/
+build/

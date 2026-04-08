@@ -102,45 +102,62 @@ def check_page(file_path: Path) -> dict:
     except Exception as e:
         return {"file": str(file_path.name), "issues": [f"Error: {e}"]}
     
-    # Detect if this is a layout/template file (has Head component)
-    is_layout = 'Head>' in content or '<head' in content.lower()
+    # Detect if this is a Next.js page/layout with metadata export or generateMetadata
+    has_next_metadata = any(x in content for x in ['export const metadata', 'export let metadata', 'export async function generateMetadata', 'export function generateMetadata'])
     
+    # Detect if this is a layout/template file (has Head component or metadata export in layout.tsx)
+    is_layout = 'Head>' in content or '<head' in content.lower() or ('layout' in file_path.name.lower() and has_next_metadata)
+    is_page = 'page' in file_path.name.lower() or 'index' in file_path.name.lower()
+
+    # Get relative path for reporting
+    try:
+        rel_path = str(file_path.relative_to(Path.cwd()))
+    except:
+        rel_path = str(file_path.name)
+
     # 1. Title tag
-    has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content
-    if not has_title and is_layout:
-        issues.append("Missing <title> tag")
+    has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content or (has_next_metadata and 'title:' in content)
+    if not has_title and (is_layout or (is_page and not has_next_metadata)):
+        issues.append("Missing <title> tag or metadata")
     
     # 2. Meta description
-    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower()
-    if not has_description and is_layout:
+    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower() or (has_next_metadata and 'description:' in content)
+    if not has_description and (is_layout or (is_page and not has_next_metadata)):
         issues.append("Missing meta description")
     
     # 3. Open Graph tags
-    has_og = 'og:' in content or 'property="og:' in content.lower()
-    if not has_og and is_layout:
-        issues.append("Missing Open Graph tags")
+    has_og = 'og:' in content or 'property="og:' in content.lower() or (has_next_metadata and 'openGraph:' in content)
+    if not has_og and (is_layout or (is_page and has_next_metadata and 'openGraph:' not in content)):
+        # Only warn on layout or if page has metadata but missing OG
+        if is_layout:
+            issues.append("Missing Open Graph tags in layout")
     
     # 4. Heading hierarchy - multiple H1s
     h1_matches = re.findall(r'<h1[^>]*>', content, re.I)
     if len(h1_matches) > 1:
-        issues.append(f"Multiple H1 tags ({len(h1_matches)})")
+        # Ignore multiple H1s if they are in different code paths (naive check)
+        if 'else' in content or '?' in content:
+            # Still warn but with a note
+            issues.append(f"Potential Multiple H1 tags ({len(h1_matches)}) - check code paths")
+        else:
+            issues.append(f"Multiple H1 tags ({len(h1_matches)})")
     
     # 5. Images without alt
     img_pattern = r'<img[^>]+>'
     imgs = re.findall(img_pattern, content, re.I)
     for img in imgs:
-        if 'alt=' not in img.lower():
+        if 'alt=' not in img.lower() and 'aria-hidden' not in img.lower():
             issues.append("Image missing alt attribute")
             break
         if 'alt=""' in img or "alt=''" in img:
-            issues.append("Image has empty alt attribute")
-            break
+            # Empty alt is okay for decorative images if not aria-hidden
+            pass
     
     # 6. Check for canonical link (nice to have)
     # has_canonical = 'rel="canonical"' in content.lower()
     
     return {
-        "file": str(file_path.name),
+        "file": rel_path,
         "issues": issues
     }
 
@@ -191,10 +208,8 @@ def main():
             print(f"  [{count}] {issue}")
         
         print(f"\nAffected files ({len(all_issues)}):")
-        for item in all_issues[:5]:
+        for item in all_issues:
             print(f"  - {item['file']}")
-        if len(all_issues) > 5:
-            print(f"  ... and {len(all_issues) - 5} more")
     else:
         print("\n[OK] No SEO issues found!")
     

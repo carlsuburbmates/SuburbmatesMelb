@@ -24,10 +24,12 @@ export function FilterInputs({ selectedCategory, selectedRegion, onFilterChange 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Category Filter */}
       <div className="relative group">
+        <label htmlFor="category-filter" className="sr-only">Filter by Category</label>
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none border-r border-white/10 pr-2 my-2">
           <span className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Category</span>
         </div>
         <select
+          id="category-filter"
           value={selectedCategory}
           onChange={(e) => onFilterChange('category', e.target.value)}
           className="block w-full pl-[90px] pr-10 py-3 text-sm bg-ink-surface-1 border border-white/10 rounded-sm appearance-none focus:outline-none focus:border-white/30 transition-colors font-medium text-ink-primary hover:border-white/20"
@@ -46,10 +48,12 @@ export function FilterInputs({ selectedCategory, selectedRegion, onFilterChange 
 
       {/* Region Filter */}
       <div className="relative group">
+        <label htmlFor="region-filter" className="sr-only">Filter by Region</label>
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none border-r border-white/10 pr-2 my-2">
           <span className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Region</span>
         </div>
         <select
+          id="region-filter"
           value={selectedRegion}
           onChange={(e) => onFilterChange('region', e.target.value)}
           className="block w-full pl-[90px] pr-10 py-3 text-sm bg-ink-surface-1 border border-white/10 rounded-sm appearance-none focus:outline-none focus:border-white/30 transition-colors font-medium text-ink-primary hover:border-white/20"

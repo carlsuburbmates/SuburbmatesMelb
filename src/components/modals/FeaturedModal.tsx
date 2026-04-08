@@ -28,7 +28,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
       description: "Full period of featured placement for maximum exposure",
     },
     {
-      icon: <DollarSign className="w-5 h-5 text-purple-500" />,
+      icon: <DollarSign className="w-5 h-5 text-emerald-500" />,
       title: "Affordable Investment",
       description: `Just A$${FEATURED_SLOT.PRICE_CENTS / 100} per placement - guaranteed regional priority to maximize outbound traffic.`,
     }
@@ -81,7 +81,7 @@ export function FeaturedModal({ isOpen, onClose }: FeaturedModalProps) {
         </div>
 
         {/* Pricing Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 text-center">
+        <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 text-center">
           <div className="mb-4">
             <span className="text-3xl font-bold text-gray-900">A$${FEATURED_SLOT.PRICE_CENTS / 100}</span>
             <span className="text-gray-600 ml-2">per placement</span>

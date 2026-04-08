@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, MapPin, Calendar, Tag } from 'lucide-react';
+import { MapPin, Calendar, Tag } from 'lucide-react';
 import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessInfoProps {

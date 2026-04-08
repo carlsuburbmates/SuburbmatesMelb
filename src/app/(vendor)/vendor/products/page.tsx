@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { AlertCircle, Edit, Plus, Save, Trash2, UploadCloud } from "lucide-react";
+import { AlertCircle, Edit, Trash2, UploadCloud } from "lucide-react";
 import { useVendorProducts, VendorProduct } from "@/hooks/useVendorProducts";
 
 interface ProductFormState {
@@ -37,8 +36,6 @@ export default function VendorProductsPage() {
   const {
     products,
     stats,
-    isLoading,
-    error,
     createProduct,
     updateProduct,
     deleteProduct,
@@ -132,17 +129,6 @@ const handleDelete = async (productId: string) => {
   }
 };
 
-const handleToggleStatus = async (product: VendorProduct) => {
-  try {
-    await updateProduct(product.id, { is_active: !product.is_active });
-  } catch (err) {
-    setFormError(
-      err instanceof Error
-        ? err.message
-        : "Unable to update status. Please try again."
-    );
-  }
-};
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

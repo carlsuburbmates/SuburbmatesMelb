@@ -1,8 +1,12 @@
-"use client";
-
+import { Metadata } from 'next';
 import { Check, Store, Shield, Zap, Globe, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { FEATURED_SLOT, MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: 'Economic Protocol | SuburbMates',
+  description: "Zero fees. No commission. Direct architecture for Melbourne's digital creators.",
+};
 
 export default function Pricing() {
   const features = [
@@ -84,7 +88,7 @@ export default function Pricing() {
                 </div>
                 <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-ink-primary mb-4">Studio Identity</h3>
                 <p className="text-[10px] text-ink-tertiary uppercase tracking-widest font-medium leading-relaxed">
-                  Join the discovery network without operational overhead. We bridge the gap between your products and Melbourne's intent.
+                  Join the discovery network without operational overhead. We bridge the gap between your products and Melbourne&apos;s intent.
                 </p>
               </div>
 

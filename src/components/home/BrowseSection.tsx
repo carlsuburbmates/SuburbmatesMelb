@@ -1,7 +1,6 @@
 "use client";
 
 import { useFadeIn } from "@/hooks/useScrollAnimation";
-import { analytics } from "@/lib/analytics";
 import { useState } from "react";
 import { RegionBottomSheet } from "@/components/regions/RegionBottomSheet";
 import {

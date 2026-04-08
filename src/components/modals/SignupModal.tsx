@@ -29,7 +29,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     try {
       const { error } = await signInWithGoogle();
       if (error) throw error;
-    } catch (err) {
+    } catch {
       toast.error('Authentication failed. Retry.');
     }
   };

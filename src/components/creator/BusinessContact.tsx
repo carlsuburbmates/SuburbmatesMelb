@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, Mail, Globe, MessageCircle, Send, CheckCircle, ArrowRight } from 'lucide-react';
+import { Phone, Mail, Globe, MessageCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { MappedBusinessProfile } from "@/lib/types";
 
 interface BusinessContactProps {

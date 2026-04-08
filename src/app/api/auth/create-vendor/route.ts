@@ -62,7 +62,8 @@ export async function POST(request: NextRequest) {
       .eq('id', userId);
 
     return NextResponse.json({ success: true, data: { creator } });
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as { name?: string; status?: number; message?: string };
     if (error.name === 'UnauthorizedError' || error.status === 401) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }

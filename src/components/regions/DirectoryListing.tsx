@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Zap, MapPin, Info, ArrowRight } from "lucide-react";
+import { ArrowUpRight, Zap, Info, ArrowRight } from "lucide-react";
 import { RegionBottomSheet } from "./RegionBottomSheet";
 import { METRO_REGIONS } from "@/lib/constants";
 
@@ -81,7 +81,7 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
 
         setBusinesses(results);
         setTotalCount(json.data.pagination?.total ?? 0);
-      } catch (error) {
+      } catch {
         if (!isMounted) return;
         setError("Directory unavailable. Retry connection.");
       } finally {

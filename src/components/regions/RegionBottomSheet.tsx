@@ -41,7 +41,7 @@ export function RegionBottomSheet({ region, isOpen, onClose }: RegionBottomSheet
             setIsLoading(false);
           }
         });
-      } catch (err) {
+      } catch {
         if (isMounted) setIsLoading(false);
       }
     };

@@ -1,7 +1,6 @@
 "use client";
 
 import { StandardTemplate } from "./StandardTemplate";
-import { HighEndTemplate } from "./HighEndTemplate";
 import { StickyActionBar } from "../StickyActionBar";
 import { BusinessProfileExtended, MappedBusinessProfile } from "@/lib/types";
 

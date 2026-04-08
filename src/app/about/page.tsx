@@ -87,7 +87,7 @@ export default function AboutPage() {
               </div>
               <div className="bg-ink-surface-1 p-8 rounded-sm border border-white/5 space-y-8 backdrop-blur-sm">
                 <p className="text-lg text-ink-secondary leading-relaxed font-light italic opacity-80">
-                  &ldquo;We&rsquo;re building a space where neighbours can discover the talent right in their backyard, supporting local creators and making 'shop local' a digital reality.&rdquo;
+                  &ldquo;We&rsquo;re building a space where neighbours can discover the talent right in their backyard, supporting local creators and making &apos;shop local&apos; a digital reality.&rdquo;
                 </p>
                 <div className="pt-8 border-t border-white/10">
                   <div className="flex items-center space-x-4">

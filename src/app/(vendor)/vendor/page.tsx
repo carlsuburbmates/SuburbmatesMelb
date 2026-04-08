@@ -1,5 +1,11 @@
 import { redirect } from "next/navigation";
+import { Metadata } from 'next';
 
-export default function VendorIndexPage() {
-  redirect("/vendor/dashboard");
+export const metadata: Metadata = {
+  title: 'Vendor | SuburbMates',
+  robots: { index: false, follow: false },
+};
+
+export default function VendorRedirectPage() {
+  redirect("/vendor/directory");
 }
