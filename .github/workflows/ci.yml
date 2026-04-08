@@ -55,6 +55,16 @@ jobs:
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
+        env:
+          RESEND_API_KEY: re_dummy
+          STRIPE_SECRET_KEY: dummy
+          STRIPE_WEBHOOK_SECRET: dummy
+          CRON_SECRET: dummy
 
       - name: E2E tests (serve)
         run: node scripts/e2e-serve.mjs
+        env:
+          RESEND_API_KEY: re_dummy
+          STRIPE_SECRET_KEY: dummy
+          STRIPE_WEBHOOK_SECRET: dummy
+          CRON_SECRET: dummy
