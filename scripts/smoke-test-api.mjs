@@ -5,13 +5,11 @@ const base = process.env.SM_BASE_URL || 'http://localhost:3010';
 
 const routes = [
   { path: '/', expect: 200 },
-  { path: '/directory', expect: 200 },
-  { path: '/marketplace', expect: 200 },
+  { path: '/regions', expect: 200 },
   { path: '/robots.txt', expect: 200 },
   { path: '/sitemap.xml', expect: 200 },
-  { path: '/api/business', expect: 200 },
   // Dynamic page will 404 without seeded data; this is acceptable
-  { path: '/business/test-slug', expect: 404 },
+  { path: '/creator/test-slug', expect: 404 },
 ];
 
 async function check(path, expect) {
