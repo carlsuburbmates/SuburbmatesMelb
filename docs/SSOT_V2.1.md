@@ -141,3 +141,7 @@ The following components/logic are explicitly banned and must be removed:
 * Zero-PII API Mandate (The explicit architectural constraint for `/api/redirect` forbidding the capture or logging of IP/User Agent).
 * SEO Metadata Configuration (The exact `export const metadata: Metadata` typescript object). 
 * Implementation details (e.g., algorithms, schema states, RLS policies, SEO config) are intentionally excluded unless explicitly locked.
+
+## Payments and Liability
+- Vendor is the Merchant of Record
+- Suburbmates does not issue refunds

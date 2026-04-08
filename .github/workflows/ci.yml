@@ -44,6 +44,9 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(npx supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=$(npx supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "RESEND_API_KEY=dummy-resend-key" >> $GITHUB_ENV
+          echo "STRIPE_SECRET_KEY=dummy-stripe-key" >> $GITHUB_ENV
+          echo "STRIPE_WEBHOOK_SECRET=dummy-webhook-key" >> $GITHUB_ENV
 
       - name: Build
         run: npm run build
