@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack -p 5000 -H 0.0.0.0",
     "build": "next build --webpack",
-    "start": "next start -p 3010 -H localhost",
+    "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint",
     "verify:workspace": "node -e \"const fs=require('fs');const p='package.json';const n='node_modules/next/dist/bin/next';if(!fs.existsSync(p)){console.error('Missing package.json in project root');process.exit(1)};if(!fs.existsSync(n)){console.error('Missing Next binary. Run npm install');process.exit(1)};console.log('Workspace OK');\"",
     "smoke": "node scripts/smoke-test-api.mjs",
