@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Vendor } from '@/lib/types';
-import { createBrowserClient } from '@supabase/auth-helpers-nextjs';
+import supabase from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -31,10 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   useEffect(() => {
     const ensureUserRecord = async (sessionUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }) => {
@@ -110,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, []);
 
   const signInWithOtp = async (email: string) => {
     return await signInWithOtpAs(email, 'customer');

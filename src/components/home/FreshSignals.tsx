@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Database } from "@/lib/database.types";
+import supabase from "@/lib/supabase";
 import Link from "next/link";
 import { ArrowUpRight, Signal } from "lucide-react";
 import { analytics } from "@/lib/analytics";
@@ -37,9 +36,6 @@ export function FreshSignals() {
 
   useEffect(() => {
     async function fetchShuffle() {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-      const supabase = createClient<Database>(supabaseUrl, supabaseKey);
       try {
         const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 8 });
         if (error) console.error("Shuffle Error:", error);
