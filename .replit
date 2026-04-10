@@ -32,3 +32,12 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+NEXT_PUBLIC_SUPABASE_URL = "https://hmmqhwnxylqcbffjffpj.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtbXFod254eWxxY2JmZmpmZnBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDg0NzUsImV4cCI6MjA3NzY4NDQ3NX0.FV_Fokql-jrgpt0124jwHgXh-6Rwkd8GwMzrkxEz-0w"
+SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtbXFod254eWxxY2JmZmpmZnBqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjEwODQ3NSwiZXhwIjoyMDc3Njg0NDc1fQ.Q8dMtft2_nUU1VwUyW5aAkglmxXXZUeXVr11yXXRsAQ"
+RESEND_API_KEY = "re_T9s7r6df_DQXGNTdYHsNk5hggTekVeGMw\t"
+ABR_GUID = "9c72aac8-8cfc-4a77-b4c9-18aa308669ed\t"
