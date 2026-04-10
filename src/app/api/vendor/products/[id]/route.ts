@@ -6,6 +6,7 @@
  */
 
 import { requireCreator } from "@/app/api/_utils/auth";
+import { Database } from "@/lib/database.types";
 import {
   forbiddenResponse,
   internalErrorResponse,
@@ -70,7 +71,7 @@ async function updateProductHandler(
     newSlug = await generateUniqueSlug(creator.id, body.title, dbClient);
   }
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: Database["public"]["Tables"]["products"]["Update"] = {
     slug: newSlug,
     updated_at: new Date().toISOString(),
   };
