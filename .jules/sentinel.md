@@ -1,0 +1,4 @@
+## 2025-02-14 - HTML and CRLF Injection in Contact Emails
+**Vulnerability:** The contact form POST endpoint (`src/app/api/contact/route.ts`) directly interpolated user inputs (`name`, `email`, `subject`, `message`) into an HTML email template. It also passed `subject` and `replyTo` directly to Resend's API without removing newlines, risking CRLF/Email Header Injection.
+**Learning:** Even when inputs seem benign (like contact forms), any unsanitized user string interpolated into an HTML context risks XSS or HTML injection in the recipient's mail client. Furthermore, email headers derived from user input must be stripped of `\r` and `\n` to prevent header injection.
+**Prevention:** Always use a custom or library-based `escapeHtml` function (making sure to replace `&` first to avoid double escaping) when interpolating variables into HTML bodies. Always use a `stripNewlines` function for any user input mapped to email headers (Subject, ReplyTo).
