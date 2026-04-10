@@ -48,6 +48,7 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
               type="button"
               onClick={() => setSearch('')}
               className="absolute right-4 p-1 hover:bg-white/10 rounded-sm transition-colors"
+              aria-label="Clear search"
             >
               <X className="h-4 w-4 text-ink-secondary" />
             </button>
