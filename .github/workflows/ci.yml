@@ -17,22 +17,42 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase Local Emulator
+        run: |
+          supabase start
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "RESEND_API_KEY=dummy_key" >> $GITHUB_ENV
+          echo "STRIPE_SECRET_KEY=dummy_key" >> $GITHUB_ENV
+          echo "STRIPE_WEBHOOK_SECRET=dummy_key" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
 
       - name: Verify workspace
-        run: npm run verify:workspace
+        run: pnpm run verify:workspace
 
       - name: Install Playwright (Chromium + deps)
         run: npx playwright install --with-deps chromium
 
-      - name: Lint (optional)
-        run: npm run lint --if-present
+      - name: Lint
+        run: pnpm run lint
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Smoke test (serve)
         run: node scripts/smoke-serve.mjs
