@@ -76,7 +76,13 @@
 ## Known Issues / Future Phases
 
 - **Phase 4**: ✅ `src/lib/auth.ts` deleted (2026-04-11) — zero imports confirmed, typecheck passed
-- **Phase 5**: Drop `appeals`, `reviews` tables and dead vendor/product columns (see `DATABASE_TRUTH.md`)
+- **Phase 5**: ✅ Complete (2026-04-11)
+  - SQL run via Supabase Dashboard SQL editor (CLI/API blocked — PAT scope + no IPv4 DB path from Replit)
+  - Dropped: `appeals` table, `reviews` table, 3 dead RPCs, 10 vendor columns, 5 product columns
+  - `src/lib/database.types.ts` manually updated to match (920 → 736 lines); TypeScript: 0 errors
+  - Migration files committed to `supabase/migrations/` (4 files, Phase 5A–D)
+- **`SUPABASE_REPLIT` PAT**: Currently returning 401 on Management API — needs refresh before next type regen
+  - To regen types: `SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript --project-id hmmqhwnxylqcbffjffpj > src/lib/database.types.ts`
 - **Sentry**: Instrumentation warnings present — `instrumentation-client.ts` needs `onRouterTransitionStart` hook
 - **Category join in directory search**: `category.name` returns null from PostgREST join — pre-existing issue, investigate FK constraint name alignment
 - **`business_profiles.suburb_id`**: intentional compatibility alias for `region_id` — do not rename

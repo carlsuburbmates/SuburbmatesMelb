@@ -14,84 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      appeals: {
-        Row: {
-          appeal_deadline: string
-          appeal_reason: string
-          appeal_type: string
-          created_at: string | null
-          evidence_urls: string[] | null
-          id: string
-          outcome: string | null
-          related_dispute_id: string | null
-          related_suspension_reason: string | null
-          review_deadline: string | null
-          review_decision: string | null
-          review_notes: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: string | null
-          updated_at: string | null
-          vendor_id: string
-          vendor_statement: string | null
-        }
-        Insert: {
-          appeal_deadline: string
-          appeal_reason: string
-          appeal_type: string
-          created_at?: string | null
-          evidence_urls?: string[] | null
-          id?: string
-          outcome?: string | null
-          related_dispute_id?: string | null
-          related_suspension_reason?: string | null
-          review_deadline?: string | null
-          review_decision?: string | null
-          review_notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string | null
-          updated_at?: string | null
-          vendor_id: string
-          vendor_statement?: string | null
-        }
-        Update: {
-          appeal_deadline?: string
-          appeal_reason?: string
-          appeal_type?: string
-          created_at?: string | null
-          evidence_urls?: string[] | null
-          id?: string
-          outcome?: string | null
-          related_dispute_id?: string | null
-          related_suspension_reason?: string | null
-          review_deadline?: string | null
-          review_decision?: string | null
-          review_notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string | null
-          updated_at?: string | null
-          vendor_id?: string
-          vendor_statement?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "appeals_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appeals_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       business_profiles: {
         Row: {
           business_name: string
@@ -375,64 +297,49 @@ export type Database = {
       }
       products: {
         Row: {
-          category: string | null
           category_id: number | null
           created_at: string | null
           deleted_at: string | null
           description: string | null
-          digital_file_url: string | null
-          file_size_bytes: number | null
           id: string
           image_urls: string[] | null
-          images: Json | null
           is_active: boolean | null
           is_archived: boolean | null
           price: number | null
           product_url: string
           slug: string | null
-          thumbnail_url: string | null
           title: string
           updated_at: string | null
           vendor_id: string | null
         }
         Insert: {
-          category?: string | null
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
           description?: string | null
-          digital_file_url?: string | null
-          file_size_bytes?: number | null
           id?: string
           image_urls?: string[] | null
-          images?: Json | null
           is_active?: boolean | null
           is_archived?: boolean | null
           price?: number | null
           product_url: string
           slug?: string | null
-          thumbnail_url?: string | null
           title: string
           updated_at?: string | null
           vendor_id?: string | null
         }
         Update: {
-          category?: string | null
           category_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
           description?: string | null
-          digital_file_url?: string | null
-          file_size_bytes?: number | null
           id?: string
           image_urls?: string[] | null
-          images?: Json | null
           is_active?: boolean | null
           is_archived?: boolean | null
           price?: number | null
           product_url?: string
           slug?: string | null
-          thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
           vendor_id?: string | null
@@ -474,57 +381,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      reviews: {
-        Row: {
-          business_id: string | null
-          comment: string | null
-          created_at: string | null
-          customer_id: string | null
-          helpful_count: number | null
-          id: string
-          rating: number
-          updated_at: string | null
-          verified_purchase: boolean | null
-        }
-        Insert: {
-          business_id?: string | null
-          comment?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          helpful_count?: number | null
-          id?: string
-          rating: number
-          updated_at?: string | null
-          verified_purchase?: boolean | null
-        }
-        Update: {
-          business_id?: string | null
-          comment?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          helpful_count?: number | null
-          id?: string
-          rating?: number
-          updated_at?: string | null
-          verified_purchase?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "business_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       search_logs: {
         Row: {
@@ -603,27 +459,17 @@ export type Database = {
       vendors: {
         Row: {
           abn: string | null
-          auto_delisted_until: string | null
           bio: string | null
           business_name: string | null
           can_appeal: boolean | null
-          can_sell_products: boolean | null
           created_at: string | null
-          delist_until: string | null
-          dispute_count: number
           id: string
           inactivity_flagged_at: string | null
           last_activity_at: string | null
-          last_dispute_at: string | null
           logo_url: string | null
-          payment_reversal_window_start: string | null
           primary_region_id: number | null
           product_count: number | null
-          profile_color_hex: string | null
-          profile_url: string | null
           secondary_regions: number[] | null
-          storage_quota_gb: number | null
-          storage_used_mb: number | null
           suspended_at: string | null
           suspension_reason: string | null
           updated_at: string | null
@@ -632,27 +478,17 @@ export type Database = {
         }
         Insert: {
           abn?: string | null
-          auto_delisted_until?: string | null
           bio?: string | null
           business_name?: string | null
           can_appeal?: boolean | null
-          can_sell_products?: boolean | null
           created_at?: string | null
-          delist_until?: string | null
-          dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
           last_activity_at?: string | null
-          last_dispute_at?: string | null
           logo_url?: string | null
-          payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
-          profile_color_hex?: string | null
-          profile_url?: string | null
           secondary_regions?: number[] | null
-          storage_quota_gb?: number | null
-          storage_used_mb?: number | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
@@ -661,27 +497,17 @@ export type Database = {
         }
         Update: {
           abn?: string | null
-          auto_delisted_until?: string | null
           bio?: string | null
           business_name?: string | null
           can_appeal?: boolean | null
-          can_sell_products?: boolean | null
           created_at?: string | null
-          delist_until?: string | null
-          dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
           last_activity_at?: string | null
-          last_dispute_at?: string | null
           logo_url?: string | null
-          payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
-          profile_color_hex?: string | null
-          profile_url?: string | null
           secondary_regions?: number[] | null
-          storage_quota_gb?: number | null
-          storage_used_mb?: number | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
@@ -737,7 +563,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      auto_reject_expired_appeals: { Args: never; Returns: number }
       fn_try_reserve_featured_slot:
         | {
             Args: {
@@ -762,10 +587,6 @@ export type Database = {
             }
             Returns: string
           }
-      fn_unpublish_oldest_products: {
-        Args: { p_to_unpublish: number; p_vendor_id: string }
-        Returns: undefined
-      }
       get_daily_shuffle_products: {
         Args: { p_limit?: number }
         Returns: {
@@ -781,10 +602,6 @@ export type Database = {
         }[]
       }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
-      is_appeal_within_deadline: {
-        Args: { suspension_date: string; vendor_uuid: string }
-        Returns: boolean
-      }
     }
     Enums: {
       [_ in never]: never

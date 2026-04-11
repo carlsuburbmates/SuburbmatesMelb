@@ -1,7 +1,7 @@
 # DATABASE TRUTH — SuburbMates
 > **Canonical reference.** Updated after each remote schema change + type regeneration.
 > Remote project: `hmmqhwnxylqcbffjffpj`
-> Last verified: 2026-04-11 (regenerated `src/lib/database.types.ts` from live remote)
+> Last verified: 2026-04-11 (Phase 5 cleanup applied — tables/columns/RPCs dropped via Dashboard SQL editor; `database.types.ts` hand-synced; TypeScript 0 errors)
 
 ---
 
@@ -141,22 +141,20 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 - Likely an admin/support utility function.
 
 ### `fn_unpublish_oldest_products`
-- Bulk-unpublishes oldest products (was used for quota enforcement).
-- The quota system was dropped in Phase 3. This function is now effectively dead.
-- Phase 5 drop candidate.
+- ~~Bulk-unpublishes oldest products (quota enforcement).~~ **DROPPED in Phase 5** (2026-04-11)
 
 ---
 
 ## Deprecated / Dead (do not reference in new code)
 
-### Dead tables (Phase 5 drop candidates — verify row counts before dropping)
-- `appeals` (18 cols) — commerce-era dispute flow, no active code paths
-- `reviews` (9 cols) — marketplace-era peer review, no active code paths
+### Dead tables — **DROPPED Phase 5** (2026-04-11)
+- ~~`appeals`~~ — commerce-era dispute flow; 0 rows; dropped
+- ~~`reviews`~~ — marketplace-era peer review; 0 rows; dropped
 
-### Dead RPCs (Phase 5 drop candidates)
-- `auto_reject_expired_appeals` — depends on dead `appeals` table
-- `is_appeal_within_deadline` — depends on dead `appeals` table
-- `fn_unpublish_oldest_products` — quota system dropped; function is dead
+### Dead RPCs — **DROPPED Phase 5** (2026-04-11)
+- ~~`auto_reject_expired_appeals`~~
+- ~~`is_appeal_within_deadline`~~
+- ~~`fn_unpublish_oldest_products`~~
 
 ### Dead auth (SSOT §3 — Magic Link / OAuth only)
 - `src/lib/auth.ts` — **DELETED in Phase 4** (2026-04-11)
@@ -172,39 +170,15 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 
 ---
 
-## Phase 5 Cleanup Script (run AFTER confirming zero row counts and zero code references)
+## Phase 5 Cleanup — COMPLETED 2026-04-11
 
-```sql
--- Step 1: Dead tables
-DROP TABLE IF EXISTS appeals CASCADE;
-DROP TABLE IF EXISTS reviews CASCADE;
+Applied via Supabase Dashboard SQL editor. Migration files in `supabase/migrations/` (Phase 5A–D).
+`src/lib/database.types.ts` updated to match (920 → 736 lines). TypeScript typecheck: 0 errors.
 
--- Step 2: Dead RPCs
-DROP FUNCTION IF EXISTS auto_reject_expired_appeals();
-DROP FUNCTION IF EXISTS is_appeal_within_deadline(uuid);
-DROP FUNCTION IF EXISTS fn_unpublish_oldest_products();
+**Dropped:**
+- Tables: `appeals`, `reviews`
+- RPCs: `auto_reject_expired_appeals`, `is_appeal_within_deadline`, `fn_unpublish_oldest_products`
+- Vendor columns (10): `dispute_count`, `last_dispute_at`, `auto_delisted_until`, `delist_until`, `payment_reversal_window_start`, `storage_quota_gb`, `storage_used_mb`, `can_sell_products`, `profile_color_hex`, `profile_url`
+- Product columns (5): `thumbnail_url`, `digital_file_url`, `file_size_bytes`, `images`, `category`
 
--- Step 3: Dead vendor columns (all confirmed no code references)
-ALTER TABLE vendors DROP COLUMN IF EXISTS dispute_count;
-ALTER TABLE vendors DROP COLUMN IF EXISTS last_dispute_at;
-ALTER TABLE vendors DROP COLUMN IF EXISTS auto_delisted_until;
-ALTER TABLE vendors DROP COLUMN IF EXISTS delist_until;
-ALTER TABLE vendors DROP COLUMN IF EXISTS payment_reversal_window_start;
-ALTER TABLE vendors DROP COLUMN IF EXISTS storage_quota_gb;
-ALTER TABLE vendors DROP COLUMN IF EXISTS storage_used_mb;
-ALTER TABLE vendors DROP COLUMN IF EXISTS can_sell_products;
-ALTER TABLE vendors DROP COLUMN IF EXISTS profile_color_hex;
-ALTER TABLE vendors DROP COLUMN IF EXISTS profile_url;
-
--- Step 4: Dead product columns (all confirmed no code references)
-ALTER TABLE products DROP COLUMN IF EXISTS thumbnail_url;
-ALTER TABLE products DROP COLUMN IF EXISTS digital_file_url;
-ALTER TABLE products DROP COLUMN IF EXISTS file_size_bytes;
-ALTER TABLE products DROP COLUMN IF EXISTS images;
-ALTER TABLE products DROP COLUMN IF EXISTS category;
-
--- Step 5: Optional — webhook_events if Stripe is not planned
--- DROP TABLE IF EXISTS webhook_events CASCADE;
-```
-
-**Hard gate:** Re-run audit script, verify zero row counts on tables, zero code references to each column. Regenerate types after each batch drop to verify.
+**Kept:** `webhook_events` — Stripe featured placement payments.
