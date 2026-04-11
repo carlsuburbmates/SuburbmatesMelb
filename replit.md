@@ -84,11 +84,17 @@
   - Dropped: `appeals` table, `reviews` table, 3 dead RPCs, 10 vendor columns, 5 product columns
   - `src/lib/database.types.ts` manually updated to match (920 → 736 lines); TypeScript: 0 errors
   - Migration files committed to `supabase/migrations/` (4 files, Phase 5A–D)
-- **`SUPABASE_REPLIT` PAT**: Currently returning 401 on Management API — needs refresh before next type regen
+- **`SUPABASE_REPLIT` PAT**: Working — used via Management API (`/v1/projects/.../database/query`) to apply migrations and regen types
   - To regen types: `SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript --project-id hmmqhwnxylqcbffjffpj > src/lib/database.types.ts`
+  - To apply SQL directly: `curl -s -X POST "https://api.supabase.com/v1/projects/hmmqhwnxylqcbffjffpj/database/query" -H "Authorization: Bearer ${SUPABASE_REPLIT}" -H "Content-Type: application/json" -d "{\"query\": ...}"`
 - **Sentry**: Instrumentation warnings present — `instrumentation-client.ts` needs `onRouterTransitionStart` hook
 - **Category join in directory search**: `category.name` returns null from PostgREST join — pre-existing issue, investigate FK constraint name alignment
 - **`business_profiles.suburb_id`**: intentional compatibility alias for `region_id` — do not rename
+- **Security pass (2026-04-11)**: `npm audit` resolved — 0 vulnerabilities
+  - `next` upgraded 16.1.1 → 16.2.3 (patches DoS via Image Optimizer, HTTP request smuggling, unbounded memory/disk growth, CSRF bypass, null-origin bypass — 9 CVEs)
+  - Auto-fixed: `flatted`, `minimatch`, `picomatch`, `preact`, `rollup`, `vite`, `ajv`, `brace-expansion`
+  - `package.json` pinned at `"next": "^16.2.3"`
+  - TypeScript: 0 errors after clearing stale `.next/dev` cache
 - **Phase 6**: ✅ Creator Claim + Featured Request workflows (2026-04-11)
   - `listing_claims` + `featured_requests` tables applied to Supabase via Management API
   - `src/lib/database.types.ts` regenerated (832 lines) — all new tables + `primary_region_id` fully typed
