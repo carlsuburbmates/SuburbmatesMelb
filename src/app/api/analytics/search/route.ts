@@ -36,7 +36,6 @@ export async function GET(req: NextRequest) {
       return {
         region: filters.region ?? null,
         category: filters.category ?? null,
-        tier: filters.tier ?? null,
         resultCount: entry.result_count ?? null,
         createdAt: entry.created_at ?? null,
       };

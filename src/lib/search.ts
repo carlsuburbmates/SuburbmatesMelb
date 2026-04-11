@@ -23,10 +23,23 @@ export type DirectorySearchResult = {
   createdAt: string | null;
 };
 
-// Priority ranking is based on Featured status first, then randomized by the daily shuffle seed in the DB.
-// Sanitize search terms
+// Priority ranking: featured first, then daily-shuffled non-featured.
+// Shuffle uses a deterministic daily seed derived from each profile's id + current date (YYYY-MM-DD).
+// This matches the same pattern used by the get_daily_shuffle_products DB RPC.
+
 function sanitize(term: string) {
   return term.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+}
+
+function dailySortKey(id: string): number {
+  const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const str = id + dateStr;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = Math.imul(31, hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
 }
 
 /**
@@ -106,7 +119,7 @@ export async function executeDirectorySearch(
   }
 
   const { data, count, error } = await queryBuilder
-    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
     .range(from, to);
 
   if (error) {
@@ -149,7 +162,7 @@ export async function executeDirectorySearch(
         };
     }) ?? [];
 
-  // Sort by featured first
+  // Sort: featured-in-selection first, then any featured, then daily shuffle for the rest
   const sorted = mapped.sort((a, b) => {
     if (a.featuredMatchesSelection !== b.featuredMatchesSelection) {
       return a.featuredMatchesSelection ? -1 : 1;
@@ -157,7 +170,7 @@ export async function executeDirectorySearch(
     if (a.isFeatured !== b.isFeatured) {
       return a.isFeatured ? -1 : 1;
     }
-    return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
+    return dailySortKey(a.id) - dailySortKey(b.id);
   });
 
   const total = count ?? 0;

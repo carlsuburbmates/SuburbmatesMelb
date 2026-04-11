@@ -1,8 +1,20 @@
+/**
+ * LEGACY — src/lib/auth.ts
+ *
+ * This file is a dead parallel auth layer. It is NOT used by any active UI or API route.
+ * Active auth is handled via:
+ *   - src/contexts/AuthContext.tsx  (client-side OTP / OAuth)
+ *   - src/app/api/_utils/auth.ts    (server-side token verification)
+ *
+ * The AuthManager class below contains password-based signUp/signIn which are
+ * banned by SSOT v2.1 §3 (Magic Link / OAuth only).
+ *
+ * Phase 4 action: confirm no active imports, then delete this file entirely.
+ * Do NOT add new imports of this module.
+ */
+
 import { AuthSession, User, Vendor } from "./types";
 
-// SSOT v2.1: Tiers and quotas are deprecated.
-
-// Re-export the supabase client from supabase.ts
 import { supabase } from "./supabase";
 
 // Auth state management

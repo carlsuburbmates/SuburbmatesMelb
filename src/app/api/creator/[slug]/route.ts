@@ -1,26 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
 import { logger } from '@/lib/logger';
 
-// Validate environment variables
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  logger.error('Missing required Supabase environment variables');
-  throw new Error('Missing required Supabase environment variables');
+if (!supabaseAdmin) {
+  throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured — supabaseAdmin is unavailable');
 }
-
-// Create admin client for server-side operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  }
-);
+const supabase = supabaseAdmin;
 
 interface RouteParams {
   params: Promise<{
