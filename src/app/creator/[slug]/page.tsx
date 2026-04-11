@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { BusinessProfileRenderer } from '@/components/creator/templates/BusinessProfileRenderer';
+import { ClaimButton } from '@/components/creator/ClaimButton';
 
 interface BusinessPageProps {
   params: Promise<{
@@ -16,6 +17,7 @@ interface BusinessImage {
 
 interface BusinessData {
   id: string;
+  owner_user_id?: string;
   name: string;
   description: string;
   region: string;
@@ -102,6 +104,7 @@ function normalizeBusinessData(raw: Record<string, unknown>): BusinessData {
 
   return {
     id: toStringValue(raw.id, ""),
+    owner_user_id: typeof raw.owner_user_id === "string" ? raw.owner_user_id : undefined,
     name: toStringValue(raw.name, "Business"),
     description: toStringValue(raw.description, ""),
     region: toStringValue(raw.region, "Melbourne"),
@@ -196,6 +199,15 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           business={extendedProfile} 
           slug={slug}
         />
+
+        {/* Claim entry point — only visible to authenticated users who don't own this listing */}
+        <div className="max-w-5xl mx-auto px-6 pb-16 flex justify-end">
+          <ClaimButton
+            businessProfileId={business.id}
+            listingName={business.name}
+            ownerId={business.owner_user_id ?? ''}
+          />
+        </div>
       </div>
     </div>
   );

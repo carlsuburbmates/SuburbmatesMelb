@@ -105,6 +105,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Transform to SSOT v2.1 Minimalist Object
     const transformedCreator = {
       id: creator.id,
+      owner_user_id: creator.user_id,
       name: creator.business_name,
       description: creator.profile_description,
       region: regionName,

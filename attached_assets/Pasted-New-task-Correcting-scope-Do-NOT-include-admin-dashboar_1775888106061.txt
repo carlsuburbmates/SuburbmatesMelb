@@ -1,0 +1,128 @@
+New task. Correcting scope.
+
+Do NOT include admin dashboard implementation in this pass.
+Admin is the most critical part of the product and will be handled separately in a dedicated precision pass.
+
+Current scope is ONLY:
+- Visitor workflows
+- Creator workflows
+- Supporting backend states, APIs, and emails needed for those workflows
+
+Locked product truth:
+- Product user types are ONLY:
+  1. Visitor
+  2. Creator
+  3. Admin
+- For this pass, implement only Visitor + Creator flows
+- Admin UI/pages/queues/monitoring are explicitly out of scope for now
+- Even though admin UI is deferred, all new creator flows must create clean admin-ready states for later review
+
+Important rule:
+Do NOT build the admin dashboard now.
+Do NOT build admin pages, admin queues, admin notifications center, or admin cockpit UI.
+But DO structure the data/state so those can be built cleanly later.
+
+What to do now:
+
+1. Reconcile docs and code assumptions to the locked 3-user model.
+At minimum audit and update any conflicting references in:
+- docs/SSOT_V2.1.md
+- docs/UX_SPEC.md
+- docs/DATABASE_TRUTH.md
+- replit.md
+- code comments / route assumptions
+Remove or rewrite anything that conflicts with:
+- Visitor / Creator / Admin as the only product user types
+- creator onboarding being search-first
+- claim-existing-listing vs create-new-listing split
+- admin implementation being deferred, but admin review states still required
+
+2. Implement search-first creator onboarding.
+Required flow:
+- Creator enters onboarding
+- Sees instruction: search the directory first
+- If listing exists → Claim path
+- If listing does not exist → Create path
+
+3. Implement creator claim workflow.
+Required pieces:
+- DB table: listing_claims
+- API route for claim submission
+- creator-facing claim UI from an existing/unclaimed listing
+- automatic acknowledgement email via Resend
+- claim statuses must be admin-ready for later review, at minimum:
+  - pending
+  - approved
+  - rejected
+  - more_info
+
+Do NOT build admin claim review UI yet.
+
+4. Implement creator create-new-listing workflow where needed to align with the new search-first split.
+Keep current create flow only if it is compatible with:
+- search first
+- claim if found
+- create only if not found
+
+5. Implement featured eligibility gate using the actual current schema only.
+Important:
+- Do NOT invent a postcode field unless you first add it deliberately through schema work
+- Current implementation must use only real schema fields
+- Use existing location truth such as:
+  - business_profiles.suburb_id
+  - vendors.primary_region_id
+  - mapped/derived region compatibility
+If location details are insufficient, block featured request and show a clear “complete your location details first” prompt.
+
+6. Implement featured request pending flow.
+Required pieces:
+- DB table: featured_requests
+- creator-facing request UI
+- confirmation email via Resend
+- request statuses that are admin-ready for later review, at minimum:
+  - pending
+  - approved
+  - rejected
+
+Do NOT build admin featured review UI yet.
+
+7. Fix low-risk isolated runtime issues that support these creator flows.
+Include:
+- /api/ops/featured-reminders/route.ts should use shared supabaseAdmin, not inline createClient
+- any other small correctness issues directly tied to creator/visitor workflow integrity
+
+Important architectural rule:
+For every workflow you add now, create explicit handoff states for future admin work.
+Examples:
+- claim pending
+- claim approved
+- claim rejected
+- claim more_info
+- featured request pending
+- featured request approved
+- featured request rejected
+- featured ineligible / incomplete
+
+This means:
+- no admin UI now
+- but no ambiguous workflow states either
+
+Required deliverable:
+Return a strict report with:
+- files changed
+- DB changes
+- API changes
+- UI changes
+- emails/templates added or reused
+- exact states introduced
+- any conflicts found in docs or code
+- any unresolved issues
+- confirmation whether Visitor + Creator workflows are now aligned with the locked product model
+
+Constraints:
+- No admin dashboard implementation
+- No extra user types
+- No speculative schema fields
+- No postcode assumption unless explicitly added as schema
+- Be explicit and surgical
+- Keep all changes compatible with a future dedicated admin precision pass

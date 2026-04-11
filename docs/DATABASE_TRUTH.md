@@ -40,8 +40,10 @@ SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript \
 
 ### Featured eligibility
 - A slot is active when: `status = 'active'`, `start_date <= now`, `end_date >= now`
-- Managed manually via Supabase GUI — no automated FIFO or Stripe Connect logic
-- Per-region capping enforced manually
+- Creator eligibility gate (enforced in `FeaturedModal`): `vendors.primary_region_id IS NOT NULL` AND `business_profiles.suburb_id IS NOT NULL`
+- If either field is missing, creator is blocked from requesting and shown a "complete your location details" prompt
+- Featured requests go into `featured_requests` (status=`pending`) for admin review — no automated approval
+- Per-region capping enforced manually by admin during review
 
 ---
 
@@ -117,6 +119,17 @@ Visibility gate: `is_active = true`, `is_archived = false`, `deleted_at IS NULL`
 ### `search_logs`
 `id, hashed_query, filters, result_count, session_id, user_id, created_at`
 - Zero-PII: queries are hashed, no raw text stored
+
+### `listing_claims` (added Phase 6 — 2026-04-11)
+`id, claimant_user_id FK users, business_profile_id FK business_profiles, evidence_text, status, admin_notes, created_at, updated_at, reviewed_at`
+- `status` values: `pending`, `approved`, `rejected`, `more_info`
+- One active claim per user per listing enforced by unique partial index
+- Migration file: `supabase/migrations/20260411_listing_claims.sql`
+
+### `featured_requests` (added Phase 6 — 2026-04-11)
+`id, vendor_id FK vendors, region_id FK regions, status, admin_notes, created_at, reviewed_at`
+- `status` values: `pending`, `approved`, `rejected`
+- Migration file: `supabase/migrations/20260411_featured_requests.sql`
 
 ### `contact_submissions`
 `id, name, email, subject, message, status, metadata, created_at`

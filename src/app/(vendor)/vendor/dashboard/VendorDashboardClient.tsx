@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useVendorProducts } from "@/hooks/useVendorProducts";
-import { Package, Sparkles, TrendingUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Package, Sparkles, TrendingUp, AlertCircle, ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
+import { FeaturedRequestModal } from "@/components/vendor/FeaturedRequestModal";
 import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 
 function formatDate(dateString?: string | null) {
@@ -20,6 +22,7 @@ function formatDate(dateString?: string | null) {
 
 export function VendorDashboardClient() {
   const { products, stats, isLoading, error } = useVendorProducts();
+  const [featuredModalOpen, setFeaturedModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -176,6 +179,22 @@ export function VendorDashboardClient() {
             </div>
           </div>
 
+          <button
+            type="button"
+            onClick={() => setFeaturedModalOpen(true)}
+            className="w-full block bg-amber-900/10 border border-amber-900/20 p-8 hover:bg-amber-900/20 hover:border-amber-900/40 transition-all group text-left"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <Star className="w-4 h-4 text-amber-400" />
+              <p className="text-[9px] font-black text-amber-400/70 uppercase tracking-widest group-hover:text-amber-400 transition-colors">
+                Featured Placement
+              </p>
+            </div>
+            <span className="text-[10px] font-black text-ink-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              Request Featured Listing <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
+
           <Link
             href="/help"
             className="block bg-white/[0.02] border border-white/5 p-8 hover:bg-white/[0.04] hover:border-white/10 transition-all group"
@@ -189,6 +208,11 @@ export function VendorDashboardClient() {
           </Link>
         </div>
       </div>
+
+      <FeaturedRequestModal
+        isOpen={featuredModalOpen}
+        onClose={() => setFeaturedModalOpen(false)}
+      />
     </div>
   );
 }

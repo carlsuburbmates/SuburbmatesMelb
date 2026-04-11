@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Package } from "lucide-react";
+import { LogOut, Loader2, AlertCircle } from "lucide-react";
+import { SearchFirstOnboarding } from "@/components/creator/SearchFirstOnboarding";
 
 const navLinks = [
   { href: "/vendor/dashboard", label: "Overview" },
@@ -17,6 +18,10 @@ export function VendorLayoutClient({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, vendor, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [businessName, setBusinessName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -39,39 +44,102 @@ export function VendorLayoutClient({ children }: { children: ReactNode }) {
     );
   }
 
+  const handleCreateNew = async () => {
+    setShowCreateForm(true);
+  };
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!businessName.trim()) return;
+    setIsCreating(true);
+    setCreateError('');
+
+    try {
+      const res = await fetch('/api/auth/create-vendor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_name: businessName.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        window.location.reload();
+      } else {
+        setCreateError(data?.error?.message ?? 'Failed to create listing. Please try again.');
+        setIsCreating(false);
+      }
+    } catch {
+      setCreateError('Network error. Please try again.');
+      setIsCreating(false);
+    }
+  };
+
   if (!isVendor) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-6">
-        <div className="max-w-lg w-full border border-white/10 rounded-sm p-12 text-center space-y-8">
-          <div className="flex justify-center">
-            <Package className="w-12 h-12 text-white/20" />
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-2xl font-bold text-white tracking-tight">
-              Access Restricted
-            </h2>
-            <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-              Your account does not have an active creator profile. Please
-              set up your listing to access the creator tools.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link
-              href="/auth/signup"
-              className="px-8 py-3 text-[11px] uppercase tracking-widest font-bold bg-white text-black rounded-sm hover:bg-white/90 transition-all"
-            >
-              Create Creator Account
-            </Link>
-            <Link
-              href="/help"
-              className="px-8 py-3 text-[11px] uppercase tracking-widest font-bold border border-white/10 text-white rounded-sm hover:bg-white/5 transition-all"
-            >
-              Help Centre
-            </Link>
+    if (showCreateForm) {
+      return (
+        <div className="min-h-screen bg-black flex items-start justify-center p-6 pt-16">
+          <div className="max-w-lg w-full space-y-8">
+            <div className="space-y-2">
+              <button
+                onClick={() => setShowCreateForm(false)}
+                className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors font-bold"
+              >
+                ← Back to search
+              </button>
+              <h1 className="text-3xl font-black text-white tracking-tight">Create your listing</h1>
+              <p className="text-sm text-white/40 leading-relaxed">
+                Give your creator listing a name. You can add full profile details in settings after
+                creation.
+              </p>
+            </div>
+
+            <form onSubmit={handleCreateSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="business_name"
+                  className="block text-[10px] font-bold text-white/40 uppercase tracking-widest"
+                >
+                  Business / Creator Name
+                </label>
+                <input
+                  id="business_name"
+                  type="text"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="e.g. Studio Mila, The Linen Co, Josh Nguyen Design"
+                  className="w-full h-14 px-4 bg-white/[0.04] border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/30 transition-colors"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {createError && (
+                <div className="flex items-center gap-2 text-red-400 bg-red-900/10 border border-red-900/20 p-3">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <p className="text-xs">{createError}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isCreating || !businessName.trim()}
+                className="w-full h-14 bg-white text-black text-[11px] uppercase tracking-widest font-black hover:bg-white/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating listing
+                  </>
+                ) : (
+                  'Create Listing'
+                )}
+              </button>
+            </form>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    return <SearchFirstOnboarding onCreateNew={handleCreateNew} />;
   }
 
   const productCount = vendor?.product_count ?? 0;

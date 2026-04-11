@@ -89,3 +89,13 @@
 - **Sentry**: Instrumentation warnings present — `instrumentation-client.ts` needs `onRouterTransitionStart` hook
 - **Category join in directory search**: `category.name` returns null from PostgREST join — pre-existing issue, investigate FK constraint name alignment
 - **`business_profiles.suburb_id`**: intentional compatibility alias for `region_id` — do not rename
+- **Phase 6**: ✅ Creator Claim + Featured Request workflows (2026-04-11)
+  - `listing_claims` + `featured_requests` SQL migrations written to `supabase/migrations/` — **PENDING user apply via Supabase Dashboard**
+  - API: `POST /api/creator/claim` — auth + duplicate guard + email acknowledgement
+  - API: `POST /api/vendor/featured-request` — eligibility gate (suburb_id + primary_region_id) + email
+  - UI: `ClaimModal`, `ClaimButton`, `FeaturedRequestModal`, `SearchFirstOnboarding` components
+  - VendorLayoutClient: search-first onboarding for users with no vendor profile
+  - VendorDashboardClient: "Request Featured Listing" button in sidebar
+  - Creator profile (`/creator/[slug]`): `ClaimButton` visible to authenticated non-owners
+  - All new data states admin-ready: pending/approved/rejected/more_info
+  - `database.types.ts` needs regen after migrations are applied (new tables not yet in types; cast to `any` as interim workaround)

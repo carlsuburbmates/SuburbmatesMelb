@@ -272,6 +272,99 @@ export async function sendFeaturedSlotExpiryEmail(
 }
 
 // ============================================================================
+// CLAIM WORKFLOW EMAILS
+// ============================================================================
+
+/**
+ * Claim acknowledgement — sent to creator after submitting a claim
+ */
+export async function sendClaimAcknowledgementEmail(
+  email: string,
+  claimantName: string,
+  listingName: string,
+  claimId: string
+): Promise<EmailResult> {
+  return sendEmail({
+    to: email,
+    subject: `Claim Received — ${listingName}`,
+    html: `
+      <h1>Your Claim Has Been Received</h1>
+      <p>Hi ${claimantName},</p>
+      <p>We've received your claim for the listing <strong>${listingName}</strong>.</p>
+      <p>Your claim is now under review. We'll be in touch once a decision has been made.</p>
+      <p><strong>Claim reference:</strong> ${claimId}</p>
+      <p>If you need to provide additional evidence or have questions, reply to this email or contact us at ${PLATFORM.SUPPORT_EMAIL}.</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+    text: `Hi ${claimantName},\n\nYour claim for "${listingName}" has been received and is under review.\n\nClaim reference: ${claimId}\n\nWe'll be in touch.\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
+  });
+}
+
+/**
+ * Claim outcome — sent to creator when claim is approved or rejected
+ */
+export async function sendClaimOutcomeEmail(
+  email: string,
+  claimantName: string,
+  listingName: string,
+  outcome: 'approved' | 'rejected' | 'more_info',
+  adminNotes?: string
+): Promise<EmailResult> {
+  const subjects: Record<typeof outcome, string> = {
+    approved: `✅ Claim Approved — ${listingName}`,
+    rejected: `❌ Claim Not Approved — ${listingName}`,
+    more_info: `📋 More Information Needed — ${listingName}`,
+  };
+
+  const bodies: Record<typeof outcome, string> = {
+    approved: `Your claim for <strong>${listingName}</strong> has been approved. The listing is now linked to your account. <a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard">Go to your creator workspace</a>.`,
+    rejected: `Your claim for <strong>${listingName}</strong> was not approved. If you believe this is an error, contact us at ${PLATFORM.SUPPORT_EMAIL}.`,
+    more_info: `We need more information to process your claim for <strong>${listingName}</strong>. Please reply to this email with any additional evidence you can provide.`,
+  };
+
+  return sendEmail({
+    to: email,
+    subject: subjects[outcome],
+    html: `
+      <h1>Claim Update: ${listingName}</h1>
+      <p>Hi ${claimantName},</p>
+      <p>${bodies[outcome]}</p>
+      ${adminNotes ? `<p><strong>Note from admin:</strong> ${adminNotes}</p>` : ''}
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+  });
+}
+
+// ============================================================================
+// FEATURED REQUEST EMAILS
+// ============================================================================
+
+/**
+ * Featured request confirmation — sent to creator after submitting a request
+ */
+export async function sendFeaturedRequestConfirmationEmail(
+  email: string,
+  businessName: string,
+  regionName: string,
+  requestId: string
+): Promise<EmailResult> {
+  return sendEmail({
+    to: email,
+    subject: `Featured Request Received — ${regionName}`,
+    html: `
+      <h1>Featured Request Received</h1>
+      <p>Hi ${businessName},</p>
+      <p>We've received your request for featured placement in <strong>${regionName}</strong>.</p>
+      <p>Your request is pending review. We'll activate your placement and notify you once it's live.</p>
+      <p><strong>Request reference:</strong> ${requestId}</p>
+      <p>Questions? Contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+    text: `Hi ${businessName},\n\nYour featured placement request for ${regionName} has been received.\n\nRequest reference: ${requestId}\n\nWe'll be in touch.\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
+  });
+}
+
+// ============================================================================
 // BATCH EMAIL
 // ============================================================================
 

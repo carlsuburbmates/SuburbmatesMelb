@@ -74,6 +74,9 @@ Every surface must have exactly **ONE** primary action. No competing CTAs.
 | Product Card | Redirect externally via `/api/redirect` | Yes |
 | Creator Profile | Browse products | No |
 | Search Results | Open creator profile | No |
+| Onboarding (no listing) | Search directory first → claim or create | No |
+| Claim form | Submit claim → pending admin review | Yes |
+| Featured request | Submit request → pending admin review | Yes |
 
 ### 5.2 Information Density Rule
 

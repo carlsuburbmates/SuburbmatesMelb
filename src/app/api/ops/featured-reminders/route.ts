@@ -1,12 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { sendFeaturedSlotExpiryEmail } from "@/lib/email";
-
-// Admin client for cron jobs (bypass RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "@/lib/supabase";
 
 const REMINDER_WINDOWS = [7, 2];
 
@@ -38,6 +32,11 @@ export async function GET(req: Request) {
   try {
     if (!process.env.CRON_SECRET) {
       console.error("[CRITICAL] CRON_SECRET is not set");
+      return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
+    }
+
+    if (!supabaseAdmin) {
+      console.error("[CRITICAL] supabaseAdmin unavailable — SUPABASE_SERVICE_ROLE_KEY missing");
       return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
     }
 
