@@ -2,6 +2,14 @@
 
 **Melbourne digital creator directory.** Discover Melbourne's top digital creators, their products, and drops.
 
+## Working Rules
+
+- **Single branch always:** All work happens on `main`. No feature or fix branches are created unless explicitly requested. Every push/sync must leave exactly one local branch (`main`) and one remote branch (`origin/main`).
+- **Database parity:** Once the remote schema is at its target state (Phase 5 complete), the same single-branch rule applies to any migration work — all schema changes go through Supabase migrations committed directly on `main`.
+- **No speculative branches:** Background push tasks must target `origin main` directly, never create intermediate branches.
+
+---
+
 ## Stack
 
 - **Framework**: Next.js 16 (App Router, webpack mode)
