@@ -7,9 +7,16 @@
 ## G1: No cron scheduler configured
 
 `/api/ops/featured-reminders` exists and sends expiry reminder emails but nothing calls it on a schedule.
-All automation routes need a cron runner pointed at protected endpoints using `CRON_SECRET`.
 
-**Blocked by:** deployment target decision (Vercel Cron vs external cron service).
+**Decision (2026-04-11):** Use **Supabase pg_cron** (built into the free tier, already integrated) — not Vercel Cron, not an external cron service. pg_cron runs SQL functions on a schedule directly in PostgreSQL. For jobs that need to send emails, pg_cron triggers a **Supabase Edge Function** which calls Resend.
+
+**Pattern for all automation jobs:**
+```
+pg_cron (schedule) → Supabase Edge Function (logic) → Resend (email) + DB update
+DB Webhook (status change trigger) → Supabase Edge Function → Resend (email)
+```
+
+**No new paid services needed.** Supabase free tier covers: pg_cron, Edge Functions (500K/month), Database Webhooks.
 
 ---
 

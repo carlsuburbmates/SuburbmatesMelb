@@ -30,6 +30,7 @@ SuburbMates charges creators for **featured placement slots** in the directory.
 - **Auth**: Supabase Magic Link / OTP + approved OAuth. Password auth is banned.
 - **Email**: Resend — all creator transactional emails
 - **Payments**: Stripe — **NOT YET INSTALLED** — planned for featured slot payments (manual Payment Links, not embedded checkout). SDK to install: `stripe`.
+- **Scheduled jobs**: Supabase pg_cron (free tier, built-in) — no external cron service. pg_cron → Supabase Edge Functions → Resend. DB Webhooks for event-triggered automation (status changes on `listing_claims`, `featured_slots`).
 - **Error monitoring**: Sentry (configured, instrumentation warnings present — see GAPS.md G9)
 - **Analytics**: Google Analytics GA4 (tag in root layout)
 - **ABR**: Australian Business Register API (ABN lookup) — configured, verify wired in create flow (see GAPS.md G6)
