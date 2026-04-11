@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -120,7 +100,6 @@ export type Database = {
           id: string
           images: Json | null
           is_public: boolean | null
-          is_vendor: boolean | null
           phone: string | null
           profile_description: string | null
           profile_image_url: string | null
@@ -129,7 +108,6 @@ export type Database = {
           updated_at: string | null
           user_id: string
           vendor_status: string | null
-          vendor_tier: string | null
           website: string | null
         }
         Insert: {
@@ -139,7 +117,6 @@ export type Database = {
           id?: string
           images?: Json | null
           is_public?: boolean | null
-          is_vendor?: boolean | null
           phone?: string | null
           profile_description?: string | null
           profile_image_url?: string | null
@@ -148,7 +125,6 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           vendor_status?: string | null
-          vendor_tier?: string | null
           website?: string | null
         }
         Update: {
@@ -158,7 +134,6 @@ export type Database = {
           id?: string
           images?: Json | null
           is_public?: boolean | null
-          is_vendor?: boolean | null
           phone?: string | null
           profile_description?: string | null
           profile_image_url?: string | null
@@ -167,7 +142,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           vendor_status?: string | null
-          vendor_tier?: string | null
           website?: string | null
         }
         Relationships: [
@@ -629,8 +603,6 @@ export type Database = {
       vendors: {
         Row: {
           abn: string | null
-          abn_verified: boolean | null
-          abn_verified_at: string | null
           auto_delisted_until: string | null
           bio: string | null
           business_name: string | null
@@ -641,14 +613,12 @@ export type Database = {
           dispute_count: number
           id: string
           inactivity_flagged_at: string | null
-          is_vendor: boolean | null
           last_activity_at: string | null
           last_dispute_at: string | null
           logo_url: string | null
           payment_reversal_window_start: string | null
           primary_region_id: number | null
           product_count: number | null
-          product_quota: number | null
           profile_color_hex: string | null
           profile_url: string | null
           secondary_regions: number[] | null
@@ -662,8 +632,6 @@ export type Database = {
         }
         Insert: {
           abn?: string | null
-          abn_verified?: boolean | null
-          abn_verified_at?: string | null
           auto_delisted_until?: string | null
           bio?: string | null
           business_name?: string | null
@@ -674,14 +642,12 @@ export type Database = {
           dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
-          is_vendor?: boolean | null
           last_activity_at?: string | null
           last_dispute_at?: string | null
           logo_url?: string | null
           payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
-          product_quota?: number | null
           profile_color_hex?: string | null
           profile_url?: string | null
           secondary_regions?: number[] | null
@@ -695,8 +661,6 @@ export type Database = {
         }
         Update: {
           abn?: string | null
-          abn_verified?: boolean | null
-          abn_verified_at?: string | null
           auto_delisted_until?: string | null
           bio?: string | null
           business_name?: string | null
@@ -707,14 +671,12 @@ export type Database = {
           dispute_count?: number
           id?: string
           inactivity_flagged_at?: string | null
-          is_vendor?: boolean | null
           last_activity_at?: string | null
           last_dispute_at?: string | null
           logo_url?: string | null
           payment_reversal_window_start?: string | null
           primary_region_id?: number | null
           product_count?: number | null
-          product_quota?: number | null
           profile_color_hex?: string | null
           profile_url?: string | null
           secondary_regions?: number[] | null
@@ -951,11 +913,7 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
 } as const
-
