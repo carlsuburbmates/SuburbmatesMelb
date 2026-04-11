@@ -136,20 +136,13 @@ ALTER TABLE products
 
 ---
 
-## Batch E — Decision Required: `webhook_events`
+## Batch E — `webhook_events`: KEEP (do not drop)
 
-`webhook_events` has 6 columns (`id, event_type, payload, processed_at, stripe_event_id, created_at`) and zero active code references. It is a Stripe-era event log.
+**Decision confirmed 2026-04-11:** Stripe will be used for featured placement payments.
 
-**Decision needed before dropping:**
-- Is Stripe integration planned for Phase 6 or later? If yes — keep the table and log pattern, just leave it dormant.
-- If Stripe is definitively out of scope — drop it.
+`webhook_events` (`id, event_type, payload, processed_at, stripe_event_id, created_at`) is the correct table to receive and log Stripe webhook events. It stays dormant until Stripe integration is built in a later phase.
 
-```sql
--- Only run after explicit decision to remove Stripe event logging
-DROP TABLE IF EXISTS webhook_events CASCADE;
-```
-
-This batch is gated on your answer. Do not execute speculatively.
+No action required in Phase 5. The table is intentionally preserved.
 
 ---
 
@@ -157,7 +150,7 @@ This batch is gated on your answer. Do not execute speculatively.
 
 After all batches complete, the remote schema will contain exactly:
 
-**Active tables:** `users`, `business_profiles`, `vendors`, `products`, `regions`, `categories`, `outbound_clicks`, `featured_slots`, `featured_slot_reminders`, `search_logs`, `contact_submissions` (+ optionally `webhook_events`)
+**Active tables:** `users`, `business_profiles`, `vendors`, `products`, `regions`, `categories`, `outbound_clicks`, `featured_slots`, `featured_slot_reminders`, `search_logs`, `contact_submissions`, `webhook_events`
 
 **Active RPCs:** `get_daily_shuffle_products`, `get_vendor_status`
 

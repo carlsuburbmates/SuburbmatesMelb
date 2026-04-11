@@ -123,8 +123,9 @@ Visibility gate: `is_active = true`, `is_archived = false`, `deleted_at IS NULL`
 
 ### `webhook_events` (6 cols)
 `id, event_type, payload, processed_at, stripe_event_id, created_at`
-- Stripe-era event log. No active code references this table.
-- Treat as legacy. Phase 5 drop candidate after confirming no Stripe integrations planned.
+- **KEEP.** Stripe will be used for featured placement payments (confirmed 2026-04-11).
+- This table is the correct log target for incoming Stripe webhook events.
+- Currently dormant — no active code references yet. Will be wired up during Stripe integration phase.
 
 ---
 
