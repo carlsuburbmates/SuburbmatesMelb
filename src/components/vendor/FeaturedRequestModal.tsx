@@ -23,13 +23,13 @@ export function FeaturedRequestModal({ isOpen, onClose }: FeaturedRequestModalPr
 
   useEffect(() => {
     if (!isOpen) return;
-    setEligibility('checking');
-    setSubmitState('idle');
-    setErrorMessage('');
 
     // Dry-run the featured request API to check eligibility
     // (the API will 422 with reason if ineligible, 409 if already submitted)
     const check = async () => {
+      setEligibility('checking');
+      setSubmitState('idle');
+      setErrorMessage('');
       try {
         const res = await fetch('/api/vendor/featured-request', {
           method: 'POST',
