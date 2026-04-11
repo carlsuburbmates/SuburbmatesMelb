@@ -587,10 +587,6 @@ export type Database = {
             }
             Returns: string
           }
-      fn_unpublish_oldest_products: {
-        Args: { p_to_unpublish: number; p_vendor_id: string }
-        Returns: undefined
-      }
       get_daily_shuffle_products: {
         Args: { p_limit?: number }
         Returns: {
@@ -606,10 +602,6 @@ export type Database = {
         }[]
       }
       get_vendor_status: { Args: { vendor_uuid: string }; Returns: string }
-      is_appeal_within_deadline: {
-        Args: { suspension_date: string; vendor_uuid: string }
-        Returns: boolean
-      }
     }
     Enums: {
       [_ in never]: never

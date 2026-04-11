@@ -1,7 +1,7 @@
 # DATABASE TRUTH — SuburbMates
 > **Canonical reference.** Updated after each remote schema change + type regeneration.
 > Remote project: `hmmqhwnxylqcbffjffpj`
-> Last verified: 2026-04-11 (Phase 5 cleanup applied — tables/columns/RPCs dropped via Dashboard SQL editor; `database.types.ts` hand-synced; TypeScript 0 errors)
+> Last verified: 2026-04-11 (Phase 5 complete — all drops applied; `database.types.ts` regenerated from live remote via CLI; TypeScript 0 errors)
 
 ---
 
