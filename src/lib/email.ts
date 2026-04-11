@@ -91,18 +91,18 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
     html: `
       <h1>Welcome to ${PLATFORM.NAME}! 👋</h1>
       <p>Hi ${name},</p>
-      <p>Thanks for joining ${PLATFORM.NAME}, Melbourne's hyper-local marketplace for digital products!</p>
+      <p>Thanks for joining ${PLATFORM.NAME}, Melbourne's directory of local digital creators!</p>
       <p>You can now:</p>
       <ul>
         <li>Browse local creators in the Melbourne directory</li>
-        <li>Create a free business directory profile</li>
-        <li>Upgrade to become a vendor and sell your own digital products</li>
+        <li>Claim or create your creator listing</li>
+        <li>Showcase your digital products and drive traffic to your store</li>
       </ul>
       <p>Get started by exploring our <a href="${process.env.NEXT_PUBLIC_SITE_URL}/regions">creator directory</a>.</p>
       <p>Need help? Reply to this email or contact us at ${PLATFORM.SUPPORT_EMAIL}</p>
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
     `,
-    text: `Welcome to ${PLATFORM.NAME}!\n\nHi ${name},\n\nThanks for joining ${PLATFORM.NAME}. You can now browse local products, create a business profile, or become a vendor.\n\nVisit: ${process.env.NEXT_PUBLIC_SITE_URL}\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
+    text: `Welcome to ${PLATFORM.NAME}!\n\nHi ${name},\n\nThanks for joining ${PLATFORM.NAME}. You can now browse local creators, or claim and create your creator listing.\n\nVisit: ${process.env.NEXT_PUBLIC_SITE_URL}\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
   });
 }
 
@@ -136,18 +136,18 @@ export async function sendVendorOnboardingEmail(email: string, businessName: str
 export async function sendVendorApprovedEmail(email: string, businessName: string): Promise<EmailResult> {
   return sendEmail({
     to: email,
-    subject: '🎉 Your Vendor Account is Active!',
+    subject: '🎉 Your Creator Listing is Active!',
     html: `
       <h1>Congratulations, ${businessName}! 🎉</h1>
-      <p>Your vendor account is now active on ${PLATFORM.NAME}.</p>
+      <p>Your creator listing is now active on ${PLATFORM.NAME}.</p>
       <p>You can now:</p>
       <ul>
-        <li>Create and publish digital products</li>
-        <li>Accept payments from customers</li>
-        <li>Manage your vendor dashboard</li>
+        <li>Add and publish your digital products</li>
+        <li>Drive traffic to your external store via the directory</li>
+        <li>Manage your creator workspace</li>
       </ul>
-      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/products" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
-      <p>Happy selling!<br>The ${PLATFORM.NAME} Team</p>
+      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Creator Workspace</a></p>
+      <p>Welcome to the directory!<br>The ${PLATFORM.NAME} Team</p>
     `,
   });
 }
@@ -174,7 +174,7 @@ export async function sendVendorWarningEmail(
     html: `
       <h1>Account Warning</h1>
       <p>Hi ${businessName},</p>
-      <p>Your vendor account has received a warning:</p>
+      <p>Your creator account has received a warning:</p>
       <p><strong>Reason:</strong> ${reason}</p>
       <p>Please review our policies and take corrective action to avoid account suspension.</p>
       <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #ff4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">View Dashboard</a></p>

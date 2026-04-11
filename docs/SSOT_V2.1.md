@@ -13,10 +13,7 @@
 
 ## 2. SYSTEM ARCHITECTURE & INFRASTRUCTURE
 * **Tech Stack:** Next.js, Tailwind, Supabase (createRouteHandlerClient).
-* **Zero-UI Admin Mandate:** No custom Admin frontend will be built. Admin is handled 100% via Supabase GUI:
-    * Waitlist/Billing managed via Supabase Table Editor and manual Stripe Payment Links.
-    * Moderation managed via Supabase Row Level Security (RLS) toggling `is_active`.
-    * To-Do Lists managed via Supabase Custom SQL Reports on the dashboard.
+* **Admin Dashboard (Post-Launch Requirement):** One internal admin dashboard is required as the primary operating surface after launch. Supabase remains the backend and emergency fallback — it is not the primary daily operating surface. For full specification → see [`ADMIN_DASHBOARD_SPEC.md`](./ADMIN_DASHBOARD_SPEC.md). For admin workflows → see [`WORKFLOWS.md`](./WORKFLOWS.md) §C.
 * **`/api/redirect` Route Contract (Core Engine):**
     * URL Pattern: `GET /api/redirect?productId=<uuid>`
     * Parse the `productId`. Ignore any `url` or `redirect` parameters supplied by the client.
@@ -37,7 +34,7 @@
 ## 4. CORE WORKFLOWS & LOOPS
 * **The Launch Gate (Pre-Launch Constraint):** The platform must not be publicly marketed until 15 to 20 active, claimed profiles are manually seeded via Concierge Onboarding to prevent the "ghost town" effect.
 * **Visitor Loop (Dual-Intent):** Homepage hero provides Category/Region tiles for low-intent browsing. Global top-navigation sticky search bar allows instant querying for high-intent visitors. Path: Browse -> creator/product card -> `/api/redirect` -> creator external store.
-* **Creator Onboarding Loop (Frictionless):** 1. Paste URL -> 2. `/api/scrape` (cheerio) extracts Open Graph data (`og:title`, `og:image`, `og:description`) -> 3. Editable form auto-fills -> 4. Edit details & assign umbrella category -> 5. Publish.
+* **Creator Onboarding Loop (Search-First):** 1. Search the directory — listing may already exist and be waiting to be claimed. 2a. **Claim path:** Listing found → submit claim → admin approves → listing attached to account. 2b. **Create path:** No listing found → Paste URL → `/api/scrape` extracts Open Graph data → editable form auto-fills → edit details & assign category → publish. For full workflow → see [`WORKFLOWS.md`](./WORKFLOWS.md) §B.
 * **Trust Model:** Do not rely on ABN verification as a publishing gate. Launch visibility is controlled by active/public profile state and active outbound products.
 * **Monetization (Regional MVP Model):** * Only paid feature: Featured placement.
     * Grouped Inventory: Capped at 6 Metropolitan Regions to manufacture scarcity.
@@ -80,7 +77,7 @@ The following components/logic are explicitly banned and must be removed:
 * `lgas` table (31 councils).
 * `marketplace_sale` checkout/webhook branch.
 * Featured expiry cron job.
-* Custom admin routes / custom Admin UI.
+* Custom admin routes exposing raw database tables (the required admin dashboard is a responsibility-first cockpit, not a table editor — see `ADMIN_DASHBOARD_SPEC.md`).
 * Manual editorial collections.
 * Template-driven public profile selection.
 

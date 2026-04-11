@@ -49,8 +49,11 @@
 
 ## Canonical References
 
+- `docs/USER_MODEL.md` — **authority on user types** (3 types: Visitor, Creator, Admin). Overrides any conflicting user-type language in older docs.
+- `docs/WORKFLOWS.md` — **authority on all workflows** (Visitor, Creator, Admin). Overrides any older workflow language that assumes Supabase GUI alone is the operating surface.
+- `docs/ADMIN_DASHBOARD_SPEC.md` — **authority on admin dashboard**. Internal admin cockpit required post-launch. Replaces Zero-UI Admin assumption in SSOT v2.1.
+- `docs/SSOT_V2.1.md` — product and architecture specification (see above three docs for overrides on user model, workflows, and admin UI mandate)
 - `docs/DATABASE_TRUTH.md` — remote schema reference (tables, columns, RPCs, deprecated items)
-- `docs/SSOT_V2.1.md` — product and architecture specification
 
 ## Completed Migration Phases
 

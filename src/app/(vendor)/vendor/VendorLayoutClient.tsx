@@ -51,8 +51,8 @@ export function VendorLayoutClient({ children }: { children: ReactNode }) {
               Access Restricted
             </h2>
             <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-              Your account does not have an active vendor profile. Please
-              initialise your profile to access the directory tools.
+              Your account does not have an active creator profile. Please
+              set up your listing to access the creator tools.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -83,7 +83,7 @@ export function VendorLayoutClient({ children }: { children: ReactNode }) {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between py-8 space-y-6 md:space-y-0">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-medium">
-                Vendor Workspace
+                Creator Workspace
               </p>
               <h2 className="text-3xl font-bold text-white mt-2 tracking-tight">
                 {vendor?.business_name || "Your Business"}

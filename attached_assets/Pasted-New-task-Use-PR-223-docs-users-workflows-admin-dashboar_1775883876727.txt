@@ -1,0 +1,62 @@
+New task. Use PR #223 (docs/users-workflows-admin-dashboard) as the authoritative starting point for this pass.
+
+Goal:
+Reconcile the product around the locked user/workflow model and remove any conflicting logic in docs or code.
+
+Locked product truth:
+	•	Product user types are ONLY:
+	1.	Visitor
+	2.	Creator
+	3.	Admin
+	•	Seeded/unclaimed listing is NOT a fourth user type. It is a listing state under the Creator model.
+	•	Creator entry must be search-first:
+	•	Search the directory first
+	•	If listing exists: claim it
+	•	If listing does not exist: create a new listing
+	•	Featured eligibility requires enough location data to map the creator to a valid region
+	•	After launch, SuburbMates must have ONE internal admin dashboard as the primary operating surface for the one-admin business
+	•	Supabase remains backend/emergency fallback, not the main daily operating surface
+	•	Creator communications should run through Resend where appropriate
+
+Your task:
+	1.	Read and use:
+	•	docs/USER_MODEL.md
+	•	docs/WORKFLOWS.md
+	•	docs/ADMIN_DASHBOARD_SPEC.md
+	2.	Reconcile all conflicting docs.
+At minimum audit and update:
+	•	docs/SSOT_V2.1.md
+	•	docs/UX_SPEC.md
+	•	docs/DATABASE_TRUTH.md
+	•	replit.md
+	•	any other docs that still assume:
+	•	no custom admin dashboard
+	•	unclear user roles beyond visitor / creator / admin
+	•	creator onboarding that skips the search-first claim/create split
+	•	workflows that rely on Supabase GUI as the primary post-launch operating surface
+	3.	Reconcile conflicting code comments, route assumptions, or placeholder logic.
+Audit for anything in code that still encodes the old assumptions, especially:
+	•	creator onboarding / auth entry language
+	•	claim vs create logic
+	•	featured eligibility assumptions
+	•	admin/dashboard assumptions
+	•	any public-facing use of vendor/business_owner language where creator should be used
+	4.	Modify any document or code that clearly conflicts with the locked model.
+Do not do speculative rewrites.
+Only change what is necessary to align the repo with the new product truth.
+	5.	Deliver a strict report with:
+	•	files changed
+	•	exact conflicts found
+	•	exact changes made
+	•	remaining unresolved conflicts, if any
+	•	whether the repo is now aligned on users + workflows
+
+Important constraints:
+	•	Do not start broad UI implementation yet
+	•	Do not invent new user types
+	•	Do not keep the old “no custom admin UI” rule
+	•	Do not leave conflicting docs unaddressed if they directly contradict the new model
+	•	Be explicit and surgical
+:::
+
+What I have done so far is the docs-locking layer, not the full reconciliation pass. The existing older docs were not yet rewritten in this GitHub pass; that is the next Replit task.

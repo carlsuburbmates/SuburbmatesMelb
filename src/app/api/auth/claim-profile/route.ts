@@ -1,11 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-
-// Initialize Supabase Admin client (requires service role key)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from '@/lib/supabase';
 
 /**
  * API Route to handle "Claim Profile" flow.
@@ -23,6 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Admin client unavailable — SUPABASE_SERVICE_ROLE_KEY not set' }, { status: 500 });
+    }
+
     // 1. Generate an invitation/magic link using Admin API
     // This allows the user to sign in without having an account yet, 
     // and links them to the pre-seeded vendor profile.
@@ -37,8 +35,8 @@ export async function POST(request: Request) {
     if (error) throw error;
 
     // 2. Return the link to the admin (caller)
-    // Note: In a real production setup, we'd send the email here, 
-    // but for SSOT v2 Concierge, the admin might want the link to send via DM/WhatsApp.
+    // In production, email delivery is handled via Resend (see sendVendorOnboardingEmail in src/lib/email.ts).
+    // This route returns the raw link so the admin dashboard can trigger the Resend send directly.
     return NextResponse.json({ 
       success: true, 
       action: 'Magic link generated',

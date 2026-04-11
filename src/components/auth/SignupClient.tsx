@@ -82,7 +82,7 @@ export function SignupClient() {
           </h2>
           <p className="text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.5em]">
             {formData.isVendor
-              ? "Vendor Protocol Initialization"
+              ? "Creator Registration"
               : "Community Entry Protocol"}
           </p>
         </div>
@@ -219,7 +219,7 @@ export function SignupClient() {
                   htmlFor="isVendor"
                   className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest cursor-pointer hover:text-ink-primary transition-colors"
                 >
-                  Initialize Vendor Protocol (Sell Digital Assets)
+                  List as a Creator (Showcase Digital Products)
                 </label>
               </div>
 
