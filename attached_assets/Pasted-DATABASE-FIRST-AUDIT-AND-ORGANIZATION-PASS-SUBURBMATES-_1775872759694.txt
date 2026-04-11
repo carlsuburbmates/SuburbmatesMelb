@@ -1,0 +1,55 @@
+DATABASE-FIRST AUDIT AND ORGANIZATION PASS — SUBURBMATES
+
+IMPORTANT CONTEXT
+You do NOT have reliable remote database truth from local assumptions alone.
+Treat all repo-based claims as provisional unless confirmed by:
+1. current remote schema
+2. current generated database types
+3. current runtime code paths
+
+MISSION
+Perform a database-first audit and organization pass on the existing Suburbmates project.
+
+GOALS
+1. Identify the current intended database truth from docs/SSOT.
+2. Identify the actual implemented database truth from migrations, generated database types, and runtime code.
+3. Isolate drift, duplicates, obsolete logic, and naming conflicts.
+4. Produce a clean “database truth pack” for the project before any broader rebuild work.
+
+FILES TO AUDIT FIRST
+- docs/SSOT_V2.1.md
+- supabase/migrations/*
+- src/lib/database.types.ts
+- src/lib/supabase.ts
+- src/lib/auth.ts
+- src/lib/search.ts
+- scripts/audit-remote.ts
+- any code referencing vendors, business_profiles, products, regions, categories, public.users, featured_slots, outbound_clicks
+
+WHAT TO LOOK FOR
+- legacy vendor/tier/quota logic still present
+- stale migrations still treated as active truth
+- mismatches between SSOT and generated database types
+- mismatches between remote-audit assumptions and local code
+- auth flow drift vs current claim/create direction
+- duplicate or conflicting naming across creator / vendor / business_owner
+- obsolete commerce, queue, dispute, refund, transaction, review, and appeals structures
+- region/suburb compatibility confusion
+- any duplicate tables, duplicate concepts, or dead code
+
+DELIVERABLE
+Produce a strict audit report with these sections:
+1. Current intended database truth
+2. Current implemented database truth
+3. Confirmed drift / contradictions
+4. Duplicate concepts / duplicate structures
+5. Safe-to-keep compatibility layers
+6. Dead code / dead migrations / dead schema assumptions
+7. Recommended cleanup order
+
+CONSTRAINTS
+- Do not implement broad changes yet
+- Do not assume the repo matches remote DB truth
+- Prefer explicit evidence over guesses
+- Flag anything uncertain as uncertain
+- Focus on database docs and database-facing code first
