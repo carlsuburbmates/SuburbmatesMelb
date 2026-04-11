@@ -4,9 +4,9 @@
 
 ## Working Rules
 
-- **Single branch always:** All work happens on `main`. No feature or fix branches are created unless explicitly requested. Every push/sync must leave exactly one local branch (`main`) and one remote branch (`origin/main`).
-- **Database parity:** Once the remote schema is at its target state (Phase 5 complete), the same single-branch rule applies to any migration work — all schema changes go through Supabase migrations committed directly on `main`.
-- **No speculative branches:** Background push tasks must target `origin main` directly, never create intermediate branches.
+- **Single branch by default:** All work happens on `main`. No feature or fix branches are created unless explicitly requested by the user, or the agent determines a branch is strongly warranted (e.g. a destructive schema migration, a large risky refactor, or work that must be reviewed before landing on main). In those cases the agent will recommend the branch and explain why before creating it.
+- **Every sync leaves one local + one remote:** After any push/sync, the repo must have exactly one local branch (`main`) and one remote branch (`origin/main`). Temporary task-agent branches are cleaned up automatically after merge.
+- **Database parity:** Once the remote schema is at its target state (Phase 5 complete), the same rule applies — all migration files go directly on `main` unless a branch is explicitly warranted.
 
 ---
 
