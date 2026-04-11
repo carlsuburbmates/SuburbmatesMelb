@@ -1,0 +1,165 @@
+Summary
+
+This is a good stabilization outcome. Based on your session report, Phase 1–3 are complete, the work is pushed to main, and the repo has been cleaned down to a single active branch. That means the project is finally in a state where you can stop circling the same database/runtime questions and move in a straight line.
+The cleanest next step is now Phase 4 only: verify src/lib/auth.ts has zero live imports, then delete it. After that, plan Phase 5 as a small, explicit remote schema cleanup sequence, not a giant purge. This remains consistent with the earlier verified repo issues: stale auth drift, stale runtime bugs, and the need to treat remote DB truth as authoritative.  ￼  ￼  ￼
+
+Detailed Breakdown
+
+What is now effectively locked
+
+SUPPORTED by your session report
+
+You have now reportedly completed the right stabilization layer:
+	•	remote audit run against live Supabase
+	•	canonical DATABASE_TRUTH.md created
+	•	generated types refreshed from the live remote
+	•	runtime bug fixes applied
+	•	changes synced to GitHub
+	•	stale branches removed
+
+That is the correct order. It means the project has moved from mixed assumptions to a much cleaner remote-audited baseline.
+
+What this means strategically
+
+You should now treat the project as being in stabilized database/runtime mode, not in rebuild mode yet.
+
+That means:
+	•	no UI rebuild yet
+	•	no onboarding redesign yet
+	•	no feature expansion yet
+	•	no large schema purge yet
+
+You now have a credible base for the next decisions.
+
+⸻
+
+Best next move: Phase 4
+
+RECOMMENDED
+
+Do only this next:
+
+Delete src/lib/auth.ts — but only after one last import check
+The file was already identified as legacy drift because the intended auth model is Magic Links / OAuth, while that file carried the older password-based flow.  ￼  ￼
+
+The clean procedure is:
+	1.	verify zero imports/usages
+	2.	delete src/lib/auth.ts
+	3.	run typecheck/build
+	4.	confirm auth behavior still works through the surviving path
+	5.	commit this as a tiny isolated cleanup
+
+This should be its own contained pass.
+
+⸻
+
+After that: Phase 5
+
+RECOMMENDED
+
+Do not jump into broad remote schema deletion in one shot.
+
+Use this order:
+
+Phase 5A — classify remaining remote structures
+Split remaining schema items into three groups:
+
+Keep
+	•	regions
+	•	categories
+	•	users
+	•	business_profiles
+	•	vendors
+	•	products
+	•	outbound_clicks
+	•	featured_slots
+	•	search_logs
+	•	contact_submissions
+	•	featured_slot_reminders
+	•	webhook_events
+
+Needs decision
+	•	appeals
+	•	reviews
+	•	legacy vendor fields
+	•	legacy RPCs
+
+Already handled / no longer primary concern
+	•	old tier/quota columns already removed remotely according to your regenerated types summary
+
+Phase 5B — remove only clearly dead structures
+Only drop remote items that meet all three conditions:
+	1.	no active code path
+	2.	no operational use
+	3.	no meaningful live data requiring migration/export
+
+That means appeals and reviews are the most likely first candidates, but still require a final check before drop.
+
+Phase 5C — regenerate types after each destructive batch
+This remains mandatory.
+Every remote schema change must be followed by:
+	•	type regeneration
+	•	DATABASE_TRUTH.md update
+	•	route verification
+
+⸻
+
+What not to do now
+
+Do not:
+	•	start redesigning claim/create flows yet
+	•	start rebuilding category-first UX yet
+	•	start featured logic redesign yet
+	•	start public copy rewrite yet
+	•	start dependency vulnerability cleanup in the same pass
+
+Those are separate tracks.
+
+The dependency audit can wait. It is not the blocking issue now.
+
+⸻
+
+Clean operational sequence from here
+
+This is the least wasteful path:
+	1.	Phase 4
+	•	verify zero imports
+	•	delete src/lib/auth.ts
+	•	build/typecheck
+	•	commit
+	2.	Phase 5 planning doc
+	•	create one explicit schema cleanup list:
+	•	safe to drop
+	•	keep
+	•	needs decision
+	3.	Phase 5 execution
+	•	one small destructive remote batch only
+	•	regenerate types
+	•	update DATABASE_TRUTH.md
+	•	verify affected routes
+	4.	Only after database cleanup
+	•	move to product rebuild work
+
+⸻
+
+My recommendation
+
+If you want the path with the least backtracking:
+
+Close Phase 4 immediately, then create a single Phase 5 cleanup plan before touching remote schema.
+
+That keeps momentum without reopening the same truth questions again.
+
+Sources
+
+Current SSOT and remote-authoritative database rules:  ￼
+Legacy auth drift previously verified in repo:  ￼
+Remote audit script proving remote truth must be checked explicitly:  ￼
+
+Integrity Footer
+
+Known: your reported session outcome says Phases 1–3 are complete, pushed to GitHub, and branch cleanup is done. The underlying repo problems that motivated this sequence were previously verified: auth drift, runtime bugs, and remote-truth dependency.
+Inferred: the cleanest next step is Phase 4 deletion of the legacy auth layer, followed by a tightly controlled Phase 5 schema cleanup plan.
+Key assumptions: the changes reported by Replit are now actually present on main, and the regenerated types reflect the live remote database accurately.
+Failure points: jumping into remote schema deletion too broadly, or mixing product rebuild work into the cleanup phase.
+Fastest verification: inspect main, confirm src/lib/auth.ts has zero imports, delete it, and only then open the schema-drop plan.

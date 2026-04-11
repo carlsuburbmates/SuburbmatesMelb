@@ -158,9 +158,9 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 - `fn_unpublish_oldest_products` — quota system dropped; function is dead
 
 ### Dead auth (SSOT §3 — Magic Link / OAuth only)
-- `src/lib/auth.ts` entire `AuthManager` class — password-based auth is banned
-- No active UI or API route imports this file
-- Phase 4 action: confirm zero imports, then delete
+- `src/lib/auth.ts` — **DELETED in Phase 4** (2026-04-11)
+- Zero imports confirmed before deletion; TypeScript typecheck passed after
+- Active auth paths: `src/contexts/AuthContext.tsx` (OTP/OAuth) + `src/app/api/_utils/auth.ts` (server JWT)
 
 ### Banned functions (already confirmed removed)
 - `fn_try_reserve_featured_slot` — referenced dropped `lga_id`

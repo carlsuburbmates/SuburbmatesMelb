@@ -67,7 +67,7 @@
 
 ## Known Issues / Future Phases
 
-- **Phase 4**: Delete `src/lib/auth.ts` (dead parallel auth layer — confirm no imports first)
+- **Phase 4**: ✅ `src/lib/auth.ts` deleted (2026-04-11) — zero imports confirmed, typecheck passed
 - **Phase 5**: Drop `appeals`, `reviews` tables and dead vendor/product columns (see `DATABASE_TRUTH.md`)
 - **Sentry**: Instrumentation warnings present — `instrumentation-client.ts` needs `onRouterTransitionStart` hook
 - **Category join in directory search**: `category.name` returns null from PostgREST join — pre-existing issue, investigate FK constraint name alignment
