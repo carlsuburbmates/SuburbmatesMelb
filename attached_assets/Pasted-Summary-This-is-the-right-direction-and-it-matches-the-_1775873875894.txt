@@ -1,0 +1,146 @@
+Summary
+
+This is the right direction and it matches the clean path I recommended: canonical DB doc first, runtime fixes second, destructive cleanup later. Based on your Replit report, Phase 1 and Phase 3 appear complete, while Phase 2 remains blocked on Supabase CLI auth/PAT, which is acceptable as long as you treat the current code changes as not fully schema-verified yet. The main caution is unchanged: I have not independently verified the Replit workspace changes, so everything in the report is still reported state, not confirmed state, until it is pushed to GitHub or otherwise surfaced here.
+The best next move is not more coding. It is: commit this as a contained stabilization batch, run the one manual type-regeneration step, compare the regenerated types to DATABASE_TRUTH.md, then stop and review before any schema deletion.  ￼  ￼
+
+Detailed Breakdown
+
+1) Assessment of the Replit output
+
+SUPPORTED
+
+From what you pasted, Replit followed the correct execution order:
+	•	wrote docs/DATABASE_TRUTH.md
+	•	fixed runtime bugs instead of jumping into destructive schema cleanup
+	•	documented the Supabase CLI type-generation dependency as a manual step
+	•	verified key routes after changes
+	•	explicitly marked the old auth layer as legacy rather than trying to redesign auth mid-pass
+
+That is exactly the kind of contained stabilization pass we wanted.
+
+2) What looks good
+
+SUPPORTED
+
+These are the most valuable reported outcomes:
+	•	redirect/route.ts
+	•	bug fix from .is('is_archived', false) to .eq(...)
+	•	shared admin client used instead of ad hoc inline client
+This matches the runtime issue I verified in the live repo.  ￼
+	•	creator/[slug]/route.ts
+	•	inline client cleanup
+	•	null guard added
+	•	read-only route behavior tightened
+This aligns with the earlier repo audit that found inline admin-client duplication.  ￼  ￼
+	•	search.ts
+	•	daily shuffle behavior restored / addressed
+This was one of the highest-priority SSOT mismatches because the repo version I checked was sorting by created_at DESC.  ￼  ￼
+	•	src/lib/auth.ts
+	•	marked legacy instead of silently left in place
+This is the right handling for now because the current SSOT expects Magic Links/OAuth, while that file still reflected older password-based auth.  ￼  ￼
+
+3) What is still unverified
+
+UNVERIFIED
+
+These claims may be true, but I cannot confirm them from here unless they are pushed to GitHub or the relevant diffs/files are pasted:
+	•	docs/DATABASE_TRUTH.md content quality and completeness
+	•	the exact implementation of the daily shuffle fix
+	•	whether analytics/search/route.ts is now fully free of tier residue
+	•	whether all inline client duplication is resolved everywhere, not just in the routes mentioned
+	•	whether the runtime tests were against the correct environment and data assumptions
+
+So the right stance is:
+
+Good reported progress, not yet independently verified.
+
+4) The remaining hard gate
+
+VERIFIED / SUPPORTED
+
+The remaining hard gate is still type regeneration from the real remote Supabase project.
+
+Why this matters:
+	•	the repo previously showed drift between SSOT, generated types, and runtime code
+	•	your own project includes scripts/audit-remote.ts precisely because local assumptions are unreliable
+	•	without refreshed generated types, you still risk coding against stale schema assumptions.  ￼  ￼
+
+So Replit’s note about requiring a PAT is not a side issue. It is the last required stabilization step before trusting the cleanup baseline.
+
+5) Cleanest next move
+
+RECOMMENDED
+
+Do this, in order:
+
+Step 1
+Commit only this stabilization batch:
+	•	DATABASE_TRUTH.md
+	•	runtime bug fixes
+	•	legacy auth marker
+	•	no schema drops
+	•	no UI work
+	•	no onboarding rewrite
+
+Step 2
+Run the manual Supabase CLI auth step and regenerate types from the live remote.
+
+Step 3
+Diff regenerated database.types.ts against:
+	•	DATABASE_TRUTH.md
+	•	the current repo code
+	•	the audit report
+
+Step 4
+Review only these questions:
+	•	what still exists remotely that should not
+	•	what code still references dead schema
+	•	what cleanup can now be proven safe
+
+Step 5
+Only after that, open the next batch:
+	•	remote schema cleanup
+	•	dead table/column drops
+	•	function/RPC cleanup
+	•	post-cleanup type regeneration
+
+6) What not to do next
+
+Do not:
+	•	start UI rebuild
+	•	start claim/create onboarding implementation
+	•	start category-first discovery changes
+	•	drop appeals, reviews, or legacy vendor columns yet
+	•	touch featured logic yet
+	•	rename all vendor/creator terminology yet
+
+Those are next-phase tasks, not stabilization tasks.
+
+7) My bottom-line judgment
+
+This is good execution if the Replit report is accurate.
+It is not finished stabilization until the regenerated remote types are in hand.
+So the correct status is:
+	•	Phase 1: reported complete
+	•	Phase 2: blocked/manual, still required
+	•	Phase 3: reported complete
+	•	Phase 4 (destructive cleanup): not started, should remain blocked
+
+Sources
+
+Current SSOT and remote-authoritative rules:  ￼
+Generated DB types showing previous drift risk:  ￼
+Shared Supabase client helper:  ￼
+Legacy auth implementation:  ￼
+Remote audit script:  ￼
+Search mismatch previously verified in repo:  ￼
+Redirect route bug previously verified in repo:  ￼
+Creator route inline client duplication previously verified in repo:  ￼
+
+Integrity Footer
+
+Known: the repo previously had verified runtime/database drift, and your pasted Replit report claims fixes in exactly the right areas.
+Inferred: this is likely a successful stabilization pass, but it remains unverified until the changes are visible outside the Replit report and the live remote types are regenerated.
+Key assumptions: Replit modified the real project workspace connected to the GitHub repo you shared, and the route checks were run against the intended environment.
+Failure points: treating reported fixes as fully verified, or moving into destructive schema cleanup before regenerating remote types.
+Fastest verification: commit/push this batch, regenerate Supabase types from remote, and review the resulting diff before touching schema cleanup.
