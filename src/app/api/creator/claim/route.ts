@@ -53,14 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Check for existing active claim from this user on this listing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingClaim } = await (supabaseAdmin as any)
+    const { data: existingClaim } = await supabaseAdmin
       .from('listing_claims')
       .select('id, status')
       .eq('claimant_user_id', userId)
       .eq('business_profile_id', business_profile_id)
       .in('status', ['pending', 'approved', 'more_info'])
-      .maybeSingle() as { data: { id: string; status: string } | null };
+      .maybeSingle();
 
     if (existingClaim) {
       return NextResponse.json(
@@ -88,8 +87,7 @@ export async function POST(request: NextRequest) {
         : userEmail;
 
     // 5. Insert claim with status=pending
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: claim, error: claimError } = await (supabaseAdmin as any)
+    const { data: claim, error: claimError } = await supabaseAdmin
       .from('listing_claims')
       .insert({
         claimant_user_id: userId,
@@ -98,7 +96,7 @@ export async function POST(request: NextRequest) {
         status: 'pending',
       })
       .select('id, status, created_at')
-      .single() as { data: { id: string; status: string; created_at: string } | null; error: unknown };
+      .single();
 
     if (claimError || !claim) {
       logger.error('Failed to insert claim:', claimError);

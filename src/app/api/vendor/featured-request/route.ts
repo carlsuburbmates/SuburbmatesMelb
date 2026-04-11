@@ -18,12 +18,11 @@ export async function POST(request: NextRequest) {
     const userEmail = authContext.user.email ?? '';
 
     // 1. Fetch vendor record
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: vendor, error: vendorError } = await (supabaseAdmin as any)
+    const { data: vendor, error: vendorError } = await supabaseAdmin
       .from('vendors')
       .select('id, business_name, primary_region_id')
       .eq('user_id', userId)
-      .single() as { data: { id: string; business_name: string | null; primary_region_id: number | null } | null; error: unknown };
+      .single();
 
     if (vendorError || !vendor) {
       return NextResponse.json(
@@ -61,14 +60,13 @@ export async function POST(request: NextRequest) {
     const regionId = vendor.primary_region_id as number;
 
     // 4. Check for existing active request (pending or approved)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingRequest } = await (supabaseAdmin as any)
+    const { data: existingRequest } = await supabaseAdmin
       .from('featured_requests')
       .select('id, status')
       .eq('vendor_id', vendor.id)
       .eq('region_id', regionId)
       .in('status', ['pending', 'approved'])
-      .maybeSingle() as { data: { id: string; status: string } | null };
+      .maybeSingle();
 
     if (existingRequest) {
       return NextResponse.json(
@@ -93,8 +91,7 @@ export async function POST(request: NextRequest) {
     const regionName = region?.name ?? 'your region';
 
     // 6. Insert featured request with status=pending
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: featuredRequest, error: insertError } = await (supabaseAdmin as any)
+    const { data: featuredRequest, error: insertError } = await supabaseAdmin
       .from('featured_requests')
       .insert({
         vendor_id: vendor.id,
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
         status: 'pending',
       })
       .select('id, status, created_at')
-      .single() as { data: { id: string; status: string; created_at: string } | null; error: unknown };
+      .single();
 
     if (insertError || !featuredRequest) {
       logger.error('Failed to insert featured request:', insertError);

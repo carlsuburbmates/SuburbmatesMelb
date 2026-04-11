@@ -146,6 +146,51 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          region_id: number
+          reviewed_at: string | null
+          status: string
+          vendor_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          region_id: number
+          reviewed_at?: string | null
+          status?: string
+          vendor_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          region_id?: number
+          reviewed_at?: string | null
+          status?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_requests_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_requests_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_slot_reminders: {
         Row: {
           error: string | null
@@ -255,6 +300,57 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_claims: {
+        Row: {
+          admin_notes: string | null
+          business_profile_id: string
+          claimant_user_id: string
+          created_at: string
+          evidence_text: string | null
+          id: string
+          reviewed_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_profile_id: string
+          claimant_user_id: string
+          created_at?: string
+          evidence_text?: string | null
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          business_profile_id?: string
+          claimant_user_id?: string
+          created_at?: string
+          evidence_text?: string | null
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_claims_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_claims_claimant_user_id_fkey"
+            columns: ["claimant_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
