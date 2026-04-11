@@ -30,8 +30,8 @@ SuburbMates charges creators for **featured placement slots** in the directory.
 - **Auth**: Supabase Magic Link / OTP + approved OAuth. Password auth is banned.
 - **Email**: Resend — all creator transactional emails
 - **Payments**: Stripe — **NOT YET INSTALLED** — planned for featured slot payments (manual Payment Links, not embedded checkout). SDK to install: `stripe`.
-- **Scheduled jobs**: Supabase pg_cron (free tier, built-in) — no external cron service. pg_cron → Supabase Edge Functions → Resend. DB Webhooks for event-triggered automation (status changes on `listing_claims`, `featured_slots`).
-- **Error monitoring**: Sentry (configured, instrumentation warnings present — see GAPS.md G9)
+- **Scheduled jobs**: Supabase pg_cron (free tier, built-in) + pg_net for HTTP calls. Migration written (`20260411_automation_jobs.sql`) — pending apply (blocked on SUPABASE_REPLIT PAT expiry — see GAPS.md G10). DB trigger on `listing_claims.status` change → pg_net POST → `/api/webhooks/claim-status`.
+- **Error monitoring**: Sentry (configured, no startup warnings — activate by setting `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` secrets)
 - **Analytics**: Google Analytics GA4 (tag in root layout)
 - **ABR**: Australian Business Register API (ABN lookup) — configured, verify wired in create flow (see GAPS.md G6)
 - **Port**: 5000 (0.0.0.0)
@@ -153,6 +153,16 @@ Dead / to clean up (see GAPS.md G3):
 - Dropped: `appeals` table, `reviews` table, 3 dead RPCs, 10 vendor columns, 5 product columns
 - `fn_try_reserve_featured_slot` RPC dropped (referenced removed `lga_id` field)
 - Types updated: 920 → 736 lines. Migrations in `supabase/migrations/` (4 files: 5A–D)
+
+### Phase 7 — Automation infrastructure + code cleanup (2026-04-11)
+
+- G9 (Sentry): `instrumentation.ts` + `instrumentation-client.ts` rewritten — `register()` + `onRequestError` + `onRouterTransitionStart` hooks. `sentry.server.config.ts` + `sentry.edge.config.ts` deleted. Zero startup warnings.
+- G3 (dead email): `sendVendorSuspensionEmail` + `sendAppealDecisionEmail` removed. Added `sendBrokenLinkEmail` + `sendIncompleteListingEmail`.
+- G2 (routes): `/api/ops/broken-links` — HEAD checks all product URLs, flags dead ones, emails creator. `/api/ops/incomplete-listings` — finds profiles missing desc/image/category/suburb, emails creator. `/api/webhooks/claim-status` — POST handler for DB trigger, calls `sendClaimOutcomeEmail`.
+- G1 (schedules): Migration written `20260411_automation_jobs.sql` — pg_cron + pg_net + 4 schedules + claim status trigger. **Pending apply** (SUPABASE_REPLIT PAT expired — see GAPS.md G10).
+- CRON_SECRET set as shared env var.
+- G8 confirmed resolved: search.ts category join uses local Map, no PostgREST FK issue.
+- G6 clarified: ABR API key is set but unused — dormant until admin dashboard claim review.
 
 ### Phase 6 — Creator Claim + Featured Request workflows (2026-04-11)
 - Tables `listing_claims` + `featured_requests` applied via Supabase Management API

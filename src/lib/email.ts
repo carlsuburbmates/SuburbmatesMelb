@@ -185,60 +185,6 @@ export async function sendVendorWarningEmail(
 }
 
 /**
- * Vendor suspension notice
- */
-export async function sendVendorSuspensionEmail(
-  email: string,
-  businessName: string,
-  reason: string
-): Promise<EmailResult> {
-  return sendEmail({
-    to: email,
-    subject: '🚨 Account Suspended',
-    html: `
-      <h1>Account Suspended</h1>
-      <p>Hi ${businessName},</p>
-      <p>Your directory profile has been suspended.</p>
-      <p><strong>Reason:</strong> ${reason}</p>
-      <p>If you believe this is an error, please contact us at ${PLATFORM.SUPPORT_EMAIL}.</p>
-      <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
-
-/**
- * Appeal decision notification
- */
-export async function sendAppealDecisionEmail(
-  email: string,
-  businessName: string,
-  decision: 'approved' | 'rejected',
-  notes: string
-): Promise<EmailResult> {
-  const approved = decision === 'approved';
-  
-  return sendEmail({
-    to: email,
-    subject: approved ? '✅ Appeal Approved' : '❌ Appeal Rejected',
-    html: `
-      <h1>Appeal Decision: ${approved ? 'Approved' : 'Rejected'}</h1>
-      <p>Hi ${businessName},</p>
-      <p>Your appeal has been ${decision}.</p>
-      <p><strong>Decision Notes:</strong></p>
-      <p>${notes}</p>
-      ${approved ? `
-        <p>Your account has been reinstated. You can now resume selling on ${PLATFORM.NAME}.</p>
-        <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Dashboard</a></p>
-      ` : `
-        <p>The suspension remains in effect. You may contact us at ${PLATFORM.SUPPORT_EMAIL} for further clarification.</p>
-      `}
-      <p>Regards,<br>The ${PLATFORM.NAME} Team</p>
-    `,
-  });
-}
-
-
-/**
  * Featured slot expiry reminder
  */
 export async function sendFeaturedSlotExpiryEmail(
@@ -361,6 +307,64 @@ export async function sendFeaturedRequestConfirmationEmail(
       <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
     `,
     text: `Hi ${businessName},\n\nYour featured placement request for ${regionName} has been received.\n\nRequest reference: ${requestId}\n\nWe'll be in touch.\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
+  });
+}
+
+// ============================================================================
+// AUTOMATION EMAILS
+// ============================================================================
+
+/**
+ * Broken product URL — sent to creator when a product URL fails a health check
+ */
+export async function sendBrokenLinkEmail(
+  email: string,
+  businessName: string,
+  productTitle: string,
+  productUrl: string
+): Promise<EmailResult> {
+  return sendEmail({
+    to: email,
+    subject: `Action Required — Broken Product Link: ${productTitle}`,
+    html: `
+      <h1>Broken Product Link Detected</h1>
+      <p>Hi ${businessName},</p>
+      <p>We noticed that one of your product links is no longer working:</p>
+      <p><strong>Product:</strong> ${productTitle}<br>
+      <strong>URL:</strong> <a href="${productUrl}">${productUrl}</a></p>
+      <p>This product has been hidden from the directory until the link is fixed. Please update it in your creator workspace.</p>
+      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Creator Workspace</a></p>
+      <p>Questions? Reply to this email or contact us at ${PLATFORM.SUPPORT_EMAIL}.</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+    text: `Hi ${businessName},\n\nYour product "${productTitle}" has a broken link: ${productUrl}\n\nThis product has been hidden from the directory. Please update it in your creator workspace.\n\n${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
+  });
+}
+
+/**
+ * Incomplete listing nudge — sent to creator whose profile is missing key fields
+ */
+export async function sendIncompleteListingEmail(
+  email: string,
+  businessName: string,
+  missingFields: string[]
+): Promise<EmailResult> {
+  const fieldList = missingFields.map(f => `<li>${f}</li>`).join('');
+
+  return sendEmail({
+    to: email,
+    subject: `Complete Your ${PLATFORM.NAME} Profile`,
+    html: `
+      <h1>Your Profile is Almost There</h1>
+      <p>Hi ${businessName},</p>
+      <p>A few things are missing from your creator profile that could help visitors find and trust your work:</p>
+      <ul>${fieldList}</ul>
+      <p>Complete profiles rank better in search results and receive more clicks.</p>
+      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard" style="background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete My Profile</a></p>
+      <p>It only takes a few minutes. If you need help, reply to this email.</p>
+      <p>Cheers,<br>The ${PLATFORM.NAME} Team</p>
+    `,
+    text: `Hi ${businessName},\n\nYour creator profile is missing: ${missingFields.join(', ')}.\n\nComplete profiles get more visibility.\n\n${process.env.NEXT_PUBLIC_SITE_URL}/vendor/dashboard\n\nCheers,\nThe ${PLATFORM.NAME} Team`,
   });
 }
 

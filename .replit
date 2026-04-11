@@ -43,6 +43,7 @@ RESEND_API_KEY = "re_T9s7r6df_DQXGNTdYHsNk5hggTekVeGMw\t"
 ABR_GUID = "9c72aac8-8cfc-4a77-b4c9-18aa308669ed\t"
 SUPABASE_REPLIT = "sbp_15d681d626805309170666b608a18ba0d21e9bf6"
 SUPABASE_DB_PASSWORD = "November281986."
+CRON_SECRET = "245fbff1d86c49e2193134be8bc7dafb10c72ffbbdd83df3355f5c759f395cae"
 
 [postMerge]
 path = "scripts/post-merge.sh"

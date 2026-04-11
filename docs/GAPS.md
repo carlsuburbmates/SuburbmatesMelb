@@ -1,47 +1,55 @@
 # SuburbMates — Known Gaps (to be addressed)
 
-> Saved: 2026-04-11. Pull this when prioritising next work.
+> Updated: 2026-04-11. Pull this when prioritising next work.
 
 ---
 
-## G1: No cron scheduler configured
+## G1: Automation schedules not yet applied to Supabase
 
-`/api/ops/featured-reminders` exists and sends expiry reminder emails but nothing calls it on a schedule.
+**Migration written:** `supabase/migrations/20260411_automation_jobs.sql`
 
-**Decision (2026-04-11):** Use **Supabase pg_cron** (built into the free tier, already integrated) — not Vercel Cron, not an external cron service. pg_cron runs SQL functions on a schedule directly in PostgreSQL. For jobs that need to send emails, pg_cron triggers a **Supabase Edge Function** which calls Resend.
-
-**Pattern for all automation jobs:**
-```
-pg_cron (schedule) → Supabase Edge Function (logic) → Resend (email) + DB update
-DB Webhook (status change trigger) → Supabase Edge Function → Resend (email)
-```
-
-**No new paid services needed.** Supabase free tier covers: pg_cron, Edge Functions (500K/month), Database Webhooks.
-
----
-
-## G2: Missing automation routes
-
-| Job | Route | Status |
+Schedules (UTC):
+| Schedule | Cron | What |
 |---|---|---|
-| Broken product URL checker | `/api/ops/broken-links` | Not built |
-| Incomplete listing nudge | `/api/ops/incomplete-listings` | Not built |
-| Claim outcome notification | triggered by admin approval action | Blocked by admin dashboard |
-| Approval/rejection email | triggered by admin | Blocked by admin dashboard |
+| `expire-featured-slots` | `0 0 * * *` | Pure SQL — marks expired `featured_slots` status=expired |
+| `featured-reminders` | `0 23 * * *` | pg_net GET → `/api/ops/featured-reminders` |
+| `broken-links-check` | `0 15 * * 0` | pg_net GET → `/api/ops/broken-links` |
+| `incomplete-listings-nudge` | `0 22 * * 1` | pg_net GET → `/api/ops/incomplete-listings` |
 
-Email functions exist in `src/lib/email.ts` for all of the above:
-- `sendClaimOutcomeEmail` — wired when admin approves/rejects a claim
-- `sendVendorApprovedEmail` — wired when admin activates a listing
-- `sendVendorWarningEmail` — wired when admin flags a listing
+**Trigger written:** `trigger_claim_status_notification` on `listing_claims.status` change → pg_net POST → `/api/webhooks/claim-status`.
+
+**Blocked by:** SUPABASE_REPLIT PAT expired (returning 401 as of 2026-04-11). Refresh token at supabase.com → Account → Access Tokens → generate new → update SUPABASE_REPLIT secret → apply migration.
+
+**Config required after migration is applied (once per environment):**
+```sql
+ALTER DATABASE postgres SET app.base_url = 'https://your-deployed-domain.com';
+ALTER DATABASE postgres SET app.cron_secret = '<CRON_SECRET>';
+SELECT pg_reload_conf();
+```
+`CRON_SECRET` is already set as a Replit env var. Match the value exactly.
 
 ---
 
-## G3: Dead email functions to clean up or re-scope
+## G2: Automation routes — BUILT
 
-- `sendVendorSuspensionEmail` — no suspension flow exists
-- `sendAppealDecisionEmail` — `appeals` table was dropped in Phase 5
+All routes are implemented and protected by CRON_SECRET:
 
-These should be removed or re-scoped during admin dashboard build.
+| Route | Method | Status |
+|---|---|---|
+| `/api/ops/featured-reminders` | GET | Built (Phase 6) |
+| `/api/ops/broken-links` | GET | Built (2026-04-11) |
+| `/api/ops/incomplete-listings` | GET | Built (2026-04-11) |
+| `/api/webhooks/claim-status` | POST | Built (2026-04-11) |
+
+Claim outcome / admin approval emails trigger via DB trigger → `/api/webhooks/claim-status` → `sendClaimOutcomeEmail`.
+Admin approval/rejection actions (listing activation) are still blocked by admin dashboard (G5).
+
+---
+
+## G3: RESOLVED — Dead email functions removed (2026-04-11)
+
+`sendVendorSuspensionEmail` and `sendAppealDecisionEmail` removed from `src/lib/email.ts`.
+Added: `sendBrokenLinkEmail` and `sendIncompleteListingEmail`.
 
 ---
 
@@ -68,7 +76,7 @@ What's needed:
 
 ## G5: Admin dashboard not built
 
-The entire admin cockpit is deferred (separate perfect pass). All data is admin-ready.
+The entire admin cockpit is deferred (discuss after gaps addressed).
 See `docs/ADMIN_DASHBOARD_SPEC.md` for the full spec.
 
 Modules needed:
@@ -83,33 +91,45 @@ Modules needed:
 
 ---
 
-## G6: ABR integration — verify it's actually called
+## G6: ABR integration — dormant
 
-`ABR_API_KEY` is configured. Unclear if ABN lookup is wired into the create listing flow or is dormant.
-Check `src/app/api/scrape/` and the create listing form.
+`ABR_API_KEY` is configured. The `/api/scrape/route.ts` uses `scrapeOpenGraph` (OG metadata), not ABN lookup. No route in `src/app/api/` calls the ABR API. The key is set but unused. Address during admin dashboard pass (ABN verification on claim review).
 
 ---
 
 ## G7: `fn_try_reserve_featured_slot` RPC is dropped
 
 This was the automated FIFO slot reservation RPC. Dropped in Phase 5 because it referenced `lga_id` (removed field).
-Not a current blocker — manual slot activation replaces it — but note if automation is added later.
+Not a current blocker — manual slot activation replaces it.
 
 ---
 
-## G8: Category join returns null in directory search
+## G8: RESOLVED — Category join null (search.ts)
 
-`category.name` returns null from PostgREST join in directory search.
-Pre-existing issue, likely FK constraint name mismatch.
-File: `src/lib/search.ts`
+`search.ts` builds category names from a pre-fetched `Map<id, name>` — not from a PostgREST join. No null bug in the current search implementation. The original G8 concern (PostgREST FK constraint name mismatch) does not affect the current code path.
 
 ---
 
-## G9: Sentry instrumentation warnings
+## G9: RESOLVED — Sentry instrumentation warnings (2026-04-11)
 
-Three non-breaking Sentry config warnings on every startup:
-- `instrumentation-client.ts` needs `onRouterTransitionStart` hook
-- `sentry.server.config.ts` should move to `register()` in instrumentation file
-- `onRequestError` hook missing
+Fixed:
+- `instrumentation.ts`: `register()` now initialises Sentry per runtime (`nodejs` / `edge`). Guarded on `SENTRY_DSN` env var — no-op when DSN not set. `onRequestError` hook exported.
+- `instrumentation-client.ts`: Sentry client init guarded on `NEXT_PUBLIC_SENTRY_DSN`. `onRouterTransitionStart` hook exported.
+- `sentry.server.config.ts` deleted.
+- `sentry.edge.config.ts` deleted.
 
-Low priority — app functions correctly. Address during a dedicated observability pass.
+Configure Sentry by setting `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` secrets. No code changes needed.
+
+---
+
+## G10: SUPABASE_REPLIT PAT expired
+
+The Supabase Management API Personal Access Token is returning 401 as of 2026-04-11.
+
+**To fix:**
+1. Go to supabase.com → Account → Access Tokens
+2. Revoke the old token
+3. Generate a new token
+4. Update the `SUPABASE_REPLIT` secret in Replit
+5. Apply pending migration: `supabase/migrations/20260411_automation_jobs.sql`
+6. Re-run type regen: `SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript --project-id hmmqhwnxylqcbffjffpj > src/lib/database.types.ts`
