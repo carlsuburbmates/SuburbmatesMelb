@@ -138,7 +138,7 @@ export class QuotaExceededError extends AppError {
 }
 
 export class VendorNotActiveError extends AppError {
-  constructor(message: string = 'Vendor account is not active', details?: Record<string, unknown>) {
+  constructor(message: string = 'Creator account is not active', details?: Record<string, unknown>) {
     super(message, ERROR_CODES.VENDOR_NOT_ACTIVE, 422, true, details);
   }
 }
@@ -146,8 +146,8 @@ export class VendorNotActiveError extends AppError {
 export class VendorSuspendedError extends AppError {
   constructor(reason?: string, details?: Record<string, unknown>) {
     const message = reason
-      ? `Vendor account suspended: ${reason}`
-      : 'Vendor account is suspended';
+      ? `Creator account suspended: ${reason}`
+      : 'Creator account is suspended';
     super(message, ERROR_CODES.VENDOR_SUSPENDED, 422, true, { reason, ...details });
   }
 }

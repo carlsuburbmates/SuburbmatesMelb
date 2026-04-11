@@ -24,7 +24,7 @@ For product truth, see `docs/README.md`. For execution sequencing, see `docs/EXE
 * Check platform email deliverability (provider dashboard).
 * Spot-check the core loop:
 
-  * Home → Directory → Profile → Product page → Vendor attribution copy
+  * Home → Directory → Profile → Product page → Creator attribution copy
 * Review admin queues if present (claims/disputes/reporting).
 
 ### 2.2 Respond (best-effort)

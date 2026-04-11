@@ -61,7 +61,7 @@
 
 *   **Remote-Only Supabase:** No local DB. Connects strictly to project `hmmqhwnxylqcbffjffpj`.
 *   **Docker-Free:** No Docker/OrbStack permitted in development workflow.
-*   **Zero-UI Admin:** Moderation and user management are handled 100% via the Supabase Dashboard.
+*   **Admin Dashboard (Required):** One internal admin cockpit is required post-launch as the primary moderation and user-management surface. Supabase Dashboard remains available as a backend fallback — it is not the primary daily operating surface. See `docs/ADMIN_DASHBOARD_SPEC.md` for the full specification.
 
 ---
 
