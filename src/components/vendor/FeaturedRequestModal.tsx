@@ -108,6 +108,7 @@ export function FeaturedRequestModal({ isOpen, onClose }: FeaturedRequestModalPr
   const handleClose = () => {
     setSubmitState('idle');
     setErrorMessage('');
+    setEligibility('checking');
     onClose();
   };
 
