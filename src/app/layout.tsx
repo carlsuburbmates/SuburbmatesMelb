@@ -4,22 +4,27 @@ import { Header } from "@/components/layout/Header";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
-import { Poppins, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Toaster } from "react-hot-toast";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const outfit = Outfit({
+  variable: "--font-body",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-
-
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
@@ -87,21 +92,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${plusJakarta.variable} ${outfit.variable} ${geistMono.variable}`}>
       <head>
-        {/* Viewport meta tag - critical for mobile */}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"
         />
-        {/* PWA manifest link */}
         <link rel="manifest" href="/manifest.json" />
-        {/* Mobile optimization meta tags */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="SuburbMates" />
-        <meta name="theme-color" content="#171717" />
+        <meta name="theme-color" content="#09090F" />
         <meta
           name="format-detection"
           content="telephone=no, address=no, email=no"
@@ -112,18 +114,28 @@ export default function RootLayout({
         <AuthProvider>
           <GoogleAnalytics />
 
-          {/* Skip to main content for screen readers */}
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-md"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-atmosphere text-white px-4 py-2 rounded-pill"
           >
             Skip to main content
           </a>
 
           <Header />
-          <main id="main-content" className="pt-16 md:pt-24 min-h-screen pb-20 md:pb-0">{children}</main>
+          <main id="main-content" className="pt-16 md:pt-20 min-h-screen pb-24 md:pb-0">{children}</main>
           <Footer />
-          <Toaster position="bottom-center" />
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                background: '#1A1A24',
+                color: '#F0F0F5',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                fontSize: '14px',
+              },
+            }}
+          />
           <MobileNav />
         </AuthProvider>
       </body>
