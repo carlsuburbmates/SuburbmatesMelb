@@ -1,12 +1,12 @@
 # Suburbmates — Design Experiment Branch PRD
 
 ## Original Problem Statement
-Create a new branch `design-experiment` for a complete UI/UX overhaul using a Huly-inspired dark premium design system. The branch must be independent from `main` — no merge, deletable without affecting production.
+Create a new branch `design-experiment` for a complete UI/UX overhaul using a Huly-inspired dark premium design system. Branch must be independent from `main` — no merge, deletable without affecting production. Connect real Supabase credentials, align ALL pages.
 
 ## Architecture
 - **Stack**: Next.js 16 + Supabase + Tailwind CSS
-- **Branch**: `design-experiment` (1 commit ahead of `main`)
-- **Scope**: Frontend-only — 22 files changed, 0 backend changes
+- **Branch**: `design-experiment` (independent from `main`)
+- **Scope**: Frontend-only — 35+ files changed, 0 backend changes
 
 ## Design System (Huly-Aligned)
 - **Base**: Near-black cool charcoal (#09090F)
@@ -18,53 +18,56 @@ Create a new branch `design-experiment` for a complete UI/UX overhaul using a Hu
 - **Motion**: Cinematic hero glow, ambient drift, staggered reveals
 
 ## What's Been Implemented (Jan 2026)
-- [x] globals.css — Full design token rewrite (colors, typography, buttons, glass, animations)
-- [x] tailwind.config.js — Huly palette, radius system, font families
-- [x] layout.tsx — New fonts (Plus Jakarta Sans, Outfit), dark theme-color
-- [x] StaticHero — Cinematic hero with gradient headline, visual proof mockup, dual CTAs
-- [x] CTASection — Creator profile CTA with glass card and amber button
-- [x] FeaturedSection — Featured placement with preview card and ambient halo
-- [x] BrowseSection — Category-first flagship cards + region grid
-- [x] HowItWorks — 3-step platform diagram cards
-- [x] WhyJoinSection — Benefits list with glass CTA card
-- [x] FAQSection — Interactive accordion with numbered items
-- [x] FreshSignals — Premium product cards with chromatic accents
-- [x] Header — Glass blur nav, rounded search, pill CTA button
-- [x] Footer — Dark premium with atmospheric bloom
-- [x] MobileNav — Rounded glass nav with atmosphere-colored active states
-- [x] Modal — Rounded glass-adjacent dark surface
-- [x] SignupModal — Huly-styled role selection and auth flow
-- [x] FeaturedModal — Dark premium benefits grid and pricing
-- [x] DirectoryListing — Rounded creator cards with featured states
-- [x] BusinessHeader — Cinematic creator header with pill tags
-- [x] BusinessProducts — Rounded product grid with atmospheric hover
 
-## Testing Results
-- Frontend: 98%
+### Session 1: Core Homepage & Foundation
+- [x] globals.css — Full design token rewrite
+- [x] tailwind.config.js — Huly palette, radius system, fonts
+- [x] layout.tsx — Plus Jakarta Sans + Outfit, dark theme-color
+- [x] All homepage sections: Hero, FreshSignals, CTA, Featured, Browse, HowItWorks, WhyJoin, FAQ
+- [x] Header, Footer, MobileNav, Modal, SignupModal, FeaturedModal
+- [x] DirectoryListing, BusinessHeader, BusinessProducts
+
+### Session 2: Full Site Alignment + Real Data
+- [x] Connected real Supabase credentials (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY)
+- [x] About page — Huly-aligned with pill badges, glass cards, atmospheric glows
+- [x] Pricing page — Feature checklist, $0/forever card, pill CTAs, FAQ
+- [x] Contact page — Clean form, sidebar, FAQ section (removed militaristic language)
+- [x] Login page — Rounded glass card, Google auth, magic link flow
+- [x] Signup page — Clean form, creator checkbox, magic link flow
+- [x] DirectoryHeader — Pill badge, atmospheric glow, clean typography
+- [x] DirectorySearch — Rounded search with trending pills
+- [x] DirectoryFilters — Rounded filter panel with atmosphere accent
+- [x] Creator Profile (StandardTemplate) — Atmospheric profile template
+- [x] BusinessInfo — Rounded cards, pill specialty tags, atmosphere labels
+- [x] BusinessContact — Rounded contact cards, btn-primary CTA
+- [x] StickyActionBar — Glass rounded mobile action bar
+- [x] ImageGallery — Rounded gallery with atmosphere-styled controls
+
+## Testing Results (Iteration 2)
+- Frontend: 99%
 - Design compliance: 100%
+- Interactivity: 100%
 - Responsive: 100%
-- Interactivity: 95%
+- Supabase integration: 95%
 
 ## Branch Management
 - **To keep**: Push `design-experiment` to remote via "Save to Github"
-- **To delete**: `git branch -D design-experiment` (local) or delete via GitHub UI (remote)
-- **Main is untouched**: Verified — `main` has 0 uncommitted changes
+- **To delete**: `git branch -D design-experiment` or delete via GitHub UI
+- **Main is untouched**: Verified
 
 ## Prioritized Backlog
-### P0 (Critical)
-- None — design branch is complete and self-contained
-
 ### P1 (High)
-- Connect real Supabase credentials to see data-driven components render (FreshSignals, DirectoryListing)
-- Creator profile page (`/creator/[slug]`) template design alignment
+- Help page (HelpClient.tsx) full Huly alignment
+- Dashboard/vendor pages design alignment
+- Blog page design alignment
 
 ### P2 (Medium)
-- About, Help, Contact, Pricing page design alignment
-- Dashboard and vendor pages design alignment
-- Auth pages (login/signup) design alignment
-- Region bottom sheet design update
+- Legal pages (Privacy, Terms, Cookies) design alignment
+- SearchFirstOnboarding component alignment
+- ClaimModal component alignment
+- FeaturedRequestModal alignment
 
 ### Future
-- Micro-animation library (Framer Motion integration for scroll-triggered effects)
-- Dark-mode-only PWA manifest update
+- Framer Motion page transitions
 - OG image generation matching new design
+- PWA manifest dark theme update

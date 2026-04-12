@@ -53,7 +53,7 @@ export function FreshSignals() {
 
   return (
     <section
-      data-testid="fresh-signals-section"
+      data-testid="fresh-signals"
       className="relative py-24 md:py-32 overflow-hidden"
       style={{ background: "var(--bg-surface-1)" }}
     >
