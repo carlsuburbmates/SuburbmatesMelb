@@ -1,0 +1,3 @@
+## 2024-05-24 - Accessible Mobile Toggle Buttons
+**Learning:** Interactive toggle buttons (like mobile hamburger menus) must include dynamic `aria-label` attributes to reflect current state ('Open menu' / 'Close menu'), `aria-expanded` attributes, `aria-controls` attributes linking to the target container's ID, and `aria-hidden='true'` on decorative icons to ensure full screen reader support. This is a pattern to strictly follow for all mobile toggle components.
+**Action:** Ensure all future toggle buttons (mobile menus, accordions, etc.) explicitly implement this dynamic ARIA attribute pattern.
