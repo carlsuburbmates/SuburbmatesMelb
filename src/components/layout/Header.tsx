@@ -141,16 +141,18 @@ export function Header() {
           <button
             onClick={toggleMenu}
             className="md:hidden p-2 text-ink-primary"
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 top-20 z-[90] md:hidden animate-in fade-in slide-in-from-top-4 duration-300 bg-ink-base">
+        <div id="mobile-menu" className="fixed inset-0 top-20 z-[90] md:hidden animate-in fade-in slide-in-from-top-4 duration-300 bg-ink-base">
           <nav className="p-8 space-y-12">
             {NAV_LINKS.map((link) => (
               <Link
