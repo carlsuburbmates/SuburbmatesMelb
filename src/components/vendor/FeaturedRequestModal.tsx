@@ -23,9 +23,6 @@ export function FeaturedRequestModal({ isOpen, onClose }: FeaturedRequestModalPr
 
   useEffect(() => {
     if (!isOpen) return;
-    setEligibility('checking');
-    setSubmitState('idle');
-    setErrorMessage('');
 
     // Dry-run the featured request API to check eligibility
     // (the API will 422 with reason if ineligible, 409 if already submitted)
@@ -108,6 +105,7 @@ export function FeaturedRequestModal({ isOpen, onClose }: FeaturedRequestModalPr
   const handleClose = () => {
     setSubmitState('idle');
     setErrorMessage('');
+    setEligibility('checking');
     onClose();
   };
 
