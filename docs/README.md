@@ -40,3 +40,4 @@
 - No tiers.
 - No marketplace transaction flow.
 - No template-based public profile system.
+\nVendor is the Merchant of Record\nSuburbmates does not issue refunds
