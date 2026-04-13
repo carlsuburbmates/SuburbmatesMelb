@@ -4,29 +4,39 @@
 const base = process.env.SM_BASE_URL || 'http://localhost:3010';
 
 const routes = [
-  { path: '/', expect: 200 },
-  { path: '/directory', expect: 200 },
-  { path: '/marketplace', expect: 200 },
-  { path: '/robots.txt', expect: 200 },
-  { path: '/sitemap.xml', expect: 200 },
-  { path: '/api/business', expect: 200 },
+  { path: '/', expect: 200, method: 'GET' },
+  { path: '/regions', expect: 200, method: 'GET' },
+  { path: '/robots.txt', expect: 200, method: 'GET' },
+  { path: '/sitemap.xml', expect: 200, method: 'GET' },
   // Dynamic page will 404 without seeded data; this is acceptable
-  { path: '/business/test-slug', expect: 404 },
+  { path: '/creator/test-slug', expect: 404, method: 'GET' },
+  {
+    path: '/api/search',
+    expect: 200,
+    method: 'POST',
+    body: { query: "" }
+  },
 ];
 
-async function check(path, expect) {
+async function check(route) {
+  const { path, expect, method, body } = route;
   const url = base + path;
   const start = Date.now();
   try {
-    const res = await fetch(url, { method: 'GET' });
+    const options = {
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    };
+    const res = await fetch(url, options);
     const ms = Date.now() - start;
     const ok = res.status === expect;
-    console.log(`${ok ? 'PASS' : 'FAIL'} ${res.status} ${ms}ms ${url}`);
+    console.log(`${ok ? 'PASS' : 'FAIL'} ${res.status} ${ms}ms ${method} ${url}`);
     if (!ok) return 1;
     return 0;
   } catch (e) {
     const ms = Date.now() - start;
-    console.log(`ERROR after ${ms}ms ${url}:`, e.message);
+    console.log(`ERROR after ${ms}ms ${method} ${url}:`, e.message);
     return 1;
   }
 }
@@ -34,7 +44,7 @@ async function check(path, expect) {
 (async () => {
   let failures = 0;
   for (const r of routes) {
-    failures += await check(r.path, r.expect);
+    failures += await check(r);
   }
   if (failures > 0) {
     console.error(`\nSmoke test failed: ${failures} routes unexpected.`);

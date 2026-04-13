@@ -70,7 +70,7 @@ async function updateProductHandler(
     newSlug = await generateUniqueSlug(creator.id, body.title, dbClient);
   }
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: any = {
     slug: newSlug,
     updated_at: new Date().toISOString(),
   };
