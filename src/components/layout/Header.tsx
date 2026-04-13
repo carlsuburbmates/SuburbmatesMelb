@@ -92,10 +92,14 @@ export function Header() {
             }}
             className="hidden md:flex items-center relative"
           >
-            <Search className="absolute left-3 h-3.5 w-3.5 text-ink-tertiary" />
+            <Search
+              className="absolute left-3 h-3.5 w-3.5 text-ink-tertiary"
+              aria-hidden="true"
+            />
             <input
               name="globalSearch"
               type="text"
+              aria-label="Search creators"
               placeholder="Search creators..."
               className="w-44 lg:w-56 h-9 pl-9 pr-3 text-xs font-medium focus:outline-none bg-ink-surface-1 border border-white/10 text-ink-primary rounded-sm transition-all focus:border-white/20"
             />
