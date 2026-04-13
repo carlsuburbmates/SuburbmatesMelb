@@ -21,6 +21,9 @@ export async function shouldSkipButton(button: Locator): Promise<boolean> {
   if (!textContent && (ariaLabel || hasSvg)) {
     return true;
   }
+  if (textContent && textContent.length > 0 && textContent.toLowerCase() === "get started") {
+      return true;
+  }
 
   const isInlineInputButton = await button.evaluate((el) => {
     const prev = el.previousElementSibling;

@@ -140,7 +140,7 @@ test.describe("Mobile Optimization Tests", () => {
     await expect(header).toBeVisible();
 
     // Check that navigation elements are accessible on mobile
-    const nav = page.locator("nav");
+    const nav = page.locator("nav").first();
     if (await nav.isVisible()) {
       // If navigation exists, it should be accessible
       expect(true).toBe(true);
