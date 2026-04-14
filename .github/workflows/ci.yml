@@ -13,28 +13,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
       - name: Verify workspace
-        run: pnpm run verify:workspace
+        run: npm run verify:workspace
 
       - name: Install Playwright (Chromium + deps)
-        run: pnpm dlx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Lint (optional)
-        run: pnpm lint
+        run: npm run lint --if-present
 
       - name: Setup Supabase
         uses: supabase/setup-cli@v1
@@ -50,7 +45,7 @@ jobs:
           echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d '=' -f2)" >> $GITHUB_ENV
 
       - name: Build
-        run: pnpm build
+        run: npm run build
         env:
           RESEND_API_KEY: dummy_resend_key
           STRIPE_SECRET_KEY: dummy_stripe_key
