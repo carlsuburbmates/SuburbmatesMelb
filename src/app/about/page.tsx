@@ -1,171 +1,101 @@
 import { Metadata } from "next";
+import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About SuburbMates - Melbourne's Digital Neighbourhood",
-  description:
-    "Learn about SuburbMates - connecting Melbourne's local creators with their community through a creator directory.",
-  keywords:
-    "about, Melbourne creators, local marketplace, digital directory, community platform",
-  openGraph: {
-    title: "About SuburbMates - Melbourne's Digital Neighbourhood",
-    description:
-      "Connecting Melbourne's local creators with their community through a creator directory.",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About SuburbMates - Melbourne's Digital Neighbourhood",
-    description:
-      "Connecting Melbourne's local creators with their community through a creator directory.",
-  },
+  description: "Learn about SuburbMates - connecting Melbourne's local creators with their community through a creator directory.",
 };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-ink-base relative overflow-hidden selection:bg-white selection:text-black">
-      {/* Radial ambient glows — layered depth matching homepage */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: [
-            "radial-gradient(ellipse 70% 50% at 15% 20%, rgba(180, 120, 60, 0.08) 0%, transparent 65%)",
-            "radial-gradient(ellipse 60% 45% at 85% 10%, rgba(100, 80, 140, 0.07) 0%, transparent 60%)",
-            "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(60, 100, 90, 0.05) 0%, transparent 70%)",
-          ].join(", "),
-        }}
-      />
-
-      {/* Subtle grid texture */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none opacity-20"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-          maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.5) 70%, transparent 100%)",
-        }}
-      />
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--bg-base)" }}>
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-[60%] h-[50%]" style={{ background: "radial-gradient(ellipse 60% 50% at 15% 20%, var(--accent-atmosphere-soft) 0%, transparent 65%)" }} />
+        <div className="absolute bottom-0 right-0 w-[40%] h-[40%]" style={{ background: "radial-gradient(ellipse 50% 50% at 80% 80%, rgba(249, 115, 22, 0.04) 0%, transparent 60%)" }} />
+      </div>
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="bg-transparent border-b border-white/5 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-white/[0.01] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-          <div className="container-custom py-24 sm:py-32 relative z-10">
-            <div className="max-w-4xl">
-              <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-[0.5em] mb-4 block underline decoration-white/20 underline-offset-8">
-                Protocol: Origin Story
-              </span>
-              <h1 className="text-4xl md:text-6xl font-bold text-ink-primary mb-8 tracking-tighter uppercase leading-none">
-                SuburbMates: The Digital <br className="hidden md:block" /> Neighbourhood
+        <div className="py-24 sm:py-32" style={{ borderBottom: "1px solid var(--border)" }}>
+          <div className="container-custom">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-pill" style={{ background: "var(--accent-atmosphere-muted)", border: "1px solid rgba(108, 92, 231, 0.15)" }}>
+                <span className="text-xs font-medium" style={{ color: "var(--accent-atmosphere)" }}>Our Story</span>
+              </div>
+              <h1 className="font-display mb-6" style={{ fontSize: "clamp(2.5rem, 7vw, 4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.0, color: "var(--text-primary)" }}>
+                SuburbMates: The Digital Neighbourhood
               </h1>
-              <p className="text-xl text-ink-secondary leading-relaxed tracking-tight max-w-2xl font-medium">
-                Melbourne&rsquo;s digital neighbourhood where local creators build
-                their brand and sell digital products. No noise. Just creators and their suburbs.
+              <p className="text-xl leading-relaxed" style={{ color: "var(--text-secondary)", maxWidth: "50ch" }}>
+                Melbourne&rsquo;s digital neighbourhood where local creators build their brand and sell digital products. No noise. Just creators and their suburbs.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Mission Section */}
-        <div className="py-24 bg-transparent">
+        {/* Mission */}
+        <div className="py-24">
           <div className="container-custom">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
               <div>
-                <h2 className="text-xs font-bold text-ink-primary uppercase tracking-[0.5em] mb-12 border-l-2 border-white/20 pl-6">
-                  Our Mission
-                </h2>
-                <div className="space-y-8">
-                  <p className="text-xl text-ink-primary leading-relaxed font-medium">
+                <h2 className="font-display text-xs font-semibold mb-10" style={{ color: "var(--accent-atmosphere)" }}>Our Mission</h2>
+                <div className="space-y-6">
+                  <p className="text-xl leading-relaxed font-medium" style={{ color: "var(--text-primary)" }}>
                     Melbourne is full of world-class digital creators, but they often lack a local home to connect with their own community.
                   </p>
-                  <p className="text-lg text-ink-secondary leading-relaxed font-light">
+                  <p className="text-lg leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                     SuburbMates is Melbourne-first — providing a creator platform where local makers build their brand and list digital products for the neighbourhood.
                   </p>
                 </div>
               </div>
-              <div className="bg-ink-surface-1 p-8 rounded-sm border border-white/5 space-y-8 backdrop-blur-sm">
-                <p className="text-lg text-ink-secondary leading-relaxed font-light italic opacity-80">
+              <div className="p-8 rounded-2xl" style={{ background: "var(--bg-surface-1)", border: "1px solid var(--glass-border)" }}>
+                <p className="text-lg leading-relaxed italic" style={{ color: "var(--text-secondary)" }}>
                   &ldquo;We&rsquo;re building a space where neighbours can discover the talent right in their backyard, supporting local creators and making &apos;shop local&apos; a digital reality.&rdquo;
                 </p>
-                <div className="pt-8 border-t border-white/10">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white/10 border border-white/20 rounded-sm"></div>
-                    <div>
-                      <div className="text-[10px] font-bold text-ink-primary uppercase tracking-widest">Platform Core</div>
-                      <div className="text-[10px] font-medium text-ink-tertiary uppercase tracking-widest">Vision 2025</div>
-                    </div>
-                  </div>
+                <div className="pt-6 mt-6" style={{ borderTop: "1px solid var(--border)" }}>
+                  <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Platform Vision</div>
+                  <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>2025 and beyond</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Values Section */}
-        <div className="py-24 bg-ink-surface-1/50 border-y border-white/5 backdrop-blur-sm">
+        {/* Values */}
+        <div className="py-24" style={{ background: "var(--bg-surface-1)" }}>
           <div className="container-custom">
-            <div className="max-w-4xl">
-              <h2 className="text-xs font-bold text-ink-primary uppercase tracking-[0.5em] mb-16">
-                Platform Values
-              </h2>
-              <div className="grid md:grid-cols-3 gap-12 sm:gap-16">
-                <div>
-                  <div className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest mb-4 opacity-50 font-mono">01/</div>
-                  <h3 className="text-sm font-bold text-ink-primary mb-4 uppercase tracking-widest">
-                    Local-First
-                  </h3>
-                  <p className="text-xs text-ink-secondary leading-relaxed font-medium tracking-wide uppercase">
-                    Digital products shouldn&rsquo;t feel placeless. We connect creators to their actual neighbours.
-                  </p>
+            <h2 className="font-display text-xs font-semibold mb-14" style={{ color: "var(--accent-atmosphere)" }}>Platform Values</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { num: "01", title: "Local-First", desc: "Digital products shouldn't feel placeless. We connect creators to their actual neighbours." },
+                { num: "02", title: "Direct Support", desc: "Platform built for Melbourne's creators, providing a stage to showcase without friction." },
+                { num: "03", title: "Community Bonds", desc: "Strengthening existing community bonds within suburbs through digital proximity." },
+              ].map((v) => (
+                <div key={v.num} className="p-8 rounded-2xl" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}>
+                  <div className="text-xs font-bold mb-4" style={{ color: "var(--accent-atmosphere)" }}>{v.num}</div>
+                  <h3 className="font-display text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>{v.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)", marginBottom: 0 }}>{v.desc}</p>
                 </div>
-                <div>
-                  <div className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest mb-4 opacity-50 font-mono">02/</div>
-                  <h3 className="text-sm font-bold text-ink-primary mb-4 uppercase tracking-widest">
-                    Direct Support
-                  </h3>
-                  <p className="text-xs text-ink-secondary leading-relaxed font-medium tracking-wide uppercase">
-                    Platform built for Melbourne&rsquo;s creators, providing a stage to showcase without friction.
-                  </p>
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest mb-4 opacity-50 font-mono">03/</div>
-                  <h3 className="text-sm font-bold text-ink-primary mb-4 uppercase tracking-widest">
-                    Bonds
-                  </h3>
-                  <p className="text-xs text-ink-secondary leading-relaxed font-medium tracking-wide uppercase">
-                    Strengthening existing community bonds within suburbs through digital proximity.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="py-32 bg-transparent overflow-hidden relative">
-          <div className="container-custom relative z-10">
+        {/* CTA */}
+        <div className="py-32">
+          <div className="container-custom">
             <div className="max-w-3xl">
-              <h2 className="text-3xl sm:text-5xl font-bold text-ink-primary mb-8 uppercase tracking-tighter leading-none">
+              <h2 className="font-display mb-6" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
                 Scale Your Suburb Reach.
               </h2>
-              <p className="text-lg text-ink-secondary mb-12 max-w-xl font-medium tracking-tight">
-                Whether you&rsquo;re a Melbourne creator looking to grow or a neighbour
-                wanting to support local talent, our protocols are ready.
+              <p className="text-lg mb-10" style={{ color: "var(--text-secondary)", maxWidth: "50ch" }}>
+                Whether you&rsquo;re a Melbourne creator looking to grow or a neighbour wanting to support local talent, we&rsquo;re ready.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6">
-                <a href="/regions" className="bg-white text-ink-base px-10 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-white/90 transition-all rounded-sm text-center">
-                  Access Directory
-                </a>
-                <a href="/contact" className="border border-white/20 text-ink-primary px-10 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all rounded-sm text-center">
-                  Establish Contact
-                </a>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a href="/regions" className="btn-primary">Access Directory <ArrowRight className="w-4 h-4" /></a>
+                <a href="/contact" className="btn-secondary">Get in Touch</a>
               </div>
             </div>
           </div>
-          {/* Decorative Edge Glow */}
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none"></div>
         </div>
       </div>
     </div>

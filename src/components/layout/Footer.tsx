@@ -17,72 +17,71 @@ const LEGAL_LINKS = [
 
 const SOCIAL = [
   { Icon: Instagram, label: "Instagram", href: "#" },
-  { Icon: Twitter,   label: "X / Twitter", href: "#" },
-  { Icon: Linkedin,  label: "LinkedIn",   href: "#" },
+  { Icon: Twitter, label: "X / Twitter", href: "#" },
+  { Icon: Linkedin, label: "LinkedIn", href: "#" },
 ];
 
 export function Footer() {
   return (
-    <footer className="pt-24 pb-12 bg-ink-base border-t border-white/5 relative overflow-hidden transition-colors selection:bg-white selection:text-black">
-      {/* Subtle ambient depth matching pages */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255, 255, 255, 0.03) 0%, transparent 60%)",
-        }}
-      />
+    <footer
+      data-testid="footer"
+      className="pt-24 pb-12 relative overflow-hidden"
+      style={{ background: "var(--bg-base)", borderTop: "1px solid var(--border)" }}
+    >
+      {/* Atmospheric bloom */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[40%]"
+          style={{
+            background: "radial-gradient(ellipse 60% 50% at 50% 100%, var(--accent-atmosphere-soft) 0%, transparent 60%)",
+          }}
+        />
+      </div>
+
       <div className="container-custom relative z-10">
         {/* Main grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand col — spans full width on mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-14">
+          {/* Brand col */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-4">
+            <Link href="/" className="flex items-center gap-3 mb-5">
               <div
-                className="w-8 h-8 overflow-hidden flex-shrink-0"
-                style={{ background: "var(--text-primary)", borderRadius: "2px" }}
+                className="w-8 h-8 overflow-hidden flex-shrink-0 rounded-lg"
+                style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}
               >
                 <Image
                   src="/icon.png"
                   alt="SM"
                   width={32}
                   height={32}
-                  className="object-cover"
-                  style={{ filter: "invert(1)" }}
+                  className="object-cover brightness-200"
                 />
               </div>
               <span
-                style={{
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "var(--text-primary)",
-                }}
+                className="font-display text-sm font-bold tracking-tight"
+                style={{ color: "var(--text-primary)" }}
               >
                 Suburbmates
               </span>
             </Link>
             <p
               style={{
-                fontSize: "0.8125rem",
+                fontSize: "0.875rem",
                 color: "var(--text-tertiary)",
                 lineHeight: 1.6,
                 maxWidth: "28ch",
-                marginBottom: "1rem",
+                marginBottom: "1.25rem",
               }}
             >
-              Discovery-first directory for Melbourne&rsquo;s digital creators and studios.
+              Discovery-first platform for Melbourne&rsquo;s digital creators and studios.
             </p>
-            {/* Social — icons only on mobile */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {SOCIAL.map(({ Icon, label, href }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="transition-opacity hover:opacity-60"
-                  style={{ color: "var(--text-tertiary)" }}
+                  className="flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-white/5"
+                  style={{ color: "var(--text-tertiary)", border: "1px solid var(--border)" }}
                 >
                   <Icon className="w-4 h-4" strokeWidth={1.5} />
                 </a>
@@ -93,14 +92,8 @@ export function Footer() {
           {/* Navigation */}
           <div>
             <p
-              className="mb-4"
-              style={{
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: "var(--text-tertiary)",
-              }}
+              className="mb-5 text-xs font-semibold tracking-wide"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Navigation
             </p>
@@ -109,8 +102,8 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="transition-colors hover:opacity-80"
-                    style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}
+                    className="text-sm transition-colors hover:text-ink-primary"
+                    style={{ color: "var(--text-secondary)" }}
                   >
                     {link.label}
                   </Link>
@@ -122,14 +115,8 @@ export function Footer() {
           {/* Legal */}
           <div>
             <p
-              className="mb-4"
-              style={{
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: "var(--text-tertiary)",
-              }}
+              className="mb-5 text-xs font-semibold tracking-wide"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Legal
             </p>
@@ -138,8 +125,8 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="transition-colors hover:opacity-80"
-                    style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}
+                    className="text-sm transition-colors hover:text-ink-primary"
+                    style={{ color: "var(--text-secondary)" }}
                   >
                     {link.label}
                   </Link>
@@ -151,21 +138,15 @@ export function Footer() {
           {/* Contact */}
           <div>
             <p
-              className="mb-4"
-              style={{
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: "var(--text-tertiary)",
-              }}
+              className="mb-5 text-xs font-semibold tracking-wide"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Direct
             </p>
             <a
               href="mailto:hello@suburbmates.com.au"
-              className="transition-opacity hover:opacity-70"
-              style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}
+              className="text-sm transition-colors hover:text-ink-primary"
+              style={{ color: "var(--text-secondary)" }}
             >
               hello@suburbmates.com.au
             </a>
@@ -174,23 +155,13 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-6"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-6"
           style={{ borderTop: "1px solid var(--border)" }}
         >
-          <span
-            style={{
-              fontSize: "11px",
-              color: "var(--text-tertiary)",
-            }}
-          >
-            © 2026 Suburbmates. Melbourne, VIC.
+          <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+            &copy; 2026 Suburbmates. Melbourne, VIC.
           </span>
-          <span
-            style={{
-              fontSize: "11px",
-              color: "var(--text-tertiary)",
-            }}
-          >
+          <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
             Local Signal Verified.
           </span>
         </div>
