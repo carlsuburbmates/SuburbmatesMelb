@@ -35,21 +35,23 @@ export function DirectorySearch({ initialSearch = '' }: DirectorySearchProps) {
     <div className="bg-ink-surface-1 border border-white/5 p-0 overflow-hidden rounded-sm transition-all focus-within:border-white/20">
       <form onSubmit={handleSearch} className="flex items-stretch h-14">
         <div className="flex-1 relative flex items-center">
-          <Search className="absolute left-4 h-5 w-5 text-ink-secondary" />
+          <Search className="absolute left-4 h-5 w-5 text-ink-secondary" aria-hidden="true" />
           <input
             type="text"
             placeholder="Search keywords, studios, or services..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-full pl-12 pr-12 text-base font-medium placeholder:text-ink-tertiary focus:outline-none focus:ring-0 text-ink-primary bg-transparent"
+            aria-label="Search directory"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
               className="absolute right-4 p-1 hover:bg-white/10 rounded-sm transition-colors"
+              aria-label="Clear search"
             >
-              <X className="h-4 w-4 text-ink-secondary" />
+              <X className="h-4 w-4 text-ink-secondary" aria-hidden="true" />
             </button>
           )}
         </div>

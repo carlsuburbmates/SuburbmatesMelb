@@ -5,20 +5,24 @@ const base = process.env.SM_BASE_URL || 'http://localhost:3010';
 
 const routes = [
   { path: '/', expect: 200 },
-  { path: '/directory', expect: 200 },
-  { path: '/marketplace', expect: 200 },
+  { path: '/regions', expect: 200 },
+  { path: '/creator/test-slug', expect: 404 },
   { path: '/robots.txt', expect: 200 },
   { path: '/sitemap.xml', expect: 200 },
-  { path: '/api/business', expect: 200 },
-  // Dynamic page will 404 without seeded data; this is acceptable
-  { path: '/business/test-slug', expect: 404 },
+  { path: '/api/search', expect: 200, method: 'POST', body: '{"query":""}' }, // POST required
 ];
 
-async function check(path, expect) {
+async function check(route) {
+  const { path, expect, method = 'GET', body } = route;
   const url = base + path;
   const start = Date.now();
   try {
-    const res = await fetch(url, { method: 'GET' });
+    const options = { method };
+    if (body) {
+      options.body = body;
+      options.headers = { 'Content-Type': 'application/json' };
+    }
+    const res = await fetch(url, options);
     const ms = Date.now() - start;
     const ok = res.status === expect;
     console.log(`${ok ? 'PASS' : 'FAIL'} ${res.status} ${ms}ms ${url}`);
@@ -34,7 +38,7 @@ async function check(path, expect) {
 (async () => {
   let failures = 0;
   for (const r of routes) {
-    failures += await check(r.path, r.expect);
+    failures += await check(r);
   }
   if (failures > 0) {
     console.error(`\nSmoke test failed: ${failures} routes unexpected.`);
