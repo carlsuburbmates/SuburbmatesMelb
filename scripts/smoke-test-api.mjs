@@ -9,7 +9,7 @@ const routes = [
   { path: '/creator/test-slug', expect: 404 },
   { path: '/robots.txt', expect: 200 },
   { path: '/sitemap.xml', expect: 200 },
-  { path: '/api/search', expect: 200, method: 'POST', body: '{"searchQuery":""}' }, // POST required
+  { path: '/api/search', expect: 200, method: 'POST', body: '{"query":""}' }, // POST required
 ];
 
 async function check(route) {
