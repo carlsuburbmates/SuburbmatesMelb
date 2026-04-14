@@ -181,7 +181,9 @@ export function Header() {
             onClick={toggleMenu}
             className="md:hidden p-2 rounded-xl transition-all"
             style={{ color: "var(--text-primary)" }}
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
             data-testid="mobile-menu-toggle"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -192,6 +194,7 @@ export function Header() {
       {/* Mobile Overlay */}
       {isMenuOpen && (
         <div
+          id="mobile-menu"
           className="fixed inset-0 top-16 z-[90] md:hidden"
           style={{ background: "var(--bg-base)" }}
         >
