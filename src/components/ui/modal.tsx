@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useRef } from "react";
+import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,29 +11,27 @@ interface ModalProps {
   className?: string;
 }
 
-export function Modal({ isOpen, onClose, title, children, className = '' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, className = "" }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle ESC key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
-  // Handle backdrop click
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
       onClose();
@@ -43,39 +41,59 @@ export function Modal({ isOpen, onClose, title, children, className = '' }: Moda
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
+      data-testid="modal-backdrop"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-      
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "rgba(9, 9, 15, 0.85)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+        }}
+      />
+
       {/* Modal */}
-      <div 
+      <div
         ref={modalRef}
-        className={`relative w-full max-w-md bg-ink-surface-1 border border-white/10 rounded-sm shadow-2xl animate-fade-in ${className}`}
+        className={`relative w-full max-w-md animate-slide-up rounded-2xl ${className}`}
+        style={{
+          background: "var(--bg-surface-1)",
+          border: "1px solid var(--glass-border)",
+          boxShadow: "0 16px 64px rgba(0,0,0,0.5), 0 0 32px var(--accent-atmosphere-soft)",
+        }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5">
-          <h2 id="modal-title" className="text-sm font-bold text-ink-primary uppercase tracking-widest font-mono">
+        <div
+          className="flex items-center justify-between p-6"
+          style={{ borderBottom: "1px solid var(--border)" }}
+        >
+          <h2
+            id="modal-title"
+            className="font-display text-base font-bold"
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
+          >
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-ink-secondary hover:text-ink-primary transition-colors p-2 -mr-2"
+            className="p-2 -mr-2 rounded-xl transition-all hover:bg-white/5"
+            style={{ color: "var(--text-secondary)" }}
             aria-label="Close modal"
+            data-testid="modal-close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Content */}
-        <div className="p-6">
-          {children}
-        </div>
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );

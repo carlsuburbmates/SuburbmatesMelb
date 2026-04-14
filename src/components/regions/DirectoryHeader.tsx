@@ -1,27 +1,23 @@
 export function DirectoryHeader() {
   return (
-    <section className="bg-ink-base border-b border-white/10 relative overflow-hidden">
-      {/* Ambient background glow matching the design system */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[600px] h-[600px] bg-slate-500/10 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
-      
-      <div className="container-custom py-28 relative z-10">
-        <div className="text-left max-w-4xl">
-          <h1 className="font-sans font-bold text-5xl md:text-7xl text-ink-primary tracking-tight mb-4 leading-none uppercase">
-            THE CREATOR FEED
+    <section style={{ background: "var(--bg-base)", borderBottom: "1px solid var(--border)" }} className="relative overflow-hidden">
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[50%] h-[80%]" style={{ background: "radial-gradient(ellipse 60% 50% at 80% 20%, var(--accent-atmosphere-soft) 0%, transparent 65%)" }} />
+      </div>
+      <div className="container-custom py-20 md:py-28 relative z-10">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-pill" style={{ background: "var(--accent-atmosphere-muted)", border: "1px solid rgba(108, 92, 231, 0.15)" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--accent-atmosphere)" }}>Creator Directory</span>
+          </div>
+          <h1 className="font-display mb-4" style={{ fontSize: "clamp(2.5rem, 7vw, 4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.0, color: "var(--text-primary)" }}>
+            The Creator Feed
           </h1>
-          <p className="text-ink-secondary font-mono text-xs uppercase tracking-widest mb-8">
-            Support Local Digital Talent — 6 Metro Regions
+          <p className="text-lg" style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
+            Support local digital talent across Melbourne&apos;s 6 Metro Regions.
           </p>
-          
-          <div className="flex items-center space-x-8 text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
-            <span className="flex items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/20 mr-2" />
-              Direct Outbound Linkages
-            </span>
-            <span className="flex items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/20 mr-2" />
-              Verified Local Assets
-            </span>
+          <div className="flex items-center gap-6 text-sm" style={{ color: "var(--text-tertiary)" }}>
+            <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-atmosphere)" }} />Direct Outbound</span>
+            <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-cta)" }} />Verified Creators</span>
           </div>
         </div>
       </div>

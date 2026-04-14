@@ -4,7 +4,7 @@ import { SignupModal } from "@/components/modals/SignupModal";
 import { useFadeIn } from "@/hooks/useScrollAnimation";
 import { analytics } from "@/lib/analytics";
 import { useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 const FEATURES = [
   "Free creator profile",
@@ -24,53 +24,52 @@ export function CTASection() {
 
   return (
     <section
-      className="relative overflow-hidden py-20 md:py-32"
-      style={{
-        background: "var(--bg-base)",
-        borderTop: "1px solid var(--border)",
-      }}
+      data-testid="cta-section"
+      className="relative overflow-hidden py-24 md:py-36"
+      style={{ background: "var(--bg-base)" }}
     >
-      {/* Ambient colour glow — replaces background image */}
+      {/* Atmospheric glow */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background: [
-            "radial-gradient(ellipse 60% 60% at 80% 50%, rgba(70, 100, 160, 0.10) 0%, transparent 65%)",
-            "radial-gradient(ellipse 50% 40% at 10% 20%, rgba(60, 100, 80, 0.08) 0%, transparent 60%)",
-          ].join(", "),
-        }}
-      />
+      >
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%]"
+          style={{
+            background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--accent-atmosphere-soft) 0%, transparent 70%)",
+          }}
+        />
+      </div>
 
       <div
         ref={contentAnimation.elementRef}
         className={`container-custom relative z-10 ${contentAnimation.className}`}
         style={contentAnimation.style}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           {/* Left — copy */}
           <div>
-            <p
-              className="mb-4"
+            <div
+              className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-pill"
               style={{
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.20em",
-                textTransform: "uppercase",
-                color: "var(--text-tertiary)",
+                background: "var(--accent-cta-muted)",
+                border: "1px solid rgba(249, 115, 22, 0.15)",
               }}
             >
-              Creator Profiles
-            </p>
+              <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent-cta)" }} />
+              <span className="text-xs font-medium" style={{ color: "var(--accent-cta)" }}>
+                Creator Profiles
+              </span>
+            </div>
 
             <h2
-              className="mb-4"
+              className="font-display mb-5"
               style={{
                 color: "var(--text-primary)",
-                fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
-                fontWeight: 700,
-                lineHeight: 1.1,
-                letterSpacing: "-0.025em",
+                fontSize: "clamp(2rem, 5vw, 3rem)",
+                fontWeight: 800,
+                lineHeight: 1.05,
+                letterSpacing: "-0.03em",
               }}
             >
               Claim Your Profile
@@ -79,48 +78,45 @@ export function CTASection() {
             <p
               style={{
                 color: "var(--text-secondary)",
-                fontSize: "1rem",
+                fontSize: "1.0625rem",
                 lineHeight: 1.65,
-                maxWidth: "40ch",
-                marginBottom: "2.5rem",
+                maxWidth: "42ch",
+                marginBottom: "2rem",
               }}
             >
               Launch your free directory profile and get discovered by
-              Melbourne&rsquo;s digital neighbourhood.
+              Melbourne&rsquo;s digital neighbourhood. Zero setup, zero fees.
             </p>
 
             <button
               onClick={handleCreatorCTA}
-              className="btn-primary inline-flex items-center gap-2"
+              className="btn-primary"
+              data-testid="cta-get-started"
             >
               Get Started — Free
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Right — glass card with feature list + coloured shadow */}
+          {/* Right — glass card */}
           <div>
             <div
-              className="p-8"
+              className="p-8 md:p-10 rounded-2xl"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                borderRadius: "2px",
-                boxShadow: [
-                  "0 4px 32px 0 rgba(70, 100, 160, 0.14)",
-                  "0 1px 0 0 rgba(255,255,255,0.06) inset",
-                ].join(", "),
+                background: "rgba(255,255,255,0.03)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                border: "1px solid var(--glass-border)",
+                boxShadow: "0 8px 48px rgba(108, 92, 231, 0.08), 0 1px 0 rgba(255,255,255,0.04) inset",
               }}
             >
               <h3
-                className="mb-6"
+                className="font-display mb-6"
                 style={{
-                  fontSize: "1rem",
-                  fontWeight: 600,
+                  fontSize: "1.125rem",
+                  fontWeight: 700,
                   color: "var(--text-primary)",
-                  letterSpacing: "-0.01em",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Your Digital Storefront
@@ -128,19 +124,19 @@ export function CTASection() {
 
               <ul className="space-y-4">
                 {FEATURES.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
+                  <li key={feature} className="flex items-center gap-3.5">
                     <span
-                      className="flex-shrink-0 flex items-center justify-center w-5 h-5"
+                      className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-lg"
                       style={{
-                        background: "rgba(255,255,255,0.08)",
-                        borderRadius: "2px",
+                        background: "var(--accent-atmosphere-muted)",
+                        border: "1px solid rgba(108, 92, 231, 0.15)",
                       }}
                     >
-                      <Check className="w-3 h-3" style={{ color: "var(--text-secondary)" }} />
+                      <Check className="w-3.5 h-3.5" style={{ color: "var(--accent-atmosphere)" }} />
                     </span>
                     <span
                       style={{
-                        fontSize: "0.875rem",
+                        fontSize: "0.9375rem",
                         color: "var(--text-secondary)",
                         lineHeight: 1.4,
                       }}
@@ -151,16 +147,14 @@ export function CTASection() {
                 ))}
               </ul>
 
-              {/* Bottom — visual separator */}
               <div
                 className="mt-8 pt-6"
                 style={{ borderTop: "1px solid var(--border)" }}
               >
                 <p
                   style={{
-                    fontSize: "11px",
+                    fontSize: "0.8125rem",
                     color: "var(--text-tertiary)",
-                    letterSpacing: "0.04em",
                     lineHeight: 1.55,
                     marginBottom: 0,
                   }}

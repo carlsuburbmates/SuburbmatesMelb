@@ -6,63 +6,27 @@ import { useState } from "react";
 import Link from "next/link";
 
 const faqs = [
-  {
-    question: "HOW DO I INITIALIZE A STUDIO PROFILE?",
-    answer:
-      "SELECT 'SIGN UP' AND CHOOSE THE 'CREATOR' PATHWAY. PROVIDE YOUR IDENTIFICATION AND STUDIO DETAILS FOR SYSTEM VERIFICATION.",
-  },
-  {
-    question: "WHAT IS THE FISCAL REQUIREMENT?",
-    answer:
-      "STANDARD DIRECTORY LISTING IS FREE. WE OFFER PREMIUM DEPLOYMENT TIERS FOR CREATIVES REQUIRING ENHANCED ASSET VISIBILITY.",
-  },
-  {
-    question: "HOW ARE DIGITAL ASSETS DISTRIBUTED?",
-    answer:
-      "UPON VERIFICATION, STUDIOS CAN UPLOAD ASSETS DIRECTLY VIA THE DASHBOARD. THESE ARE INDEXED AND MADE DISCOVERABLE IN REAL-TIME.",
-  },
-  {
-    question: "HOW IS CAPITAL DISTRIBUTED?",
-    answer:
-      "WE UTILIZE THE STRIPE CONNECT PROTOCOL. INTEGRATE YOUR BANK ENDPOINT FOR AUTOMATED SETTLEMENT AFTER EACH SUCCESSFUL TRANSACTION.",
-  },
+  { question: "How do I create a creator profile?", answer: "Click 'Sign up' in the header and select 'Creator'. Fill in your details and we'll review your profile." },
+  { question: "What does it cost?", answer: "Basic listing is completely free. Featured placements are available for a small flat fee." },
+  { question: "How do I sell digital products?", answer: "Once your profile is active, add products from your dashboard. Visitors are routed directly to your external assets." },
+  { question: "How do payments work?", answer: "Suburbmates routes traffic to your site. You handle checkout on your own infrastructure — zero commission." },
 ];
 
 export function ContactClient() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      if (!response.ok) throw new Error("Failed to send message");
       setIsSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
@@ -74,210 +38,101 @@ export function ContactClient() {
   };
 
   return (
-    <div className="bg-black min-h-screen flex flex-col">
-      <main className="flex-1">
-        <div className="bg-black border-b border-white/10">
-          <Container className="py-24 md:py-32">
-            <div className="max-w-4xl">
-              <span className="text-[10px] font-black text-ink-tertiary uppercase tracking-[0.5em] mb-6 block underline underline-offset-8 decoration-white/20">
-                COMMUNICATION / PROTOCOL
-              </span>
-              <h1 className="text-5xl md:text-8xl font-extrabold text-ink-primary uppercase tracking-tighter leading-[0.85] mb-8">
-                INTERFACE WITH US
-              </h1>
-              <p className="text-xl text-ink-secondary leading-relaxed uppercase tracking-tight max-w-2xl font-medium">
-                Direct channel to the founding team. Deploy your inquiries or system feedback.
-              </p>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+      {/* Header */}
+      <div style={{ borderBottom: "1px solid var(--border)" }}>
+        <Container className="py-20 md:py-28">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-pill" style={{ background: "var(--accent-atmosphere-muted)", border: "1px solid rgba(108, 92, 231, 0.15)" }}>
+              <span className="text-xs font-medium" style={{ color: "var(--accent-atmosphere)" }}>Contact</span>
             </div>
-          </Container>
-        </div>
-
-        <Container className="py-24">
-          <div className="grid md:grid-cols-5 gap-20">
-            {/* Primary Interface Information */}
-            <div className="md:col-span-2 space-y-16">
-              <section className="space-y-8">
-                <h2 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.4em] border-b border-white/10 pb-4">
-                  Direct Endpoints
-                </h2>
-                <div className="space-y-4">
-                   <a 
-                      href="mailto:hello@suburbmates.com.au"
-                      className="flex items-center justify-between p-6 bg-ink-surface-1 border border-white/5 hover:border-white/20 transition-all group"
-                   >
-                      <div className="flex items-center gap-4">
-                         <Mail className="w-5 h-5 text-ink-tertiary" />
-                         <span className="text-[11px] font-bold text-ink-primary uppercase tracking-widest">hello@suburbmates.com.au</span>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-ink-tertiary opacity-0 group-hover:opacity-100 transition-opacity" />
-                   </a>
-                </div>
-              </section>
-
-              <section className="bg-ink-surface-1 border border-white/5 p-10 space-y-8 shadow-2xl">
-                <div className="flex items-center gap-3">
-                  <HelpCircle className="w-5 h-5 text-ink-primary" />
-                  <h3 className="text-[10px] font-black text-ink-primary uppercase tracking-[0.4em]">Resource Centre</h3>
-                </div>
-                <p className="text-ink-tertiary text-xs uppercase tracking-widest leading-relaxed">
-                  Access our centralized documentation for technical support and platform guidelines.
-                </p>
-                <Link
-                  href="/help"
-                  className="inline-block w-full text-center py-4 bg-ink-primary text-black text-[10px] font-black uppercase tracking-[0.3em] hover:opacity-90 transition-opacity"
-                >
-                  ACCESS DOCUMENTATION
-                </Link>
-              </section>
-            </div>
-
-            {/* Transmission Form */}
-            <div className="md:col-span-3">
-              <div className="bg-ink-surface-1 border border-white/5 p-12 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4">
-                   <span className="text-[8px] font-bold text-ink-tertiary uppercase tracking-widest opacity-30">SECURE CHANNEL PRO-V1.0</span>
-                </div>
-                <h2 className="text-2xl font-black text-ink-primary uppercase tracking-tighter mb-10">
-                  SEND TRANSMISSION
-                </h2>
-
-                {isSubmitted ? (
-                  <div className="text-center py-16 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="w-16 h-16 bg-ink-success/10 rounded-full flex items-center justify-center mx-auto mb-8">
-                      <MessageSquare className="w-8 h-8 text-ink-success" />
-                    </div>
-                    <h3 className="text-xl font-black text-ink-primary uppercase tracking-[0.3em] mb-4">Transmission Received</h3>
-                    <p className="text-ink-tertiary text-[10px] uppercase tracking-widest mb-10 leading-relaxed max-w-sm mx-auto">
-                      Thank you for contacting Suburbmates. Our team has received your logs and will respond shortly.
-                    </p>
-                    <button
-                      onClick={() => setIsSubmitted(false)}
-                      className="text-ink-primary text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/10 pb-1 hover:border-ink-primary transition-all"
-                    >
-                      New Transmission
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <label htmlFor="name" className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">IDENTIFIER</label>
-                        <input
-                          id="name"
-                          type="text"
-                          name="name"
-                          required
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="FULL NAME"
-                          className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">ENDPOINT (EMAIL)</label>
-                        <input
-                          id="email"
-                          type="email"
-                          name="email"
-                          required
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="NAME@DOMAIN.COM"
-                          className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="subject" className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">SUBJECT MATTER</label>
-                      <input
-                        id="subject"
-                        type="text"
-                        name="subject"
-                        required
-                        value={formData.subject}
-                        onChange={handleInputChange}
-                        placeholder="CATEGORY OF INQUIRY"
-                        className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="text-[10px] font-bold text-ink-tertiary uppercase tracking-widest ml-1">MESSAGE LOGS</label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows={6}
-                        required
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        placeholder="SPECIFY YOUR REQUIREMENTS..."
-                        className="w-full bg-black border border-white/10 px-6 py-4 text-[10px] font-bold text-ink-primary uppercase tracking-widest focus:outline-none focus:border-white placeholder:text-white/10 transition-colors resize-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full py-5 bg-ink-primary text-black text-[10px] font-black uppercase tracking-[0.3em] hover:opacity-90 transition-opacity disabled:opacity-50"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "TRANSMITTING..." : "SEND TRANSMISSION"}
-                    </button>
-                  </form>
-                )}
-              </div>
-            </div>
+            <h1 className="font-display mb-5" style={{ fontSize: "clamp(2.5rem, 7vw, 4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.0, color: "var(--text-primary)" }}>
+              Get in Touch
+            </h1>
+            <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
+              Direct channel to the founding team. Share your inquiries or feedback.
+            </p>
           </div>
         </Container>
+      </div>
 
-        {/* FAQ Section - Clinical Minimalist */}
-        <div className="py-32 bg-black border-t border-white/10">
-          <Container className="max-w-5xl">
-            <h2 className="text-3xl md:text-5xl font-black text-ink-primary uppercase tracking-tighter mb-20 text-center">
-              SYSTEM PROTOCOLS (FAQ)
-            </h2>
-            <div className="grid md:grid-cols-2 gap-10">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="bg-ink-surface-1 border border-white/5 p-10 hover:border-white/20 transition-all group"
-                >
-                  <h3 className="text-[11px] font-black text-ink-primary uppercase tracking-[0.2em] mb-6 leading-relaxed group-hover:text-white">
-                    {faq.question}
-                  </h3>
-                  <p className="text-ink-tertiary text-[10px] leading-relaxed uppercase tracking-widest font-medium">
-                    {faq.answer}
-                  </p>
+      <Container className="py-20">
+        <div className="grid md:grid-cols-5 gap-16">
+          {/* Sidebar */}
+          <div className="md:col-span-2 space-y-8">
+            <div>
+              <h2 className="text-xs font-semibold mb-4" style={{ color: "var(--accent-atmosphere)" }}>Direct</h2>
+              <a href="mailto:hello@suburbmates.com.au" className="flex items-center justify-between p-4 rounded-xl transition-all hover:bg-white/5 group" style={{ background: "var(--bg-surface-1)", border: "1px solid var(--border)" }}>
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>hello@suburbmates.com.au</span>
                 </div>
-              ))}
+                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--text-tertiary)" }} />
+              </a>
             </div>
-          </Container>
-        </div>
+            <div className="p-6 rounded-xl" style={{ background: "var(--bg-surface-1)", border: "1px solid var(--border)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <HelpCircle className="w-4 h-4" style={{ color: "var(--accent-atmosphere)" }} />
+                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Help Centre</h3>
+              </div>
+              <p className="text-sm mb-5" style={{ color: "var(--text-tertiary)" }}>Check our documentation for quick answers.</p>
+              <Link href="/help" className="btn-secondary w-full justify-center !text-sm">View Help Centre</Link>
+            </div>
+          </div>
 
-        {/* CTA Section - Final Interface */}
-        <div className="bg-ink-primary py-32 text-black">
-          <Container className="text-center">
-             <span className="text-[10px] font-black uppercase tracking-[0.5em] mb-8 block opacity-60">NEXT STEPS</span>
-            <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">
-              READY TO INTEGRATE?
-            </h2>
-            <p className="text-lg uppercase tracking-widest mb-16 max-w-2xl mx-auto font-bold opacity-80 leading-relaxed">
-              Join Melbourne&rsquo;s leading creative directory and showcase your professional assets.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/regions"
-                className="px-12 py-5 bg-black text-white hover:bg-zinc-900 transition-colors text-[10px] font-black uppercase tracking-[0.3em]"
-              >
-                EXPLORE DIRECTORY
-              </Link>
-              <Link
-                href="/auth/register"
-                className="px-12 py-5 border-2 border-black text-black hover:bg-black hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]"
-              >
-                INITIALIZE ACCOUNT
-              </Link>
+          {/* Form */}
+          <div className="md:col-span-3">
+            <div className="p-8 md:p-10 rounded-2xl" style={{ background: "var(--bg-surface-1)", border: "1px solid var(--glass-border)", boxShadow: "0 8px 48px rgba(0,0,0,0.2)" }}>
+              <h2 className="font-display text-xl font-bold mb-8" style={{ color: "var(--text-primary)" }}>Send a Message</h2>
+              {isSubmitted ? (
+                <div className="text-center py-12">
+                  <MessageSquare className="w-10 h-10 mx-auto mb-4" style={{ color: "var(--accent-atmosphere)" }} />
+                  <h3 className="font-display text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>Message Received</h3>
+                  <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>Thank you. Our team will respond shortly.</p>
+                  <button onClick={() => setIsSubmitted(false)} className="text-sm font-medium" style={{ color: "var(--accent-atmosphere)" }}>Send another</button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="name" className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Name</label>
+                      <input id="name" type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="Your name" className="w-full h-11 px-4 rounded-xl text-sm focus:outline-none" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }} />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Email</label>
+                      <input id="email" type="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="name@email.com" className="w-full h-11 px-4 rounded-xl text-sm focus:outline-none" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="subject" className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Subject</label>
+                    <input id="subject" type="text" name="subject" required value={formData.subject} onChange={handleInputChange} placeholder="What's this about?" className="w-full h-11 px-4 rounded-xl text-sm focus:outline-none" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }} />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Message</label>
+                    <textarea id="message" name="message" rows={5} required value={formData.message} onChange={handleInputChange} placeholder="Your message..." className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none resize-none" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }} />
+                  </div>
+                  <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center disabled:opacity-30">{isSubmitting ? "Sending..." : "Send Message"}</button>
+                </form>
+              )}
             </div>
-          </Container>
+          </div>
         </div>
-      </main>
+      </Container>
+
+      {/* FAQ */}
+      <div className="py-24" style={{ background: "var(--bg-surface-1)", borderTop: "1px solid var(--border)" }}>
+        <Container className="max-w-4xl">
+          <h2 className="font-display text-center mb-14" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>Common Questions</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="p-6 rounded-xl" style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}>
+                <h3 className="font-display text-sm font-bold mb-2" style={{ color: "var(--text-primary)" }}>{faq.question}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)", marginBottom: 0 }}>{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </div>
     </div>
   );
 }

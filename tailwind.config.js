@@ -8,33 +8,48 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['var(--font-display)', 'Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['var(--font-body)', 'Outfit', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       colors: {
-        // ── Dark surface system ──────────────────────────────────
-        background: '#0A0A0A',
+        /* Dark surface system — cool-biased charcoal */
+        background: '#09090F',
         surface: {
-          1: '#141414',
-          2: '#1C1C1E',
-          3: '#242426',
+          1: '#111118',
+          2: '#1A1A24',
+          3: '#222230',
         },
-        // ── Text tonal hierarchy ─────────────────────────────────
+        /* Text tonal hierarchy */
         ink: {
-          base:      '#0A0A0A',
-          primary:   '#F5F5F7',
-          secondary: '#A1A1A6',
-          tertiary:  '#636366',
+          base:      '#09090F',
+          primary:   '#F0F0F5',
+          secondary: '#9B9BB0',
+          tertiary:  '#5C5C72',
           surface: {
-            1: '#141414',
-            2: '#1C1C1E',
-            3: '#242426',
+            1: '#111118',
+            2: '#1A1A24',
+            3: '#222230',
           }
         },
-        // ── Legacy aliases (keep for existing code) ──────────────
-        onyx:   '#090A0B',
-        silica: '#FAFAFA',
-        // ── Grayscale (utility) ──────────────────────────────────
+        /* Atmospheric accent — electric blue-violet */
+        atmosphere: {
+          DEFAULT: '#6C5CE7',
+          muted: 'rgba(108, 92, 231, 0.12)',
+          glow: 'rgba(108, 92, 231, 0.20)',
+          soft: 'rgba(108, 92, 231, 0.06)',
+        },
+        /* Primary CTA — warm orange/amber */
+        cta: {
+          DEFAULT: '#F97316',
+          hover: '#FB923C',
+          glow: 'rgba(249, 115, 22, 0.25)',
+          muted: 'rgba(249, 115, 22, 0.10)',
+        },
+        /* Legacy aliases */
+        onyx:   '#09090F',
+        silica: '#F0F0F5',
+        /* Grayscale */
         gray: {
           50:  '#FAFAFA',
           100: '#F5F5F5',
@@ -47,9 +62,8 @@ module.exports = {
           800: '#262626',
           900: '#171717',
         },
-        // ── Accent (CSS overlay only — not for primary colour) ───
         accent: {
-          orange: '#FF6B35',
+          orange: '#F97316',
           teal:   '#20B2AA',
           sage:   '#7CAA9D',
         },
@@ -58,22 +72,28 @@ module.exports = {
         '18':  '4.5rem',
         '88':  '22rem',
         '128': '32rem',
-        // Mobile nav clearance
-        'nav': '72px',
+        'nav': '76px',
       },
       maxWidth: {
-        container: '1200px',
+        container: '1240px',
       },
       borderRadius: {
-        // Sharp geometry system — 0-2px max per Tesla direction
-        sharp: '2px',
-        none:  '0px',
+        'sm': '8px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        'pill': '999px',
       },
       animation: {
-        'fade-in':      'fadeIn 0.5s ease-out',
-        'slide-up':     'slideUp 0.6s ease-out',
-        'slide-in-left':'slideInLeft 0.3s ease-out forwards',
-        'pulse-dim':    'pulse-dim 2s ease-in-out infinite',
+        'fade-in':        'fadeIn 0.6s ease-out',
+        'slide-up':       'slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-in-left':  'slideInLeft 0.3s ease-out forwards',
+        'pulse-dim':      'pulse-dim 2s ease-in-out infinite',
+        'hero-glow':      'heroGlow 6s ease-in-out infinite',
+        'ambient-drift':  'ambientDrift 20s ease-in-out infinite',
+        'float':          'float 3s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -81,7 +101,7 @@ module.exports = {
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%':   { opacity: '0', transform: 'translateY(16px)' },
+          '0%':   { opacity: '0', transform: 'translateY(24px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideInLeft: {
@@ -92,6 +112,25 @@ module.exports = {
           '0%, 100%': { opacity: '1' },
           '50%':      { opacity: '0.4' },
         },
+        heroGlow: {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%':      { opacity: '1', transform: 'scale(1.05)' },
+        },
+        ambientDrift: {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '25%':      { transform: 'translate(10px, -5px)' },
+          '50%':      { transform: 'translate(-5px, 10px)' },
+          '75%':      { transform: 'translate(-10px, -3px)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%':      { transform: 'translateY(-6px)' },
+        },
+      },
+      backdropBlur: {
+        'xs': '2px',
+        'xl': '20px',
+        '2xl': '40px',
       },
     },
   },
