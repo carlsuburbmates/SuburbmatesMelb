@@ -106,7 +106,7 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
           No digital drops listed in the {region || "selected"} region yet.
         </h3>
         <p className="text-sm mb-8" style={{ color: "var(--text-tertiary)" }}>
-          Join the waitlist to be the first.
+          Check back soon or explore all neighbourhoods.
         </p>
         <Link href="/regions" className="btn-secondary" data-testid="empty-directory-cta">
           View All Neighbourhoods

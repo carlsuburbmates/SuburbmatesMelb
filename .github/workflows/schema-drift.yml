@@ -8,13 +8,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify v1.1 core schema requirements
+      - name: Verify current listing visibility contract docs
         run: |
-          FIELDS=("is_vendor" "vendor_status" "vendor_tier" "published")
-          for field in "${FIELDS[@]}"; do
-            if ! grep -RIl "$field" ./docs; then
-              echo "Schema field missing in SSOT: $field"
+          REQUIRED=(
+            "business_profiles.vendor_status = 'active'"
+            "business_profiles.is_public = true"
+            "is_active = true"
+            "is_archived = false"
+            "deleted_at IS NULL"
+          )
+
+          for pattern in "${REQUIRED[@]}"; do
+            if ! grep -Fq "$pattern" docs/README.md docs/DATABASE_TRUTH.md docs/SSOT_V2.1.md; then
+              echo "Missing active schema contract: $pattern"
               exit 1
             fi
           done
-        - name: Check for deprecated schema fields  
+
+      - name: Verify dropped legacy fields are called out
+        run: |
+          REQUIRED=(
+            'vendor_tier` — ALREADY DROPPED on remote'
+            'is_vendor` — ALREADY DROPPED on remote'
+          )
+
+          for pattern in "${REQUIRED[@]}"; do
+            if ! grep -Fq "$pattern" docs/DATABASE_TRUTH.md; then
+              echo "Missing dropped-field note: $pattern"
+              exit 1
+            fi
+          done
+
+      - name: Verify active docs ban published-status drift
+        run: |
+          if ! grep -Fq "Do not describe visibility as \`status = 'published'\`." "docs/Terminology contract.md"; then
+            echo "Missing published-status drift guardrail"
+            exit 1
+          fi
