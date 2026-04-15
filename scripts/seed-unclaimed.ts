@@ -1,22 +1,15 @@
 /**
- * UNCLAIMED SEED SCRIPT — Suburbmates Concierge v2
+ * UNCLAIMED SEED SCRIPT v3 — Suburbmates Concierge
  * 
- * Creates directory listings WITHOUT individual auth users.
- * Uses a single system "concierge" user to own all unclaimed listings.
- * Creators claim their listings via the existing search-first onboarding flow.
+ * Creates directory listings as UNCLAIMED — one placeholder auth user per listing.
+ * Uses internal email pattern: unclaimed+{slug}@suburbmates.internal
+ * These are NOT real emails — they are system identifiers replaced on claim.
  * 
- * IMPORTANT: No fake emails are generated. All listings are owned by the
- * documented system user concierge@suburbmates.com.au until claimed.
+ * Schema constraint: business_profiles.user_id has a UNIQUE constraint,
+ * so each listing requires its own user record.
  * 
- * Insert order:
- * 1. Create/reuse system auth user (concierge@suburbmates.com.au)
- * 2. Create/reuse public.users row
- * 3. For each CSV row:
- *    a. Create vendor record (pointing to system user)
- *    b. Create business_profile (pointing to system user)
- *    c. Scrape product_url for metadata
- *    d. Create product (pointing to vendor)
- * 4. All listings visible immediately (vendor_status=active, is_public=true)
+ * Claim flow: Creator finds listing via search-first → submits claim →
+ * admin approves → listing user_id is transferred to the claiming user.
  */
 
 import * as dotenv from "dotenv";
@@ -28,7 +21,6 @@ import { scrapeOpenGraph } from "../src/lib/scraper";
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-const SYSTEM_EMAIL = "concierge@suburbmates.com.au";
 const DRY_RUN = process.argv.includes("--dry-run");
 const CSV_FILE_PATH = "./scripts/seed_queue.csv";
 
@@ -90,46 +82,9 @@ function parseCSV(content: string) {
   return rows;
 }
 
-async function ensureSystemUser(): Promise<string> {
-  // Check if system user already exists in auth
-  const { data: authList } = await supabaseAdmin.auth.admin.listUsers();
-  const existing = authList?.users?.find(u => u.email === SYSTEM_EMAIL);
-  
-  if (existing) {
-    console.log(`[✓] System user already exists: ${existing.id}`);
-    return existing.id;
-  }
-
-  if (DRY_RUN) {
-    console.log(`[SIMULATION] Would create system auth user: ${SYSTEM_EMAIL}`);
-    return "dry-run-system-id";
-  }
-
-  // Create system auth user
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: SYSTEM_EMAIL,
-    email_confirm: true,
-    user_metadata: { user_type: "business_owner", role: "system_concierge" },
-  });
-  if (authError || !authData.user) throw new Error(`System auth creation failed: ${authError?.message}`);
-  const userId = authData.user.id;
-  console.log(`[✓] Created system auth user: ${userId}`);
-
-  // Create public.users row
-  const { error: userError } = await supabaseAdmin.from("users").insert({
-    id: userId,
-    email: SYSTEM_EMAIL,
-    user_type: "business_owner",
-  });
-  if (userError) throw new Error(`System public.users insert failed: ${userError.message}`);
-  console.log(`[✓] Created system public.users row`);
-
-  return userId;
-}
-
 async function runSeeder() {
   console.log(`\n========================================`);
-  console.log(`UNCLAIMED SEED v2 (DRY_RUN=${DRY_RUN})`);
+  console.log(`UNCLAIMED SEED v3 (DRY_RUN=${DRY_RUN})`);
   console.log(`========================================\n`);
 
   if (!fs.existsSync(CSV_FILE_PATH)) {
@@ -140,72 +95,79 @@ async function runSeeder() {
   const queue = parseCSV(fs.readFileSync(CSV_FILE_PATH, "utf-8"));
   console.log(`Loaded ${queue.length} rows from CSV\n`);
 
-  // Step 1: Ensure system user exists
-  const systemUserId = await ensureSystemUser();
-
-  // Step 2: Process each row
   let successCount = 0;
-  let failCount = 0;
 
   for (let i = 0; i < queue.length; i++) {
     const row = queue[i];
-    const refs: { vendorId?: string; profileId?: string; productId?: string } = {};
-    
+    const refs: { authUserId?: string; userId?: string; vendorId?: string; profileId?: string; productId?: string } = {};
+
     console.log(`\n--- Row ${i + 1}/${queue.length}: ${row.business_name} ---`);
-    
+
     try {
-      // Validate required fields (email NOT required for unclaimed seed)
       if (!row.business_name || !row.region || !row.category || !row.product_url) {
         throw new Error("Missing required CSV column (business_name|region|category|product_url).");
       }
 
       const region_id = resolveRegionId(row.region);
       const category_id = resolveCategoryId(row.category);
-      console.log(`[✓] Mappings → Region: ${region_id} (${row.region}), Category: ${category_id} (${row.category})`);
+      const bizSlug = slugify(row.business_name);
+      const internalEmail = `unclaimed+${bizSlug}@suburbmates.internal`;
 
-      // Scrape metadata
+      console.log(`[✓] Mappings → Region: ${region_id}, Category: ${category_id}`);
+      console.log(`[*] Internal ID: ${internalEmail}`);
+
+      // Scrape
       console.log(`[*] Scraping: ${row.product_url}`);
       let metadata = { title: "", description: "", image: "" };
       try {
         metadata = await scrapeOpenGraph(row.product_url);
-        console.log(`[✓] Scraped: title="${metadata.title?.substring(0, 60)}..."`);
-      } catch (scrapeErr) {
-        console.log(`[!] Scrape failed (non-fatal): ${scrapeErr instanceof Error ? scrapeErr.message : "unknown"}`);
-        // Use CSV description as fallback — don't fail the row
+        console.log(`[✓] Scraped: "${metadata.title?.substring(0, 50)}"`);
+      } catch {
+        console.log(`[!] Scrape timeout (non-fatal)`);
       }
 
       if (DRY_RUN) {
-        console.log(`[SIMULATION] Vendor: ${row.business_name} → region=${region_id}`);
-        console.log(`[SIMULATION] Profile: category=${category_id}, suburb_id=${region_id}, is_public=true`);
-        console.log(`[SIMULATION] Product: title="${metadata.title || row.business_name}", is_active=true`);
-        console.log(`[✓] Dry-run passed for ${row.business_name}`);
+        console.log(`[SIM] Auth + User + Vendor + Profile + Product would be created`);
         successCount++;
         continue;
       }
 
-      // Create vendor
+      // 1. Create auth user (placeholder)
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: internalEmail,
+        email_confirm: true,
+        user_metadata: { user_type: "vendor", seeded: true, unclaimed: true },
+      });
+      if (authError || !authData.user) throw new Error(`Auth failed: ${authError?.message}`);
+      refs.authUserId = authData.user.id;
+
+      // 2. Create public.users
+      const { error: userError } = await supabaseAdmin.from("users").insert({
+        id: refs.authUserId,
+        email: internalEmail,
+        user_type: "vendor",
+      });
+      if (userError) throw new Error(`public.users failed: ${userError.message}`);
+      refs.userId = refs.authUserId;
+
+      // 3. Create vendor
       const { data: vendorData, error: vendorError } = await supabaseAdmin
-        .from("vendors")
-        .insert({
-          user_id: systemUserId,
+        .from("vendors").insert({
+          user_id: refs.authUserId,
           business_name: row.business_name,
           primary_region_id: region_id,
           vendor_status: "active",
-        })
-        .select("id")
-        .single();
-      if (vendorError) throw new Error(`Vendor insert failed: ${vendorError.message}`);
+        }).select("id").single();
+      if (vendorError) throw new Error(`Vendor failed: ${vendorError.message}`);
       refs.vendorId = vendorData.id;
-      console.log(`[✓] Vendor: ${refs.vendorId}`);
 
-      // Create business profile
-      const bizSlug = await generateUniqueBusinessSlug(row.business_name);
+      // 4. Create business profile
+      const uniqueSlug = await generateUniqueBusinessSlug(row.business_name);
       const { data: profileData, error: profileError } = await supabaseAdmin
-        .from("business_profiles")
-        .insert({
-          user_id: systemUserId,
+        .from("business_profiles").insert({
+          user_id: refs.authUserId,
           business_name: row.business_name,
-          slug: bizSlug,
+          slug: uniqueSlug,
           category_id: category_id,
           suburb_id: region_id,
           profile_description: row.description || null,
@@ -213,19 +175,15 @@ async function runSeeder() {
           website: row.product_url,
           vendor_status: "active",
           is_public: true,
-        })
-        .select("id")
-        .single();
-      if (profileError) throw new Error(`Profile insert failed: ${profileError.message}`);
+        }).select("id").single();
+      if (profileError) throw new Error(`Profile failed: ${profileError.message}`);
       refs.profileId = profileData.id;
-      console.log(`[✓] Profile: ${bizSlug} (${refs.profileId})`);
 
-      // Create product
+      // 5. Create product
       const productTitle = metadata.title || row.business_name;
       const productSlug = await generateUniqueProductSlug(refs.vendorId, productTitle);
       const { data: productData, error: productError } = await supabaseAdmin
-        .from("products")
-        .insert({
+        .from("products").insert({
           vendor_id: refs.vendorId,
           title: productTitle,
           description: metadata.description || row.description || null,
@@ -236,37 +194,33 @@ async function runSeeder() {
           is_active: true,
           is_archived: false,
           deleted_at: null,
-        })
-        .select("id")
-        .single();
-      if (productError) throw new Error(`Product insert failed: ${productError.message}`);
+        }).select("id").single();
+      if (productError) throw new Error(`Product failed: ${productError.message}`);
       refs.productId = productData.id;
-      console.log(`[✓] Product: ${productSlug}`);
 
-      console.log(`>>> SUCCESS: ${row.business_name} <<<`);
+      console.log(`[✓] ${uniqueSlug} → LIVE`);
       successCount++;
 
     } catch (err) {
-      failCount++;
-      console.error(`\n[X] FAILED: ${row.business_name}`);
-      console.error(err instanceof Error ? err.message : String(err));
+      console.error(`[X] FAILED: ${row.business_name} — ${err instanceof Error ? err.message : err}`);
 
-      // Cleanup partial writes
+      // Cleanup
       if (!DRY_RUN) {
         if (refs.productId) await supabaseAdmin.from("products").delete().eq("id", refs.productId);
         if (refs.profileId) await supabaseAdmin.from("business_profiles").delete().eq("id", refs.profileId);
         if (refs.vendorId) await supabaseAdmin.from("vendors").delete().eq("id", refs.vendorId);
-        console.log(`[~] Cleaned up partial writes for ${row.business_name}`);
+        if (refs.userId) await supabaseAdmin.from("users").delete().eq("id", refs.userId);
+        if (refs.authUserId) await supabaseAdmin.auth.admin.deleteUser(refs.authUserId);
+        console.log(`[~] Cleaned up`);
       }
 
-      // ABORT on first failure per spec
-      console.error(`ABORTING: Fix the failing row and re-run.`);
+      console.error(`ABORTING.`);
       process.exit(1);
     }
   }
 
   console.log(`\n========================================`);
-  console.log(`COMPLETE: ${successCount} succeeded, ${failCount} failed`);
+  console.log(`COMPLETE: ${successCount}/${queue.length} seeded`);
   console.log(`========================================\n`);
 }
 
