@@ -1,7 +1,7 @@
 import "./env";
 import { randomUUID } from "node:crypto";
 import { type User, type Vendor } from "@/lib/types";
-import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
+import { Database } from "@/lib/database.types";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 
 interface CreateVendorOptions {
@@ -51,36 +51,33 @@ export async function createVendorFixture(
   }
 
   const businessId = randomUUID();
+  const profilePayload: Database['public']['Tables']['business_profiles']['Insert'] = {
+    id: businessId,
+    user_id: userId,
+    business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
+    slug: `playwright-vendor-${businessId.slice(0, 8)}`,
+    vendor_status: "active",
+    is_public: true,
+    suburb_id: regionId,
+  };
+
   const { error: insertProfileError } = await admin
     .from("business_profiles")
-    .insert({
-      id: businessId,
-      user_id: userId,
-      business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
-      slug: `playwright-vendor-${businessId.slice(0, 8)}`,
-      vendor_status: "active",
-      is_public: true,
-      is_vendor: true,
-      suburb_id: regionId,
-    });
+    .insert(profilePayload);
   if (insertProfileError) {
     throw insertProfileError;
   }
 
   const vendorId = randomUUID();
-  const { error: insertVendorError } = await admin.from("vendors").insert({
+  const vendorPayload: Database['public']['Tables']['vendors']['Insert'] = {
     id: vendorId,
     user_id: userId,
     business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
     vendor_status: "active",
-    can_sell_products: true,
-    is_vendor: true,
-    stripe_account_status: "active",
-    stripe_onboarding_complete: true,
-    product_quota: MAX_PRODUCTS_PER_CREATOR,
     primary_region_id: regionId,
-    product_count: 0,
-  });
+  };
+
+  const { error: insertVendorError } = await admin.from("vendors").insert(vendorPayload);
   if (insertVendorError) {
     throw insertVendorError;
   }
