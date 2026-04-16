@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
 import { logger } from '@/lib/logger';
 import {
   successResponse,
@@ -57,7 +58,7 @@ async function handler(req: NextRequest) {
       const body = await req.json();
 
       const { business_name, profile_description, region_id, category_id, website, phone } = body;
-      const updates: Record<string, string | null | number> = {};
+      const updates: Record<string, unknown> = {};
 
       if (business_name !== undefined) updates.business_name = business_name;
       if (profile_description !== undefined) updates.profile_description = profile_description;
@@ -72,7 +73,7 @@ async function handler(req: NextRequest) {
 
       const { data: updatedProfile, error: updateError } = await dbClient
         .from('business_profiles')
-        .update(updates)
+        .update(updates as unknown as Database['public']['Tables']['business_profiles']['Update'])
         .eq('user_id', user.id)
         .select()
         .single();
