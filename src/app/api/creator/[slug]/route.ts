@@ -156,13 +156,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const updateData: any = { updated_at: new Date().toISOString() };
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
     if (region_id) updateData.suburb_id = region_id;
     if (category_id) updateData.category_id = category_id;
 
-    const { data: updated, error } = await supabase.from('business_profiles').update(updateData).eq('id', profile.id).select().single();
+    const { data: updated, error } = await supabase.from('business_profiles').update(updateData as any).eq('id', profile.id).select().single();
 
     if (error) throw error;
 

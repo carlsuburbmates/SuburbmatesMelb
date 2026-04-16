@@ -59,10 +59,10 @@ export async function createVendorFixture(
       business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
       slug: `playwright-vendor-${businessId.slice(0, 8)}`,
       vendor_status: "active",
-      is_public: true,
+      is_public: true as any,
       is_vendor: true,
       suburb_id: regionId,
-    });
+    } as any);
   if (insertProfileError) {
     throw insertProfileError;
   }
@@ -80,7 +80,7 @@ export async function createVendorFixture(
     product_quota: MAX_PRODUCTS_PER_CREATOR,
     primary_region_id: regionId,
     product_count: 0,
-  });
+  } as any);
   if (insertVendorError) {
     throw insertVendorError;
   }

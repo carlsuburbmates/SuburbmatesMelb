@@ -70,7 +70,7 @@ async function updateProductHandler(
     newSlug = await generateUniqueSlug(creator.id, body.title, dbClient);
   }
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: any = {
     slug: newSlug,
     updated_at: new Date().toISOString(),
   };
@@ -99,7 +99,7 @@ async function updateProductHandler(
 
   const { data: updatedProduct, error: updateError } = await dbClient
     .from("products")
-    .update(updatePayload)
+    .update(updatePayload as any)
     .eq("id", params.id)
     .eq("vendor_id", creator.id)
     .select()
