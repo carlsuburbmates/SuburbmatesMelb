@@ -100,7 +100,7 @@ async function updateProductHandler(
 
   const { data: updatedProduct, error: updateError } = await dbClient
     .from("products")
-    .update(updatePayload as any)
+    .update(updatePayload as unknown as Database['public']['Tables']['products']['Update'])
     .eq("id", params.id)
     .eq("vendor_id", creator.id)
     .select()
