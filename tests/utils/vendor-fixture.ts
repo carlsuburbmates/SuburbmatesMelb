@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { type User, type Vendor } from "@/lib/types";
 import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
+import { Database } from "@/lib/database.types";
 
 interface CreateVendorOptions {
   productCount?: number;
@@ -61,7 +62,7 @@ export async function createVendorFixture(
       vendor_status: "active",
       is_public: true,
       suburb_id: regionId,
-    } as any);
+    } as Database['public']['Tables']['business_profiles']['Insert']);
   if (insertProfileError) {
     throw insertProfileError;
   }
@@ -78,7 +79,7 @@ export async function createVendorFixture(
     product_quota: MAX_PRODUCTS_PER_CREATOR,
     primary_region_id: regionId,
     product_count: 0,
-  } as any);
+  } as Database['public']['Tables']['vendors']['Insert']);
   if (insertVendorError) {
     throw insertVendorError;
   }
