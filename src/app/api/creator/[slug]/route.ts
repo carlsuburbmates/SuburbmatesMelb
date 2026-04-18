@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
 import { logger } from '@/lib/logger';
+import { Database } from '@/lib/database.types';
 
 if (!supabaseAdmin) {
   throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured — supabaseAdmin is unavailable');
@@ -156,7 +157,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const updateData: Database['public']['Tables']['business_profiles']['Update'] = { updated_at: new Date().toISOString() };
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
     if (region_id) updateData.suburb_id = region_id;

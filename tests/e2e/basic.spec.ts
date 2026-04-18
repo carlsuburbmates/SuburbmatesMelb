@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const paths = ['/', '/directory', '/robots.txt', '/sitemap.xml'];
+const paths = ['/', '/regions', '/robots.txt', '/sitemap.xml'];
 
 test.describe('Core routes', () => {
   for (const p of paths) {
