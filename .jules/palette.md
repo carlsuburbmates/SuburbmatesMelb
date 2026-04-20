@@ -1,1 +1,4 @@
 ## 2026-04-11 - Mobile Viewport in Playwright\n**Learning:** When using Playwright to visually verify mobile-specific UI elements (like responsive menus hidden on desktop via `md:hidden`), strictly setting the viewport to a mobile resolution is required before interacting with those elements.\n**Action:** Use `page.set_viewport_size({"width": 375, "height": 812})` in future Playwright verification scripts that target mobile layouts.
+## 2026-04-20 - Disclosure Widget Accessibility
+**Learning:** Interactive disclosure widgets (like accordion FAQs) require both `aria-expanded` on the toggle button and `aria-controls` pointing to the ID of the content container to properly announce state changes to screen readers.
+**Action:** Always pair `aria-expanded` and `aria-controls` with an `id` when building custom expandable UI components.

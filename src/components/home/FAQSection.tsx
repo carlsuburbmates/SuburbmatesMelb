@@ -41,6 +41,8 @@ function FAQItem({ faq, index }: { faq: typeof faqs[number]; index: number }) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-6 text-left transition-colors"
         data-testid={`faq-item-${index}`}
+        aria-expanded={isOpen}
+        aria-controls={`faq-answer-${index}`}
       >
         <div className="flex items-center gap-4">
           <span
@@ -62,6 +64,7 @@ function FAQItem({ faq, index }: { faq: typeof faqs[number]; index: number }) {
         />
       </button>
       <div
+        id={`faq-answer-${index}`}
         className="overflow-hidden transition-all duration-300"
         style={{
           maxHeight: isOpen ? "200px" : "0",
