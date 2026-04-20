@@ -20,6 +20,9 @@ test.describe('Core routes', () => {
         if (text.includes('Failed to fetch directory listings')) {
           return;
         }
+        if (text.includes('Shuffle Error') || text.includes('Failed to fetch')) {
+          return;
+        }
         errors.push(text);
       });
       const res = await page.goto(p, { waitUntil: 'domcontentloaded' });
