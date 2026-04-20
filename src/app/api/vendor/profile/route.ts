@@ -11,6 +11,7 @@ import { withAuthRateLimit } from '@/middleware/rateLimit';
 import { withCors } from '@/middleware/cors';
 import { withLogging } from '@/middleware/logging';
 import { withErrorHandler } from '@/middleware/errorHandler';
+import { Database } from '@/lib/database.types';
 
 
 async function handler(req: NextRequest) {
@@ -57,7 +58,7 @@ async function handler(req: NextRequest) {
       const body = await req.json();
 
       const { business_name, profile_description, region_id, category_id, website, phone } = body;
-      const updates: Record<string, string | null | number> = {};
+      const updates: Database['public']['Tables']['business_profiles']['Update'] = {};
 
       if (business_name !== undefined) updates.business_name = business_name;
       if (profile_description !== undefined) updates.profile_description = profile_description;

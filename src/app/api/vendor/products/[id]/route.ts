@@ -16,6 +16,7 @@ import { parseProductUpdateRequest } from "../payload";
 import { generateUniqueSlug, shouldRegenerateSlug } from "@/lib/slug-utils";
 import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { NextRequest } from "next/server";
+import { Database } from "@/lib/database.types";
 
 async function updateProductHandler(
   req: NextRequest,
@@ -70,7 +71,7 @@ async function updateProductHandler(
     newSlug = await generateUniqueSlug(creator.id, body.title, dbClient);
   }
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: Database["public"]["Tables"]["products"]["Update"] = {
     slug: newSlug,
     updated_at: new Date().toISOString(),
   };

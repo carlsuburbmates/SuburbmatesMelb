@@ -76,13 +76,18 @@ function run(cmd, args, options = {}) {
   await run("npx", ["playwright", "install", "chromium"]);
 
   // Build fresh to keep chunk hashes and manifest in sync
+  const buildEnv = {
+    ...process.env,
+    RESEND_API_KEY: process.env.RESEND_API_KEY || "dummy_resend_key",
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "dummy_stripe_key",
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "dummy_stripe_webhook_secret",
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || "http://127.0.0.1:54321",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "dummy",
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || "dummy",
+  };
+
   await run("npm", ["run", "build"], {
-    env: {
-      ...process.env,
-      RESEND_API_KEY: process.env.RESEND_API_KEY || "dummy_resend_key",
-      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "dummy_stripe_key",
-      STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "dummy_stripe_webhook_secret",
-    },
+    env: buildEnv,
   });
 
   // Start server in background
@@ -93,7 +98,7 @@ function run(cmd, args, options = {}) {
       cwd: appDir,
       stdio: "ignore",
       detached: true,
-      env: process.env,
+      env: buildEnv,
     }
   );
   const pid = server.pid;
