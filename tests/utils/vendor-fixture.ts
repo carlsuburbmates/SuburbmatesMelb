@@ -60,7 +60,6 @@ export async function createVendorFixture(
       slug: `playwright-vendor-${businessId.slice(0, 8)}`,
       vendor_status: "active",
       is_public: true,
-      is_vendor: true,
       suburb_id: regionId,
     });
   if (insertProfileError) {
@@ -73,11 +72,6 @@ export async function createVendorFixture(
     user_id: userId,
     business_name: `Playwright Vendor ${businessId.slice(0, 6)}`,
     vendor_status: "active",
-    can_sell_products: true,
-    is_vendor: true,
-    stripe_account_status: "active",
-    stripe_onboarding_complete: true,
-    product_quota: MAX_PRODUCTS_PER_CREATOR,
     primary_region_id: regionId,
     product_count: 0,
   });
