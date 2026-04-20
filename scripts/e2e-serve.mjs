@@ -76,7 +76,14 @@ function run(cmd, args, options = {}) {
   await run("npx", ["playwright", "install", "chromium"]);
 
   // Build fresh to keep chunk hashes and manifest in sync
-  await run("npm", ["run", "build"]);
+  await run("npm", ["run", "build"], {
+    env: {
+      ...process.env,
+      RESEND_API_KEY: process.env.RESEND_API_KEY || "dummy_resend_key",
+      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "dummy_stripe_key",
+      STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "dummy_stripe_webhook_secret",
+    },
+  });
 
   // Start server in background
   const server = spawn(
