@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function VendorRedirectPage() {
-  redirect("/vendor/directory");
+  redirect("/vendor/dashboard");
 }

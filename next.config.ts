@@ -23,7 +23,37 @@ const nextConfig: NextConfig = {
   
   // Compression and bundling
   compress: true,
-  
+
+  async redirects() {
+    return [
+      {
+        source: '/directory',
+        destination: '/regions',
+        permanent: true,
+      },
+      {
+        source: '/marketplace',
+        destination: '/regions',
+        permanent: true,
+      },
+      {
+        source: '/business/:slug',
+        destination: '/creator/:slug',
+        permanent: true,
+      },
+      {
+        source: '/api/business',
+        destination: '/api/creator',
+        permanent: true,
+      },
+      {
+        source: '/api/business/:slug',
+        destination: '/api/creator/:slug',
+        permanent: true,
+      },
+    ];
+  },
+
   // Headers for security and performance
   async headers() {
     return [

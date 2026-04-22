@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const body = await request.json().catch(() => ({}));
+    const isCheckOnly = body?.__check_only === true;
     const authContext = await getUserFromRequest(request);
     const userId = authContext.user.id;
     const userEmail = authContext.user.email ?? '';
@@ -25,6 +27,18 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (vendorError || !vendor) {
+      if (isCheckOnly) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            check_only: true,
+            eligible: false,
+            can_submit: false,
+            code: 'NO_LISTING',
+          },
+        });
+      }
+
       return NextResponse.json(
         { success: false, error: { code: 'NO_LISTING', message: 'No creator listing found for your account' } },
         { status: 404 }
@@ -44,6 +58,19 @@ export async function POST(request: NextRequest) {
     if (!profile?.suburb_id) missingFields.push('suburb');
 
     if (missingFields.length > 0) {
+      if (isCheckOnly) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            check_only: true,
+            eligible: false,
+            can_submit: false,
+            code: 'INELIGIBLE_INCOMPLETE_LOCATION',
+            missing_fields: missingFields,
+          },
+        });
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -58,6 +85,13 @@ export async function POST(request: NextRequest) {
     }
 
     const regionId = vendor.primary_region_id as number;
+    const { data: region } = await supabaseAdmin
+      .from('regions')
+      .select('name')
+      .eq('id', regionId)
+      .single();
+
+    const regionName = region?.name ?? 'your region';
 
     // 4. Check for existing active request (pending or approved)
     const { data: existingRequest } = await supabaseAdmin
@@ -69,6 +103,20 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (existingRequest) {
+      if (isCheckOnly) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            check_only: true,
+            eligible: true,
+            can_submit: false,
+            request_exists: true,
+            existing_status: existingRequest.status,
+            region: regionName,
+          },
+        });
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -81,14 +129,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Fetch region name for the email
-    const { data: region } = await supabaseAdmin
-      .from('regions')
-      .select('name')
-      .eq('id', regionId)
-      .single();
-
-    const regionName = region?.name ?? 'your region';
+    if (isCheckOnly) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          check_only: true,
+          eligible: true,
+          can_submit: true,
+          request_exists: false,
+          region: regionName,
+        },
+      });
+    }
 
     // 6. Insert featured request with status=pending
     const { data: featuredRequest, error: insertError } = await supabaseAdmin

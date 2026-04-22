@@ -46,7 +46,7 @@ echo ""
 
 # Unit tests
 log "3. Unit tests..."
-if npm run test; then
+if npm run test:unit; then
   echo -e "${GREEN}✓ Tests passed${NC}"
 else
   error "Tests failed"

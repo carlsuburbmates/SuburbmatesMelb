@@ -65,7 +65,7 @@ export async function recordSearchTelemetry(
       if (normalized || filters) {
         await capturePosthogSearchEvent({
           hashedQuery: hashed,
-          rawQuery: normalized ?? null,
+          queryPresent: Boolean(normalized),
           filters: (filters as Record<string, unknown>) ?? null,
           resultCount: result_count ?? null,
           sessionId: session_id ?? null,
@@ -79,7 +79,7 @@ export async function recordSearchTelemetry(
 
 interface PosthogSearchEvent {
   hashedQuery: string;
-  rawQuery: string | null;
+  queryPresent: boolean;
   filters: Record<string, unknown> | null;
   resultCount: number | null;
   sessionId: string | null;
@@ -87,7 +87,7 @@ interface PosthogSearchEvent {
 
 async function capturePosthogSearchEvent({
   hashedQuery,
-  rawQuery,
+  queryPresent,
   filters,
   resultCount,
   sessionId,
@@ -108,8 +108,7 @@ async function capturePosthogSearchEvent({
         distinct_id: sessionId ?? hashedQuery,
         properties: {
           hashed_query: hashedQuery,
-          raw_query: rawQuery ?? undefined,
-          query_present: Boolean(rawQuery),
+          query_present: queryPresent,
           result_count: resultCount ?? 0,
           session_id: sessionId,
           filters: filters ?? {},

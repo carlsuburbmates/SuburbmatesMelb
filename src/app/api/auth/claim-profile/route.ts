@@ -1,5 +1,14 @@
-import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withAdmin } from "@/middleware/auth";
+import { validateBody } from "@/app/api/_utils/validation";
+import { validationErrorResponse } from "@/app/api/_utils/response";
+import { ValidationError } from "@/lib/errors";
+import { supabaseAdmin } from "@/lib/supabase";
+
+const claimProfileSchema = z.object({
+  email: z.string().trim().email(),
+});
 
 /**
  * API Route to handle "Claim Profile" flow.
@@ -9,43 +18,61 @@ import { supabaseAdmin } from '@/lib/supabase';
  * 3. It generates a Supabase invitation link.
  * 4. This link is sent to the creator manually by the admin.
  */
-export async function POST(request: Request) {
+async function claimProfileHandler(request: NextRequest) {
   try {
-    const { email } = await request.json();
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-    }
+    const { email } = await validateBody(claimProfileSchema, request);
 
     if (!supabaseAdmin) {
-      return NextResponse.json({ error: 'Admin client unavailable — SUPABASE_SERVICE_ROLE_KEY not set' }, { status: 500 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INTERNAL_ERROR",
+            message: "Claim profile is not configured",
+          },
+        },
+        { status: 500 }
+      );
     }
 
-    // 1. Generate an invitation/magic link using Admin API
-    // This allows the user to sign in without having an account yet, 
-    // and links them to the pre-seeded vendor profile.
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+
+    // Generate an invitation/magic link using the service-role client.
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: email,
+      type: "magiclink",
+      email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/dashboard`
-      }
+        redirectTo: new URL("/vendor/dashboard", appUrl).toString(),
+      },
     });
 
     if (error) throw error;
 
-    // 2. Return the link to the admin (caller)
-    // In production, email delivery is handled via Resend (see sendVendorOnboardingEmail in src/lib/email.ts).
-    // This route returns the raw link so the admin dashboard can trigger the Resend send directly.
-    return NextResponse.json({ 
-      success: true, 
-      action: 'Magic link generated',
-      link: data.properties.action_link 
+    return NextResponse.json({
+      success: true,
+      action: "Magic link generated",
+      link: data.properties.action_link,
     });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return validationErrorResponse(
+        (error.details?.fields as Record<string, string>) || {}
+      );
+    }
 
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Claim profile error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Claim profile error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to generate claim link",
+        },
+      },
+      { status: 500 }
+    );
   }
 }
+
+export const POST = withAdmin(claimProfileHandler);

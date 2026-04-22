@@ -1,12 +1,12 @@
 # SuburbMates — Known Gaps (to be addressed)
 
-> Updated: 2026-04-11. Pull this when prioritising next work.
+> Updated: 2026-04-13. Pull this when prioritising next work.
 
 ---
 
 ## G1: Automation schedules not yet applied to Supabase
 
-**Migration written:** `supabase/migrations/20260411_automation_jobs.sql`
+**Migrations written locally:** `supabase/migrations/20260411_automation_jobs.sql`, `supabase/migrations/20260413080000_fix_claim_status_notification_contract.sql`
 
 Schedules (UTC):
 | Schedule | Cron | What |
@@ -16,9 +16,19 @@ Schedules (UTC):
 | `broken-links-check` | `0 15 * * 0` | pg_net GET → `/api/ops/broken-links` |
 | `incomplete-listings-nudge` | `0 22 * * 1` | pg_net GET → `/api/ops/incomplete-listings` |
 
-**Trigger written:** `trigger_claim_status_notification` on `listing_claims.status` change → pg_net POST → `/api/webhooks/claim-status`.
+**Trigger written locally:** `trigger_claim_status_notification` on `listing_claims.status` change → pg_net POST → `/api/webhooks/claim-status`.
 
-**Blocked by:** SUPABASE_REPLIT PAT expired (returning 401 as of 2026-04-11). Refresh token at supabase.com → Account → Access Tokens → generate new → update SUPABASE_REPLIT secret → apply migration.
+**Live remote verification (2026-04-13):** `supabase migration list --linked` succeeds against the linked project, and shows the linked remote has **not** applied:
+- `20260411031200_phase5a_drop_dead_rpcs.sql`
+- `20260411031300_phase5b_drop_dead_tables.sql`
+- `20260411031400_phase5c_drop_vendor_columns.sql`
+- `20260411031500_phase5d_drop_product_columns.sql`
+- `20260411_automation_jobs.sql`
+- `20260411_featured_requests.sql`
+- `20260411_listing_claims.sql`
+- `20260413080000_fix_claim_status_notification_contract.sql`
+
+**Current blocker:** the repo contains the migration files, but the linked remote schema has not yet been advanced to apply them.
 
 **Config required after migration is applied (once per environment):**
 ```sql
@@ -26,7 +36,7 @@ ALTER DATABASE postgres SET app.base_url = 'https://your-deployed-domain.com';
 ALTER DATABASE postgres SET app.cron_secret = '<CRON_SECRET>';
 SELECT pg_reload_conf();
 ```
-`CRON_SECRET` is already set as a Replit env var. Match the value exactly.
+`CRON_SECRET` must match the deployed environment value exactly.
 
 ---
 
@@ -41,7 +51,7 @@ All routes are implemented and protected by CRON_SECRET:
 | `/api/ops/incomplete-listings` | GET | Built (2026-04-11) |
 | `/api/webhooks/claim-status` | POST | Built (2026-04-11) |
 
-Claim outcome / admin approval emails trigger via DB trigger → `/api/webhooks/claim-status` → `sendClaimOutcomeEmail`.
+Claim outcome emails are wired locally via DB trigger → `/api/webhooks/claim-status` → `sendClaimOutcomeEmail`, but the trigger is not live on the linked remote until the pending migrations in G1 are applied.
 Admin approval/rejection actions (listing activation) are still blocked by admin dashboard (G5).
 
 ---
@@ -97,10 +107,14 @@ Modules needed:
 
 ---
 
-## G7: `fn_try_reserve_featured_slot` RPC is dropped
+## G7: `fn_try_reserve_featured_slot` truth drift remains
 
-This was the automated FIFO slot reservation RPC. Dropped in Phase 5 because it referenced `lga_id` (removed field).
-Not a current blocker — manual slot activation replaces it.
+The repo docs previously claimed this RPC was dropped, but current evidence does not support that:
+- `src/lib/database.types.ts` still includes `fn_try_reserve_featured_slot`
+- the linked remote migration history (verified 2026-04-13) has not applied `20260411031200_phase5a_drop_dead_rpcs.sql`
+- `20260324000001_ssot_v2_cleanup.sql` recreates `fn_try_reserve_featured_slot` with the region-based signature
+
+Treat `fn_try_reserve_featured_slot` as **still present** until the cleanup migration is actually applied on the remote and types are regenerated from the resulting schema.
 
 ---
 

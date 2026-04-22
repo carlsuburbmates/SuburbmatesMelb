@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import { HelpClient } from './HelpClient';
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: 'Help Centre | SuburbMates Support',
@@ -15,12 +13,8 @@ export const metadata: Metadata = {
 
 export default function HelpPage() {
   return (
-    <div className="bg-ink-base min-h-screen">
-      <Header />
-      <main>
-        <HelpClient />
-      </main>
-      <Footer />
-    </div>
+    <main className="bg-ink-base min-h-screen">
+      <HelpClient />
+    </main>
   );
 }

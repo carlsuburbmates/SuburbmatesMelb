@@ -12,6 +12,7 @@
     "smoke:serve": "node scripts/smoke-serve.mjs",
     "test:e2e": "DISABLE_RATE_LIMIT=true PLAYWRIGHT_BASE_URL=http://localhost:3010 npx playwright test",
     "test:e2e:serve": "node scripts/e2e-serve.mjs",
+    "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "seed:concierge:dry-run": "tsx scripts/seed-concierge.ts --dry-run",

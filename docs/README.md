@@ -1,5 +1,7 @@
 # Suburbmates Canonical Summary
 
+For the stable authority map covering product truth, design truth, UX truth, seeding truth, ops truth, and verification truth, start with [CANONICAL_TRUTH_INDEX.md](./CANONICAL_TRUTH_INDEX.md).
+
 ## Authority Order
 1. `docs/SSOT_V2.1.md`
 2. `docs/CONCIERGE_SEEDING_SPEC.md`

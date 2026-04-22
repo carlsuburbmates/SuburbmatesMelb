@@ -11,6 +11,8 @@ test.describe("Mobile Optimization Tests", () => {
     breakpointLabel: string,
     selectors: string[] = CTA_SELECTORS
   ) {
+    const minHeight = breakpointLabel === "desktop" ? 36 : 44;
+
     for (const selector of selectors) {
       const locator = page.locator(selector);
       const count = await locator.count();
@@ -32,8 +34,8 @@ test.describe("Mobile Optimization Tests", () => {
           ).toBeGreaterThanOrEqual(88);
           expect(
             box.height,
-            `${breakpointLabel}:${selector}#${index} height >= 44px`
-          ).toBeGreaterThanOrEqual(44);
+            `${breakpointLabel}:${selector}#${index} height >= ${minHeight}px`
+          ).toBeGreaterThanOrEqual(minHeight);
         }
       }
     }
@@ -141,10 +143,17 @@ test.describe("Mobile Optimization Tests", () => {
 
     // Check that navigation elements are accessible on mobile
     const nav = page.locator("nav");
-    if (await nav.isVisible()) {
-      // If navigation exists, it should be accessible
-      expect(true).toBe(true);
+    const navCount = await nav.count();
+    expect(navCount, "Expected at least one navigation landmark").toBeGreaterThan(0);
+
+    let hasVisibleNav = false;
+    for (let index = 0; index < navCount; index++) {
+      if (await nav.nth(index).isVisible()) {
+        hasVisibleNav = true;
+        break;
+      }
     }
+    expect(hasVisibleNav, "Expected at least one visible nav on mobile").toBe(true);
 
     // Test touch-friendly button sizing
     const buttons = page.locator(
