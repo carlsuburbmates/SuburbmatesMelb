@@ -1,0 +1,4 @@
+## 2025-02-14 - HTML Injection in Contact Form Emails
+**Vulnerability:** The contact form POST endpoint (`src/app/api/contact/route.ts`) takes user input (`name`, `email`, `subject`, `message`) from a Zod schema (which only validates types/lengths, not content) and injects it directly into an HTML email template. An attacker could submit malicious HTML in these fields to alter the email structure, inject links, or perform phishing against the support team.
+**Learning:** While Zod validates data format, it does not sanitize HTML strings. User inputs interpolated into HTML contexts like email bodies must be explicitly sanitized to prevent HTML injection/XSS, even if only viewed internally. Also need to sanitize email headers to prevent CRLF injection.
+**Prevention:** Always use an `escapeHtml` utility when interpolating user strings into HTML templates, and a `stripNewlines` utility for email headers like `subject` and `replyTo`.
