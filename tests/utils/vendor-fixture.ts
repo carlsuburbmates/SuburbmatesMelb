@@ -1,7 +1,6 @@
 import "./env";
 import { randomUUID } from "node:crypto";
 import { type User, type Vendor } from "@/lib/types";
-import { MAX_PRODUCTS_PER_CREATOR } from "@/lib/constants";
 import { getSupabaseAdminClient, createSupabaseAnonClient } from "./supabase";
 
 interface CreateVendorOptions {
