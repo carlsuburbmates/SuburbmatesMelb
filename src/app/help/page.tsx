@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function HelpPage() {
-  return (
-    <main className="bg-ink-base min-h-screen">
-      <HelpClient />
-    </main>
-  );
+  return <HelpClient />;
 }
