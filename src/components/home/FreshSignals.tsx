@@ -18,16 +18,15 @@ type ShuffledProduct = {
   created_at: string;
 };
 
-/* Subtle chromatic accent per card index — muted, dark-safe */
 const CARD_ACCENTS = [
-  { shadow: "rgba(160, 100, 60, 0.18)",  glow: "rgba(160, 100, 60, 0.08)"  }, // warm amber
-  { shadow: "rgba(70, 110, 160, 0.18)",  glow: "rgba(70, 110, 160, 0.08)"  }, // cool slate
-  { shadow: "rgba(60, 120, 100, 0.18)",  glow: "rgba(60, 120, 100, 0.08)"  }, // sage green
-  { shadow: "rgba(140, 80, 120, 0.18)",  glow: "rgba(140, 80, 120, 0.08)"  }, // muted mauve
-  { shadow: "rgba(80, 140, 140, 0.18)",  glow: "rgba(80, 140, 140, 0.08)"  }, // teal
-  { shadow: "rgba(150, 120, 60, 0.18)",  glow: "rgba(150, 120, 60, 0.08)"  }, // ochre
-  { shadow: "rgba(100, 80, 160, 0.18)",  glow: "rgba(100, 80, 160, 0.08)"  }, // indigo
-  { shadow: "rgba(60, 100, 80, 0.18)",   glow: "rgba(60, 100, 80, 0.08)"   }, // forest
+  { bg: "rgba(108, 92, 231, 0.08)",  border: "rgba(108, 92, 231, 0.12)" },
+  { bg: "rgba(249, 115, 22, 0.06)",  border: "rgba(249, 115, 22, 0.10)" },
+  { bg: "rgba(72, 52, 212, 0.07)",   border: "rgba(72, 52, 212, 0.10)" },
+  { bg: "rgba(108, 92, 231, 0.05)",  border: "rgba(108, 92, 231, 0.08)" },
+  { bg: "rgba(249, 115, 22, 0.05)",  border: "rgba(249, 115, 22, 0.08)" },
+  { bg: "rgba(72, 52, 212, 0.06)",   border: "rgba(72, 52, 212, 0.09)" },
+  { bg: "rgba(108, 92, 231, 0.06)",  border: "rgba(108, 92, 231, 0.10)" },
+  { bg: "rgba(249, 115, 22, 0.04)",  border: "rgba(249, 115, 22, 0.07)" },
 ];
 
 export function FreshSignals() {
@@ -54,111 +53,94 @@ export function FreshSignals() {
 
   return (
     <section
-      className="relative py-16 md:py-24 overflow-hidden"
-      style={{ background: "var(--bg-base)", borderTop: "1px solid var(--border)" }}
+      data-testid="fresh-signals"
+      className="relative py-24 md:py-32 overflow-hidden"
+      style={{ background: "var(--bg-surface-1)" }}
     >
-      {/* Ambient glow — teal, top-right */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 50% 45% at 85% 20%, rgba(80, 140, 140, 0.05) 0%, transparent 65%)",
-        }}
-      />
+      {/* Atmospheric glow */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute top-0 right-0 w-[50%] h-[60%]"
+          style={{
+            background: "radial-gradient(ellipse 60% 50% at 85% 20%, var(--accent-atmosphere-soft) 0%, transparent 65%)",
+          }}
+        />
+      </div>
 
       <div className="relative container-custom">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
           <div className="max-w-lg">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2.5 mb-4">
               <Signal
-                className="w-3.5 h-3.5 animate-pulse-dim"
-                style={{ color: "var(--text-tertiary)" }}
+                className="w-4 h-4 animate-pulse-dim"
+                style={{ color: "var(--accent-atmosphere)" }}
               />
               <span
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 500,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "var(--text-tertiary)",
-                }}
+                className="text-xs font-medium tracking-wide"
+                style={{ color: "var(--accent-atmosphere)" }}
               >
                 Live Feed
               </span>
             </div>
-            <h2 style={{ color: "var(--text-primary)", marginBottom: "0.375rem" }}>
+            <h2
+              className="font-display"
+              style={{
+                color: "var(--text-primary)",
+                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+                marginBottom: "0.5rem",
+              }}
+            >
               Daily Discoveries
             </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.9375rem", marginBottom: 0 }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "1rem", marginBottom: 0 }}>
               Fresh picks from Melbourne&apos;s digital creators.
             </p>
           </div>
 
           <Link
             href="/regions"
-            className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-70"
+            className="inline-flex items-center gap-2 text-sm font-medium rounded-pill px-4 py-2 transition-all"
             style={{
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
               color: "var(--text-secondary)",
-              whiteSpace: "nowrap",
+              background: "var(--bg-surface-2)",
+              border: "1px solid var(--border)",
             }}
           >
             Explore All <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {/* Grid — single col mobile, 2 col sm, 4 col md+ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {products.map((product, i) => {
             const accent = CARD_ACCENTS[i % CARD_ACCENTS.length];
             return (
               <div
                 key={product.id}
-                className="group flex flex-col transition-all duration-300"
+                className="group flex flex-col rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
                 style={{
-                  background: "var(--bg-surface-1)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "2px",
-                  boxShadow: `0 2px 12px 0 ${accent.shadow}, 0 0 0 0 transparent`,
-                  transition: "box-shadow 0.3s ease, transform 0.2s ease",
+                  background: "var(--bg-surface-2)",
+                  border: `1px solid ${accent.border}`,
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.boxShadow = `0 4px 24px 0 ${accent.shadow}, 0 0 32px 0 ${accent.glow}`;
-                  el.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.boxShadow = `0 2px 12px 0 ${accent.shadow}`;
-                  el.style.transform = "translateY(0)";
-                }}
+                data-testid={`product-card-${i}`}
               >
-                {/* Image placeholder — chromatic tinted surface */}
+                {/* Image placeholder */}
                 <Link
                   href={`/api/redirect?productId=${product.id}`}
                   target="_blank"
                   onClick={() => analytics.productClick(product.id)}
-                  className="relative flex overflow-hidden items-center justify-center"
+                  className="relative flex overflow-hidden items-center justify-center rounded-t-2xl"
                   style={{
                     aspectRatio: "4 / 3",
-                    background: `linear-gradient(135deg, var(--bg-surface-2) 0%, ${accent.glow.replace('0.08', '0.18')} 100%)`,
-                    borderBottom: "1px solid var(--border)",
+                    background: `linear-gradient(135deg, var(--bg-surface-3) 0%, ${accent.bg} 100%)`,
                   }}
                 >
-                  {/* Placeholder initials */}
                   <span
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: 700,
-                      letterSpacing: "-0.04em",
-                      color: `${accent.shadow.replace('0.18', '0.60')}`,
-                      userSelect: "none",
-                    }}
+                    className="text-2xl font-display font-bold select-none"
+                    style={{ color: accent.border }}
                   >
                     {product.business_name?.slice(0, 2).toUpperCase() || "SM"}
                   </span>
@@ -168,14 +150,8 @@ export function FreshSignals() {
                 <div className="p-4 flex flex-col flex-grow gap-2">
                   <Link
                     href={`/creator/${product.business_slug}`}
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 500,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase",
-                      color: "var(--text-tertiary)",
-                      display: "block",
-                    }}
+                    className="text-xs font-medium tracking-wide transition-colors hover:text-ink-primary"
+                    style={{ color: "var(--text-tertiary)" }}
                   >
                     {product.business_name}
                   </Link>
@@ -187,10 +163,10 @@ export function FreshSignals() {
                     className="block"
                   >
                     <h3
-                      className="line-clamp-2"
+                      className="line-clamp-2 font-display"
                       style={{
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
+                        fontSize: "0.9375rem",
+                        fontWeight: 600,
                         color: "var(--text-primary)",
                         lineHeight: 1.35,
                         letterSpacing: "-0.01em",
@@ -200,19 +176,13 @@ export function FreshSignals() {
                     </h3>
                   </Link>
 
-                  <div className="mt-auto pt-2">
+                  <div className="mt-auto pt-3">
                     <Link
                       href={`/api/redirect?productId=${product.id}`}
                       target="_blank"
                       onClick={() => analytics.productClick(product.id)}
-                      className="inline-flex items-center gap-1 transition-opacity hover:opacity-70"
-                      style={{
-                        fontSize: "10px",
-                        fontWeight: 500,
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: "var(--text-secondary)",
-                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-medium transition-all hover:gap-2.5"
+                      style={{ color: "var(--accent-atmosphere)" }}
                     >
                       Visit <ArrowUpRight className="w-3 h-3" />
                     </Link>
@@ -230,19 +200,23 @@ export function FreshSignals() {
 function SkeletonSection() {
   return (
     <section
-      className="py-16 md:py-24"
-      style={{ background: "var(--bg-base)", borderTop: "1px solid var(--border)" }}
+      className="py-24 md:py-32"
+      style={{ background: "var(--bg-surface-1)" }}
     >
       <div className="container-custom">
-        <div className="h-3 w-20 mb-3 animate-pulse" style={{ background: "var(--bg-surface-3)" }} />
-        <div className="h-7 w-52 mb-10 animate-pulse" style={{ background: "var(--bg-surface-3)" }} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="h-3 w-20 mb-4 animate-pulse rounded-lg" style={{ background: "var(--bg-surface-3)" }} />
+        <div className="h-8 w-52 mb-12 animate-pulse rounded-lg" style={{ background: "var(--bg-surface-3)" }} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} style={{ background: "var(--bg-surface-1)", border: "1px solid var(--border)" }}>
-              <div className="w-full animate-pulse" style={{ aspectRatio: "4/3", background: "var(--bg-surface-2)" }} />
+            <div
+              key={i}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}
+            >
+              <div className="w-full animate-pulse" style={{ aspectRatio: "4/3", background: "var(--bg-surface-3)" }} />
               <div className="p-4 space-y-2">
-                <div className="h-2.5 w-20 animate-pulse" style={{ background: "var(--bg-surface-3)" }} />
-                <div className="h-4 w-full animate-pulse" style={{ background: "var(--bg-surface-3)" }} />
+                <div className="h-3 w-20 animate-pulse rounded" style={{ background: "var(--bg-surface-3)" }} />
+                <div className="h-4 w-full animate-pulse rounded" style={{ background: "var(--bg-surface-3)" }} />
               </div>
             </div>
           ))}

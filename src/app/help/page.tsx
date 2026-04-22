@@ -3,12 +3,7 @@ import { HelpClient } from './HelpClient';
 
 export const metadata: Metadata = {
   title: 'Help Centre | SuburbMates Support',
-  description: 'Access the SuburbMates help database, FAQs, and support protocols for Melbourne creators.',
-  openGraph: {
-    title: 'Help Centre | SuburbMates Support',
-    description: 'Support protocols for Melbourne creators.',
-    type: 'website',
-  },
+  description: 'Access the SuburbMates help centre, FAQs, and support for Melbourne creators.',
 };
 
 export default function HelpPage() {

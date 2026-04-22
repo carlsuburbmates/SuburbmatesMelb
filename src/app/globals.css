@@ -1,46 +1,70 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────
-   DESIGN TOKENS — Tesla Dark (Suburbmates)
-   Single source of truth for all surfaces.
+   DESIGN TOKENS — Huly-Aligned Dark Premium
+   Suburbmates Creator Platform
    ───────────────────────────────────────── */
 :root {
-  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
-  /* Surfaces — 3-level depth system */
-  --bg-base:      #0A0A0A;
-  --bg-surface-1: #141414;
-  --bg-surface-2: #1C1C1E;
-  --bg-surface-3: #242426;
+  /* Surfaces — cool-biased charcoal depth system */
+  --bg-base:      #09090F;
+  --bg-surface-1: #111118;
+  --bg-surface-2: #1A1A24;
+  --bg-surface-3: #222230;
 
   /* Text — tonal hierarchy */
-  --text-primary:   #F5F5F7;
-  --text-secondary: #A1A1A6;
-  --text-tertiary:  #636366;
+  --text-primary:   #F0F0F5;
+  --text-secondary: #9B9BB0;
+  --text-tertiary:  #5C5C72;
 
-  /* Borders — white at low opacity */
-  --border:        rgba(255, 255, 255, 0.08);
-  --border-active: rgba(255, 255, 255, 0.16);
+  /* Borders */
+  --border:        rgba(255, 255, 255, 0.06);
+  --border-active: rgba(255, 255, 255, 0.14);
 
   /* Glass recipe */
-  --glass-bg:     rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-bg:     rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 
-  /* Warm color overrides for food context (no blue) */
-  --accent-warm:   rgba(160, 100, 60, 0.16);
-  --accent-glow:   rgba(160, 100, 60, 0.22);
+  /* Atmospheric accent — electric blue-violet */
+  --accent-atmosphere: #6C5CE7;
+  --accent-atmosphere-muted: rgba(108, 92, 231, 0.12);
+  --accent-atmosphere-glow: rgba(108, 92, 231, 0.20);
+  --accent-atmosphere-soft: rgba(108, 92, 231, 0.06);
 
-  /* Ink aliases — used by rebuilt dark components */
+  /* Deep indigo secondary */
+  --accent-indigo: #4834D4;
+  --accent-indigo-muted: rgba(72, 52, 212, 0.10);
+
+  /* Cool cyan edge-light — very limited */
+  --accent-cyan: rgba(0, 210, 255, 0.08);
+
+  /* Primary CTA — warm orange/amber glow */
+  --accent-cta: #F97316;
+  --accent-cta-hover: #FB923C;
+  --accent-cta-glow: rgba(249, 115, 22, 0.25);
+  --accent-cta-muted: rgba(249, 115, 22, 0.10);
+
+  /* Ink aliases */
   --ink-primary:   var(--text-primary);
   --ink-secondary: var(--text-secondary);
   --ink-tertiary:  var(--text-tertiary);
 
-  /* Mobile nav clearance (56px nav + 8px gap) */
-  --mobile-nav-h: 72px;
+  /* Mobile nav clearance */
+  --mobile-nav-h: 76px;
+
+  /* Radius system — Huly-polished rounded */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-pill: 999px;
 }
 
 /* ─────────────────────────────────────────
@@ -57,13 +81,12 @@ html {
 }
 
 body {
-  font-family: var(--font-inter);
+  font-family: var(--font-body);
   margin: 0;
   padding: 0;
   line-height: 1.5;
   color: var(--text-primary);
   background-color: var(--bg-base);
-  font-feature-settings: "cv01", "cv02", "cv03", "cv04";
   min-height: 100vh;
   min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
@@ -71,43 +94,38 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   TYPOGRAPHY
+   TYPOGRAPHY — Huly-grade display + technical body
    ───────────────────────────────────────── */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-inter);
-  font-weight: 600;
-  line-height: 1.15;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
   margin: 0 0 1rem 0;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
-/* Fluid scale — capped so it never breaks 375px mobile */
 h1 {
-  font-size: clamp(1.875rem, 6vw, 3.5rem);
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(1.625rem, 4.5vw, 2.75rem);
   font-weight: 700;
   letter-spacing: -0.03em;
 }
 
-h2 {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 600;
+h3 {
+  font-size: clamp(1.125rem, 3vw, 1.625rem);
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-h3 {
-  font-size: clamp(1.125rem, 3vw, 1.75rem);
-  font-weight: 700;
-}
-
 h4 {
-  font-size: clamp(1rem, 2.5vw, 1.375rem);
-  font-weight: 500;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 600;
 }
 
 p {
@@ -118,118 +136,128 @@ p {
 }
 
 /* ─────────────────────────────────────────
-   BUTTONS
-   Dark context: primary = white bg / black text (max contrast)
+   BUTTONS — Huly pill style
    ───────────────────────────────────────── */
 .btn-primary {
-  background-color: var(--text-primary);
-  color: var(--bg-base);
-  padding: 14px 24px;
-  min-height: 44px;
+  background: var(--accent-cta);
+  color: #fff;
+  padding: 14px 28px;
+  min-height: 48px;
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-radius: 2px;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius-pill);
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  display: inline-block;
-  min-width: 50px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 20px var(--accent-cta-glow), 0 2px 8px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
-  opacity: 0.88;
+  background: var(--accent-cta-hover);
   transform: translateY(-1px);
+  box-shadow: 0 0 32px var(--accent-cta-glow), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: transparent;
+  background: var(--bg-surface-2);
   color: var(--text-primary);
   border: 1px solid var(--border-active);
-  padding: 13px 24px;
-  min-height: 44px;
+  padding: 13px 28px;
+  min-height: 48px;
+  font-family: var(--font-body);
   font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-radius: 2px;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  display: inline-block;
-  min-width: 50px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-surface-2);
-  border-color: var(--border-active);
+  background: var(--bg-surface-3);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 0 16px rgba(108, 92, 231, 0.08);
 }
 
-/* Legacy CTA — kept for other pages, updated for dark */
 .btn-cta {
-  background-color: var(--text-primary);
-  color: var(--bg-base);
-  padding: 16px 28px;
-  min-height: 44px;
+  background: var(--accent-cta);
+  color: #fff;
+  padding: 16px 32px;
+  min-height: 52px;
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-radius: 2px;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius-pill);
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  display: inline-block;
-  min-width: 50px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 24px var(--accent-cta-glow), 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .btn-cta:hover {
-  opacity: 0.88;
+  background: var(--accent-cta-hover);
   transform: translateY(-1px);
+  box-shadow: 0 0 40px var(--accent-cta-glow), 0 4px 16px rgba(0,0,0,0.4);
 }
 
 /* ─────────────────────────────────────────
-   GLASS CARD — Dark Recipe
-   Replaces light-mode glass-card
+   GLASS CARD — Luminous layered surface
    ───────────────────────────────────────── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
-  border-radius: 2px;
+  border-radius: var(--radius-xl);
 }
 
 /* ─────────────────────────────────────────
    CONTAINER
    ───────────────────────────────────────── */
 .container-custom {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
 @media (min-width: 640px) {
   .container-custom {
-    padding: 0 24px;
+    padding: 0 28px;
   }
 }
 
 @media (min-width: 768px) {
   .container-custom {
-    padding: 0 32px;
+    padding: 0 36px;
   }
 }
 
 /* ─────────────────────────────────────────
    ACCENT OVERLAYS — neutralised for dark mode
-   Keep class names to avoid breaking existing usage
    ───────────────────────────────────────── */
 .accent-overlay-orange,
 .accent-overlay-teal,
@@ -265,28 +293,24 @@ p {
 
 /* ─────────────────────────────────────────
    CHROMATIC SHADOW UTILITIES
-   Subtle colour glows for dark surfaces.
-   Keep opacity ≤ 0.20 to stay controlled.
    ───────────────────────────────────────── */
-.shadow-amber    { box-shadow: 0 2px 16px 0 rgba(160, 100, 60, 0.16); }
-.shadow-neutral  { box-shadow: 0 2px 16px 0 rgba(255, 255, 255, 0.08); }
-.shadow-sage     { box-shadow: 0 2px 16px 0 rgba(60, 120, 100, 0.16); }
-.shadow-emerald  { box-shadow: 0 2px 16px 0 rgba(16, 185, 129, 0.16); }
-.shadow-teal     { box-shadow: 0 2px 16px 0 rgba(80, 140, 140, 0.16); }
+.shadow-amber    { box-shadow: 0 2px 16px 0 rgba(249, 115, 22, 0.12); }
+.shadow-neutral  { box-shadow: 0 2px 16px 0 rgba(255, 255, 255, 0.06); }
+.shadow-violet   { box-shadow: 0 2px 16px 0 rgba(108, 92, 231, 0.14); }
+.shadow-indigo   { box-shadow: 0 2px 16px 0 rgba(72, 52, 212, 0.14); }
 
-.glow-amber:hover   { box-shadow: 0 4px 28px 0 rgba(160, 100, 60, 0.22); }
-.glow-neutral:hover { box-shadow: 0 4px 28px 0 rgba(255, 255, 255, 0.12); }
-.glow-sage:hover    { box-shadow: 0 4px 28px 0 rgba(60, 120, 100, 0.22); }
+.glow-amber:hover   { box-shadow: 0 4px 28px 0 rgba(249, 115, 22, 0.20); }
+.glow-neutral:hover { box-shadow: 0 4px 28px 0 rgba(255, 255, 255, 0.10); }
+.glow-violet:hover  { box-shadow: 0 4px 32px 0 rgba(108, 92, 231, 0.20); }
 
-/* Glass inset highlight — top edge shine */
 .glass-shine {
   box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
-    0 4px 24px 0 rgba(0, 0, 0, 0.20);
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 4px 24px 0 rgba(0, 0, 0, 0.25);
 }
 
 /* ─────────────────────────────────────────
-   ANIMATIONS
+   ANIMATIONS — Cinematic Huly-style
    ───────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -294,7 +318,7 @@ p {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -303,16 +327,43 @@ p {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes carouselScroll {
-  0%, 33%      { transform: translateX(0%); }
-  33.33%, 66%  { transform: translateX(-100%); }
-  66.33%, 100% { transform: translateX(-200%); }
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+@keyframes ambientDrift {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(10px, -5px); }
+  50%      { transform: translate(-5px, 10px); }
+  75%      { transform: translate(-10px, -3px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes pulse-dim {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
 }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ─────────────────────────────────────────
+   ANIMATION UTILITY CLASSES
+   ───────────────────────────────────────── */
+.animate-fade-in      { animation: fadeIn 0.6s ease-out; }
+.animate-slide-up     { animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-slide-in-left{ animation: slideInLeft 0.3s ease-out forwards; }
+.animate-pulse-dim    { animation: pulse-dim 2s ease-in-out infinite; }
+.animate-hero-glow    { animation: heroGlow 6s ease-in-out infinite; }
+.animate-ambient-drift{ animation: ambientDrift 20s ease-in-out infinite; }
+.animate-float        { animation: float 3s ease-in-out infinite; }
 
 /* ─────────────────────────────────────────
    REDUCED MOTION — mandatory a11y

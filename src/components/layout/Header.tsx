@@ -9,14 +9,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 const NAV_LINKS = [
-  { label: "DIRECTORY", href: "/regions" },
-  { label: "ABOUT", href: "/about" },
-  { label: "HELP", href: "/help" },
+  { label: "Directory", href: "/regions" },
+  { label: "About", href: "/about" },
+  { label: "Help", href: "/help" },
 ];
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
 
@@ -38,39 +39,58 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-ink-base/80 backdrop-blur-xl border-b border-white/5 selection:bg-white selection:text-black">
+    <header
+      data-testid="header"
+      className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300"
+      style={{
+        background: scrolled ? "rgba(9, 9, 15, 0.85)" : "rgba(9, 9, 15, 0.60)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
+      }}
+    >
       <div className="container-custom">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="relative w-12 h-12 overflow-hidden hover:rotate-90 transition-transform duration-500 bg-ink-surface-1">
+          <Link href="/" className="flex items-center gap-3 group" data-testid="header-logo">
+            <div className="relative w-9 h-9 overflow-hidden rounded-xl transition-all duration-500 group-hover:rotate-6 group-hover:scale-105"
+              style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}
+            >
               <Image
                 src="/icon.png"
                 alt="SM"
-                width={64}
-                height={64}
-                className="object-cover grayscale brightness-200"
+                width={48}
+                height={48}
+                className="object-cover brightness-200"
                 priority
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-black uppercase tracking-[0.3em] leading-none text-ink-primary">
+              <span className="text-sm font-display font-bold tracking-tight text-ink-primary">
                 Suburbmates
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest leading-none mt-1 text-ink-tertiary">
-                Melbourne&apos;s Top Digital Creators
+              <span className="text-[10px] font-medium text-ink-tertiary hidden sm:block">
+                Creator Discovery
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-10">
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[10px] font-black uppercase tracking-[0.4em] transition-colors text-ink-secondary hover:text-ink-primary"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-all hover:bg-white/5"
+                style={{ color: "var(--text-secondary)" }}
+                data-testid={`nav-${link.label.toLowerCase()}`}
               >
                 {link.label}
               </Link>
@@ -81,9 +101,7 @@ export function Header() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const input = (e.target as HTMLFormElement).elements.namedItem(
-                "globalSearch",
-              ) as HTMLInputElement;
+              const input = (e.target as HTMLFormElement).elements.namedItem("globalSearch") as HTMLInputElement;
               const val = input?.value?.trim();
               if (val) {
                 router.push(`/regions?search=${encodeURIComponent(val)}`);
@@ -92,48 +110,65 @@ export function Header() {
             }}
             className="hidden md:flex items-center relative"
           >
-            <Search className="absolute left-3 h-3.5 w-3.5 text-ink-tertiary" />
+            <Search className="absolute left-3.5 h-3.5 w-3.5" style={{ color: "var(--text-tertiary)" }} />
             <input
               name="globalSearch"
               type="text"
               placeholder="Search creators..."
-              className="w-44 lg:w-56 h-9 pl-9 pr-3 text-xs font-medium focus:outline-none bg-ink-surface-1 border border-white/10 text-ink-primary rounded-sm transition-all focus:border-white/20"
+              className="w-44 lg:w-52 h-9 pl-10 pr-3 text-sm font-medium focus:outline-none rounded-xl transition-all"
+              style={{
+                background: "var(--bg-surface-1)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+              }}
+              data-testid="header-search-input"
             />
           </form>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center gap-3">
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-white/10 border-t-white animate-spin rounded-full" />
             ) : isAuthenticated ? (
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
                 {user?.user_type === "business_owner" && (
                   <Link
                     href="/vendor/dashboard"
-                    className="text-[10px] font-black uppercase tracking-widest hover:underline decoration-2 underline-offset-4 text-ink-primary"
+                    className="text-sm font-medium rounded-xl px-4 py-2 transition-all"
+                    style={{
+                      color: "var(--text-primary)",
+                      background: "var(--bg-surface-2)",
+                      border: "1px solid var(--border)",
+                    }}
+                    data-testid="nav-dashboard"
                   >
-                    Studio Dashboard
+                    Dashboard
                   </Link>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="p-2 transition-colors text-ink-secondary hover:text-ink-primary"
+                  className="p-2.5 rounded-xl transition-all hover:bg-white/5"
+                  style={{ color: "var(--text-secondary)" }}
                   title="Logout"
+                  data-testid="nav-logout"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
                 <Link
                   href="/auth/login"
-                  className="text-[10px] font-black uppercase tracking-widest transition-colors text-ink-secondary hover:text-ink-primary"
+                  className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:bg-white/5"
+                  style={{ color: "var(--text-secondary)" }}
+                  data-testid="nav-signin"
                 >
                   Sign In
                 </Link>
                 <button
                   onClick={openSignupModal}
-                  className="px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-colors bg-white text-black hover:bg-white/90 rounded-sm"
+                  className="btn-primary !py-2.5 !px-5 !min-h-0 !text-sm"
+                  data-testid="nav-join"
                 >
                   Join Feed
                 </button>
@@ -144,16 +179,14 @@ export function Header() {
           {/* Mobile Toggle */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 text-ink-primary"
+            className="md:hidden p-2 rounded-xl transition-all"
+            style={{ color: "var(--text-primary)" }}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-menu"
+            data-testid="mobile-menu-toggle"
           >
-            {isMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
@@ -162,37 +195,43 @@ export function Header() {
       {isMenuOpen && (
         <div
           id="mobile-menu"
-          className="fixed inset-0 top-20 z-[90] md:hidden animate-in fade-in slide-in-from-top-4 duration-300 bg-ink-base"
+          className="fixed inset-0 top-16 z-[90] md:hidden"
+          style={{ background: "var(--bg-base)" }}
         >
-          <nav className="p-8 space-y-12">
+          <nav className="p-6 space-y-2">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center justify-between text-3xl font-black uppercase tracking-tighter text-ink-primary"
+                className="flex items-center justify-between px-4 py-5 rounded-xl text-lg font-display font-bold transition-all"
+                style={{
+                  color: "var(--text-primary)",
+                  background: "var(--bg-surface-1)",
+                  border: "1px solid var(--border)",
+                }}
                 onClick={closeMenu}
               >
                 {link.label}
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-5 h-5" style={{ color: "var(--text-tertiary)" }} />
               </Link>
             ))}
 
-            <div className="pt-12 flex flex-col gap-6 border-t border-white/10">
+            <div className="pt-6 flex flex-col gap-3">
               {!isAuthenticated ? (
                 <>
                   <Link
                     href="/auth/login"
-                    className="text-sm font-black uppercase tracking-widest text-ink-primary"
+                    className="btn-secondary w-full justify-center"
                     onClick={closeMenu}
                   >
-                    Login
+                    Sign In
                   </Link>
                   <button
                     onClick={() => {
                       closeMenu();
                       openSignupModal();
                     }}
-                    className="w-full py-4 text-xs font-black uppercase tracking-widest bg-white text-black hover:bg-white/90 rounded-sm"
+                    className="btn-primary w-full justify-center"
                   >
                     Get Started
                   </button>
@@ -203,7 +242,7 @@ export function Header() {
                     closeMenu();
                     handleLogout();
                   }}
-                  className="text-left text-sm font-black uppercase tracking-widest text-red-500"
+                  className="btn-secondary w-full justify-center text-red-400 border-red-400/20"
                 >
                   Logout
                 </button>
