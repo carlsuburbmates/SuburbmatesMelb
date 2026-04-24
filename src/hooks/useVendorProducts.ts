@@ -90,7 +90,8 @@ export function useVendorProducts() {
   }, [token]);
 
   useEffect(() => {
-    fetchProducts();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchProducts();
   }, [fetchProducts]);
 
   const createProduct = useCallback(
