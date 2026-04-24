@@ -77,8 +77,9 @@ export function RegionBottomSheet({ region, isOpen, onClose }: RegionBottomSheet
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-ink-tertiary hover:text-ink-primary hover:bg-white/5 transition-colors rounded-sm"
+          aria-label="Close region details"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
 
         {/* Content */}
