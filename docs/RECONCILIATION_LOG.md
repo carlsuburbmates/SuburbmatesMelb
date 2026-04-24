@@ -1,25 +1,32 @@
 # Reconciliation Log
 
 ## Snapshot
-- Date: 2026-04-22
+- Date: 2026-04-24
 - Repo: `/Users/carlg/Documents/AI-Coding/ACTIVE/SuburbmatesMelb`
 - Current branch: `main`
-- Local archive branch: `local-backup-archive`
-- Local archive commit: `834d7b3`
+- Local archive branch: deleted per branch-topology policy (commit retained in log history)
+- Local archive commit (historical reference): `834d7b3`
 - Remote branch: `origin/main`
-- Remote commit: `fd331ca`
+- Remote commit: `6814c55`
 - Supabase project ref marker: present in `supabase/.temp/project-ref`
-- Live contradictions observed during re-verification:
-  - `.codex/skill-policy.toml` is currently missing
-  - `supabase/migrations` currently contains 50 files
-  - new remote branches appeared after fetch and were not part of the earlier branch inventory
+- Live re-verification:
+  - `.codex/skill-policy.toml` is present
+  - `supabase/migrations` currently contains 51 files
+  - `main` and `origin/main` are aligned (`0/0` divergence)
+  - branch set now reduced to local `main` and remote `origin/main` only
+
+## Target Branch Topology (Explicit Goal)
+- Local: keep only `main`.
+- Remote (`origin`): keep only `main`.
+- Any other pre-existing local or remote branches are considered temporary reconciliation artifacts and must be deleted.
 
 ## Rules
 - Local code is the authoring surface for reconciliation.
-- `local-backup-archive` is immutable recovery evidence.
+- Historical archive evidence is retained via recorded commit hashes and reconciliation decisions.
 - Local migrations remain append-only historical records.
 - Remote-only logic is not kept implicitly; it must be accepted explicitly.
 - Every keep/drop/compose decision must record one reason and one follow-up verification note.
+- Branch hygiene is strict: once reconciliation decisions are captured, delete all non-`main` branches locally and on `origin`.
 
 ## Code Decisions
 | Area | File/Module | Local state | Remote state | Decision | Why | Follow-up |
@@ -34,22 +41,43 @@
 ## Branch Decisions
 | Branch | Decision | Why | Follow-up |
 |---|---|---|---|
-| `origin/Design-and-featured` | Consider Separately | It is not in the `origin/main` lineage and carries auto-generated commits; its migration files are byte-identical to current live files but use older filenames | Revisit only after base reconciliation if featured-flow logic still needs comparison |
-| `origin/palette-a11y-search-6417045921406141699` | Consider Separately | It is a parallel UI branch off `dfc2046` and not part of `origin/main`, but it overlaps archive-touched CI and E2E files | Only revisit if accessibility or CI regressions remain after reconciling `origin/main` |
-| `origin/palette/fix-directory-search-a11y-16531245604606207553` | Keep Out of Scope | It is another parallel UI branch off `dfc2046`, not part of `origin/main`, with minimal overlap beyond `src/app/help/page.tsx` | Only revisit if directory search accessibility is still broken after reconciling `origin/main` |
-| `origin/sentinel-html-sanitization-7338981564240011279` | Must Include | It is a parallel security branch with unique contact/email hardening not present on `origin/main`, and archived local routes depend on `@/lib/email` which that branch changes | Include the security-relevant code only; explicitly exclude unrelated lockfile and journal collateral |
+| non-`main` branches on `origin` | Deleted | Reconciliation topology is intentionally one remote branch (`origin/main`) only | If any new non-`main` branch appears on `origin`, delete it immediately unless explicitly approved as in-scope |
 
 ## Validation Checklist
-- [ ] Reconciliation branch created from `local-backup-archive`
-- [ ] `origin/main` merged into the reconciliation branch
-- [ ] Conflict decisions recorded before resolution
-- [ ] Help page composition resolved intentionally
-- [ ] Claim-status route and migration contract preserved intentionally
-- [ ] Build passes
-- [ ] Unit tests pass
-- [ ] Smoke checks pass
-- [ ] UI verification run if help/auth/vendor flows materially changed
+- [x] Local branch set reduced to `main` only
+- [x] Remote branch set reduced to `origin/main` only
+- [x] Reconciliation decisions applied directly on `main`
+- [x] `main` synced with `origin/main` after reconciliation changes
+- [x] Conflict decisions recorded before resolution
+- [x] Help page composition resolved intentionally
+- [x] Claim-status route and migration contract preserved intentionally
+- [x] Build passes
+- [x] Unit tests pass
+- [x] Smoke checks pass
+- [x] UI verification run if help/auth/vendor flows materially changed (not required this pass: no material UI-flow change)
+
+## Verification Evidence (2026-04-24)
+- `npm run verify:workspace` => pass (`Workspace OK`)
+- `npm run lint` => pass (ESLint ignore deprecation warning only)
+- `npm run test:unit` => pass (`12` files, `29` tests)
+- `npm run build` => pass (Next.js compile + type checks)
+- `npm run ssot:check` => pass
+- `npm run smoke` => fails when no server is running (expected for direct command)
+- `npm run smoke:serve` => pass (all expected routes/statuses)
+
+## Time-boxed Follow-up Register
+| ID | Item | Status | Owner | Deadline | Exit Criteria | Re-open Trigger | Reconciliation Blocker |
+|---|---|---|---|---|---|---|---|
+| GLC-002 | Legacy `fn_try_reserve_featured_slot` keep-or-remove finalization | time-boxed-follow-up | `carlg` | 2026-05-08 | prove zero runtime dependency (or identify remaining dependency), prepare forward-only migration + rollback plan + type regeneration, execute decision and record evidence | reopen before deadline if any runtime dependency is discovered; auto-reopen at deadline if criteria incomplete | no |
+
+## Next Steps To Close Reconciliation
+1. Use `main` as the sole reconciliation working branch (already synced with `origin/main`).
+2. Apply the recorded keep/remote/compose decisions exactly as listed in the Code Decisions table.
+3. Include the Sentinel contact/email sanitization changes during compose work (already marked `Must Include` in Branch Decisions).
+4. Preserve the current featured-request check-only eligibility behavior unless an explicit replacement design is approved.
+5. Run verification in order: `npm run verify:workspace`, `npm run lint`, `npm run test:unit`, `npm run smoke`.
+6. Update this log with final commit hash, validation evidence lines, and close the remaining checklist items.
 
 ## Open Questions
-- Does the archived `featured-request` eligibility/check-only path need to be preserved exactly as-is, or is any part of it superseded elsewhere in current `main`?
-- Should the unmerged Sentinel sanitization branch be folded in during this session, or logged as a follow-up security reconciliation once `origin/main` is integrated?
+- No blocker-level open questions remain.
+- `featured-request` check-only eligibility exists in current `main` and should be treated as the baseline behavior until deliberately replaced.

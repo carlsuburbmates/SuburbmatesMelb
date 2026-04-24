@@ -1,12 +1,12 @@
 # SuburbMates — Known Gaps (to be addressed)
 
-> Updated: 2026-04-13. Pull this when prioritising next work.
+> Updated: 2026-04-23. Pull this when prioritising next work.
 
 ---
 
-## G1: Automation schedules not yet applied to Supabase
+## G1: Automation schedules — DB cron/pg_net is authoritative
 
-**Migrations written locally:** `supabase/migrations/20260411_automation_jobs.sql`, `supabase/migrations/20260413080000_fix_claim_status_notification_contract.sql`
+**Migrations in repo history:** `supabase/migrations/20260412_automation_jobs.sql`, `supabase/migrations/20260413080000_fix_claim_status_notification_contract.sql`
 
 Schedules (UTC):
 | Schedule | Cron | What |
@@ -18,17 +18,14 @@ Schedules (UTC):
 
 **Trigger written locally:** `trigger_claim_status_notification` on `listing_claims.status` change → pg_net POST → `/api/webhooks/claim-status`.
 
-**Live remote verification (2026-04-13):** `supabase migration list --linked` succeeds against the linked project, and shows the linked remote has **not** applied:
-- `20260411031200_phase5a_drop_dead_rpcs.sql`
-- `20260411031300_phase5b_drop_dead_tables.sql`
-- `20260411031400_phase5c_drop_vendor_columns.sql`
-- `20260411031500_phase5d_drop_product_columns.sql`
-- `20260411_automation_jobs.sql`
-- `20260411_featured_requests.sql`
-- `20260411_listing_claims.sql`
-- `20260413080000_fix_claim_status_notification_contract.sql`
+**Live remote verification (2026-04-23):**
+- local migrations: `51`
+- linked remote `supabase_migrations.schema_migrations`: `51`
+- normalized version parity check: no local-only or remote-only versions detected
 
-**Current blocker:** the repo contains the migration files, but the linked remote schema has not yet been advanced to apply them.
+**Authority decision (2026-04-23):**
+- Authoritative scheduler: DB cron/pg_net (`supabase/migrations/20260412_automation_jobs.sql`)
+- Non-authoritative scheduler: `vercel.json` cron entry (remove/ignore to avoid split authority)
 
 **Config required after migration is applied (once per environment):**
 ```sql
@@ -51,7 +48,7 @@ All routes are implemented and protected by CRON_SECRET:
 | `/api/ops/incomplete-listings` | GET | Built (2026-04-11) |
 | `/api/webhooks/claim-status` | POST | Built (2026-04-11) |
 
-Claim outcome emails are wired locally via DB trigger → `/api/webhooks/claim-status` → `sendClaimOutcomeEmail`, but the trigger is not live on the linked remote until the pending migrations in G1 are applied.
+Claim outcome emails are wired via DB trigger → `/api/webhooks/claim-status` → `sendClaimOutcomeEmail`. Migration parity indicates the contract migration exists on the linked remote; operational enablement still depends on environment/runtime configuration.
 Admin approval/rejection actions (listing activation) are still blocked by admin dashboard (G5).
 
 ---
@@ -107,14 +104,13 @@ Modules needed:
 
 ---
 
-## G7: `fn_try_reserve_featured_slot` truth drift remains
+## G7: `fn_try_reserve_featured_slot` governance status
 
-The repo docs previously claimed this RPC was dropped, but current evidence does not support that:
+Current evidence:
 - `src/lib/database.types.ts` still includes `fn_try_reserve_featured_slot`
-- the linked remote migration history (verified 2026-04-13) has not applied `20260411031200_phase5a_drop_dead_rpcs.sql`
-- `20260324000001_ssot_v2_cleanup.sql` recreates `fn_try_reserve_featured_slot` with the region-based signature
+- live DB probe (2026-04-23) returns `public.fn_try_reserve_featured_slot` overloads
 
-Treat `fn_try_reserve_featured_slot` as **still present** until the cleanup migration is actually applied on the remote and types are regenerated from the resulting schema.
+Governance decision (2026-04-23): treat `fn_try_reserve_featured_slot` as **legacy/deprecated (non-authoritative)**. It may remain present in schema but is disallowed for new integrations until an explicit removal migration is executed.
 
 ---
 
@@ -145,5 +141,5 @@ The Supabase Management API Personal Access Token is returning 401 as of 2026-04
 2. Revoke the old token
 3. Generate a new token
 4. Update the `SUPABASE_REPLIT` secret in Replit
-5. Apply pending migration: `supabase/migrations/20260411_automation_jobs.sql`
+5. Regenerate types after any future schema changes and verify parity against linked remote
 6. Re-run type regen: `SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript --project-id hmmqhwnxylqcbffjffpj > src/lib/database.types.ts`

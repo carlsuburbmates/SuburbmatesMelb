@@ -1,7 +1,7 @@
 # DATABASE TRUTH — SuburbMates
 > **Canonical reference.** Updated after each remote schema change + type regeneration.
 > Remote project: `hmmqhwnxylqcbffjffpj`
-> Last verified: 2026-04-11 (Phase 5 complete — all drops applied; `database.types.ts` regenerated from live remote via CLI; TypeScript 0 errors)
+> Last verified: 2026-04-23 (local/remote migration version parity confirmed at 51/51; live RPC inventory rechecked)
 
 ---
 
@@ -154,9 +154,10 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 - Likely an admin/support utility function.
 
 ### `fn_try_reserve_featured_slot`
-- Still present in current generated types as of 2026-04-13.
-- Linked remote migration history does not show the Phase 5 cleanup migration as applied.
-- Treat as a legacy RPC that still exists in schema reality until cleanup is actually applied and types are regenerated.
+- Present in current generated types and present on the linked remote as of 2026-04-23.
+- Live DB probe returns two overloads under `public`.
+- Governance authority decision (`DR-001`): **legacy/deprecated (non-authoritative)**.
+- Rule: do not use this RPC in new integrations even while it remains physically present in schema.
 
 ### `fn_unpublish_oldest_products`
 - ~~Bulk-unpublishes oldest products (quota enforcement).~~ **DROPPED in Phase 5** (2026-04-11)
@@ -179,8 +180,8 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 - Zero imports confirmed before deletion; TypeScript typecheck passed after
 - Active auth paths: `src/contexts/AuthContext.tsx` (OTP/OAuth) + `src/app/api/_utils/auth.ts` (server JWT)
 
-### Banned functions (intended state, not yet fully reconciled on linked remote)
-- `fn_try_reserve_featured_slot` — **not yet confirmed removed**. Current generated types still include it, and linked remote migration history on 2026-04-13 does not show `20260411031200_phase5a_drop_dead_rpcs.sql` as applied.
+### Governance-sensitive functions
+- `fn_try_reserve_featured_slot` — present in live schema as of 2026-04-23, but classified as legacy/deprecated (non-authoritative) by decision record `DR-001`.
 - `fn_enforce_product_quota` — tier-based quota, purged in migration 20260325/20260330
 
 ### Banned tables (confirmed dropped on remote)
@@ -188,10 +189,10 @@ Returns: `id, title, description, image_urls, product_url, vendor_id, business_n
 
 ---
 
-## Phase 5 Cleanup — local files present, linked remote not yet reconciled
+## Phase 5 Cleanup — parity note
 
-Migration files exist in `supabase/migrations/` (Phase 5A–D), but linked remote verification on 2026-04-13 shows the remote has not applied the Phase 5 cleanup migrations yet.
-`src/lib/database.types.ts` therefore still reflects a mixed state and should not be treated as proof that Phase 5 cleanup has been applied remotely.
+As of 2026-04-23, local and linked-remote migration versions are in parity (51/51, normalized version check).
+Any remaining schema ambiguity must be treated as current reality and resolved via explicit governance decision and forward migration, not assumed missing migration application.
 
 **Dropped:**
 - Tables: `appeals`, `reviews`

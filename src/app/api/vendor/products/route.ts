@@ -70,7 +70,7 @@ async function createProductHandler(req: NextRequest) {
     .maybeSingle();
 
   if (insertError) {
-    // Check if DB trigger caught tier cap violation
+    // Check if DB constraint caught product-cap violation
     if (insertError.code === "23514") {
       return forbiddenResponse(insertError.message);
     }
@@ -128,7 +128,7 @@ async function listProductsHandler(req: NextRequest) {
       activeProducts,
       inactiveProducts,
       featuredSlots: activeFeaturedSlots,
-      tier: "featured_only",
+      listingModel: "direct_outbound",
       productQuota: MAX_PRODUCTS_PER_CREATOR,
       remainingQuota: MAX_PRODUCTS_PER_CREATOR - activeProducts,
       lastUpdated:

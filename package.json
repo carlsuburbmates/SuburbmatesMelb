@@ -20,7 +20,7 @@
     "cron:cleanup-search-logs": "node scripts/cleanup-search-logs.js",
     "cron:expire-featured-slots": "node scripts/expire-featured-slots.js",
     "cron:aggregate-analytics": "node scripts/aggregate-analytics.js",
-    "ssot:check": "if rg -n \"join hundreds|trusted by|already using|dozens of automations|annual subscription|business directory|Secure transaction via SuburbMates|certified local expert|verified creator\" src/app src/components docs --glob \"!docs/README.md\" --glob \"!docs/archive/**\" --glob \"!docs/PROJECT_BIBLE.md\" --glob \"!docs/EXECUTION_PLAN.md\" --glob \"!docs/QA_CHECKLIST.md\" --glob \"!docs/VERIFICATION_LOG.md\"; then echo 'SSOT Banned Phrases Found!' && exit 1; else echo 'SSOT Compliance Verified' && exit 0; fi",
+    "ssot:check": "node scripts/ssot-check.mjs",
     "generate-types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {

@@ -1,11 +1,13 @@
 # Repo-local skill routing policy for SuburbMatesMelb.
 # Keep routing deterministic around the actual stack and recurring workflows:
 # Next.js App Router, Tailwind/React UI, Supabase auth/data, API validation,
-# SEO metadata, and strict verification.
+# SEO metadata, orchestration, and strict verification.
 
 allowed_skills = [
   "frontend-ui-verification",
   "gap-verification",
+  "governance-loop-closure",
+  "multi-agent-task-orchestrator",
   "project-skill-audit",
   "wiki-researcher",
   "wiki-qa",

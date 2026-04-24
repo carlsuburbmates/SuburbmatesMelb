@@ -106,7 +106,7 @@ async function updateProductHandler(
     .maybeSingle();
 
   if (updateError) {
-    // Check if DB trigger caught tier cap violation
+    // Check if DB constraint caught product-cap violation
     if (updateError.code === "23514") {
       return forbiddenResponse(updateError.message);
     }
