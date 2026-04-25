@@ -35,16 +35,16 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       </div>
 
       <div className="relative aspect-video group overflow-hidden" style={{ background: "var(--bg-surface-2)" }}>
-        <button className="w-full h-full focus:outline-none block relative" onClick={() => openModal(currentIndex)}>
+        <button aria-label="Open image gallery" className="w-full h-full focus:outline-none block relative" onClick={() => openModal(currentIndex)}>
           <LazyImage src={images[currentIndex].url} alt={images[currentIndex].alt} fill className="object-cover transition-all duration-700 hover:scale-[1.02]" />
         </button>
-        <button onClick={() => openModal(currentIndex)} className="absolute top-4 right-4 p-2.5 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}>
+        <button aria-label="Zoom in" onClick={() => openModal(currentIndex)} className="absolute top-4 right-4 p-2.5 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}>
           <ZoomIn className="w-4 h-4" />
         </button>
         {images.length > 1 && (
           <>
-            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}><ChevronLeft className="w-4 h-4" /></button>
-            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}><ChevronRight className="w-4 h-4" /></button>
+            <button aria-label="Previous image" onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}><ChevronLeft className="w-4 h-4" /></button>
+            <button aria-label="Next image" onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ background: "rgba(9,9,15,0.8)", backdropFilter: "blur(12px)", border: "1px solid var(--border)", color: "var(--text-primary)" }}><ChevronRight className="w-4 h-4" /></button>
           </>
         )}
         {images[currentIndex].caption && (
@@ -57,7 +57,7 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
       {images.length > 1 && (
         <div className="p-2 grid grid-cols-4 md:grid-cols-6 gap-1.5">
           {images.map((image, index) => (
-            <button key={image.id} onClick={() => setCurrentIndex(index)} className={`relative aspect-square rounded-lg overflow-hidden transition-all ${index === currentIndex ? "ring-2 ring-[#6C5CE7] opacity-100" : "opacity-40 hover:opacity-80"}`}>
+            <button aria-label={`View image ${index + 1}`} key={image.id} onClick={() => setCurrentIndex(index)} className={`relative aspect-square rounded-lg overflow-hidden transition-all ${index === currentIndex ? "ring-2 ring-[#6C5CE7] opacity-100" : "opacity-40 hover:opacity-80"}`}>
               <LazyImage src={image.url} alt={image.alt} fill className="object-cover" />
             </button>
           ))}
@@ -68,11 +68,11 @@ export function ImageGallery({ images, businessName }: ImageGalleryProps) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center" style={{ background: "rgba(9,9,15,0.95)" }} role="dialog" aria-modal="true">
           <div className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-12">
             <div className="relative w-full h-full"><LazyImage src={images[currentIndex].url} alt={images[currentIndex].alt} fill className="object-contain" /></div>
-            <button onClick={closeModal} className="absolute top-6 right-6 p-3 rounded-xl transition-all" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-primary)" }}><X className="w-6 h-6" /></button>
+            <button aria-label="Close gallery" onClick={closeModal} className="absolute top-6 right-6 p-3 rounded-xl transition-all" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-primary)" }}><X className="w-6 h-6" /></button>
             {images.length > 1 && (
               <>
-                <button onClick={prevImage} className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ color: "var(--text-secondary)" }}><ChevronLeft className="w-8 h-8" /></button>
-                <button onClick={nextImage} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ color: "var(--text-secondary)" }}><ChevronRight className="w-8 h-8" /></button>
+                <button aria-label="Previous image" onClick={prevImage} className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ color: "var(--text-secondary)" }}><ChevronLeft className="w-8 h-8" /></button>
+                <button aria-label="Next image" onClick={nextImage} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 rounded-xl transition-all" style={{ color: "var(--text-secondary)" }}><ChevronRight className="w-8 h-8" /></button>
               </>
             )}
             <div className="absolute bottom-6 text-center">

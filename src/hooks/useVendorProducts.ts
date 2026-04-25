@@ -90,7 +90,10 @@ export function useVendorProducts() {
   }, [token]);
 
   useEffect(() => {
-    fetchProducts();
+    const init = async () => {
+      await fetchProducts();
+    };
+    init();
   }, [fetchProducts]);
 
   const createProduct = useCallback(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseClient, supabase, supabaseAdmin } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
 import { logger } from '@/lib/logger';
 import {
   successResponse,
@@ -57,8 +58,8 @@ async function handler(req: NextRequest) {
       const body = await req.json();
 
       const { business_name, profile_description, region_id, category_id, website, phone } = body;
-      const profileUpdates: Record<string, string | null | number> = {};
-      const vendorUpdates: Record<string, number> = {};
+      const profileUpdates: Database['public']['Tables']['business_profiles']['Update'] = {};
+      const vendorUpdates: Database['public']['Tables']['vendors']['Update'] = {};
 
       if (business_name !== undefined) profileUpdates.business_name = business_name;
       if (profile_description !== undefined) profileUpdates.profile_description = profile_description;
