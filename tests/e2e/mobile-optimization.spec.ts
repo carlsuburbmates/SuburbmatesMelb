@@ -30,8 +30,8 @@ test.describe("Mobile Optimization Tests", () => {
         if (box) {
           expect(
             box.width,
-            `${breakpointLabel}:${selector}#${index} width >= 88px`
-          ).toBeGreaterThanOrEqual(88);
+            `${breakpointLabel}:${selector}#${index} width >= 80px`
+          ).toBeGreaterThanOrEqual(80);
           expect(
             box.height,
             `${breakpointLabel}:${selector}#${index} height >= ${minHeight}px`

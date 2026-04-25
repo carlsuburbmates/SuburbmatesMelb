@@ -30,7 +30,7 @@ export function DirectorySearch({ initialSearch = "" }: DirectorySearchProps) {
           <Search className="absolute left-4 h-4 w-4" style={{ color: "var(--text-tertiary)" }} />
           <input type="text" placeholder="Search creators, studios, or services..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full h-full pl-12 pr-12 text-sm font-medium focus:outline-none" style={{ background: "transparent", color: "var(--text-primary)" }} />
           {search && (
-            <button type="button" onClick={() => setSearch("")} className="absolute right-4 p-1 rounded-lg hover:bg-white/5 transition-colors">
+            <button aria-label="Clear search" type="button" onClick={() => setSearch("")} className="absolute right-4 p-1 rounded-lg hover:bg-white/5 transition-colors">
               <X className="h-4 w-4" style={{ color: "var(--text-secondary)" }} />
             </button>
           )}

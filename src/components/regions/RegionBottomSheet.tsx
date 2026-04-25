@@ -75,6 +75,7 @@ export function RegionBottomSheet({ region, isOpen, onClose }: RegionBottomSheet
         
         {/* Dismiss Button */}
         <button 
+          aria-label="Close region details"
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-ink-tertiary hover:text-ink-primary hover:bg-white/5 transition-colors rounded-sm"
         >
