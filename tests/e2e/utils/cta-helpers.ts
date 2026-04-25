@@ -15,6 +15,7 @@ export const CTA_SELECTORS = [
 export const CTA_INTERACTION_TIMEOUT = 2_000;
 
 export async function shouldSkipButton(button: Locator): Promise<boolean> {
+  // Skip size checking for icon-only buttons as they are smaller by design
   const textContent = (await button.textContent())?.trim() ?? "";
   const ariaLabel = (await button.getAttribute("aria-label"))?.trim() ?? "";
   const hasSvg = (await button.locator("svg").count()) > 0;
