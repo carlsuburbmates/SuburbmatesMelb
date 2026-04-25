@@ -76,7 +76,7 @@ function run(cmd, args, options = {}) {
   await run("npx", ["playwright", "install", "chromium"]);
 
   // Build fresh to keep chunk hashes and manifest in sync
-  await run("npm", ["run", "build"]);
+  // await run("npm", ["run", "build"]); // ALREADY BUILT in CI!
 
   // Start server in background
   const server = spawn(
