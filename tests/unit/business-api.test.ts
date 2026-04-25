@@ -74,7 +74,6 @@ describe('GET /api/business/[slug]', () => {
             is_public: true,
             created_at: new Date().toISOString(),
             user_id: 'user-123',
-            suburb_id: 17,
             category_id: 3,
             vendor_status: 'active',
             images: ['img1.jpg', 'img2.jpg']
@@ -88,7 +87,7 @@ describe('GET /api/business/[slug]', () => {
         });
       } else if (table === 'vendors') {
         chain.maybeSingle.mockResolvedValue({
-          data: { id: 'vendor-123', product_count: 2 },
+          data: { id: 'vendor-123', product_count: 2, primary_region_id: 17 },
           error: null,
         });
       } else if (table === 'regions') {

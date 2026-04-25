@@ -129,7 +129,6 @@ export type Database = {
           profile_description: string | null
           profile_image_url: string | null
           slug: string
-          suburb_id: number | null
           updated_at: string | null
           user_id: string
           vendor_status: string | null
@@ -146,7 +145,6 @@ export type Database = {
           profile_description?: string | null
           profile_image_url?: string | null
           slug: string
-          suburb_id?: number | null
           updated_at?: string | null
           user_id: string
           vendor_status?: string | null
@@ -163,7 +161,6 @@ export type Database = {
           profile_description?: string | null
           profile_image_url?: string | null
           slug?: string
-          suburb_id?: number | null
           updated_at?: string | null
           user_id?: string
           vendor_status?: string | null

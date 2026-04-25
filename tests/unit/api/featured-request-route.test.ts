@@ -56,19 +56,6 @@ describe("POST /api/vendor/featured-request", () => {
         };
       }
 
-      if (table === "business_profiles") {
-        return {
-          select: () => ({
-            eq: () => ({
-              single: async () => ({
-                data: { suburb_id: state.missingRegion ? null : 17 },
-                error: null,
-              }),
-            }),
-          }),
-        };
-      }
-
       if (table === "regions") {
         return {
           select: () => ({
@@ -108,7 +95,7 @@ describe("POST /api/vendor/featured-request", () => {
     });
   });
 
-  it("returns check-only ineligible response when region/suburb is missing", async () => {
+  it("returns check-only ineligible response when region is missing", async () => {
     state.missingRegion = true;
 
     const req = new NextRequest("http://localhost:3000/api/vendor/featured-request", {

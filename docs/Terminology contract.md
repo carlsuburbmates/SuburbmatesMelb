@@ -5,7 +5,7 @@
 - Public business page: creator page
 - Private workspace: creator workspace or vendor dashboard
 - Geographic grouping: region
-- Internal storage compatibility column: `suburb_id` only when referring to the physical database column
+- Canonical storage column for location: `vendors.primary_region_id`
 
 ## Allowed Internal Terms
 - `vendor` is allowed for internal table, route, and code references where it matches the implementation.

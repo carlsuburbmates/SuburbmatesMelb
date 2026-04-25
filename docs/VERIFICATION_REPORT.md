@@ -18,8 +18,8 @@
 
 ## Region Contract
 - Public/API naming uses `region`.
-- Remote physical storage still uses `business_profiles.suburb_id`.
-- That compatibility column stores canonical remote region IDs `13` to `18`.
+- Canonical storage uses `vendors.primary_region_id`.
+- Canonical remote region IDs remain `13` to `18`.
 
 ## Seeder Contract
 - Seeder writes active/public listing state explicitly.

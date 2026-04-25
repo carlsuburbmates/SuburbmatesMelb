@@ -76,7 +76,7 @@ DB user_type values: `customer | business_owner | admin` (internal only, never s
 - `src/lib/supabase.ts` exports:
   - `supabase` — anon/RLS client (read-only public queries)
   - `supabaseAdmin` — service role client (nullable — guard with null check in every API route)
-- `business_profiles.suburb_id` — intentional alias for `region_id`. Do NOT rename.
+- `vendors.primary_region_id` — canonical creator region field.
 - `featured_slots` vs `featured_requests` — two different tables. `featured_requests` = creator-submitted request (pending admin review). `featured_slots` = activated placement with billing data.
 
 ### Search
@@ -90,7 +90,7 @@ DB user_type values: `customer | business_owner | admin` (internal only, never s
 
 ### Featured placement flow
 1. Creator requests featured via `/api/vendor/featured-request` → `featured_requests` row with `status=pending`
-2. Eligibility gate: `vendors.primary_region_id IS NOT NULL` AND `business_profiles.suburb_id IS NOT NULL`
+2. Eligibility gate: `vendors.primary_region_id IS NOT NULL`
 3. Admin reviews request (via future admin dashboard)
 4. Admin sends Stripe Payment Link to creator (manually, until Stripe integration is built)
 5. Creator pays
@@ -158,7 +158,7 @@ Dead / to clean up (see GAPS.md G3):
 
 - G9 (Sentry): `instrumentation.ts` + `instrumentation-client.ts` rewritten — `register()` + `onRequestError` + `onRouterTransitionStart` hooks. `sentry.server.config.ts` + `sentry.edge.config.ts` deleted. Zero startup warnings.
 - G3 (dead email): `sendVendorSuspensionEmail` + `sendAppealDecisionEmail` removed. Added `sendBrokenLinkEmail` + `sendIncompleteListingEmail`.
-- G2 (routes): `/api/ops/broken-links` — HEAD checks all product URLs, flags dead ones, emails creator. `/api/ops/incomplete-listings` — finds profiles missing desc/image/category/suburb, emails creator. `/api/webhooks/claim-status` — POST handler for DB trigger, calls `sendClaimOutcomeEmail`.
+- G2 (routes): `/api/ops/broken-links` — HEAD checks all product URLs, flags dead ones, emails creator. `/api/ops/incomplete-listings` — finds profiles missing desc/image/category/region, emails creator. `/api/webhooks/claim-status` — POST handler for DB trigger, calls `sendClaimOutcomeEmail`.
 - G1 (schedules): Migration written `20260411_automation_jobs.sql` — pg_cron + pg_net + 4 schedules + claim status trigger. **Pending apply** (SUPABASE_REPLIT PAT expired — see GAPS.md G10).
 - CRON_SECRET set as shared env var.
 - G8 confirmed resolved: search.ts category join uses local Map, no PostgREST FK issue.

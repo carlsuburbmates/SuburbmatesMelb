@@ -21,7 +21,7 @@ This is a short implementation reference. Product truth lives in `docs/SSOT_V2.1
 
 ## Region Compatibility
 - Public/API naming uses `region`.
-- Remote storage still uses `business_profiles.suburb_id` for canonical region IDs.
+- Canonical region storage is `vendors.primary_region_id`.
 
 ## Moderation / Operations
 - Visibility is controlled directly in Supabase.

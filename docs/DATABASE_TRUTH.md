@@ -26,9 +26,8 @@ SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript \
 - Every new auth user requires an explicit `INSERT` into `public.users`.
 - `vendors.user_id` has a FK to `public.users.id` — skipping the insert causes FK violations.
 
-### Region/suburb naming
+### Region naming
 - Public API and UI language: `region`, `region_id`
-- Physical column on `business_profiles`: `suburb_id` (compatibility alias — intentional, do not rename)
 - The `regions` table (IDs 13–18) is authoritative. Do not hardcode IDs.
 - `featured_slots` uses `region_id` (the correct name on that table).
 
@@ -40,8 +39,8 @@ SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript \
 
 ### Featured eligibility
 - A slot is active when: `status = 'active'`, `start_date <= now`, `end_date >= now`
-- Creator eligibility gate (enforced in `FeaturedModal`): `vendors.primary_region_id IS NOT NULL` AND `business_profiles.suburb_id IS NOT NULL`
-- If either field is missing, creator is blocked from requesting and shown a "complete your location details" prompt
+- Creator eligibility gate: `vendors.primary_region_id IS NOT NULL`
+- If region is missing, creator is blocked from requesting and shown a "complete your location details" prompt
 - Featured requests go into `featured_requests` (status=`pending`) for admin review — no automated approval
 - Per-region capping enforced manually by admin during review
 
@@ -52,11 +51,10 @@ SUPABASE_ACCESS_TOKEN="$SUPABASE_REPLIT" npx supabase gen types typescript \
 ### `public.users` (9 cols)
 `id, email, first_name, last_name, user_type, created_at, updated_at, deleted_at, created_as_business_owner_at`
 
-### `business_profiles` (15 cols)
-`id, user_id, business_name, slug, profile_description, vendor_status, category_id, suburb_id, is_public, created_at, updated_at, profile_image_url, images, website, phone`
+### `business_profiles` (14 cols)
+`id, user_id, business_name, slug, profile_description, vendor_status, category_id, is_public, created_at, updated_at, profile_image_url, images, website, phone`
 
 Tolerated compatibility columns (do not drop yet):
-- `suburb_id` — FK → `regions.id` (alias for `region_id`)
 - `images` (Json) — legacy image blob; `profile_image_url` is primary
 
 Visibility gate: `is_public = true` AND `vendor_status = 'active'`

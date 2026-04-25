@@ -57,29 +57,58 @@ async function handler(req: NextRequest) {
       const body = await req.json();
 
       const { business_name, profile_description, region_id, category_id, website, phone } = body;
-      const updates: Record<string, string | null | number> = {};
+      const profileUpdates: Record<string, string | null | number> = {};
+      const vendorUpdates: Record<string, number> = {};
 
-      if (business_name !== undefined) updates.business_name = business_name;
-      if (profile_description !== undefined) updates.profile_description = profile_description;
-      if (region_id !== undefined) updates.suburb_id = region_id;
-      if (category_id !== undefined) updates.category_id = category_id;
-      if (website !== undefined) updates.website = website;
-      if (phone !== undefined) updates.phone = phone;
+      if (business_name !== undefined) profileUpdates.business_name = business_name;
+      if (profile_description !== undefined) profileUpdates.profile_description = profile_description;
+      if (category_id !== undefined) profileUpdates.category_id = category_id;
+      if (website !== undefined) profileUpdates.website = website;
+      if (phone !== undefined) profileUpdates.phone = phone;
+      if (region_id !== undefined) vendorUpdates.primary_region_id = region_id;
 
-      if (Object.keys(updates).length === 0) {
+      if (Object.keys(profileUpdates).length === 0 && Object.keys(vendorUpdates).length === 0) {
         return successResponse({ message: 'No changes provided' });
       }
 
-      const { data: updatedProfile, error: updateError } = await dbClient
-        .from('business_profiles')
-        .update(updates)
-        .eq('user_id', user.id)
-        .select()
-        .single();
+      if (Object.keys(vendorUpdates).length > 0) {
+        const { error: vendorUpdateError } = await dbClient
+          .from('vendors')
+          .update(vendorUpdates)
+          .eq('user_id', user.id);
 
-      if (updateError) {
-        logger.error('Error updating profile', updateError);
-        return internalErrorResponse('Failed to update profile');
+        if (vendorUpdateError) {
+          logger.error('Error updating vendor region', vendorUpdateError);
+          return internalErrorResponse('Failed to update profile');
+        }
+      }
+
+      let updatedProfile: Record<string, unknown> | null = null;
+      if (Object.keys(profileUpdates).length > 0) {
+        const { data, error: updateError } = await dbClient
+          .from('business_profiles')
+          .update(profileUpdates)
+          .eq('user_id', user.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          logger.error('Error updating profile', updateError);
+          return internalErrorResponse('Failed to update profile');
+        }
+        updatedProfile = data;
+      } else {
+        const { data, error: fetchError } = await dbClient
+          .from('business_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (fetchError) {
+          logger.error('Error fetching profile after vendor update', fetchError);
+          return internalErrorResponse('Failed to update profile');
+        }
+        updatedProfile = data;
       }
 
       return successResponse({ profile: updatedProfile });

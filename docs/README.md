@@ -27,8 +27,7 @@ For the stable authority map covering product truth, design truth, UX truth, see
 
 ## Region Contract
 - Public/API contract uses `region` naming.
-- Remote storage still uses `business_profiles.suburb_id`.
-- That storage column currently holds canonical remote `regions.id` values.
+- Canonical storage uses `vendors.primary_region_id`.
 - Canonical remote region IDs are `13` through `18`.
 
 ## Auth And Ownership

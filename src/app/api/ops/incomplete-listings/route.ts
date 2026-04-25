@@ -6,7 +6,7 @@ const FIELD_LABELS: Record<string, string> = {
   profile_description: "Profile description",
   profile_image_url: "Profile photo",
   category_id: "Creator category",
-  suburb_id: "Suburb / region",
+  primary_region_id: "Region",
 };
 
 interface ProfileWithVendor {
@@ -15,7 +15,7 @@ interface ProfileWithVendor {
   profile_description: string | null;
   profile_image_url: string | null;
   category_id: number | null;
-  suburb_id: number | null;
+  primary_region_id: number | null;
   user_id: string;
   users: { email: string | null } | { email: string | null }[];
 }
@@ -45,21 +45,41 @@ export async function GET(req: Request) {
         profile_description,
         profile_image_url,
         category_id,
-        suburb_id,
         user_id,
         users ( email )
       `)
-      .eq("is_public", true)
-      .or(
-        "profile_description.is.null,profile_image_url.is.null,category_id.is.null,suburb_id.is.null"
-      );
+      .eq("is_public", true);
 
     if (fetchError) throw fetchError;
     if (!profiles || profiles.length === 0) {
       return NextResponse.json({ success: true, checked: 0, nudged: 0 });
     }
 
-    const typedProfiles = profiles as unknown as ProfileWithVendor[];
+    const userIds = Array.from(
+      new Set(
+        profiles
+          .map((p) => p.user_id)
+          .filter((userId): userId is string => typeof userId === "string" && userId.length > 0)
+      )
+    );
+    const { data: vendors, error: vendorError } = await supabaseAdmin
+      .from("vendors")
+      .select("user_id, primary_region_id")
+      .in("user_id", userIds);
+
+    if (vendorError) throw vendorError;
+
+    const regionByUserId = new Map<string, number | null>();
+    (vendors ?? []).forEach((vendor) => {
+      if (vendor.user_id) {
+        regionByUserId.set(vendor.user_id, vendor.primary_region_id);
+      }
+    });
+
+    const typedProfiles = profiles.map((profile) => ({
+      ...(profile as unknown as Omit<ProfileWithVendor, "primary_region_id">),
+      primary_region_id: regionByUserId.get(profile.user_id) ?? null,
+    })) as ProfileWithVendor[];
 
     let checked = 0;
     let nudged = 0;

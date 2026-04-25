@@ -16,7 +16,7 @@
 
 ## Region Contract
 - [ ] Public filters and API payloads use `region` terminology.
-- [ ] Internal compatibility storage still writes region IDs into `business_profiles.suburb_id`.
+- [ ] Canonical storage writes region IDs into `vendors.primary_region_id`.
 
 ## Concierge Seeder
 - [ ] Dry-run succeeds.

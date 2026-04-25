@@ -70,6 +70,18 @@
 |---|---|---|---|---|---|---|---|
 | GLC-002 | Legacy `fn_try_reserve_featured_slot` keep-or-remove finalization | time-boxed-follow-up | `carlg` | 2026-05-08 | prove zero runtime dependency (or identify remaining dependency), prepare forward-only migration + rollback plan + type regeneration, execute decision and record evidence | reopen before deadline if any runtime dependency is discovered; auto-reopen at deadline if criteria incomplete | no |
 
+## 2026-04-25 — Region Model Simplification
+- Goal: remove `business_profiles.suburb_id` and make `vendors.primary_region_id` the only location source.
+- Outcome: completed.
+- Applied changes:
+  - runtime routes/search switched to vendor region source.
+  - tests, seed scripts, and generated DB types updated to remove `suburb_id`.
+  - migration added and applied: `supabase/migrations/20260425090000_drop_business_profiles_suburb_id.sql`.
+- Remote verification:
+  - `business_profiles.suburb_id` columns present: `0`
+  - `vendors.primary_region_id` columns present: `1`
+  - active/public profiles missing primary region: `0`
+
 ## Next Steps To Close Reconciliation
 1. Use `main` as the sole reconciliation working branch (already synced with `origin/main`).
 2. Apply the recorded keep/remote/compose decisions exactly as listed in the Code Decisions table.

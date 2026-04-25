@@ -18,7 +18,6 @@ This specification defines the required launch seeding flow for concierge-create
 6. Insert `business_profiles` with:
    - `vendor_status = 'active'`
    - `is_public = true`
-   - internal storage column `suburb_id = <resolved region id>`
 7. Insert `products` with:
    - `is_active = true`
    - `is_archived = false`
@@ -27,8 +26,8 @@ This specification defines the required launch seeding flow for concierge-create
 
 ## Region Compatibility Rule
 - Public and API language is `region`.
-- The physical remote storage column is still `business_profiles.suburb_id`.
-- Seeder must write the resolved canonical region ID into `suburb_id` until a full production schema rename exists.
+- Canonical storage is `vendors.primary_region_id`.
+- Seeder must write the resolved region ID into `vendors.primary_region_id`.
 
 ## User Provisioning Rule
 - `auth.users -> public.users` sync is mandatory and explicit.

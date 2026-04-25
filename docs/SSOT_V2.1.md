@@ -108,9 +108,9 @@ The following components/logic are explicitly banned and must be removed:
 - Querying non-existent columns (e.g., `template_key`, `theme_config`) causes PostgREST error `42703`, resulting in silent `null` responses and 404s
 - **Remote schema is authoritative** over local type definitions or migration assumptions
 - Before adding columns to any `.select()` call, verify the column exists on the remote `business_profiles` table
-- Public/API terminology is `region`, but the physical remote compatibility column remains `suburb_id`
+- Public/API terminology is `region`, and canonical storage is `vendors.primary_region_id`
 - Canonical remote `business_profiles` columns (validated 2026-04-01):
-  `id, user_id, business_name, slug, profile_description, vendor_status, category_id, suburb_id, is_public, created_at, updated_at, profile_image_url, images, website, phone`
+  `id, user_id, business_name, slug, profile_description, vendor_status, category_id, is_public, created_at, updated_at, profile_image_url, images, website, phone`
 
 ### REGION MAPPING RULE (CRITICAL)
 - The `regions` table in remote Supabase is the **ONLY** source of truth for region IDs and names

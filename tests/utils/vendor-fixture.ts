@@ -59,7 +59,6 @@ export async function createVendorFixture(
       slug: `playwright-vendor-${businessId.slice(0, 8)}`,
       vendor_status: "active",
       is_public: true,
-      suburb_id: regionId,
     });
   if (insertProfileError) {
     throw insertProfileError;

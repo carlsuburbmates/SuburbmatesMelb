@@ -146,7 +146,7 @@ async function runSeeder() {
         console.log(`[SIMULATION] public.users row would be inserted with user_type=business_owner`);
         console.log(`[SIMULATION] Vendor would be created: ${row.business_name} (region: ${region_id}, vendor_status=active)`);
         console.log(`[SIMULATION] Slugs would be generated handling collisions`);
-        console.log(`[SIMULATION] Business Profile inserted: category=${category_id}, suburb_id=${region_id}, is_public=true, vendor_status=active`);
+        console.log(`[SIMULATION] Business Profile inserted: category=${category_id}, is_public=true, vendor_status=active`);
         console.log(`[SIMULATION] Product inserted: title="${metadata.title}", is_active=true, is_archived=false, deleted_at=null`);
         console.log(`[✓] Dry-run validation passed for ${row.business_name}`);
         continue;
@@ -209,7 +209,6 @@ async function runSeeder() {
           business_name: row.business_name,
           slug: safeBusinessSlug,
           category_id: category_id,
-          suburb_id: region_id,
           profile_description: row.description || null,
           profile_image_url: metadata.image || null,
           vendor_status: 'active',

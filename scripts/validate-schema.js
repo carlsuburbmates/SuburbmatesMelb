@@ -35,7 +35,7 @@ const V1_1_SCHEMA_REQUIREMENTS = {
         vendor_tier: "VARCHAR(10) DEFAULT 'none'",
         vendor_status: "VARCHAR(20) DEFAULT 'inactive'",
         category_id: 'INTEGER REFERENCES categories(id)',
-        suburb_id: 'INTEGER REFERENCES lgas(id)',
+        region_id: 'INTEGER REFERENCES regions(id)',
         is_public: 'BOOLEAN DEFAULT true',
         created_at: 'TIMESTAMPTZ DEFAULT NOW()',
         updated_at: 'TIMESTAMPTZ DEFAULT NOW()'

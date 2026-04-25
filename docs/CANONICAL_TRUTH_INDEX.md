@@ -72,7 +72,7 @@ Use these documents for:
 Canonical truths from these documents:
 - local DB assumptions are banned
 - `auth.users -> public.users` bridging is explicit and mandatory
-- `business_profiles.suburb_id` still stores canonical remote region IDs
+- `vendors.primary_region_id` stores canonical region IDs
 - canonical region IDs are the remote values `13` through `18`
 - seeded listings must be immediately visible without manual repair
 
@@ -215,4 +215,3 @@ If you need the shortest correct summary:
 - Interaction truth: [UX_SPEC.md](./UX_SPEC.md)
 - Seeding/auth ownership truth: the concierge docs
 - Verification truth: [QA_CHECKLIST.md](./QA_CHECKLIST.md) plus [VERIFICATION_LOG.md](./VERIFICATION_LOG.md)
-

@@ -45,17 +45,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Fetch business_profile for suburb_id eligibility check
-    const { data: profile } = await supabaseAdmin
-      .from('business_profiles')
-      .select('suburb_id')
-      .eq('user_id', userId)
-      .single();
-
-    // 3. Eligibility gate: must have both primary_region_id and suburb_id
+    // 2. Eligibility gate: primary region is required
     const missingFields: string[] = [];
     if (!vendor.primary_region_id) missingFields.push('region');
-    if (!profile?.suburb_id) missingFields.push('suburb');
 
     if (missingFields.length > 0) {
       if (isCheckOnly) {

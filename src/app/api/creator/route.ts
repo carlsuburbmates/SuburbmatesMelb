@@ -84,6 +84,21 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    if (region_id !== undefined && vendor?.id) {
+      const { error: vendorUpdateError } = await dbClient
+        .from('vendors')
+        .update({ primary_region_id: region_id })
+        .eq('id', vendor.id);
+
+      if (vendorUpdateError) {
+        console.error('Error updating vendor region:', vendorUpdateError);
+        return NextResponse.json(
+          { error: 'Failed to set vendor region' },
+          { status: 500 }
+        );
+      }
+    }
+
     const slug = await generateUniqueBusinessSlug(business_name, dbClient);
 
     const { data: newProfile, error: insertError } = await dbClient
@@ -93,7 +108,6 @@ export async function POST(request: NextRequest) {
         business_name,
         slug,
         profile_description,
-        suburb_id: region_id ?? vendor?.primary_region_id ?? null,
         category_id,
         is_public: Boolean(vendor?.vendor_status === 'active'),
         vendor_status: vendor?.vendor_status ?? 'inactive',

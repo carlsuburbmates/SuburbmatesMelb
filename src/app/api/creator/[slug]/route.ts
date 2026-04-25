@@ -33,7 +33,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         id,
         business_name,
         profile_description,
-        suburb_id,
         category_id,
         slug,
         is_public,
@@ -67,7 +66,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // Non-critical
     }
 
-    // Get vendor info (Product count ONLY)
+    // Get region and category names
+    let regionName = "Melbourne";
+    let categoryName = "Creator";
+
+    // Get vendor info (region + product count)
     let productCount = 0;
     let vendorId: string | undefined = undefined;
 
@@ -75,26 +78,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       try {
         const { data: vendor } = await supabase
           .from('vendors')
-          .select('id, product_count')
+          .select('id, product_count, primary_region_id')
           .eq('user_id', creator.user_id)
           .maybeSingle();
  
         if (vendor) {
           productCount = vendor.product_count || 0;
           vendorId = vendor.id;
+
+          if (vendor.primary_region_id) {
+            const { data: region } = await supabase
+              .from('regions')
+              .select('name')
+              .eq('id', vendor.primary_region_id)
+              .single();
+            regionName = region?.name || regionName;
+          }
         }
       } catch {
         // Non-critical
       }
-    }
-
-    // Get region and category names
-    let regionName = "Melbourne";
-    let categoryName = "Creator";
-
-    if (creator.suburb_id) {
-      const { data: region } = await supabase.from('regions').select('name').eq('id', creator.suburb_id).single();
-      regionName = region?.name || regionName;
     }
 
     if (creator.category_id) {
@@ -159,8 +162,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (business_name) updateData.business_name = business_name;
     if (description !== undefined) updateData.profile_description = description;
-    if (region_id) updateData.suburb_id = region_id;
     if (category_id) updateData.category_id = category_id;
+
+    if (region_id !== undefined) {
+      const { error: vendorUpdateError } = await supabase
+        .from('vendors')
+        .update({ primary_region_id: region_id })
+        .eq('user_id', userId);
+
+      if (vendorUpdateError) throw vendorUpdateError;
+    }
 
     const { data: updated, error } = await supabase.from('business_profiles').update(updateData).eq('id', profile.id).select().single();
 

@@ -84,7 +84,38 @@ export async function executeDirectorySearch(
     }
   }
 
-  // 3. Build query
+  // 3. Resolve vendor user IDs for region filtering
+  let vendorUserIds: string[] | null = null;
+  if (regionFilter?.regionIds) {
+    const { data: regionVendors, error: vendorRegionError } = await client
+      .from("vendors")
+      .select("user_id")
+      .in("primary_region_id", regionFilter.regionIds);
+
+    if (vendorRegionError) {
+      logger.error("search_vendor_region_filter_failed", vendorRegionError);
+      throw vendorRegionError;
+    }
+
+    vendorUserIds = (regionVendors ?? [])
+      .map((vendor) => vendor.user_id)
+      .filter((userId): userId is string => typeof userId === "string" && userId.length > 0);
+    if (vendorUserIds.length === 0) {
+      return {
+        results: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: page > 1,
+        },
+      };
+    }
+  }
+
+  // 4. Build query
   let queryBuilder = client
     .from("business_profiles")
     .select(
@@ -94,7 +125,7 @@ export async function executeDirectorySearch(
         profile_description,
         slug,
         vendor_status,
-        suburb_id,
+        user_id,
         category_id,
         created_at
       `,
@@ -103,8 +134,8 @@ export async function executeDirectorySearch(
     .eq("is_public", true)
     .eq("vendor_status", "active");
 
-  if (regionFilter?.regionIds) {
-    queryBuilder = queryBuilder.in("suburb_id", regionFilter.regionIds);
+  if (vendorUserIds?.length) {
+    queryBuilder = queryBuilder.in("user_id", vendorUserIds);
   }
 
   if (categoryIds) {
@@ -127,6 +158,52 @@ export async function executeDirectorySearch(
     throw error;
   }
 
+  const resultsUserIds = Array.from(new Set((data ?? []).map((row) => row.user_id)));
+  let resultVendors: { user_id: string | null; primary_region_id: number | null }[] = [];
+  if (resultsUserIds.length > 0) {
+    const { data: vendors, error: resultVendorsError } = await client
+      .from("vendors")
+      .select("user_id, primary_region_id")
+      .in("user_id", resultsUserIds);
+
+    if (resultVendorsError) {
+      logger.error("search_vendor_lookup_failed", resultVendorsError);
+      throw resultVendorsError;
+    }
+    resultVendors = vendors ?? [];
+  }
+
+  const vendorRegionByUserId = new Map<string, number | null>();
+    resultVendors.forEach((vendor) => {
+      if (vendor.user_id) {
+        vendorRegionByUserId.set(vendor.user_id, vendor.primary_region_id);
+      }
+    });
+
+  const resolvedRegionIds = Array.from(
+    new Set(
+      resultVendors
+        .map((vendor) => vendor.primary_region_id)
+        .filter((regionId): regionId is number => typeof regionId === "number")
+    )
+  );
+
+  if (resolvedRegionIds.length > 0) {
+    const { data: resolvedRegions, error: regionLookupError } = await client
+      .from("regions")
+      .select("id, name")
+      .in("id", resolvedRegionIds);
+
+    if (regionLookupError) {
+      logger.error("search_region_lookup_failed", regionLookupError);
+      throw regionLookupError;
+    }
+
+    (resolvedRegions ?? []).forEach((region) => {
+      regionFilter?.regionNameById.set(region.id, region.name);
+    });
+  }
+
   // Lookup featured status for the result set
   const featuredMeta = await resolveFeaturedProfileMetadata(client, {
     regionIds: regionFilter?.regionIds ?? null,
@@ -136,16 +213,17 @@ export async function executeDirectorySearch(
   const mapped: DirectorySearchResult[] =
     data?.map((row) => {
       const meta = featuredMeta.get(row.id);
+      const regionId = vendorRegionByUserId.get(row.user_id) ?? null;
         return {
           id: row.id,
           name: row.business_name,
           description: row.profile_description,
           slug: row.slug,
           region: {
-            id: row.suburb_id,
+            id: regionId,
             name:
-              row.suburb_id != null
-                ? regionFilter?.regionNameById.get(row.suburb_id) ?? null
+              regionId != null
+                ? regionFilter?.regionNameById.get(regionId) ?? null
                 : null,
           },
           category: {

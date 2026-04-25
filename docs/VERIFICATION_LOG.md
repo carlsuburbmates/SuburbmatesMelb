@@ -4,7 +4,7 @@
 
 - Status: updated after repo convergence work
 - Scope:
-  - aligned region terminology to public `region` contract while preserving internal `suburb_id` compatibility storage
+  - aligned region terminology to public `region` contract with canonical storage on `vendors.primary_region_id`
   - aligned creator visibility gate with directory/search gate
   - aligned public product filtering with active, non-archived, non-deleted outbound products only
   - aligned auth callback and creator workspace routing on `/vendor/dashboard`
