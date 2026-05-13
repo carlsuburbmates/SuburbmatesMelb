@@ -16,13 +16,14 @@ Profiles are published progressively, suburb-by-suburb, after review.
 
 ## Fake/demo data policy
 
-- Public UI must not present demo/sample/placeholder entities as real listings.
-- Frontend filters hide entries that match:
+- Public APIs must not return demo/sample/placeholder entities as real listings.
+- Backend API filters exclude entries that match any of the following terms in the name, slug, or description:
   - `demo`
   - `sample`
   - `placeholder`
   - `Launch Partner`
   - `test business`
+- This filtering is enforced at the API layer (`executeDirectorySearch` in `src/lib/search.ts` and `/api/creator/[slug]`). The frontend is not responsible for truth filtering.
 - Empty states should show rollout messaging instead of synthetic inventory.
 
 ## Exit criteria for removing prelaunch protections

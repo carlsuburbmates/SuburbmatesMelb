@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
 import { logger } from '@/lib/logger';
+import { shouldHidePublicEntity } from '@/lib/prelaunch';
 
 if (!supabaseAdmin) {
   throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured — supabaseAdmin is unavailable');
@@ -103,6 +104,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (creator.category_id) {
       const { data: category } = await supabase.from('categories').select('name').eq('id', creator.category_id).single();
       categoryName = category?.name || categoryName;
+    }
+
+    // Backend truth gate: exclude demo/test/placeholder entities (SSOT v2.1)
+    // Checked after category/region resolution so all five fields are available.
+    if (shouldHidePublicEntity(creator.business_name, creator.slug, creator.profile_description, categoryName, regionName)) {
+      return NextResponse.json(
+        { error: 'Creator not found' },
+        { status: 404 }
+      );
     }
 
     // Transform to SSOT v2.1 Minimalist Object

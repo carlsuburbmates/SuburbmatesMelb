@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 import { logger } from "./logger";
+import { shouldHidePublicEntity } from "./prelaunch";
 
 export type DirectorySearchPayload = {
   query?: string | null;
@@ -158,7 +159,12 @@ export async function executeDirectorySearch(
     throw error;
   }
 
-  const resultsUserIds = Array.from(new Set((data ?? []).map((row) => row.user_id)));
+  // Backend truth gate: exclude demo/test/placeholder entities before any enrichment (SSOT v2.1)
+  const visibleData = (data ?? []).filter(
+    (row) => !shouldHidePublicEntity(row.business_name, row.slug, row.profile_description)
+  );
+
+  const resultsUserIds = Array.from(new Set(visibleData.map((row) => row.user_id)));
   let resultVendors: { user_id: string | null; primary_region_id: number | null }[] = [];
   if (resultsUserIds.length > 0) {
     const { data: vendors, error: resultVendorsError } = await client
@@ -211,7 +217,7 @@ export async function executeDirectorySearch(
   });
 
   const mapped: DirectorySearchResult[] =
-    data?.map((row) => {
+    visibleData.map((row) => {
       const meta = featuredMeta.get(row.id);
       const regionId = vendorRegionByUserId.get(row.user_id) ?? null;
         return {
@@ -238,7 +244,7 @@ export async function executeDirectorySearch(
           featuredMatchesSelection: meta?.matchesSelection ?? false,
           createdAt: row.created_at,
         };
-    }) ?? [];
+    });
 
   // Sort: featured-in-selection first, then any featured, then daily shuffle for the rest
   const sorted = mapped.sort((a, b) => {

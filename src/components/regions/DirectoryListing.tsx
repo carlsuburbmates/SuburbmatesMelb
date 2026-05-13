@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowUpRight, Info, ArrowRight, Star } from "lucide-react";
 import { RegionBottomSheet } from "./RegionBottomSheet";
 import { METRO_REGIONS } from "@/lib/constants";
-import { shouldHidePublicEntity } from "@/lib/prelaunch";
 
 interface Business {
   id: string;
@@ -73,16 +72,7 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
         const json = await response.json();
         if (!isMounted) return;
 
-        let results = (json.data.results ?? []).filter(
-          (business: Business) =>
-            !shouldHidePublicEntity(
-              business.name,
-              business.slug,
-              business.description,
-              business.category?.name ?? null,
-              business.region?.name ?? null
-            )
-        );
+        let results = (json.data.results ?? []) as Business[];
         const today = new Date();
         const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         results = shuffleArray(results, dateSeed);
