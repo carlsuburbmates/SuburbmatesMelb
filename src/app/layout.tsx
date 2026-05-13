@@ -8,6 +8,7 @@ import { Plus_Jakarta_Sans, Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Toaster } from "react-hot-toast";
+import { isPrelaunchSafetyMode } from "@/lib/prelaunch";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -30,9 +31,12 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const prelaunchSafetyMode = isPrelaunchSafetyMode();
+
 export const metadata: Metadata = {
-  title: "Suburbmates | Melbourne's Digital Creator Directory",
-  description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing.",
+  title: "Suburbmates | Melbourne Beta Creator Discovery",
+  description:
+    "Curated prelaunch creator discovery across Melbourne. Founding creator applications are reviewed before profiles go live.",
   keywords:
     "Melbourne creators, regional creator directory, local digital products, outbound showcase",
   authors: [{ name: "SuburbMates" }],
@@ -70,17 +74,29 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
     creator: "@suburbmates",
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
+  robots: prelaunchSafetyMode
+    ? {
+        index: false,
+        follow: false,
+        googleBot: {
+          index: false,
+          follow: false,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      }
+    : {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
   verification: {
     google: "verification-token-placeholder",
   },

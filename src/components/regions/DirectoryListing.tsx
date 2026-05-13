@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Info, ArrowRight, Star } from "lucide-react";
 import { RegionBottomSheet } from "./RegionBottomSheet";
 import { METRO_REGIONS } from "@/lib/constants";
+import { shouldHidePublicEntity } from "@/lib/prelaunch";
 
 interface Business {
   id: string;
@@ -76,6 +77,16 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
         const today = new Date();
         const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         results = shuffleArray(results, dateSeed);
+        results = results.filter(
+          (business: Business) =>
+            !shouldHidePublicEntity(
+              business.name,
+              business.slug,
+              business.description,
+              business.category?.name ?? null,
+              business.region?.name ?? null
+            )
+        );
 
         setBusinesses(results);
         setTotalCount(json.data.pagination?.total ?? 0);
@@ -103,13 +114,13 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
         style={{ background: "var(--bg-surface-1)", border: "1px solid var(--border)" }}
       >
         <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-secondary)" }}>
-          No digital drops listed in the {region || "selected"} region yet.
+          This suburb is part of the upcoming rollout.
         </h3>
         <p className="text-sm mb-8" style={{ color: "var(--text-tertiary)" }}>
-          Check back soon or explore all neighbourhoods.
+          Founding creators are being reviewed before profiles go live in {region || "this"} area.
         </p>
         <Link href="/regions" className="btn-secondary" data-testid="empty-directory-cta">
-          View All Neighbourhoods
+          Explore Rollout Areas
         </Link>
       </div>
     );

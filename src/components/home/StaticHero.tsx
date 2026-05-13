@@ -64,7 +64,7 @@ export function StaticHero() {
               className="text-xs font-medium tracking-wide"
               style={{ color: "var(--accent-atmosphere)" }}
             >
-              Melbourne&rsquo;s Creator Discovery Platform
+              Melbourne Beta Rollout • Founding Creators Only
             </span>
           </div>
 
@@ -80,7 +80,7 @@ export function StaticHero() {
               marginBottom: "1.5rem",
             }}
           >
-            Get Your Products{" "}
+            Curated Creator Discovery{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, var(--accent-atmosphere) 0%, #a78bfa 50%, var(--accent-cta) 100%)",
@@ -89,7 +89,7 @@ export function StaticHero() {
                 backgroundClip: "text",
               }}
             >
-              Discovered
+              In Prelaunch
             </span>
           </h1>
 
@@ -105,21 +105,25 @@ export function StaticHero() {
               maxWidth: "50ch",
             }}
           >
-            A new platform for digital creators to be seen. Browse by category,
-            discover by region, get featured where it matters.
+            We&apos;re launching suburb-by-suburb across Melbourne with a curated
+            founding creator cohort. Applications are reviewed before any
+            profile is published.
           </p>
 
           {/* CTA buttons — pill style */}
           <div className="flex flex-col sm:flex-row gap-4 animate-slide-up" style={{ animationDelay: "0.15s" }}>
             <Link href="/auth/signup" className="btn-primary" data-testid="hero-cta-primary">
-              Get Discovered
+              Join Founding Creator Waitlist
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/regions" className="btn-secondary" data-testid="hero-cta-secondary">
               <Compass className="w-4 h-4" />
-              Explore Categories
+              Explore Rollout Suburbs
             </Link>
           </div>
+          <p className="mt-4 text-xs" style={{ color: "var(--text-tertiary)" }}>
+            Founding creator submissions are reviewed before profiles go live.
+          </p>
         </div>
 
         {/* Visual proof mockup — polished surface showing category/creator preview */}
@@ -153,10 +157,10 @@ export function StaticHero() {
           {/* Mock product grid */}
           <div className="p-5 grid grid-cols-3 md:grid-cols-4 gap-3">
             {[
-              { name: "Digital Art Studio", cat: "Graphics & Design", color: "rgba(108, 92, 231, 0.12)" },
-              { name: "Template Lab", cat: "Templates & Tools", color: "rgba(249, 115, 22, 0.10)" },
-              { name: "Content Forge", cat: "Guides & Ebooks", color: "rgba(72, 52, 212, 0.10)" },
-              { name: "Brand Workshop", cat: "Business Services", color: "rgba(108, 92, 231, 0.08)" },
+              { name: "Founding Creator Preview", cat: "Graphics & Design", color: "rgba(108, 92, 231, 0.12)" },
+              { name: "Founding Creator Preview", cat: "Templates & Tools", color: "rgba(249, 115, 22, 0.10)" },
+              { name: "Founding Creator Preview", cat: "Guides & Ebooks", color: "rgba(72, 52, 212, 0.10)" },
+              { name: "Founding Creator Preview", cat: "Business Services", color: "rgba(108, 92, 231, 0.08)" },
             ].map((item) => (
               <div
                 key={item.name}

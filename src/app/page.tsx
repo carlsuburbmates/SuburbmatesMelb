@@ -10,8 +10,9 @@ import { WhyJoinSection } from "@/components/home/WhyJoinSection";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Suburbmates | Melbourne's Digital Neighbourhood & Creator Directory",
-  description: "Discover and explore premium digital assets from creators across Melbourne's 6 Metro Regions. Zero commission. Direct outbound routing to your favorite creators.",
+  title: "Suburbmates | Curated Melbourne Prelaunch",
+  description:
+    "Melbourne beta rollout for founding creators. Apply to join the curated prelaunch as suburb-by-suburb profiles are reviewed and published.",
 };
 
 export const revalidate = 3600; // 1 hour

@@ -7,10 +7,10 @@ import { useState } from "react";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 const FEATURES = [
-  "Free creator profile",
-  "No transaction fees",
-  "Direct outbound routing",
-  "Tracked product clicks",
+  "Application review before publication",
+  "Founding creator rollout support",
+  "Curated suburb-by-suburb launches",
+  "Direct profile ownership",
 ];
 
 export function CTASection() {
@@ -58,7 +58,7 @@ export function CTASection() {
             >
               <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent-cta)" }} />
               <span className="text-xs font-medium" style={{ color: "var(--accent-cta)" }}>
-                Creator Profiles
+                Founding Creator Applications
               </span>
             </div>
 
@@ -72,7 +72,7 @@ export function CTASection() {
                 letterSpacing: "-0.03em",
               }}
             >
-              Claim Your Profile
+              Apply for Founding Creator Access
             </h2>
 
             <p
@@ -84,8 +84,8 @@ export function CTASection() {
                 marginBottom: "2rem",
               }}
             >
-              Launch your free directory profile and get discovered by
-              Melbourne&rsquo;s digital neighbourhood. Zero setup, zero fees.
+              Join the curated Melbourne beta rollout. We review each founding
+              creator application before any profile is published publicly.
             </p>
 
             <button
@@ -93,7 +93,7 @@ export function CTASection() {
               className="btn-primary"
               data-testid="cta-get-started"
             >
-              Get Started — Free
+              Join Waitlist
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -119,7 +119,7 @@ export function CTASection() {
                   letterSpacing: "-0.02em",
                 }}
               >
-                Your Digital Storefront
+                Prelaunch Access Includes
               </h3>
 
               <ul className="space-y-4">
@@ -159,7 +159,8 @@ export function CTASection() {
                     marginBottom: 0,
                   }}
                 >
-                  100% creator-backed. No lock-in. Cancel anytime.
+                  Profiles go live progressively as each suburb cohort is
+                  reviewed and approved.
                 </p>
               </div>
             </div>

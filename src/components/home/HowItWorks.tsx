@@ -8,25 +8,25 @@ export function HowItWorks() {
   const steps = [
     {
       number: "01",
-      title: "Create Profile",
+      title: "Apply as Founding Creator",
       description:
-        "Launch your creator profile. Add imagery, contact details, and showcase your digital drops.",
+        "Submit your profile details for Melbourne beta review. Applications are screened before publication.",
       Icon: UserPlus,
       gradient: "linear-gradient(135deg, var(--accent-atmosphere-muted), rgba(72, 52, 212, 0.08))",
     },
     {
       number: "02",
-      title: "Get Discovered",
+      title: "Curated Review",
       description:
-        "Surface in your local region. Melbourne visitors browse by category and metro area to find you.",
+        "Founding creators are approved in controlled suburb cohorts to protect quality and trust.",
       Icon: Radar,
       gradient: "linear-gradient(135deg, var(--accent-cta-muted), rgba(249, 115, 22, 0.06))",
     },
     {
       number: "03",
-      title: "Drive Traffic",
+      title: "Go Live in Rollout",
       description:
-        "Deploy your digital assets. Direct-to-creator outbound routing sends visitors your way.",
+        "Approved creators go live as each suburb opens, helping discovery grow with reliable inventory.",
       Icon: Zap,
       gradient: "linear-gradient(135deg, rgba(108, 92, 231, 0.08), var(--accent-cta-muted))",
     },
@@ -70,8 +70,8 @@ export function HowItWorks() {
             className="text-lg max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)", marginBottom: 0 }}
           >
-            Three simple steps to establish your digital presence and start
-            getting discovered.
+            Join the prelaunch flow built for controlled, trusted creator
+            discovery.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export function HowItWorks() {
             className="btn-primary"
             data-testid="how-it-works-cta"
           >
-            Start Now
+            Apply to Join
           </a>
         </div>
       </div>

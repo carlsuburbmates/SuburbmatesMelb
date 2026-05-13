@@ -5,6 +5,7 @@ import supabase from "@/lib/supabase";
 import Link from "next/link";
 import { ArrowUpRight, Signal } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { shouldHidePublicEntity } from "@/lib/prelaunch";
 
 type ShuffledProduct = {
   id: string;
@@ -38,7 +39,18 @@ export function FreshSignals() {
       try {
         const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 8 });
         if (error) console.error("Shuffle Error:", error);
-        else setProducts((data as ShuffledProduct[]) || []);
+        else {
+          const safeProducts = ((data as ShuffledProduct[]) || []).filter(
+            (product) =>
+              !shouldHidePublicEntity(
+                product.title,
+                product.business_name,
+                product.business_slug,
+                product.description
+              )
+          );
+          setProducts(safeProducts);
+        }
       } catch (error) {
         console.error("Fetch shuffle products error:", error);
       } finally {
@@ -49,7 +61,25 @@ export function FreshSignals() {
   }, []);
 
   if (loading) return <SkeletonSection />;
-  if (products.length === 0) return null;
+  if (products.length === 0) {
+    return (
+      <section className="py-20" style={{ background: "var(--bg-surface-1)" }}>
+        <div className="container-custom">
+          <div
+            className="rounded-2xl p-8 text-center"
+            style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}
+          >
+            <p className="text-sm font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>
+              Daily discoveries are opening suburb-by-suburb.
+            </p>
+            <p className="text-sm mb-0" style={{ color: "var(--text-tertiary)" }}>
+              Founding creator profiles are reviewed before rollout publication.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
