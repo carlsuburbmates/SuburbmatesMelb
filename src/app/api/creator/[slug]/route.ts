@@ -54,14 +54,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Backend truth gate: exclude demo/test/placeholder entities (SSOT v2.1)
-    if (shouldHidePublicEntity(creator.business_name, creator.slug, creator.profile_description)) {
-      return NextResponse.json(
-        { error: 'Creator not found' },
-        { status: 404 }
-      );
-    }
-
     // Get user metadata
     let userEmail = null;
     try {
@@ -112,6 +104,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (creator.category_id) {
       const { data: category } = await supabase.from('categories').select('name').eq('id', creator.category_id).single();
       categoryName = category?.name || categoryName;
+    }
+
+    // Backend truth gate: exclude demo/test/placeholder entities (SSOT v2.1)
+    // Checked after category/region resolution so all five fields are available.
+    if (shouldHidePublicEntity(creator.business_name, creator.slug, creator.profile_description, categoryName, regionName)) {
+      return NextResponse.json(
+        { error: 'Creator not found' },
+        { status: 404 }
+      );
     }
 
     // Transform to SSOT v2.1 Minimalist Object
