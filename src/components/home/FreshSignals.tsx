@@ -37,7 +37,7 @@ export function FreshSignals() {
   useEffect(() => {
     async function fetchShuffle() {
       try {
-        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 8 });
+        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 12 });
         if (error) console.error("Shuffle Error:", error);
         else {
           const safeProducts = ((data as ShuffledProduct[]) || []).filter(
@@ -49,7 +49,7 @@ export function FreshSignals() {
                 product.description
               )
           );
-          setProducts(safeProducts);
+          setProducts(safeProducts.slice(0, 8));
         }
       } catch (error) {
         console.error("Fetch shuffle products error:", error);

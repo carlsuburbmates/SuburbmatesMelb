@@ -5,6 +5,7 @@ const HIDDEN_ENTITY_TERMS = [
   "launch partner",
   "test business",
 ];
+// Matching is case-insensitive; terms are intentionally normalized to lowercase.
 
 export function isPrelaunchSafetyMode(): boolean {
   return process.env.NEXT_PUBLIC_PRELAUNCH_SAFETY_MODE !== "false";

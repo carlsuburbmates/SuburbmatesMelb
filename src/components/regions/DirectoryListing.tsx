@@ -73,11 +73,7 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
         const json = await response.json();
         if (!isMounted) return;
 
-        let results = json.data.results ?? [];
-        const today = new Date();
-        const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        results = shuffleArray(results, dateSeed);
-        results = results.filter(
+        let results = (json.data.results ?? []).filter(
           (business: Business) =>
             !shouldHidePublicEntity(
               business.name,
@@ -87,6 +83,9 @@ export function DirectoryListing({ region, category, search, page }: DirectoryLi
               business.region?.name ?? null
             )
         );
+        const today = new Date();
+        const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        results = shuffleArray(results, dateSeed);
 
         setBusinesses(results);
         setTotalCount(json.data.pagination?.total ?? 0);
