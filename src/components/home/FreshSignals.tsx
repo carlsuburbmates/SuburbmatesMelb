@@ -29,6 +29,8 @@ const CARD_ACCENTS = [
   { bg: "rgba(108, 92, 231, 0.06)",  border: "rgba(108, 92, 231, 0.10)" },
   { bg: "rgba(249, 115, 22, 0.04)",  border: "rgba(249, 115, 22, 0.07)" },
 ];
+const DISPLAY_LIMIT = 8;
+const FETCH_LIMIT = 12; // Fetch extra entries to compensate for prelaunch filtering.
 
 export function FreshSignals() {
   const [products, setProducts] = useState<ShuffledProduct[]>([]);
@@ -37,7 +39,7 @@ export function FreshSignals() {
   useEffect(() => {
     async function fetchShuffle() {
       try {
-        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 12 });
+        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: FETCH_LIMIT });
         if (error) console.error("Shuffle Error:", error);
         else {
           const safeProducts = ((data as ShuffledProduct[]) || []).filter(
@@ -49,7 +51,7 @@ export function FreshSignals() {
                 product.description
               )
           );
-          setProducts(safeProducts.slice(0, 8));
+          setProducts(safeProducts.slice(0, DISPLAY_LIMIT));
         }
       } catch (error) {
         console.error("Fetch shuffle products error:", error);

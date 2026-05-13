@@ -64,7 +64,7 @@ export function StaticHero() {
               className="text-xs font-medium tracking-wide"
               style={{ color: "var(--accent-atmosphere)" }}
             >
-              Melbourne Beta Rollout • Founding Creators Only
+              Melbourne Beta Rollout – Founding Creators Only
             </span>
           </div>
 
