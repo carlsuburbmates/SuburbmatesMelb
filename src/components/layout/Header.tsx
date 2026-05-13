@@ -77,7 +77,7 @@ export function Header() {
                 Suburbmates
               </span>
               <span className="text-[10px] font-medium text-ink-tertiary hidden sm:block">
-                Creator Discovery
+                Melbourne Beta Rollout
               </span>
             </div>
           </Link>

@@ -5,6 +5,7 @@ import supabase from "@/lib/supabase";
 import Link from "next/link";
 import { ArrowUpRight, Signal } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { shouldHidePublicEntity } from "@/lib/prelaunch";
 
 type ShuffledProduct = {
   id: string;
@@ -28,6 +29,8 @@ const CARD_ACCENTS = [
   { bg: "rgba(108, 92, 231, 0.06)",  border: "rgba(108, 92, 231, 0.10)" },
   { bg: "rgba(249, 115, 22, 0.04)",  border: "rgba(249, 115, 22, 0.07)" },
 ];
+const DISPLAY_LIMIT = 8;
+const FETCH_LIMIT = 12; // Fetch extra entries to compensate for prelaunch filtering.
 
 export function FreshSignals() {
   const [products, setProducts] = useState<ShuffledProduct[]>([]);
@@ -36,9 +39,20 @@ export function FreshSignals() {
   useEffect(() => {
     async function fetchShuffle() {
       try {
-        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: 8 });
+        const { data, error } = await supabase.rpc("get_daily_shuffle_products", { p_limit: FETCH_LIMIT });
         if (error) console.error("Shuffle Error:", error);
-        else setProducts((data as ShuffledProduct[]) || []);
+        else {
+          const safeProducts = ((data as ShuffledProduct[]) || []).filter(
+            (product) =>
+              !shouldHidePublicEntity(
+                product.title,
+                product.business_name,
+                product.business_slug,
+                product.description
+              )
+          );
+          setProducts(safeProducts.slice(0, DISPLAY_LIMIT));
+        }
       } catch (error) {
         console.error("Fetch shuffle products error:", error);
       } finally {
@@ -49,7 +63,25 @@ export function FreshSignals() {
   }, []);
 
   if (loading) return <SkeletonSection />;
-  if (products.length === 0) return null;
+  if (products.length === 0) {
+    return (
+      <section className="py-20" style={{ background: "var(--bg-surface-1)" }}>
+        <div className="container-custom">
+          <div
+            className="rounded-2xl p-8 text-center"
+            style={{ background: "var(--bg-surface-2)", border: "1px solid var(--border)" }}
+          >
+            <p className="text-sm font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>
+              Daily discoveries are opening suburb-by-suburb.
+            </p>
+            <p className="text-sm mb-0" style={{ color: "var(--text-tertiary)" }}>
+              Founding creator profiles are reviewed before rollout publication.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

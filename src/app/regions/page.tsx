@@ -106,7 +106,7 @@ function DirectoryListingSkeleton() {
 }
 
 export const metadata = {
-  title: "Creator Directory - SuburbMates",
+  title: "Creator Directory Beta - SuburbMates",
   description:
-    "Discover local studios and digital creators in your Melbourne neighbourhood. Connect with professional services and discovery-first digital creators.",
+    "Browse SuburbMates' curated Melbourne beta rollout. Founding creator profiles are reviewed before suburb-by-suburb publication.",
 };
