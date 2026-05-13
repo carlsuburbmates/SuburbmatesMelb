@@ -23,6 +23,7 @@ describe("prelaunch safety mode", () => {
 
   it("hides fake/demo style entities from public rendering", () => {
     expect(shouldHidePublicEntity("Launch Partner Studio")).toBe(true);
+    expect(shouldHidePublicEntity("launch partner preview")).toBe(true);
     expect(shouldHidePublicEntity("Test Business", "test-business")).toBe(true);
     expect(shouldHidePublicEntity("Sample Creator")).toBe(true);
     expect(shouldHidePublicEntity("Real Creator Collective")).toBe(false);

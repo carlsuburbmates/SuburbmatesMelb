@@ -157,10 +157,10 @@ export function StaticHero() {
           {/* Mock product grid */}
           <div className="p-5 grid grid-cols-3 md:grid-cols-4 gap-3">
             {[
-              { name: "Founding Creator Preview", cat: "Graphics & Design", color: "rgba(108, 92, 231, 0.12)" },
-              { name: "Founding Creator Preview", cat: "Templates & Tools", color: "rgba(249, 115, 22, 0.10)" },
-              { name: "Founding Creator Preview", cat: "Guides & Ebooks", color: "rgba(72, 52, 212, 0.10)" },
-              { name: "Founding Creator Preview", cat: "Business Services", color: "rgba(108, 92, 231, 0.08)" },
+              { name: "Creative Studio Preview", cat: "Graphics & Design", color: "rgba(108, 92, 231, 0.12)" },
+              { name: "Template Provider Preview", cat: "Templates & Tools", color: "rgba(249, 115, 22, 0.10)" },
+              { name: "Guide Creator Preview", cat: "Guides & Ebooks", color: "rgba(72, 52, 212, 0.10)" },
+              { name: "Service Profile Preview", cat: "Business Services", color: "rgba(108, 92, 231, 0.08)" },
             ].map((item) => (
               <div
                 key={item.name}
