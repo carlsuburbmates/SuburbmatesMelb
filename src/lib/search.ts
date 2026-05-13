@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 import { logger } from "./logger";
+import { shouldHidePublicEntity } from "./prelaunch";
 
 export type DirectorySearchPayload = {
   query?: string | null;
@@ -240,8 +241,20 @@ export async function executeDirectorySearch(
         };
     }) ?? [];
 
+  // Exclude demo/test/placeholder entities — backend truth gate (SSOT v2.1)
+  const visible = mapped.filter(
+    (r) =>
+      !shouldHidePublicEntity(
+        r.name,
+        r.slug,
+        r.description,
+        r.category.name,
+        r.region.name
+      )
+  );
+
   // Sort: featured-in-selection first, then any featured, then daily shuffle for the rest
-  const sorted = mapped.sort((a, b) => {
+  const sorted = visible.sort((a, b) => {
     if (a.featuredMatchesSelection !== b.featuredMatchesSelection) {
       return a.featuredMatchesSelection ? -1 : 1;
     }

@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { businessProfileUpdateSchema } from '@/lib/validation';
 import { getUserFromRequest } from '@/middleware/auth';
 import { logger } from '@/lib/logger';
+import { shouldHidePublicEntity } from '@/lib/prelaunch';
 
 if (!supabaseAdmin) {
   throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured — supabaseAdmin is unavailable');
@@ -47,6 +48,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (error || !creator) {
+      return NextResponse.json(
+        { error: 'Creator not found' },
+        { status: 404 }
+      );
+    }
+
+    // Backend truth gate: exclude demo/test/placeholder entities (SSOT v2.1)
+    if (shouldHidePublicEntity(creator.business_name, creator.slug, creator.profile_description)) {
       return NextResponse.json(
         { error: 'Creator not found' },
         { status: 404 }

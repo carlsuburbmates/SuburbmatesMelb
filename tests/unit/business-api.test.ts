@@ -68,9 +68,9 @@ describe('GET /api/business/[slug]', () => {
         chain.single.mockResolvedValue({
           data: {
             id: '123',
-            business_name: 'Test Business',
+            business_name: 'Melbourne Studio',
             profile_description: 'Test Description',
-            slug: 'test-business',
+            slug: 'melbourne-studio',
             is_public: true,
             created_at: new Date().toISOString(),
             user_id: 'user-123',
@@ -108,15 +108,15 @@ describe('GET /api/business/[slug]', () => {
       return chain;
     });
 
-    const request = new NextRequest('http://localhost:3000/api/creator/test-business');
-    const params = Promise.resolve({ slug: 'test-business' });
+    const request = new NextRequest('http://localhost:3000/api/creator/melbourne-studio');
+    const params = Promise.resolve({ slug: 'melbourne-studio' });
 
     const response = await GET(request, { params });
     const data = await response.json();
 
     expect(response.status).toBe(200);
     expect(data.business).toBeDefined();
-    expect(data.business.name).toBe('Test Business');
+    expect(data.business.name).toBe('Melbourne Studio');
     expect(data.business.region).toBe('Eastern');
     expect(data.business.category).toBe('Design');
     expect(data.business.vendorId).toBe('vendor-123');
@@ -138,8 +138,8 @@ describe('GET /api/business/[slug]', () => {
             chain.single.mockResolvedValue({
               data: {
                 id: '123',
-                business_name: 'Test Business',
-                slug: 'test-business',
+                business_name: 'Fitzroy Arts Studio',
+                slug: 'fitzroy-arts-studio',
                 is_public: true,
                 vendor_status: 'active',
                 images: null // null images
@@ -154,13 +154,93 @@ describe('GET /api/business/[slug]', () => {
           return chain;
     });
 
-    const request = new NextRequest('http://localhost:3000/api/creator/test-business');
-    const params = Promise.resolve({ slug: 'test-business' });
+    const request = new NextRequest('http://localhost:3000/api/creator/fitzroy-arts-studio');
+    const params = Promise.resolve({ slug: 'fitzroy-arts-studio' });
 
     const response = await GET(request, { params });
     const data = await response.json();
 
     expect(response.status).toBe(200);
     expect(data.business.images).toEqual([]);
+  });
+
+  it('should return 404 for a demo/test entity (backend visibility gate)', async () => {
+    mockFrom.mockImplementation((table) => {
+      const chain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn(),
+        maybeSingle: vi.fn(),
+      };
+
+      if (table === 'business_profiles') {
+        chain.single.mockResolvedValue({
+          data: {
+            id: 'demo-1',
+            business_name: 'Demo Business',
+            profile_description: 'A demo listing',
+            slug: 'demo-business',
+            is_public: true,
+            vendor_status: 'active',
+            created_at: new Date().toISOString(),
+            user_id: 'user-demo',
+            category_id: 1,
+            images: [],
+          },
+          error: null,
+        });
+      } else {
+        chain.single.mockResolvedValue({ data: null, error: null });
+        chain.maybeSingle.mockResolvedValue({ data: null, error: null });
+      }
+
+      return chain;
+    });
+
+    const request = new NextRequest('http://localhost:3000/api/creator/demo-business');
+    const params = Promise.resolve({ slug: 'demo-business' });
+
+    const response = await GET(request, { params });
+    expect(response.status).toBe(404);
+  });
+
+  it('should return 404 for a "Launch Partner" placeholder entity (backend visibility gate)', async () => {
+    mockFrom.mockImplementation((table) => {
+      const chain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn(),
+        maybeSingle: vi.fn(),
+      };
+
+      if (table === 'business_profiles') {
+        chain.single.mockResolvedValue({
+          data: {
+            id: 'lp-1',
+            business_name: 'Launch Partner Studio',
+            profile_description: null,
+            slug: 'launch-partner-studio',
+            is_public: true,
+            vendor_status: 'active',
+            created_at: new Date().toISOString(),
+            user_id: 'user-lp',
+            category_id: 2,
+            images: [],
+          },
+          error: null,
+        });
+      } else {
+        chain.single.mockResolvedValue({ data: null, error: null });
+        chain.maybeSingle.mockResolvedValue({ data: null, error: null });
+      }
+
+      return chain;
+    });
+
+    const request = new NextRequest('http://localhost:3000/api/creator/launch-partner-studio');
+    const params = Promise.resolve({ slug: 'launch-partner-studio' });
+
+    const response = await GET(request, { params });
+    expect(response.status).toBe(404);
   });
 });

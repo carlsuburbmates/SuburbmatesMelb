@@ -18,6 +18,7 @@ This is a short implementation reference. Product truth lives in `docs/SSOT_V2.1
 ## Visibility Rules
 - Public listing gate: `business_profiles.vendor_status = 'active'` and `is_public = true`
 - Public product gate: `is_active = true`, `is_archived = false`, `deleted_at IS NULL`, and `product_url` present
+- Demo/test entity gate: profiles whose name, slug, or description match any of `demo`, `sample`, `placeholder`, `launch partner`, or `test business` are excluded at the API layer before any response is returned. The frontend is not responsible for this filtering.
 
 ## Region Compatibility
 - Public/API naming uses `region`.
@@ -25,4 +26,5 @@ This is a short implementation reference. Product truth lives in `docs/SSOT_V2.1
 
 ## Moderation / Operations
 - Visibility is controlled directly in Supabase.
-- There is no `status = 'published'` contract.
+- Canonical publish state is `vendor_status = 'active'` + `is_public = true`.
+- Demo/test entities are also excluded at the API layer regardless of those flags.
